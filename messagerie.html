@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDU-LINK - Messagerie</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { theme: { extend: { colors: { 'edu-blue': '#004AAD', 'edu-green': '#2EAD5E', 'edu-red': '#EF4444' } } } }
+    </script>
+    <style> body { background-color: #f3f4f6; } </style>
+</head>
+<body class="min-h-screen flex justify-center items-start pt-10 p-4">
+    <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col h-auto min-h-[600px]">
+        
+        <div id="page-login" class="hidden"></div>
+
+        <div id="page-app" class="flex-1 flex-col hidden">
+            <div class="p-6 pb-2 flex justify-between items-center bg-white border-b">
+                <div class="flex items-center gap-3">
+                    <button onclick="retourEspace()" class="text-2xl">⬅️</button>
+                    <div>
+                        <h1 id="welcome-message" class="text-lg font-bold text-gray-800">Messagerie</h1>
+                        <p id="role-label" class="text-xs text-gray-500 font-medium">...</p>
+                    </div>
+                </div>
+                <button onclick="seDeconnecter()" class="text-sm font-bold text-red-500">Deconnexion</button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-6">
+                
+                <div id="view-conversations">
+                    <button onclick="afficherNouveau()" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl mb-4">✏️ Nouveau message</button>
+                    
+                    <div class="grid grid-cols-3 gap-2 mb-4">
+                        <button id="tab-msg-toutes" onclick="filtrerConversations('toutes')" class="py-2 rounded-xl font-bold text-[11px] bg-edu-blue text-white">Toutes</button>
+                        <button id="tab-msg-admin" onclick="filtrerConversations('admin')" class="py-2 rounded-xl font-bold text-[11px] bg-gray-100 text-gray-600">Administration</button>
+                        <button id="tab-msg-ens" onclick="filtrerConversations('enseignants')" class="py-2 rounded-xl font-bold text-[11px] bg-gray-100 text-gray-600">Enseignants</button>
+                    </div>
+                    
+                    <div id="liste-conversations" class="space-y-3"></div>
+                </div>
+
+                <div id="view-thread" class="hidden">
+                    <div class="flex items-center gap-3 mb-4 border-b pb-3">
+                        <button onclick="afficherConversations()" class="text-2xl">⬅️</button>
+                        <div>
+                            <h1 id="nom-conversation" class="text-md font-bold text-gray-800">...</h1>
+                            <p id="role-conversation" class="text-xs text-gray-500">...</p>
+                        </div>
+                    </div>
+                    <div id="liste-thread" class="space-y-3 mb-4"></div>
+                    <div class="flex gap-2 border-t pt-3">
+                        <input type="text" id="input-reponse" placeholder="Votre message..." class="flex-1 px-4 py-2 rounded-xl border border-gray-300 text-sm">
+                        <button onclick="envoyerReponse()" class="bg-edu-blue text-white font-bold px-4 py-2 rounded-xl">➤</button>
+                    </div>
+                    <div id="message-reponse" class="text-center text-sm font-semibold mt-2"></div>
+                </div>
+
+                <div id="view-nouveau" class="hidden">
+                    <div class="flex items-center gap-3 mb-4">
+                        <button onclick="afficherConversations()" class="text-2xl">⬅️</button>
+                        <h1 class="text-lg font-bold text-gray-800">Nouveau message</h1>
+                    </div>
+                    <div class="space-y-4">
+                        <select id="select-destinataire" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white">
+                            <option value="">Chargement...</option>
+                        </select>
+                        <input type="text" id="sujet-message" placeholder="Sujet" class="w-full px-4 py-3 rounded-xl border border-gray-300">
+                        <textarea id="contenu-message" rows="4" placeholder="Votre message..." class="w-full px-4 py-3 rounded-xl border border-gray-300"></textarea>
+                        <button onclick="envoyerMessage()" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl">Envoyer</button>
+                        <div id="message-envoi" class="text-center text-sm font-semibold"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFid2d1aXhjbG14dHp2bHNtYmJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4OTg1OTMsImV4cCI6MjEwNjQ3NDU5M30.8MiG5YdoMIY69KYfBdlXHIB9Zisd5miX3slaCoqVcjM';
+        const supabaseUrl = 'https://abwguixclmxtzvlsmbby.supabase.co';
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+        const sessionUser = sessionStorage.getItem('eduLinkUser');
+        if (!sessionUser) { window.location.href = 'index.html'; }
+        const parsedUser = JSON.parse(sessionUser);
+
+        let currentUser = parsedUser;
+        let monEcoleId = parsedUser.ecole_id;
+        let conversationActuelle = null;
+        let filtreConversations = 'toutes';
+
+        window.addEventListener('load', async () => {
+            document.getElementById('page-login').classList.add('hidden');
+            document.getElementById('page-app').classList.remove('hidden');
+            document.getElementById('page-app').classList.add('flex');
+            document.getElementById('welcome-message').innerText = currentUser.prenom + " " + currentUser.nom;
+            document.getElementById('role-label').innerText = currentUser.role;
+            afficherConversations();
+        });
+
+        function filtrerConversations(filtre) {
+            filtreConversations = filtre;
+            const tabs = { toutes: 'tab-msg-toutes', admin: 'tab-msg-admin', enseignants: 'tab-msg-ens' };
+            Object.keys(tabs).forEach(k => {
+                const tab = document.getElementById(tabs[k]);
+                if (k === filtre) tab.className = 'py-2 rounded-xl font-bold text-[11px] bg-edu-blue text-white';
+                else tab.className = 'py-2 rounded-xl font-bold text-[11px] bg-gray-100 text-gray-600';
+            });
+            afficherConversations();
+        }
+
+        async function afficherConversations() {
+            document.getElementById('view-conversations').classList.remove('hidden');
+            document.getElementById('view-thread').classList.add('hidden');
+            document.getElementById('view-nouveau').classList.add('hidden');
+
+            const { data: messages } = await supabaseClient
+                .from('messages')
+                .select('*')
+                .or(`expediteur_id.eq.${currentUser.id},destinataire_id.eq.${currentUser.id}`)
+                .order('date_envoi', { ascending: false });
+
+            if (!messages || messages.length === 0) {
+                document.getElementById('liste-conversations').innerHTML = '<p class="text-gray-500 text-center py-4">Aucune conversation.</p>';
+                return;
+            }
+
+            const conversations = {};
+            messages.forEach(m => {
+                const autreId = m.expediteur_id === currentUser.id ? m.destinataire_id : m.expediteur_id;
+                if (!conversations[autreId]) conversations[autreId] = m;
+            });
+
+            let html = '';
+            let totalAffichees = 0;
+
+            for (const m of Object.values(conversations)) {
+                const autreId = m.expediteur_id === currentUser.id ? m.destinataire_id : m.expediteur_id;
+                const { data: u } = await supabaseClient.from('utilisateurs').select('prenom, nom, role, ecole_id').eq('id', autreId).single();
+                if (!u) continue;
+                
+                if (u.ecole_id !== monEcoleId) continue;
+
+                if (filtreConversations === 'admin' && u.role !== 'admin') continue;
+                if (filtreConversations === 'enseignants' && u.role !== 'enseignant') continue;
+
+                totalAffichees++;
+
+                const { count: nonLus } = await supabaseClient
+                    .from('messages')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('expediteur_id', autreId)
+                    .eq('destinataire_id', currentUser.id)
+                    .eq('lu', false);
+
+                const badgeLus = nonLus > 0 ? `<span class="bg-red-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">${nonLus}</span>` : '';
+                const boldClass = nonLus > 0 ? 'font-bold' : 'font-semibold';
+                
+                let avatar = '👤';
+                if (u.role === 'enseignant') avatar = '👩🏾‍🏫';
+                else if (u.role === 'parent') avatar = '👨‍👩‍👧';
+                else if (u.role === 'admin') avatar = '👨🏾‍💼';
+                else if (u.role === 'eleve') avatar = '👩🏾‍🎓';
+
+                html += `
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3 cursor-pointer" onclick="ouvrirConversation(${autreId})">
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-2xl">${avatar}</div>
+                        <div class="flex-1 min-w-0">
+                            <p class="${boldClass} text-gray-800 text-sm">${u.prenom} ${u.nom}</p>
+                            <p class="text-xs text-gray-500 truncate">${m.sujet}</p>
+                        </div>
+                        <div class="text-right">${badgeLus}</div>
+                    </div>
+                `;
+            }
+
+            if (totalAffichees === 0) {
+                html = '<p class="text-gray-500 text-center py-6">Aucune conversation.</p>';
+            }
+
+            document.getElementById('liste-conversations').innerHTML = html;
+        }
+
+        async function ouvrirConversation(userId) {
+            document.getElementById('view-conversations').classList.add('hidden');
+            document.getElementById('view-thread').classList.remove('hidden');
+            conversationActuelle = userId;
+
+            const { data: u } = await supabaseClient.from('utilisateurs').select('prenom, nom, role').eq('id', userId).single();
+            document.getElementById('nom-conversation').innerText = u.prenom + ' ' + u.nom;
+            document.getElementById('role-conversation').innerText = u.role;
+
+            await supabaseClient.from('messages').update({ lu: true }).eq('expediteur_id', userId).eq('destinataire_id', currentUser.id);
+
+            const { data: messages } = await supabaseClient
+                .from('messages')
+                .select('*')
+                .or(`and(expediteur_id.eq.${currentUser.id},destinataire_id.eq.${userId}),and(expediteur_id.eq.${userId},destinataire_id.eq.${currentUser.id})`)
+                .order('date_envoi', { ascending: true });
+
+            let html = '';
+            if (messages && messages.length > 0) {
+                messages.forEach(m => {
+                    const estMoi = m.expediteur_id === currentUser.id;
+                    const bgClass = estMoi ? 'bg-edu-blue text-white ml-8' : 'bg-gray-100 text-gray-800 mr-8';
+                    const alignClass = estMoi ? 'text-right' : 'text-left';
+                    html += `<div class="${alignClass}"><div class="${bgClass} inline-block p-3 rounded-2xl max-w-[80%] text-left"><p class="text-[10px] opacity-70 mb-1">${m.sujet}</p><p class="text-sm">${m.contenu}</p><p class="text-[10px] opacity-60 mt-1">${new Date(m.date_envoi).toLocaleString('fr-FR', {hour: '2-digit', minute: '2-digit'})}</p></div></div>`;
+                });
+            }
+            document.getElementById('liste-thread').innerHTML = html;
+            document.getElementById('input-reponse').value = '';
+            document.getElementById('message-reponse').innerText = '';
+        }
+
+        async function envoyerReponse() {
+            const contenu = document.getElementById('input-reponse').value.trim();
+            const messageDiv = document.getElementById('message-reponse');
+            if (!contenu) { messageDiv.innerText = "Ecrivez un message."; messageDiv.style.color = "red"; return; }
+
+            const { error } = await supabaseClient.from('messages').insert([{
+                expediteur_id: currentUser.id,
+                destinataire_id: conversationActuelle,
+                sujet: 'Message',
+                contenu: contenu,
+                lu: false,
+                ecole_id: monEcoleId
+            }]);
+
+            if (error) { messageDiv.innerText = "Erreur"; messageDiv.style.color = "red"; }
+            else {
+                await supabaseClient.from('notifications').insert([{
+                    utilisateur_id: conversationActuelle,
+                    titre: 'Nouveau message',
+                    contenu: currentUser.prenom + ' ' + currentUser.nom + ' vous a envoye un message.',
+                    type: 'message', lu: false, ecole_id: monEcoleId
+                }]);
+                document.getElementById('input-reponse').value = '';
+                ouvrirConversation(conversationActuelle);
+            }
+        }
+
+        async function afficherNouveau() {
+            document.getElementById('view-conversations').classList.add('hidden');
+            document.getElementById('view-nouveau').classList.remove('hidden');
+
+            const { data: users } = await supabaseClient.from('utilisateurs').select('id, prenom, nom, role').eq('ecole_id', monEcoleId).neq('id', currentUser.id);
+            const select = document.getElementById('select-destinataire');
+            select.innerHTML = '<option value="">Selectionnez un destinataire</option>';
+            if (users) {
+                users.forEach(u => {
+                    select.innerHTML += `<option value="${u.id}">${u.prenom} ${u.nom} (${u.role})</option>`;
+                });
+            }
+        }
+
+        async function envoyerMessage() {
+            const destinataire = document.getElementById('select-destinataire').value;
+            const sujet = document.getElementById('sujet-message').value.trim();
+            const contenu = document.getElementById('contenu-message').value.trim();
+            const messageDiv = document.getElementById('message-envoi');
+            if (!destinataire || !sujet || !contenu) { messageDiv.innerText = "Remplissez tout."; messageDiv.style.color = "red"; return; }
+
+            const { error } = await supabaseClient.from('messages').insert([{
+                expediteur_id: currentUser.id, destinataire_id: parseInt(destinataire),
+                sujet: sujet, contenu: contenu, lu: false, ecole_id: monEcoleId
+            }]);
+
+            if (error) { messageDiv.innerText = "Erreur"; messageDiv.style.color = "red"; }
+            else {
+                await supabaseClient.from('notifications').insert([{
+                    utilisateur_id: parseInt(destinataire), titre: 'Nouveau message',
+                    contenu: currentUser.prenom + ' ' + currentUser.nom + ' : ' + sujet,
+                    type: 'message', lu: false, ecole_id: monEcoleId
+                }]);
+                messageDiv.innerText = "Message envoye !";
+                messageDiv.style.color = "green";
+                setTimeout(() => {
+                    filtreConversations = 'toutes';
+                    document.getElementById('tab-msg-toutes').className = 'py-2 rounded-xl font-bold text-[11px] bg-edu-blue text-white';
+                    document.getElementById('tab-msg-admin').className = 'py-2 rounded-xl font-bold text-[11px] bg-gray-100 text-gray-600';
+                    document.getElementById('tab-msg-ens').className = 'py-2 rounded-xl font-bold text-[11px] bg-gray-100 text-gray-600';
+                    afficherConversations();
+                }, 1000);
+            }
+        }
+
+        function retourEspace() {
+            const pages = { eleve: 'eleve.html', enseignant: 'enseignant.html', parent: 'parent.html', admin: 'admin.html' };
+            window.location.href = pages[currentUser.role] || 'index.html';
+        }
+
+        function seDeconnecter() {
+            sessionStorage.removeItem('eduLinkUser');
+            window.location.href = 'index.html';
+        }
+    </script>
+    <script src="theme.js"></script>
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDU-LINK - Assistant IA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { theme: { extend: { colors: { 'edu-blue': '#004AAD', 'edu-green': '#2EAD5E' } } } }
+    </script>
+    <style>
+        body { background-color: #f3f4f6; }
+        .message-user { background: #004AAD; color: white; }
+        .message-ia { background: #f3f4f6; color: #1f2937; }
+    </style>
+</head>
+<body class="min-h-screen flex justify-center items-start pt-10 p-4">
+    <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col" style="height: 90vh; max-height: 750px;">
+        <div class="p-4 flex items-center gap-3 bg-edu-blue text-white">
+            <button onclick="retourEspace()" class="text-2xl">⬅️</button>
+            <div class="flex-1">
+                <h1 class="text-base font-bold">🤖 Assistant IA</h1>
+                <p class="text-[10px] opacity-90">Pose-moi tes questions de cours</p>
+            </div>
+            <button onclick="effacerConversation()" class="text-xs bg-white bg-opacity-20 px-2 py-1 rounded-lg">Nouvelle</button>
+        </div>
+        <div id="chat-container" class="flex-1 overflow-y-auto p-4 space-y-3">
+            <div class="flex items-start gap-2">
+                <div class="w-8 h-8 bg-edu-blue rounded-full flex items-center justify-center text-sm flex-shrink-0">🤖</div>
+                <div class="message-ia p-3 rounded-2xl rounded-tl-none max-w-[80%] text-sm">
+                    <p class="font-bold text-edu-blue mb-1">Bonjour ! 👋</p>
+                    <p>Je suis ton assistant EDU-LINK. Pose-moi une question sur tes cours.</p>
+                </div>
+            </div>
+            <div id="suggestions" class="flex flex-wrap gap-2 pl-10">
+                <button onclick="poserSuggestion(1)" class="bg-white border border-gray-300 text-xs px-3 py-1 rounded-full">📐 Pythagore</button>
+                <button onclick="poserSuggestion(2)" class="bg-white border border-gray-300 text-xs px-3 py-1 rounded-full">📊 Moyenne</button>
+                <button onclick="poserSuggestion(3)" class="bg-white border border-gray-300 text-xs px-3 py-1 rounded-full">🔢 Fractions</button>
+                <button onclick="poserSuggestion(4)" class="bg-white border border-gray-300 text-xs px-3 py-1 rounded-full">📚 Revisions</button>
+            </div>
+        </div>
+        <div class="p-3 border-t border-gray-200 bg-white">
+            <div class="flex gap-2">
+                <textarea id="input-message" rows="1" placeholder="Pose ta question..." class="flex-1 px-3 py-2 rounded-xl border border-gray-300 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-edu-blue" onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();envoyerMessage();}"></textarea>
+                <button onclick="envoyerMessage()" id="btn-envoyer" class="bg-edu-blue text-white px-4 rounded-xl font-bold">➤</button>
+            </div>
+            <p class="text-[9px] text-gray-400 text-center mt-2">L IA peut faire des erreurs. Verifie toujours avec ton professeur.</p>
+        </div>
+    </div>
+
+    <script>
+        var OPENROUTER_API_KEY = '';
+
+        var sessionUser = sessionStorage.getItem('eduLinkUser');
+        if (!sessionUser) { window.location.href = 'index.html'; }
+        var currentUser = JSON.parse(sessionUser);
+
+        var historique = [];
+        var enCours = false;
+        var modeleQuiMarche = null;
+
+        var MODELES_GRATUITS = [
+            'deepseek/deepseek-r1:free',
+            'deepseek/deepseek-chat-v3-0324:free',
+            'deepseek/deepseek-chat:free',
+            'qwen/qwq-32b:free',
+            'qwen/qwen-2.5-72b-instruct:free',
+            'qwen/qwen-2.5-7b-instruct:free',
+            'google/gemini-2.0-flash-thinking-exp:free',
+            'google/gemini-2.0-flash-exp:free',
+            'mistralai/mistral-small-24b-instruct-2501:free',
+            'mistralai/mistral-nemo:free',
+            'meta-llama/llama-3.2-3b-instruct:free',
+            'meta-llama/llama-3.2-11b-vision-instruct:free',
+            'microsoft/phi-3-medium-128k-instruct:free'
+        ];
+
+        var suggestionsTexte = {
+            1: 'Explique-moi le theoreme de Pythagore simplement',
+            2: 'Comment calculer une moyenne ponderee ?',
+            3: 'Aide-moi a comprendre les fractions',
+            4: 'Donne-moi 3 conseils pour mieux reviser'
+        };
+
+        function retourEspace() {
+            var pages = { eleve: 'eleve.html', enseignant: 'enseignant.html', parent: 'parent.html', admin: 'admin.html' };
+            window.location.href = pages[currentUser.role] || 'index.html';
+        }
+
+        function effacerConversation() {
+            if (!confirm('Effacer la conversation ?')) return;
+            historique = [];
+            document.getElementById('chat-container').innerHTML = '<div class="flex items-start gap-2"><div class="w-8 h-8 bg-edu-blue rounded-full flex items-center justify-center text-sm flex-shrink-0">🤖</div><div class="message-ia p-3 rounded-2xl rounded-tl-none max-w-[80%] text-sm"><p class="font-bold text-edu-blue mb-1">Conversation reinitialisee</p><p>Pose ta nouvelle question !</p></div></div>';
+        }
+
+        function poserSuggestion(num) {
+            document.getElementById('input-message').value = suggestionsTexte[num];
+            envoyerMessage();
+        }
+
+        function escapeHtml(text) {
+            var div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function ajouterMessage(role, contenu) {
+            var container = document.getElementById('chat-container');
+            var html = '';
+            if (role === 'user') {
+                html = '<div class="flex items-start gap-2 justify-end"><div class="message-user p-3 rounded-2xl rounded-tr-none max-w-[80%] text-sm">' + escapeHtml(contenu) + '</div><div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-sm flex-shrink-0">👤</div></div>';
+            } else {
+                html = '<div class="flex items-start gap-2"><div class="w-8 h-8 bg-edu-blue rounded-full flex items-center justify-center text-sm flex-shrink-0">🤖</div><div class="message-ia p-3 rounded-2xl rounded-tl-none max-w-[80%] text-sm" style="white-space: pre-wrap;">' + escapeHtml(contenu) + '</div></div>';
+            }
+            container.innerHTML += html;
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function ajouterChargement(texte) {
+            var container = document.getElementById('chat-container');
+            container.innerHTML += '<div class="flex items-start gap-2" id="chargement-ia"><div class="w-8 h-8 bg-edu-blue rounded-full flex items-center justify-center text-sm flex-shrink-0">🤖</div><div class="message-ia p-3 rounded-2xl rounded-tl-none text-sm">' + (texte || '⏳ Reponse en cours...') + '</div></div>';
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function retirerChargement() {
+            var c = document.getElementById('chargement-ia');
+            if (c) c.remove();
+        }
+
+        async function essayerModele(modele, messages) {
+            var response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + OPENROUTER_API_KEY
+                },
+                body: JSON.stringify({
+                    model: modele,
+                    messages: messages,
+                    temperature: 0.7,
+                    max_tokens: 800
+                })
+            });
+            return await response.json();
+        }
+
+        async function envoyerMessage() {
+            if (enCours) return;
+            var input = document.getElementById('input-message');
+            var texte = input.value.trim();
+            if (!texte) { alert('Ecrivez une question.'); return; }
+
+            if (OPENROUTER_API_KEY === '') {
+                alert('La cle API OpenRouter n est pas configuree. Ouvrez le fichier assistant-ia.html et collez votre cle.');
+                return;
+            }
+
+            enCours = true;
+            input.value = '';
+            
+            var sugg = document.getElementById('suggestions');
+            if (sugg) sugg.style.display = 'none';
+            
+            ajouterMessage('user', texte);
+            ajouterChargement('⏳ Recherche d un modele disponible...');
+
+            var messages = [
+                { role: 'system', content: 'Tu es un assistant pedagogique pour des eleves de lycee au Senegal. Tu reponds de maniere claire, simple, bienveillante et pedagogique. Tu expliques les notions avec des exemples concrets. Tu reponds toujours en francais.' },
+                { role: 'user', content: texte }
+            ];
+
+            var listeAEssayer = MODELES_GRATUITS.slice();
+            if (modeleQuiMarche) {
+                listeAEssayer = [modeleQuiMarche].concat(listeAEssayer);
+            }
+
+            var data = null;
+            var erreurs = [];
+
+            for (var j = 0; j < listeAEssayer.length; j++) {
+                try {
+                    document.getElementById('chargement-ia').innerHTML = '<div class="w-8 h-8 bg-edu-blue rounded-full flex items-center justify-center text-sm flex-shrink-0">🤖</div><div class="message-ia p-3 rounded-2xl rounded-tl-none text-sm">⏳ Test du modele ' + (j + 1) + '...</div>';
+                    var resultat = await essayerModele(listeAEssayer[j], messages);
+                    if (resultat && resultat.choices && resultat.choices[0] && resultat.choices[0].message) {
+                        data = resultat;
+                        modeleQuiMarche = listeAEssayer[j];
+                        break;
+                    } else if (resultat && resultat.error) {
+                        erreurs.push(listeAEssayer[j] + ' -> ' + (resultat.error.message || 'erreur'));
+                    }
+                } catch (e) {
+                    erreurs.push(listeAEssayer[j] + ' -> ' + e.message);
+                }
+            }
+
+            retirerChargement();
+
+            if (data && data.choices && data.choices[0] && data.choices[0].message) {
+                var reponse = data.choices[0].message.content;
+                ajouterMessage('ia', reponse);
+                historique.push({ role: 'user', content: texte });
+                historique.push({ role: 'assistant', content: reponse });
+            } else {
+                var msgErreur = '😔 Aucun modele gratuit n a repondu.\n\nSolution : allez sur openrouter.ai et ajoutez 1 ou 2 euros de credit. Ensuite, ca marchera immediatement avec les modeles pas chers (0,01 euro par question).\n\nDetails :\n' + erreurs.slice(0, 3).join('\n');
+                ajouterMessage('ia', msgErreur);
+            }
+
+            enCours = false;
+        }
+    </script>
+    <script src="theme.js"></script>
+</body>
+</html>

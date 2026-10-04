@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDU-LINK - Creer un compte</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { theme: { extend: { colors: { 'edu-blue': '#004AAD', 'edu-green': '#2EAD5E', 'edu-red': '#EF4444', 'edu-orange': '#F59E0B', 'edu-purple': '#8B5CF6', 'edu-pink': '#EC4899' } } } }
+    </script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #f0f7ff 0%, #e6f4ea 100%); min-height: 100vh; }
+        .carte-role { transition: all 0.2s ease; cursor: pointer; }
+        .carte-role:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.12); }
+        .carte-role.actif { border-width: 3px; transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .champ { transition: all 0.2s ease; }
+        .champ:focus { border-color: #004AAD; box-shadow: 0 0 0 3px rgba(0,74,173,0.15); }
+        .spinner { border: 3px solid rgba(255,255,255,0.3); border-top: 3px solid white; border-radius: 50%; width: 18px; height: 18px; animation: spin 0.7s linear infinite; display: inline-block; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="flex flex-col items-center p-4">
+
+    <div class="w-full max-w-md py-6">
+        
+        <div class="text-center mb-6">
+            <div class="text-5xl mb-2">📖</div>
+            <h1 class="text-3xl font-bold text-edu-blue">EDU-LINK</h1>
+            <p class="text-xs text-gray-500 mt-1">Creer mon compte</p>
+        </div>
+
+        <!-- ETAPE 1 : Choix du role -->
+        <div id="etape-role" class="fade-in">
+            <p class="text-center text-sm font-bold text-gray-700 mb-4">Je m'inscris en tant que :</p>
+            <div class="space-y-3 mb-4">
+                <div onclick="choisirRole('eleve')" data-role="eleve" class="carte-role bg-white rounded-2xl p-4 border-2 border-gray-200 flex items-center gap-4">
+                    <div class="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center text-3xl">👩🏾‍🎓</div>
+                    <div class="flex-1">
+                        <p class="text-base font-bold text-edu-blue">Eleve</p>
+                        <p class="text-xs text-gray-500">Je suis scolarise(e) dans une ecole</p>
+                    </div>
+                    <span class="text-2xl text-gray-300">→</span>
+                </div>
+                
+                <div onclick="choisirRole('enseignant')" data-role="enseignant" class="carte-role bg-white rounded-2xl p-4 border-2 border-gray-200 flex items-center gap-4">
+                    <div class="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center text-3xl">👩🏾‍🏫</div>
+                    <div class="flex-1">
+                        <p class="text-base font-bold text-edu-green">Enseignant</p>
+                        <p class="text-xs text-gray-500">J'enseigne dans une ecole</p>
+                    </div>
+                    <span class="text-2xl text-gray-300">→</span>
+                </div>
+                
+                <div onclick="choisirRole('parent')" data-role="parent" class="carte-role bg-white rounded-2xl p-4 border-2 border-gray-200 flex items-center gap-4">
+                    <div class="w-14 h-14 bg-pink-100 rounded-full flex items-center justify-center text-3xl">👨‍👩‍👧</div>
+                    <div class="flex-1">
+                        <p class="text-base font-bold text-edu-pink">Parent</p>
+                        <p class="text-xs text-gray-500">Je suis parent d'eleve</p>
+                    </div>
+                    <span class="text-2xl text-gray-300">→</span>
+                </div>
+            </div>
+            
+            <div class="mt-5 pt-5 border-t border-gray-200 text-center">
+                <p class="text-xs text-gray-500 mb-2">Vous dirigez une ecole ?</p>
+                <a href="inscription-ecole.html" class="text-sm text-edu-blue font-bold hover:underline">
+                    Creer mon ecole sur EDU-LINK
+                </a>
+            </div>
+            
+            <div class="mt-5 text-center">
+                <a href="index.html" class="text-xs text-gray-500 hover:underline">← Retour a la connexion</a>
+            </div>
+        </div>
+
+        <!-- ETAPE 2 : Code d'acces -->
+        <div id="etape-code" class="hidden fade-in">
+            <button onclick="retourEtape1()" class="text-2xl mb-3">⬅️</button>
+            
+            <div class="bg-white rounded-2xl p-5 shadow-lg border-2 border-edu-blue mb-4">
+                <div class="text-center mb-4">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-3xl mx-auto mb-3">🔑</div>
+                    <h2 class="text-lg font-bold text-edu-blue">Code d'acces ecole</h2>
+                    <p class="text-xs text-gray-500 mt-1">Saisissez le code fourni par votre ecole</p>
+                </div>
+                
+                <input type="text" id="code-acces" placeholder="Ex: HORIZONS-2024" 
+                    class="champ w-full px-4 py-4 rounded-xl border-2 border-gray-300 text-center text-base font-bold tracking-wider uppercase"
+                    onkeydown="if(event.key==='Enter'){verifierCode();}">
+                
+                <button onclick="verifierCode()" id="btn-code" 
+                    class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl mt-4 flex items-center justify-center gap-2">
+                    <span id="btn-code-text">Verifier le code</span>
+                </button>
+                
+                <div id="message-code" class="text-center text-xs font-semibold mt-3"></div>
+                
+                <div class="mt-4 pt-4 border-t border-gray-200">
+                    <p class="text-[10px] text-gray-400 text-center">
+                        💡 Vous n'avez pas de code ? Contactez l'administration de votre ecole.
+                    </p>
+                </div>
+            </div>
+            
+            <div id="ecole-trouvee" class="hidden bg-green-50 border-2 border-edu-green rounded-2xl p-4 mb-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center text-2xl">🏫</div>
+                    <div class="flex-1">
+                        <p class="text-[10px] text-edu-green font-bold">ECOLE TROUVEE</p>
+                        <p id="ecole-nom-trouvee" class="text-sm font-bold text-gray-800">...</p>
+                    </div>
+                    <span class="text-2xl text-edu-green">✓</span>
+                </div>
+            </div>
+            
+            <button onclick="continuerVersFormulaire()" id="btn-continuer" 
+                class="hidden w-full bg-edu-green text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2">
+                Continuer →
+            </button>
+        </div>
+
+        <!-- ETAPE 3 : Formulaire -->
+        <div id="etape-formulaire" class="hidden fade-in">
+            <button onclick="retourEtapeCode()" class="text-2xl mb-3">⬅️</button>
+            
+            <div id="role-badge" class="flex items-center gap-3 bg-white rounded-2xl p-3 border-2 border-gray-200 mb-3">
+                <div id="role-icon" class="w-12 h-12 rounded-full flex items-center justify-center text-2xl">👤</div>
+                <div class="flex-1">
+                    <p class="text-[10px] text-gray-500">Je m'inscris en tant que</p>
+                    <p id="role-nom" class="text-base font-bold">...</p>
+                </div>
+                <button onclick="retourEtape1()" class="text-xs text-edu-blue font-bold">Changer</button>
+            </div>
+            
+            <div class="flex items-center gap-3 bg-green-50 rounded-2xl p-3 border-2 border-edu-green mb-4">
+                <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-xl">🏫</div>
+                <div class="flex-1">
+                    <p class="text-[10px] text-edu-green font-bold">MON ECOLE</p>
+                    <p id="ecole-nom-formulaire" class="text-sm font-bold text-gray-800">...</p>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Prenom *</label>
+                        <input type="text" id="prenom" placeholder="Ex: Aissatou" class="champ w-full px-4 py-3 rounded-xl border border-gray-300 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Nom *</label>
+                        <input type="text" id="nom" placeholder="Ex: Diop" class="champ w-full px-4 py-3 rounded-xl border border-gray-300 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Email *</label>
+                        <input type="email" id="email" placeholder="votre@email.com" class="champ w-full px-4 py-3 rounded-xl border border-gray-300 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Telephone</label>
+                        <input type="tel" id="telephone" placeholder="+221 ..." class="champ w-full px-4 py-3 rounded-xl border border-gray-300 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Mot de passe *</label>
+                        <input type="password" id="password" placeholder="Min. 6 caracteres" class="champ w-full px-4 py-3 rounded-xl border border-gray-300 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Confirmer le mot de passe *</label>
+                        <input type="password" id="password2" placeholder="Retapez le mot de passe" class="champ w-full px-4 py-3 rounded-xl border border-gray-300 text-sm">
+                    </div>
+                    
+                    <div id="champs-eleve" class="hidden">
+                        <div class="bg-blue-50 border border-blue-100 rounded-xl p-3 mb-3">
+                            <p class="text-[10px] font-bold text-edu-blue mb-2">📚 Informations scolaires</p>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-700 mb-1">Classe *</label>
+                                    <select id="eleve-classe" class="champ w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-sm">
+                                        <option value="">Chargement...</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-700 mb-1">Date de naissance</label>
+                                    <input type="date" id="eleve-naissance" class="champ w-full px-4 py-3 rounded-xl border border-gray-300 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-700 mb-1">Email du parent (optionnel)</label>
+                                    <input type="email" id="eleve-parent-email" placeholder="parent@email.com" class="champ w-full px-4 py-3 rounded-xl border border-gray-300 text-sm">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="champs-enseignant" class="hidden">
+                        <div class="bg-green-50 border border-green-100 rounded-xl p-3 mb-3">
+                            <p class="text-[10px] font-bold text-edu-green mb-2">🎓 Informations professionnelles</p>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Specialite</label>
+                                <input type="text" id="ens-specialite" placeholder="Ex: Mathematiques" class="champ w-full px-4 py-3 rounded-xl border border-gray-300 text-sm">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="champs-parent" class="hidden">
+                        <div class="bg-pink-50 border border-pink-100 rounded-xl p-3 mb-3">
+                            <p class="text-[10px] font-bold text-edu-pink mb-2">👨‍👩‍👧 Informations parent</p>
+                            <p class="text-[10px] text-gray-600">Vous pourrez lier vos enfants a votre compte apres connexion.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="creerCompte()" id="btn-inscription" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl mt-4 flex items-center justify-center gap-2">
+                    <span id="btn-text">Creer mon compte</span>
+                </button>
+                <div id="message" class="text-center text-xs font-semibold mt-3"></div>
+                
+            </div>
+        </div>
+        
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // ==========================================
+        // REMPLACEZ PAR VOTRE CLE API SUPABASE
+        // ==========================================
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFid2d1aXhjbG14dHp2bHNtYmJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4OTg1OTMsImV4cCI6MjEwNjQ3NDU5M30.8MiG5YdoMIY69KYfBdlXHIB9Zisd5miX3slaCoqVcjM';
+        // ==========================================
+        
+        const supabaseUrl = 'https://abwguixclmxtzvlsmbby.supabase.co';
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+        let roleChoisi = null;
+        let ecoleValidee = null;
+
+        function choisirRole(role) {
+            roleChoisi = role;
+            
+            document.querySelectorAll('.carte-role').forEach(c => c.classList.remove('actif'));
+            const carte = document.querySelector('[data-role="' + role + '"]');
+            if (carte) {
+                carte.classList.add('actif');
+                if (role === 'eleve') carte.style.borderColor = '#004AAD';
+                else if (role === 'enseignant') carte.style.borderColor = '#2EAD5E';
+                else if (role === 'parent') carte.style.borderColor = '#EC4899';
+            }
+            
+            const roleIcon = document.getElementById('role-icon');
+            const roleNom = document.getElementById('role-nom');
+            
+            if (role === 'eleve') {
+                roleIcon.innerText = '👩🏾‍🎓';
+                roleIcon.className = 'w-12 h-12 rounded-full flex items-center justify-center text-2xl bg-blue-100';
+                roleNom.innerText = 'Eleve';
+                roleNom.className = 'text-base font-bold text-edu-blue';
+            } else if (role === 'enseignant') {
+                roleIcon.innerText = '👩🏾‍🏫';
+                roleIcon.className = 'w-12 h-12 rounded-full flex items-center justify-center text-2xl bg-green-100';
+                roleNom.innerText = 'Enseignant';
+                roleNom.className = 'text-base font-bold text-edu-green';
+            } else if (role === 'parent') {
+                roleIcon.innerText = '👨‍👩‍👧';
+                roleIcon.className = 'w-12 h-12 rounded-full flex items-center justify-center text-2xl bg-pink-100';
+                roleNom.innerText = 'Parent';
+                roleNom.className = 'text-base font-bold text-edu-pink';
+            }
+            
+            document.getElementById('champs-eleve').classList.add('hidden');
+            document.getElementById('champs-enseignant').classList.add('hidden');
+            document.getElementById('champs-parent').classList.add('hidden');
+            
+            if (role === 'eleve') document.getElementById('champs-eleve').classList.remove('hidden');
+            else if (role === 'enseignant') document.getElementById('champs-enseignant').classList.remove('hidden');
+            else if (role === 'parent') document.getElementById('champs-parent').classList.remove('hidden');
+            
+            setTimeout(() => {
+                document.getElementById('etape-role').classList.add('hidden');
+                document.getElementById('etape-code').classList.remove('hidden');
+                window.scrollTo(0, 0);
+            }, 200);
+        }
+
+        function retourEtape1() {
+            document.getElementById('etape-code').classList.add('hidden');
+            document.getElementById('etape-formulaire').classList.add('hidden');
+            document.getElementById('etape-role').classList.remove('hidden');
+            document.getElementById('ecole-trouvee').classList.add('hidden');
+            document.getElementById('btn-continuer').classList.add('hidden');
+            document.getElementById('code-acces').value = '';
+            document.getElementById('message-code').innerText = '';
+            ecoleValidee = null;
+            document.querySelectorAll('.carte-role').forEach(c => {
+                c.classList.remove('actif');
+                c.style.borderColor = '';
+            });
+        }
+
+        function retourEtapeCode() {
+            document.getElementById('etape-formulaire').classList.add('hidden');
+            document.getElementById('etape-code').classList.remove('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        async function verifierCode() {
+            const code = document.getElementById('code-acces').value.trim().toUpperCase();
+            const msg = document.getElementById('message-code');
+            const btn = document.getElementById('btn-code');
+            const btnText = document.getElementById('btn-code-text');
+            
+            if (!code) {
+                msg.innerText = "Veuillez saisir le code d'acces.";
+                msg.style.color = '#EF4444';
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.classList.add('opacity-80');
+            btnText.innerHTML = '<span class="spinner"></span> Verification...';
+            msg.innerText = '';
+            
+            try {
+                const { data: ecoles, error } = await supabaseClient
+                    .from('ecoles')
+                    .select('id, nom, code_acces')
+                    .eq('code_acces', code);
+                
+                if (error) throw new Error(error.message);
+                
+                if (!ecoles || ecoles.length === 0) {
+                    msg.innerText = "❌ Code incorrect. Verifiez aupres de votre ecole.";
+                    msg.style.color = '#EF4444';
+                    document.getElementById('ecole-trouvee').classList.add('hidden');
+                    document.getElementById('btn-continuer').classList.add('hidden');
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-80');
+                    btnText.innerText = 'Verifier le code';
+                    return;
+                }
+                
+                ecoleValidee = ecoles[0];
+                
+                document.getElementById('ecole-nom-trouvee').innerText = ecoleValidee.nom;
+                document.getElementById('ecole-nom-formulaire').innerText = ecoleValidee.nom;
+                document.getElementById('ecole-trouvee').classList.remove('hidden');
+                document.getElementById('btn-continuer').classList.remove('hidden');
+                
+                msg.innerText = "✅ Code valide !";
+                msg.style.color = '#2EAD5E';
+                btnText.innerText = '✅ Verifie';
+                
+                if (roleChoisi === 'eleve') {
+                    await chargerClasses(ecoleValidee.id);
+                }
+                
+            } catch (err) {
+                msg.innerText = "Erreur : " + err.message;
+                msg.style.color = '#EF4444';
+                btn.disabled = false;
+                btn.classList.remove('opacity-80');
+                btnText.innerText = 'Verifier le code';
+            }
+        }
+
+        async function chargerClasses(ecoleId) {
+            const selectClasse = document.getElementById('eleve-classe');
+            selectClasse.innerHTML = '<option value="">Chargement...</option>';
+            const { data: classes } = await supabaseClient.from('classes').select('id, nom').eq('ecole_id', ecoleId).order('nom');
+            
+            selectClasse.innerHTML = '<option value="">Selectionnez une classe</option>';
+            if (classes && classes.length > 0) {
+                classes.forEach(c => {
+                    selectClasse.innerHTML += '<option value="' + c.id + '">' + c.nom + '</option>';
+                });
+            } else {
+                selectClasse.innerHTML = '<option value="">Aucune classe disponible</option>';
+            }
+        }
+
+        function continuerVersFormulaire() {
+            document.getElementById('etape-code').classList.add('hidden');
+            document.getElementById('etape-formulaire').classList.remove('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        function afficherMessage(texte, type) {
+            const msg = document.getElementById('message');
+            msg.innerText = texte;
+            msg.className = 'text-center text-xs font-semibold mt-3';
+            if (type === 'rouge') msg.style.color = '#EF4444';
+            else if (type === 'vert') msg.style.color = '#2EAD5E';
+            else if (type === 'orange') msg.style.color = '#F59E0B';
+        }
+
+        async function creerCompte() {
+            const btn = document.getElementById('btn-inscription');
+            const btnText = document.getElementById('btn-text');
+            
+            if (!ecoleValidee) {
+                afficherMessage("Veuillez d'abord verifier votre code d'acces.", 'rouge');
+                return;
+            }
+            
+            const prenom = document.getElementById('prenom').value.trim();
+            const nom = document.getElementById('nom').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const telephone = document.getElementById('telephone').value.trim();
+            const password = document.getElementById('password').value;
+            const password2 = document.getElementById('password2').value;
+            
+            if (!prenom || !nom || !email || !password) { afficherMessage("Veuillez remplir tous les champs obligatoires.", 'rouge'); return; }
+            if (password.length < 6) { afficherMessage("Le mot de passe doit faire au moins 6 caracteres.", 'rouge'); return; }
+            if (password !== password2) { afficherMessage("Les mots de passe ne correspondent pas.", 'rouge'); return; }
+            if (!email.includes('@')) { afficherMessage("Veuillez entrer un email valide.", 'rouge'); return; }
+            
+            let eleveClasseId = null;
+            let eleveNaissance = null;
+            let eleveParentEmail = null;
+            if (roleChoisi === 'eleve') {
+                eleveClasseId = document.getElementById('eleve-classe').value;
+                eleveNaissance = document.getElementById('eleve-naissance').value;
+                eleveParentEmail = document.getElementById('eleve-parent-email').value.trim();
+                if (!eleveClasseId) { afficherMessage("Veuillez selectionner votre classe.", 'rouge'); return; }
+            }
+            
+            let ensSpecialite = '';
+            if (roleChoisi === 'enseignant') {
+                ensSpecialite = document.getElementById('ens-specialite').value.trim();
+            }
+            
+            btn.disabled = true;
+            btn.classList.add('opacity-80');
+            btnText.innerHTML = '<span class="spinner"></span> Creation...';
+            document.getElementById('message').innerText = '';
+            
+            try {
+                const { data: existant } = await supabaseClient.from('utilisateurs').select('id').eq('email', email).maybeSingle();
+                if (existant) {
+                    afficherMessage("Cet email est deja utilise.", 'rouge');
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-80');
+                    btnText.innerText = 'Creer mon compte';
+                    return;
+                }
+                
+                const { data: nouvelUtilisateur, error: errUser } = await supabaseClient.from('utilisateurs').insert([{
+                    ecole_id: ecoleValidee.id,
+                    role: roleChoisi,
+                    prenom: prenom,
+                    nom: nom,
+                    email: email,
+                    telephone: telephone || null,
+                    mot_de_passe: password,
+                    statut: 'en_attente'
+                }]).select().single();
+                
+                if (errUser) throw new Error(errUser.message);
+                
+                if (roleChoisi === 'eleve') {
+                    let parentId = null;
+                    if (eleveParentEmail) {
+                        const { data: parent } = await supabaseClient.from('utilisateurs').select('id').eq('email', eleveParentEmail).eq('role', 'parent').maybeSingle();
+                        if (parent) parentId = parent.id;
+                    }
+                    
+                    const { count } = await supabaseClient.from('eleves').select('*', { count: 'exact', head: true }).eq('ecole_id', ecoleValidee.id);
+                    const annee = new Date().getFullYear();
+                    const matricule = 'ELV' + annee + String((count || 0) + 1).padStart(4, '0');
+                    
+                    await supabaseClient.from('eleves').insert([{
+                        utilisateur_id: nouvelUtilisateur.id,
+                        classe_id: parseInt(eleveClasseId),
+                        parent_id: parentId,
+                        matricule: matricule,
+                        date_naissance: eleveNaissance || null,
+                        ecole_id: ecoleValidee.id
+                    }]);
+                }
+                
+                if (roleChoisi === 'enseignant') {
+                    await supabaseClient.from('enseignants').insert([{
+                        utilisateur_id: nouvelUtilisateur.id,
+                        specialite: ensSpecialite || null,
+                        date_embauche: new Date().toISOString().split('T')[0]
+                    }]);
+                }
+                
+                const { data: admins } = await supabaseClient.from('utilisateurs').select('id').eq('ecole_id', ecoleValidee.id).eq('role', 'admin');
+                if (admins && admins.length > 0) {
+                    const notifications = admins.map(a => ({
+                        utilisateur_id: a.id,
+                        titre: '📥 Nouvelle demande',
+                        contenu: prenom + ' ' + nom + ' (' + roleChoisi + ') attend votre validation.',
+                        type: 'annonce',
+                        lu: false,
+                        ecole_id: ecoleValidee.id
+                    }));
+                    await supabaseClient.from('notifications').insert(notifications);
+                }
+                
+                afficherMessage("Compte cree ! Il sera active apres validation par l'administration de votre ecole.", 'orange');
+                btnText.innerText = 'En attente de validation';
+                
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 3000);
+                
+            } catch (err) {
+                afficherMessage("Erreur : " + err.message, 'rouge');
+                btn.disabled = false;
+                btn.classList.remove('opacity-80');
+                btnText.innerText = 'Creer mon compte';
+            }
+        }
+    </script>
+</body>
+</html>

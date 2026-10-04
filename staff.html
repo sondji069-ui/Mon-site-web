@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDU-LINK - Staff</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { theme: { extend: { colors: { 'edu-blue': '#004AAD', 'edu-green': '#2EAD5E', 'edu-red': '#EF4444', 'edu-orange': '#F59E0B', 'edu-teal': '#0D9488', 'edu-purple': '#8B5CF6' } } } }
+    </script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #f3f4f6; }
+        .carte-stat { transition: all 0.2s ease; }
+        .carte-stat:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+        .bouton-action { transition: all 0.2s ease; }
+        .bouton-action:active { transform: scale(0.96); }
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .barre-progression { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.3); overflow: hidden; }
+        .barre-progression-fill { height: 100%; border-radius: 3px; transition: width 0.8s ease; background: linear-gradient(90deg, #ffffff 0%, #a7f3d0 100%); }
+        body.dark-mode { background-color: #0f172a; color: #e2e8f0; }
+        body.dark-mode .bg-white { background-color: #1e293b; }
+        body.dark-mode .bg-gray-50 { background-color: #0f172a; }
+        body.dark-mode .bg-gray-100 { background-color: #334155; }
+        body.dark-mode .text-gray-800 { color: #f1f5f9; }
+        body.dark-mode .text-gray-700 { color: #e2e8f0; }
+        body.dark-mode .text-gray-600 { color: #cbd5e1; }
+        body.dark-mode .text-gray-500 { color: #94a3b8; }
+        body.dark-mode .text-gray-400 { color: #64748b; }
+        body.dark-mode .border-gray-100 { border-color: #334155; }
+        body.dark-mode .border-gray-200 { border-color: #334155; }
+        body.dark-mode .border-gray-300 { border-color: #475569; }
+        body.dark-mode input, body.dark-mode select, body.dark-mode textarea { background-color: #334155; color: #f1f5f9; border-color: #475569; }
+        body.dark-mode input::placeholder, body.dark-mode textarea::placeholder { color: #94a3b8; }
+        body.dark-mode .bg-blue-50 { background-color: #1e3a5f; }
+        body.dark-mode .bg-green-50 { background-color: #14532d; }
+        body.dark-mode .bg-red-50 { background-color: #7f1d1d; }
+        body.dark-mode .bg-orange-50 { background-color: #7c2d12; }
+        body.dark-mode .bg-purple-50 { background-color: #4c1d95; }
+        body.dark-mode .bg-pink-50 { background-color: #831843; }
+        body.dark-mode .bg-teal-50 { background-color: #134e4a; }
+        body.dark-mode .bg-cyan-50 { background-color: #164e63; }
+        .btn-theme-toggle { width: 36px; height: 36px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; border: none; color: white; transition: all 0.2s ease; flex-shrink: 0; }
+        .btn-theme-toggle:hover { background: rgba(255,255,255,0.35); }
+        .btn-theme-toggle:active { transform: scale(0.92); }
+    </style>
+</head>
+<body class="min-h-screen flex justify-center items-start pt-4 p-3">
+    <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col h-auto min-h-[600px]">
+        <div id="page-dashboard" class="flex-1 flex-col flex">
+            <div class="bg-gradient-to-br from-edu-teal via-teal-600 to-emerald-700 text-white p-5 pb-8 relative">
+                <div class="flex justify-between items-start mb-4 relative z-10">
+                    <div>
+                        <p class="text-xs opacity-80 mb-1">Bonjour,</p>
+                        <h1 id="welcome-message" class="text-xl font-bold">Chargement...</h1>
+                        <p id="role-affiche" class="text-xs font-semibold opacity-95 mt-1">...</p>
+                        <p id="ecole-nom-affiche" class="text-xs opacity-90 mt-0.5">...</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="window.location.href='profil.html'" id="avatar-header" class="w-9 h-9 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-lg hover:bg-opacity-30 transition overflow-hidden">👤</button>
+                        <button onclick="afficherNotifications()" class="relative w-9 h-9 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-lg hover:bg-opacity-30 transition">
+                            🔔
+                            <span id="badge-notif" class="hidden absolute -top-1 -right-1 bg-edu-red text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center"></span>
+                        </button>
+                        <button onclick="seDeconnecter()" class="w-9 h-9 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-lg hover:bg-opacity-30 transition">🚪</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto -mt-4 px-4 pb-6">
+                <div id="view-accueil" class="hidden fade-in">
+                    <div class="bg-gradient-to-br from-edu-teal to-emerald-700 text-white rounded-2xl shadow-lg p-5 mb-3">
+                        <div class="flex items-center justify-between mb-3">
+                            <div>
+                                <p class="text-xs opacity-80 mb-1">Mon role</p>
+                                <h2 id="role-accueil" class="text-xl font-extrabold">...</h2>
+                            </div>
+                            <div class="w-14 h-14 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-3xl">🎯</div>
+                        </div>
+                        <p id="description-role" class="text-xs opacity-90 leading-relaxed">...</p>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-lg p-4 mb-3 grid grid-cols-2 gap-3">
+                        <div class="carte-stat bg-gradient-to-br from-blue-50 to-blue-100 p-3 rounded-xl border border-blue-200">
+                            <div class="flex items-center justify-between mb-1"><span class="text-2xl">🎓</span><span class="text-[9px] bg-edu-blue text-white px-1.5 py-0.5 rounded-full font-bold">ELEVES</span></div>
+                            <p id="total-eleves" class="text-2xl font-extrabold text-edu-blue">0</p>
+                        </div>
+                        <div class="carte-stat bg-gradient-to-br from-purple-50 to-purple-100 p-3 rounded-xl border border-purple-200">
+                            <div class="flex items-center justify-between mb-1"><span class="text-2xl">🏫</span><span class="text-[9px] bg-edu-purple text-white px-1.5 py-0.5 rounded-full font-bold">CLASSES</span></div>
+                            <p id="total-classes" class="text-2xl font-extrabold text-edu-purple">0</p>
+                        </div>
+                    </div>
+
+                    <button onclick="afficherEleves()" class="bouton-action w-full bg-gradient-to-r from-blue-500 to-cyan-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
+                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">🎓</div>
+                        <div class="flex-1 text-left"><p class="text-sm font-bold">Liste des eleves</p><p class="text-[10px] opacity-90">Consulter tous les eleves</p></div>
+                        <span class="text-xl">→</span>
+                    </button>
+
+                    <button onclick="afficherEmploi()" class="bouton-action w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
+                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">📅</div>
+                        <div class="flex-1 text-left"><p class="text-sm font-bold">Emploi du temps</p><p class="text-[10px] opacity-90">Par classe</p></div>
+                        <span class="text-xl">→</span>
+                    </button>
+
+                    <button onclick="afficherAbsences()" class="bouton-action w-full bg-gradient-to-r from-orange-500 to-red-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
+                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">⚠️</div>
+                        <div class="flex-1 text-left"><p class="text-sm font-bold">Suivi des absences</p><p class="text-[10px] opacity-90">Eleves absents du jour</p></div>
+                        <span class="text-xl">→</span>
+                    </button>
+
+                    <button onclick="afficherAnnonces()" class="bouton-action w-full bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center text-2xl">📢</div>
+                        <div class="flex-1 text-left"><p class="text-sm font-bold text-gray-800">Annonces de l'ecole</p><p class="text-[10px] text-gray-400">Communications officielles</p></div>
+                        <span class="text-xl text-gray-300">→</span>
+                    </button>
+
+                    <button onclick="window.location.href='messagerie.html'" class="bouton-action w-full bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3">
+                        <div class="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center text-2xl">💬</div>
+                        <div class="flex-1 text-left"><p class="text-sm font-bold text-gray-800">Messagerie</p><p class="text-[10px] text-gray-400">Discuter avec l'equipe</p></div>
+                        <span class="text-xl text-gray-300">→</span>
+                    </button>
+                </div>
+
+                <div id="view-eleves" class="hidden fade-in">
+                    <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
+                    <h1 class="text-lg font-bold text-gray-800 mb-2">🎓 Liste des eleves</h1>
+                    <p class="text-xs text-gray-500 mb-3">Consultez les eleves de l'ecole.</p>
+                    <input type="text" id="recherche-eleves" oninput="filtrerListe('recherche-eleves', 'liste-eleves-staff')" placeholder="🔍 Rechercher un élève..." class="w-full px-4 py-2.5 rounded-xl border border-gray-300 mb-3 text-sm focus:outline-none focus:ring-2 focus:ring-edu-teal">
+                    <div id="liste-eleves-staff" class="space-y-3"></div>
+                </div>
+
+                <div id="view-emploi-classes" class="hidden fade-in">
+                    <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
+                    <h1 class="text-lg font-bold text-gray-800 mb-2">📅 Emploi du temps</h1>
+                    <p class="text-xs text-gray-500 mb-4">Choisissez une classe.</p>
+                    <div id="liste-classes-emploi" class="space-y-3"></div>
+                </div>
+
+                <div id="view-emploi-classe" class="hidden fade-in">
+                    <div class="flex items-center gap-3 mb-3">
+                        <button onclick="afficherEmploi()" class="text-2xl">⬅️</button>
+                        <div class="flex-1"><h1 id="titre-emploi-classe" class="text-lg font-bold text-gray-800">...</h1><p class="text-xs text-gray-500">Emploi du temps</p></div>
+                    </div>
+                    <p class="text-[10px] text-gray-400 italic mb-2">💡 Glissez horizontalement</p>
+                    <div class="overflow-x-auto pb-2"><div id="tableau-emploi-staff" class="min-w-[700px]"></div></div>
+                </div>
+
+                <div id="view-absences" class="hidden fade-in">
+                    <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
+                    <h1 class="text-lg font-bold text-gray-800 mb-2">⚠️ Absences du jour</h1>
+                    <p class="text-xs text-gray-500 mb-3">Eleves absents aujourd'hui.</p>
+                    <div id="liste-absences-staff" class="space-y-3"></div>
+                </div>
+
+                <div id="view-annonces" class="hidden fade-in">
+                    <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
+                    <h1 class="text-lg font-bold text-gray-800 mb-3">📢 Annonces de l'ecole</h1>
+                    <div id="liste-annonces" class="space-y-3"></div>
+                </div>
+
+                <div id="view-affiche" class="hidden fade-in">
+                    <button onclick="afficherAnnonces()" class="text-2xl mb-3">⬅️</button>
+                    <div id="contenu-affiche"></div>
+                </div>
+
+                <div id="view-notifications" class="hidden fade-in">
+                    <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
+                    <h1 class="text-lg font-bold text-gray-800 mb-3">🔔 Mes notifications</h1>
+                    <div id="liste-notifications" class="space-y-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        function initTheme() {
+            if (localStorage.getItem('eduLinkTheme') === 'dark') { document.body.classList.add('dark-mode'); }
+            var avatar = document.getElementById('avatar-header');
+            if (avatar && !document.getElementById('btn-theme-toggle')) {
+                var btn = document.createElement('button');
+                btn.id = 'btn-theme-toggle';
+                btn.className = 'btn-theme-toggle';
+                btn.type = 'button';
+                btn.innerHTML = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+                btn.onclick = function(e) { e.preventDefault(); e.stopPropagation(); toggleThemeEduLink(); };
+                avatar.parentNode.insertBefore(btn, avatar);
+            }
+        }
+        function toggleThemeEduLink() {
+            document.body.classList.toggle('dark-mode');
+            var estDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('eduLinkTheme', estDark ? 'dark' : 'light');
+            var btn = document.getElementById('btn-theme-toggle');
+            if (btn) btn.innerHTML = estDark ? '☀️' : '🌙';
+        }
+
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFid2d1aXhjbG14dHp2bHNtYmJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4OTg1OTMsImV4cCI6MjEwNjQ3NDU5M30.8MiG5YdoMIY69KYfBdlXHIB9Zisd5miX3slaCoqVcjM';
+        const supabaseUrl = 'https://abwguixclmxtzvlsmbby.supabase.co';
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+        const sessionUser = sessionStorage.getItem('eduLinkUser');
+        if (!sessionUser) { window.location.href = 'index.html'; }
+        const parsedUser = JSON.parse(sessionUser);
+        let currentUser = null, monEcoleId = null;
+
+        const LABELS_SOUS_ROLE = {
+            surveillant: { label: '👁️ Surveillant(e)', desc: 'Surveillance des élèves, gestion des absences et du bon ordre dans l\'établissement.' },
+            censeur: { label: '📋 Censeur(e)', desc: 'Suivi de la discipline, gestion des absences et relation avec les familles.' },
+            intendant: { label: '💼 Intendant(e)', desc: 'Gestion du matériel, des infrastructures et des ressources de l\'école.' },
+            bibliothecaire: { label: '📚 Bibliothécaire', desc: 'Gestion de la bibliothèque et accompagnement des élèves.' },
+            secretaire: { label: '📝 Secrétaire', desc: 'Accueil, secrétariat administratif, gestion des dossiers.' },
+            comptable: { label: '💰 Comptable', desc: 'Gestion financière et suivi des paiements.' },
+            conseiller: { label: '🎓 Conseiller pédagogique', desc: 'Accompagnement pédagogique des élèves et des enseignants.' },
+            infirmier: { label: '🩺 Infirmier(e)', desc: 'Suivi médical et soins des élèves.' },
+            autre: { label: '👤 Membre du staff', desc: 'Membre de l\'équipe administrative de l\'école.' }
+        };
+
+        function afficherAvatarHeader() {
+            const btn = document.getElementById('avatar-header');
+            if (!btn) return;
+            if (currentUser && currentUser.photo_url) {
+                btn.innerHTML = '<img src="' + currentUser.photo_url + '" style="width:100%; height:100%; object-fit:cover;">';
+            }
+        }
+
+        window.addEventListener('load', async () => {
+            if (parsedUser.role !== 'staff') { window.location.href = 'index.html'; return; }
+            currentUser = parsedUser;
+            monEcoleId = currentUser.ecole_id;
+            afficherAvatarHeader();
+            initTheme();
+            document.getElementById('welcome-message').innerText = currentUser.prenom + ' ' + currentUser.nom;
+
+            const infoRole = LABELS_SOUS_ROLE[currentUser.sous_role] || LABELS_SOUS_ROLE.autre;
+            document.getElementById('role-affiche').innerText = infoRole.label;
+            document.getElementById('role-accueil').innerText = infoRole.label;
+            document.getElementById('description-role').innerText = infoRole.desc;
+
+            if (monEcoleId) {
+                const { data: ecole } = await supabaseClient.from('ecoles').select('nom').eq('id', monEcoleId).single();
+                if (ecole) document.getElementById('ecole-nom-affiche').innerText = "🏫 " + ecole.nom;
+            }
+
+            document.getElementById('view-accueil').classList.remove('hidden');
+            chargerStats();
+            chargerBadgeNotifs();
+            setInterval(() => { chargerBadgeNotifs(); }, 30000);
+        });
+
+        async function chargerStats() {
+            const { count: c1 } = await supabaseClient.from('eleves').select('*', { count: 'exact', head: true }).eq('ecole_id', monEcoleId);
+            const { count: c2 } = await supabaseClient.from('classes').select('*', { count: 'exact', head: true }).eq('ecole_id', monEcoleId);
+            document.getElementById('total-eleves').innerText = c1 || 0;
+            document.getElementById('total-classes').innerText = c2 || 0;
+        }
+
+        async function chargerBadgeNotifs() {
+            const { count } = await supabaseClient.from('notifications').select('*', { count: 'exact', head: true }).eq('utilisateur_id', currentUser.id).eq('lu', false);
+            const badge = document.getElementById('badge-notif');
+            if (count > 0) { badge.innerText = count; badge.classList.remove('hidden'); } else { badge.classList.add('hidden'); }
+        }
+
+        function hideAllViews() {
+            ['view-accueil', 'view-eleves', 'view-emploi-classes', 'view-emploi-classe', 'view-absences', 'view-annonces', 'view-affiche', 'view-notifications'].forEach(id => document.getElementById(id).classList.add('hidden'));
+        }
+
+        // ============ ELEVES ============
+        async function afficherEleves() {
+            hideAllViews();
+            document.getElementById('view-eleves').classList.remove('hidden');
+            const { data: eleves } = await supabaseClient.from('eleves')
+                .select('id, matricule, date_naissance, utilisateurs!utilisateur_id(prenom, nom), classes(nom)')
+                .eq('ecole_id', monEcoleId)
+                .order('id', { ascending: false });
+            let html = '';
+            if (eleves && eleves.length > 0) {
+                eleves.forEach(e => {
+                    const prenom = e.utilisateurs ? e.utilisateurs.prenom : '?';
+                    const nom = e.utilisateurs ? e.utilisateurs.nom : '?';
+                    const classe = e.classes ? e.classes.nom : 'Sans classe';
+                    const initiale = (prenom || '?').charAt(0).toUpperCase();
+                    html += `<div data-search="${prenom} ${nom} ${e.matricule || ''} ${classe}" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                        <div class="flex items-center gap-3">
+                            <div class="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold" style="background: linear-gradient(135deg, #0D9488, #004AAD);">${initiale}</div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-bold text-gray-800 truncate">${prenom} ${nom}</p>
+                                <p class="text-[10px] text-gray-500">${e.matricule || ''} • ${classe}</p>
+                            </div>
+                        </div>
+                    </div>`;
+                });
+            } else html = '<p class="text-gray-500 text-center py-6">Aucun eleve.</p>';
+            document.getElementById('liste-eleves-staff').innerHTML = html;
+            window.scrollTo(0, 0);
+        }
+
+        function filtrerListe(inputId, containerId) {
+            const terme = document.getElementById(inputId).value.toLowerCase().trim();
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            const items = container.querySelectorAll('[data-search]');
+            items.forEach(item => {
+                if (!terme || item.getAttribute('data-search').toLowerCase().includes(terme)) item.style.display = '';
+                else item.style.display = 'none';
+            });
+        }
+
+        // ============ EMPLOI DU TEMPS ============
+        async function afficherEmploi() {
+            hideAllViews();
+            document.getElementById('view-emploi-classes').classList.remove('hidden');
+            const { data: classes } = await supabaseClient.from('classes').select('*').eq('ecole_id', monEcoleId).order('nom');
+            let html = '';
+            if (classes && classes.length > 0) {
+                for (const c of classes) {
+                    const { count } = await supabaseClient.from('emploi_du_temps').select('*', { count: 'exact', head: true }).eq('classe_id', c.id);
+                    html += `<div onclick="afficherEmploiClasse(${c.id}, '${c.nom.replace(/'/g, "\\'")}')" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3 cursor-pointer hover:shadow-md transition">
+                        <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-2xl">🏫</div>
+                        <div class="flex-1"><p class="text-sm font-bold text-gray-800">${c.nom}</p><p class="text-[10px] text-gray-500">${count || 0} cours</p></div>
+                        <span class="text-xl text-gray-400">→</span>
+                    </div>`;
+                }
+            } else html = '<p class="text-gray-500 text-center py-4">Aucune classe.</p>';
+            document.getElementById('liste-classes-emploi').innerHTML = html;
+            window.scrollTo(0, 0);
+        }
+
+        async function afficherEmploiClasse(classeId, nomClasse) {
+            hideAllViews();
+            document.getElementById('view-emploi-classe').classList.remove('hidden');
+            document.getElementById('titre-emploi-classe').innerText = nomClasse;
+            const { data: cours } = await supabaseClient.from('emploi_du_temps').select('*').eq('classe_id', classeId).order('heure_debut');
+            afficherTableauEmploi(cours, 'tableau-emploi-staff');
+            window.scrollTo(0, 0);
+        }
+
+        function afficherTableauEmploi(cours, containerId) {
+            const jours = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+            const creneaux = [];
+            if (cours && cours.length > 0) {
+                const setCreneaux = new Set();
+                cours.forEach(c => {
+                    const hd = c.heure_debut ? c.heure_debut.substring(0,5) : '';
+                    const hf = c.heure_fin ? c.heure_fin.substring(0,5) : '';
+                    const key = hd + '-' + hf;
+                    if (!setCreneaux.has(key)) { setCreneaux.add(key); creneaux.push({ debut: hd, fin: hf }); }
+                });
+                creneaux.sort((a, b) => a.debut.localeCompare(b.debut));
+            }
+            if (creneaux.length === 0) { creneaux.push({ debut: '08:00', fin: '10:00' }); creneaux.push({ debut: '10:15', fin: '12:15' }); creneaux.push({ debut: '14:00', fin: '16:00' }); creneaux.push({ debut: '16:15', fin: '18:15' }); }
+            let html = '<table style="width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">';
+            html += '<thead><tr style="background: #0D9488;">';
+            html += '<th style="padding: 10px 8px; color: white; font-size: 11px; font-weight: bold; border: 1px solid #0D9488; min-width: 70px;">Heure</th>';
+            jours.forEach(j => { html += `<th style="padding: 10px 8px; color: white; font-size: 11px; font-weight: bold; border: 1px solid #0D9488; min-width: 95px; text-align: center;">${j.substring(0,3)}</th>`; });
+            html += '</tr></thead><tbody>';
+            creneaux.forEach((creneau, idx) => {
+                const bgLigne = idx % 2 === 0 ? '#ffffff' : '#f9fafb';
+                html += `<tr style="background: ${bgLigne};">`;
+                html += `<td style="padding: 8px 6px; border: 1px solid #e5e7eb; font-size: 10px; font-weight: bold; color: #1f2937; text-align: center; background: #f3f4f6;">${creneau.debut}<br><span style="font-size: 8px; color: #6b7280;">${creneau.fin}</span></td>`;
+                jours.forEach(jour => {
+                    const c = cours ? cours.find(x => x.jour === jour && x.heure_debut && x.heure_fin && x.heure_debut.substring(0,5) === creneau.debut && x.heure_fin.substring(0,5) === creneau.fin) : null;
+                    if (c) html += `<td style="padding: 6px; border: 1px solid #e5e7eb; vertical-align: top;"><div style="background: #ccfbf1; border-left: 3px solid #0D9488; padding: 6px; border-radius: 5px; min-height: 50px;"><p style="font-size: 10px; font-weight: bold; color: #134e4a; margin: 0; line-height: 1.2;">${c.matiere}</p>${c.salle ? `<p style="font-size: 8px; color: #6b7280; margin: 2px 0 0 0;">📍 ${c.salle}</p>` : ''}</div></td>`;
+                    else html += '<td style="padding: 6px; border: 1px solid #e5e7eb; vertical-align: top;"><div style="min-height: 50px;"></div></td>';
+                });
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+            document.getElementById(containerId).innerHTML = html;
+        }
+
+        // ============ ABSENCES DU JOUR ============
+        async function afficherAbsences() {
+            hideAllViews();
+            document.getElementById('view-absences').classList.remove('hidden');
+            const aujourdHui = new Date().toISOString().split('T')[0];
+            const { data: absences } = await supabaseClient.from('absences')
+                .select('*, eleves(matricule, utilisateurs!utilisateur_id(prenom, nom), classes(nom))')
+                .eq('ecole_id', monEcoleId)
+                .eq('date_absence', aujourdHui)
+                .order('id', { ascending: false });
+            let html = '';
+            if (absences && absences.length > 0) {
+                absences.forEach(a => {
+                    const eleve = a.eleves;
+                    const prenom = eleve && eleve.utilisateurs ? eleve.utilisateurs.prenom : '?';
+                    const nom = eleve && eleve.utilisateurs ? eleve.utilisateurs.nom : '?';
+                    const classe = eleve && eleve.classes ? eleve.classes.nom : '';
+                    const matiere = a.matiere || 'Cours';
+                    const justif = a.justifiee ? '<span class="bg-green-100 text-edu-green text-[10px] font-bold px-2 py-1 rounded">Justifiée</span>' : '<span class="bg-red-100 text-edu-red text-[10px] font-bold px-2 py-1 rounded">Non justifiée</span>';
+                    html += `<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-bold text-gray-800 truncate">${prenom} ${nom}</p>
+                                <p class="text-[10px] text-gray-500">${classe} • ${matiere}</p>
+                            </div>
+                            ${justif}
+                        </div>
+                    </div>`;
+                });
+            } else {
+                html = '<div class="bg-white p-8 rounded-2xl shadow-sm text-center"><div class="text-5xl mb-2">🎉</div><p class="text-gray-500 text-sm">Aucune absence enregistrée aujourd\'hui.</p></div>';
+            }
+            document.getElementById('liste-absences-staff').innerHTML = html;
+            window.scrollTo(0, 0);
+        }
+
+        // ============ ANNONCES ============
+        async function afficherAnnonces() {
+            hideAllViews();
+            document.getElementById('view-annonces').classList.remove('hidden');
+            document.getElementById('view-affiche').classList.add('hidden');
+            const { data: annonces } = await supabaseClient.from('annonces').select('*').eq('ecole_id', monEcoleId).or('cible.eq.tous').order('date_publication', { ascending: false });
+            let html = '';
+            if (annonces && annonces.length > 0) {
+                annonces.forEach(a => {
+                    const d = new Date(a.date_publication).toLocaleDateString('fr-FR');
+                    html += `<div onclick="voirAffiche(${a.id})" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition">
+                        <div class="flex justify-between items-start mb-2">
+                            <p class="text-sm font-bold text-gray-800">📢 ${a.titre}</p>
+                            <span class="text-[10px] text-gray-400">${d}</span>
+                        </div>
+                        <p class="text-xs text-gray-600 mb-2">${a.contenu.substring(0, 100)}${a.contenu.length > 100 ? '...' : ''}</p>
+                        <p class="text-[10px] text-edu-teal font-semibold">👆 Cliquez pour voir l'affiche</p>
+                    </div>`;
+                });
+            } else html = '<p class="text-gray-500 text-center py-4">Aucune annonce.</p>';
+            document.getElementById('liste-annonces').innerHTML = html;
+            window.scrollTo(0, 0);
+        }
+
+        async function voirAffiche(id) {
+            document.getElementById('view-annonces').classList.add('hidden');
+            document.getElementById('view-affiche').classList.remove('hidden');
+            const { data: a } = await supabaseClient.from('annonces').select('*').eq('id', id).single();
+            const { data: ecole } = await supabaseClient.from('ecoles').select('nom, signature_url').eq('id', monEcoleId).single();
+            document.getElementById('contenu-affiche').innerHTML = construireAffiche(a, ecole ? ecole.nom : 'Etablissement', ecole ? ecole.signature_url : null);
+        }
+
+        function construireAffiche(a, ecoleNom, signatureEcole) {
+            const datePub = new Date(a.date_publication).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+            const logo = a.logo_annonce;
+            return `<div style="background: white; border: 3px solid #004AAD; border-radius: 15px; overflow: hidden; font-family: Arial, sans-serif;">
+                <div style="background: linear-gradient(135deg, #004AAD 0%, #0066CC 100%); padding: 20px 15px; text-align: center;">
+                    ${logo ? `<img src="${logo}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 50%; border: 3px solid white; margin-bottom: 8px;">` : '<div style="font-size: 40px; margin-bottom: 5px;">📖</div>'}
+                    <h1 style="color: white; font-size: 20px; font-weight: bold; margin: 5px 0; letter-spacing: 1px;">EDU-LINK</h1>
+                    <p style="color: rgba(255,255,255,0.9); font-size: 12px; margin: 0;">${ecoleNom}</p>
+                </div>
+                <div style="padding: 20px;">
+                    <div style="text-align: center; background: #f0f7ff; padding: 12px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #004AAD;">
+                        <p style="font-size: 11px; color: #004AAD; font-weight: bold; margin: 0 0 5px 0; letter-spacing: 2px;">📢 COMMUNICATION OFFICIELLE</p>
+                        <h2 style="font-size: 18px; font-weight: bold; color: #004AAD; margin: 0;">${a.titre}</h2>
+                    </div>
+                    <div style="background: #f9fafb; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                        <p style="font-size: 13px; color: #1f2937; line-height: 1.8; margin: 0; white-space: pre-wrap; text-align: justify;">${a.contenu}</p>
+                    </div>
+                    <div style="text-align: right; margin-top: 25px; padding-top: 15px; border-top: 1px solid #e5e7eb;">
+                        <p style="font-size: 11px; color: #6b7280; margin: 0;">Publiee le ${datePub}</p>
+                        ${signatureEcole ? `<img src="${signatureEcole}" style="max-height: 55px; max-width: 180px; margin-top: 8px; display: block; margin-left: auto;">` : ''}
+                        ${a.signature ? `<p style="font-size: 13px; font-weight: bold; color: #004AAD; margin: 5px 0 0 0;">${a.signature}</p>` : ''}
+                    </div>
+                </div>
+                <div style="background: #004AAD; padding: 8px; text-align: center;">
+                    <p style="color: white; font-size: 9px; margin: 0;">Document officiel - EDU-LINK</p>
+                </div>
+            </div>`;
+        }
+
+        // ============ NOTIFICATIONS ============
+        async function afficherNotifications() {
+            hideAllViews();
+            document.getElementById('view-notifications').classList.remove('hidden');
+            const { data: notifs } = await supabaseClient.from('notifications').select('*').eq('utilisateur_id', currentUser.id).order('date_creation', { ascending: false });
+            let html = '';
+            if (notifs && notifs.length > 0) {
+                notifs.forEach(n => {
+                    html += `<div class="bg-teal-50 border-l-4 border-edu-teal p-4 rounded-r-2xl mb-2"><p class="text-sm font-bold text-edu-teal">${n.titre}</p><p class="text-xs text-gray-600 mt-1">${n.contenu}</p></div>`;
+                    supabaseClient.from('notifications').update({ lu: true }).eq('id', n.id);
+                });
+                chargerBadgeNotifs();
+            } else html = '<p class="text-gray-500 text-center py-4">Aucune notification.</p>';
+            document.getElementById('liste-notifications').innerHTML = html;
+            window.scrollTo(0, 0);
+        }
+
+        function retourAccueil() {
+            hideAllViews();
+            document.getElementById('view-accueil').classList.remove('hidden');
+            chargerStats();
+            window.scrollTo(0, 0);
+        }
+
+        function seDeconnecter() { sessionStorage.removeItem('eduLinkUser'); window.location.href = 'index.html'; }
+    </script>
+</body>
+</html>

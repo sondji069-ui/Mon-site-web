@@ -1,0 +1,1548 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDU-LINK - Administration</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { theme: { extend: { colors: { 'edu-blue': '#004AAD', 'edu-green': '#2EAD5E', 'edu-red': '#EF4444', 'edu-orange': '#F59E0B', 'edu-purple': '#8B5CF6' } } } }
+    </script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #f3f4f6; }
+        .carte-stat { transition: all 0.2s ease; }
+        .carte-stat:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+        .bouton-action { transition: all 0.2s ease; }
+        .bouton-action:active { transform: scale(0.96); }
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .barre-progression { height: 6px; border-radius: 3px; background: #e5e7eb; overflow: hidden; }
+        .barre-progression-fill { height: 100%; border-radius: 3px; transition: width 0.8s ease; }
+        body.dark-mode { background-color: #0f172a; color: #e2e8f0; }
+        body.dark-mode .bg-white { background-color: #1e293b; }
+        body.dark-mode .bg-gray-50 { background-color: #0f172a; }
+        body.dark-mode .bg-gray-100 { background-color: #334155; }
+        body.dark-mode .text-gray-800 { color: #f1f5f9; }
+        body.dark-mode .text-gray-700 { color: #e2e8f0; }
+        body.dark-mode .text-gray-600 { color: #cbd5e1; }
+        body.dark-mode .text-gray-500 { color: #94a3b8; }
+        body.dark-mode .text-gray-400 { color: #64748b; }
+        body.dark-mode .border-gray-100 { border-color: #334155; }
+        body.dark-mode .border-gray-200 { border-color: #334155; }
+        body.dark-mode .border-gray-300 { border-color: #475569; }
+        body.dark-mode input, body.dark-mode select, body.dark-mode textarea { background-color: #334155; color: #f1f5f9; border-color: #475569; }
+        body.dark-mode input::placeholder, body.dark-mode textarea::placeholder { color: #94a3b8; }
+        body.dark-mode .bg-blue-50 { background-color: #1e3a5f; }
+        body.dark-mode .bg-green-50 { background-color: #14532d; }
+        body.dark-mode .bg-red-50 { background-color: #7f1d1d; }
+        body.dark-mode .bg-orange-50 { background-color: #7c2d12; }
+        body.dark-mode .bg-purple-50 { background-color: #4c1d95; }
+        body.dark-mode .bg-pink-50 { background-color: #831843; }
+        body.dark-mode .bg-cyan-50 { background-color: #164e63; }
+        body.dark-mode .bg-indigo-50 { background-color: #312e81; }
+        .btn-theme-toggle { width: 36px; height: 36px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; border: none; color: white; transition: all 0.2s ease; flex-shrink: 0; }
+        .btn-theme-toggle:hover { background: rgba(255,255,255,0.35); }
+        .btn-theme-toggle:active { transform: scale(0.92); }
+    </style>
+</head>
+<body class="min-h-screen flex justify-center items-start pt-4 p-3">
+    <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col h-auto min-h-[600px]">
+        <div id="page-dashboard" class="flex-1 flex-col flex">
+            <div class="bg-gradient-to-br from-edu-blue via-blue-700 to-blue-800 text-white p-5 pb-8 relative">
+                <div class="flex justify-between items-start mb-4 relative z-10">
+                    <div>
+                        <p class="text-xs opacity-80 mb-1">Bonjour,</p>
+                        <h1 id="welcome-message" class="text-xl font-bold">Chargement...</h1>
+                        <p id="ecole-nom-affiche" class="text-xs opacity-90 mt-1">...</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="window.location.href='profil.html'" id="avatar-header" class="w-9 h-9 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-lg hover:bg-opacity-30 transition overflow-hidden">👤</button>
+                        <button onclick="afficherNotifications()" class="relative w-9 h-9 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-lg hover:bg-opacity-30 transition">
+                            🔔
+                            <span id="badge-notif" class="hidden absolute -top-1 -right-1 bg-edu-red text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center"></span>
+                        </button>
+                        <button onclick="seDeconnecter()" class="w-9 h-9 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-lg hover:bg-opacity-30 transition">🚪</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto -mt-4 px-4 pb-6">
+                <div id="view-accueil" class="hidden fade-in">
+                    <div class="bg-white rounded-2xl shadow-lg p-4 mb-3 grid grid-cols-2 gap-3">
+                        <div class="carte-stat bg-gradient-to-br from-blue-50 to-blue-100 p-3 rounded-xl border border-blue-200 cursor-pointer">
+                            <div class="flex items-center justify-between mb-1"><span class="text-2xl">🎓</span><span class="text-[9px] bg-edu-blue text-white px-1.5 py-0.5 rounded-full font-bold">ELEVES</span></div>
+                            <p id="total-eleves" class="text-2xl font-extrabold text-edu-blue">0</p>
+                        </div>
+                        <div class="carte-stat bg-gradient-to-br from-green-50 to-green-100 p-3 rounded-xl border border-green-200 cursor-pointer">
+                            <div class="flex items-center justify-between mb-1"><span class="text-2xl">👨🏾‍🏫</span><span class="text-[9px] bg-edu-green text-white px-1.5 py-0.5 rounded-full font-bold">PROFS</span></div>
+                            <p id="total-profs" class="text-2xl font-extrabold text-edu-green">0</p>
+                        </div>
+                        <div class="carte-stat bg-gradient-to-br from-purple-50 to-purple-100 p-3 rounded-xl border border-purple-200 cursor-pointer">
+                            <div class="flex items-center justify-between mb-1"><span class="text-2xl">🏫</span><span class="text-[9px] bg-edu-purple text-white px-1.5 py-0.5 rounded-full font-bold">CLASSES</span></div>
+                            <p id="total-classes" class="text-2xl font-extrabold text-edu-purple">0</p>
+                        </div>
+                        <div class="carte-stat bg-gradient-to-br from-red-50 to-red-100 p-3 rounded-xl border border-red-200 cursor-pointer">
+                            <div class="flex items-center justify-between mb-1"><span class="text-2xl">⚠️</span><span class="text-[9px] bg-edu-red text-white px-1.5 py-0.5 rounded-full font-bold">ABSENTS</span></div>
+                            <p id="absents-jour" class="text-2xl font-extrabold text-edu-red">0</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-lg p-4 mb-3">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center gap-2">
+                                <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center text-xl">💰</div>
+                                <div><p class="text-sm font-bold text-gray-800">Paiements en attente</p><p class="text-[10px] text-gray-500">Ce mois-ci</p></div>
+                            </div>
+                            <span id="paiements-attente" class="text-xl font-extrabold text-edu-orange">0</span>
+                        </div>
+                        <div class="barre-progression"><div class="barre-progression-fill bg-gradient-to-r from-edu-orange to-orange-400" style="width: 65%;"></div></div>
+                        <p class="text-[10px] text-gray-500 mt-2">65% des frais de scolarité encaissés</p>
+                    </div>
+
+                    <button onclick="afficherDemandesInscription()" class="bouton-action relative w-full bg-gradient-to-r from-orange-500 to-red-500 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
+                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">📥</div>
+                        <div class="flex-1 text-left"><p class="text-sm font-bold">Demandes d'inscription</p><p class="text-[10px] opacity-90">Valider ou refuser les comptes</p></div>
+                        <span id="badge-demandes" class="hidden bg-white text-edu-red text-xs font-bold rounded-full w-7 h-7 flex items-center justify-center">0</span>
+                    </button>
+
+                    <!-- NOUVEAU : Demandes de mot de passe -->
+                    <button onclick="afficherDemandesMdp()" class="bouton-action relative w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
+                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">🔑</div>
+                        <div class="flex-1 text-left"><p class="text-sm font-bold">Demandes de mot de passe</p><p class="text-[10px] opacity-90">Réinitialiser les mots de passe</p></div>
+                        <span id="badge-mdp" class="hidden bg-white text-edu-pink text-xs font-bold rounded-full w-7 h-7 flex items-center justify-center">0</span>
+                    </button>
+
+                    <button onclick="afficherCodeAcces()" class="bouton-action w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
+                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">🎫</div>
+                        <div class="flex-1 text-left"><p class="text-sm font-bold">Code d'acces ecole</p><p class="text-[10px] opacity-90">Partager avec les futurs membres</p></div>
+                        <span class="text-xl">→</span>
+                    </button>
+
+                    <button onclick="afficherEquipe()" class="bouton-action w-full bg-gradient-to-r from-teal-500 to-emerald-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
+                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">👥</div>
+                        <div class="flex-1 text-left"><p class="text-sm font-bold">Mon equipe administrative</p><p class="text-[10px] opacity-90">Surveillants, censeurs, intendants...</p></div>
+                        <span id="badge-equipe" class="hidden bg-white text-edu-green text-xs font-bold rounded-full w-7 h-7 flex items-center justify-center">0</span>
+                    </button>
+
+                    <button onclick="afficherSignature()" class="bouton-action w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
+                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">🖋️</div>
+                        <div class="flex-1 text-left"><p class="text-sm font-bold">Ma signature</p><p class="text-[10px] opacity-90">Pour les bulletins et annonces</p></div>
+                        <span class="text-xl">→</span>
+                    </button>
+
+                    <div class="mb-3">
+                        <h2 class="text-sm font-bold text-gray-700 mb-2 px-1">⚡ Actions rapides</h2>
+                        <p class="text-[10px] text-gray-400 uppercase font-bold mb-2 px-1">Gestion</p>
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <button onclick="afficherGestionEleves()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md">
+                                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-2xl">🎓</div>
+                                <span class="text-xs font-bold text-gray-800">Élèves</span><span class="text-[9px] text-gray-400">Gérer les inscriptions</span>
+                            </button>
+                            <button onclick="afficherGestionEnseignants()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md">
+                                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-2xl">👨🏾‍🏫</div>
+                                <span class="text-xs font-bold text-gray-800">Enseignants</span><span class="text-[9px] text-gray-400">Gérer l'équipe</span>
+                            </button>
+                            <button onclick="afficherGestionClasses()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md">
+                                <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-2xl">🏫</div>
+                                <span class="text-xs font-bold text-gray-800">Classes</span><span class="text-[9px] text-gray-400">Organiser</span>
+                            </button>
+                            <button onclick="afficherGestionPaiements()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md">
+                                <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center text-2xl">💰</div>
+                                <span class="text-xs font-bold text-gray-800">Paiements</span><span class="text-[9px] text-gray-400">Encaisser</span>
+                            </button>
+                        </div>
+                        <p class="text-[10px] text-gray-400 uppercase font-bold mb-2 px-1">Organisation</p>
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <button onclick="afficherGestionEmploi()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md">
+                                <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-2xl">📅</div>
+                                <span class="text-xs font-bold text-gray-800">Emploi du temps</span><span class="text-[9px] text-gray-400">Planifier les cours</span>
+                            </button>
+                            <button onclick="afficherNouvelleAnnonce()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border-2 border-edu-blue flex flex-col items-center gap-2 hover:shadow-md">
+                                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-2xl">📢</div>
+                                <span class="text-xs font-bold text-edu-blue">Annonces</span><span class="text-[9px] text-gray-400">Communiquer</span>
+                            </button>
+                            <button onclick="afficherAnnonces()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md">
+                                <div class="w-12 h-12 bg-cyan-100 rounded-full flex items-center justify-center text-2xl">📋</div>
+                                <span class="text-xs font-bold text-gray-800">Mes annonces</span><span class="text-[9px] text-gray-400">Historique</span>
+                            </button>
+                            <button onclick="window.location.href='messagerie.html'" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md">
+                                <div class="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center text-2xl">💬</div>
+                                <span class="text-xs font-bold text-gray-800">Messagerie</span><span class="text-[9px] text-gray-400">Discuter</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-edu-blue p-4 rounded-r-2xl shadow-sm">
+                        <div class="flex items-start gap-3">
+                            <span class="text-2xl">💡</span>
+                            <div><p class="text-xs font-bold text-edu-blue">Conseil du jour</p><p class="text-[11px] text-gray-600 mt-1">Pensez à vérifier les demandes d'inscription en attente et les paiements à relancer.</p></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VUE DEMANDES DE MOT DE PASSE -->
+                <div id="view-demandes-mdp" class="hidden fade-in">
+                    <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
+                    <h1 class="text-lg font-bold text-gray-800 mb-2">🔑 Demandes de mot de passe</h1>
+                    <p class="text-xs text-gray-500 mb-4">Générez un mot de passe temporaire pour les utilisateurs qui ont oublié le leur.</p>
+                    <div id="liste-demandes-mdp" class="space-y-3"></div>
+                </div>
+
+                <div id="view-code" class="hidden fade-in">
+                    <button onclick="retourAccueil()" class="text-2xl mb-4">⬅️</button>
+                    <h1 class="text-lg font-bold text-gray-800 mb-2">🎫 Code d'acces de l'ecole</h1>
+                    <p class="text-xs text-gray-500 mb-4">Partagez ce code avec tous ceux qui veulent rejoindre votre ecole.</p>
+
+                    <div class="bg-gradient-to-br from-edu-blue to-blue-700 text-white rounded-2xl shadow-lg p-6 mb-4 text-center">
+                        <p class="text-[10px] uppercase tracking-widest opacity-80 mb-3">Votre code unique</p>
+                        <div class="bg-white bg-opacity-20 rounded-xl p-4 mb-4">
+                            <p id="code-acces-affiche" class="text-3xl font-extrabold tracking-widest" style="word-break: break-all;">...</p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="copierCode()" class="bg-white text-edu-blue font-bold py-3 rounded-xl text-xs flex items-center justify-center gap-1">📋 Copier</button>
+                            <button onclick="partagerCode()" class="bg-white text-edu-blue font-bold py-3 rounded-xl text-xs flex items-center justify-center gap-1">📤 Partager</button>
+                        </div>
+                        <div id="message-code" class="text-center text-xs font-semibold mt-3"></div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">
+                        <p class="text-xs font-bold text-gray-700 mb-2">📱 Comment partager ?</p>
+                        <ul class="text-[11px] text-gray-600 space-y-2 leading-relaxed">
+                            <li>👨‍🏫 <b>Enseignants</b> : donnez-leur le code pour qu'ils s'inscrivent</li>
+                            <li>👨‍👩‍👧 <b>Parents</b> : idem, ils créeront leur compte avec ce code</li>
+                            <li>👩🏾‍🎓 <b>Eleves</b> : le code leur permet de s'inscrire dans votre ecole</li>
+                            <li>👥 <b>Staff</b> (surveillant, censeur...) : ajoutez-les depuis "Mon equipe"</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div id="view-equipe" class="hidden fade-in">
+                    <div class="flex items-center gap-3 mb-3">
+                        <button onclick="retourAccueil()" class="text-2xl">⬅️</button>
+                        <h1 class="text-lg font-bold text-gray-800 flex-1">👥 Mon equipe</h1>
+                        <button onclick="afficherFormStaff()" class="bg-edu-blue text-white text-xs font-bold px-3 py-2 rounded-lg">+ Ajouter</button>
+                    </div>
+                    <p class="text-xs text-gray-500 mb-4">Surveillants, censeurs, intendants et autres personnes importantes.</p>
+                    <div id="liste-staff" class="space-y-3"></div>
+                </div>
+
+                <div id="view-form-staff" class="hidden fade-in">
+                    <div class="flex items-center gap-3 mb-4">
+                        <button onclick="afficherEquipe()" class="text-2xl">⬅️</button>
+                        <h1 id="titre-form-staff" class="text-lg font-bold text-gray-800">Ajouter un membre</h1>
+                    </div>
+                    <div class="space-y-3">
+                        <input type="hidden" id="staff-id">
+                        <input type="hidden" id="staff-user-id">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Role *</label>
+                            <select id="staff-sous-role" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white">
+                                <option value="surveillant">👁️ Surveillant(e)</option>
+                                <option value="censeur">📋 Censeur / Censeur(e)</option>
+                                <option value="intendant">💼 Intendant(e)</option>
+                                <option value="bibliothecaire">📚 Bibliothecaire</option>
+                                <option value="secretaire">📝 Secretaire</option>
+                                <option value="comptable">💰 Comptable</option>
+                                <option value="conseiller">🎓 Conseiller pedagogique</option>
+                                <option value="infirmier">🩺 Infirmier(e)</option>
+                                <option value="autre">👤 Autre</option>
+                            </select>
+                        </div>
+                        <input type="text" id="staff-prenom" placeholder="Prenom *" class="w-full px-4 py-3 rounded-xl border border-gray-300">
+                        <input type="text" id="staff-nom" placeholder="Nom *" class="w-full px-4 py-3 rounded-xl border border-gray-300">
+                        <input type="email" id="staff-email" placeholder="Email *" class="w-full px-4 py-3 rounded-xl border border-gray-300">
+                        <input type="tel" id="staff-telephone" placeholder="Telephone (optionnel)" class="w-full px-4 py-3 rounded-xl border border-gray-300">
+                        <input type="text" id="staff-password" placeholder="Mot de passe *" class="w-full px-4 py-3 rounded-xl border border-gray-300">
+                        <button onclick="sauvegarderStaff()" id="btn-save-staff" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl">Enregistrer</button>
+                        <div id="message-staff" class="text-center text-sm font-semibold"></div>
+                    </div>
+                </div>
+
+                <div id="view-signature" class="hidden fade-in">
+                    <button onclick="retourAccueil()" class="text-2xl mb-4">⬅️</button>
+                    <h1 class="text-lg font-bold text-gray-800 mb-2">🖋️ Ma signature</h1>
+                    <p class="text-xs text-gray-500 mb-4">Elle sera apposée sur les bulletins et les annonces.</p>
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">
+                        <p class="text-xs font-bold text-gray-700 mb-3">Signature actuelle :</p>
+                        <div id="apercu-signature-actuelle" class="bg-gray-50 rounded-xl p-4 text-center mb-3" style="min-height: 100px; display: flex; align-items: center; justify-content: center;">
+                            <p class="text-gray-400 text-xs">Aucune signature</p>
+                        </div>
+                        <button onclick="supprimerSignature()" id="btn-supprimer-signature" class="hidden w-full bg-red-50 text-edu-red font-bold py-2.5 rounded-xl text-xs">🗑️ Supprimer la signature</button>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">
+                        <p class="text-xs font-bold text-gray-700 mb-3">Nouvelle signature :</p>
+                        <input type="file" id="signature-input" accept="image/*" class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white text-xs">
+                        <div id="apercu-signature-nouvelle" class="hidden mt-3 bg-gray-50 rounded-xl p-4 text-center">
+                            <img id="img-signature-apercu" src="" style="max-width: 200px; max-height: 80px; margin: auto;">
+                        </div>
+                        <button onclick="sauvegarderSignature()" id="btn-save-signature" class="hidden w-full bg-edu-blue text-white font-bold py-3 rounded-xl mt-3">💾 Enregistrer la signature</button>
+                        <div id="message-signature" class="text-center text-sm font-semibold mt-3"></div>
+                    </div>
+                </div>
+
+                <div id="view-demandes" class="hidden fade-in">
+                    <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
+                    <h1 class="text-lg font-bold text-gray-800 mb-2">📥 Demandes d'inscription</h1>
+                    <p class="text-xs text-gray-500 mb-4">Validez ou refusez les nouvelles inscriptions.</p>
+                    <div id="liste-demandes" class="space-y-3"></div>
+                </div>
+
+                <div id="view-emploi-classes" class="hidden fade-in">
+                    <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
+                    <h1 class="text-lg font-bold text-gray-800 mb-2">📅 Emploi du temps</h1>
+                    <p class="text-xs text-gray-500 mb-4">Choisissez une classe.</p>
+                    <div id="liste-classes-emploi" class="space-y-3"></div>
+                </div>
+
+                <div id="view-emploi-classe" class="hidden fade-in">
+                    <div class="flex items-center gap-3 mb-3">
+                        <button onclick="afficherGestionEmploi()" class="text-2xl">⬅️</button>
+                        <div class="flex-1"><h1 id="titre-emploi-classe" class="text-lg font-bold text-gray-800">...</h1><p class="text-xs text-gray-500">Emploi du temps</p></div>
+                        <button onclick="afficherFormCours()" class="bg-edu-blue text-white text-xs font-bold px-3 py-2 rounded-lg">+ Ajouter</button>
+                    </div>
+                    <p class="text-[10px] text-gray-400 italic mb-2">💡 Glissez horizontalement</p>
+                    <div class="overflow-x-auto pb-2"><div id="tableau-emploi" class="min-w-[700px]"></div></div>
+                </div>
+
+                <div id="view-form-cours" class="hidden fade-in">
+                    <div class="flex items-center gap-3 mb-4">
+                        <button onclick="afficherEmploiClasse(classeEnCours.id)" class="text-2xl">⬅️</button>
+                        <h1 id="titre-form-cours" class="text-lg font-bold text-gray-800">Ajouter un cours</h1>
+                    </div>
+                    <div class="space-y-3">
+                        <input type="hidden" id="cours-id">
+                        <div><label class="block text-xs font-semibold text-gray-700 mb-1">Jour</label>
+                            <select id="cours-jour" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white">
+                                <option value="Lundi">Lundi</option><option value="Mardi">Mardi</option><option value="Mercredi">Mercredi</option>
+                                <option value="Jeudi">Jeudi</option><option value="Vendredi">Vendredi</option><option value="Samedi">Samedi</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div><label class="block text-xs font-semibold text-gray-700 mb-1">Debut</label><input type="time" id="cours-debut" class="w-full px-4 py-3 rounded-xl border border-gray-300"></div>
+                            <div><label class="block text-xs font-semibold text-gray-700 mb-1">Fin</label><input type="time" id="cours-fin" class="w-full px-4 py-3 rounded-xl border border-gray-300"></div>
+                        </div>
+                        <input type="text" id="cours-matiere" placeholder="Matiere" class="w-full px-4 py-3 rounded-xl border border-gray-300">
+                        <input type="text" id="cours-salle" placeholder="Salle" class="w-full px-4 py-3 rounded-xl border border-gray-300">
+                        <button onclick="sauvegarderCours()" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl">Enregistrer</button>
+                        <div id="message-cours" class="text-center text-sm font-semibold"></div>
+                    </div>
+                </div>
+
+                <div id="view-nouvelle-annonce" class="hidden fade-in">
+                    <button onclick="retourAccueil()" class="text-2xl mb-4">⬅️</button>
+                    <h1 class="text-lg font-bold text-gray-800 mb-4">📢 Nouvelle annonce</h1>
+                    <div class="space-y-3">
+                        <input type="text" id="titre-annonce" placeholder="Titre" class="w-full px-4 py-3 rounded-xl border border-gray-300">
+                        <textarea id="contenu-annonce" rows="5" placeholder="Message..." class="w-full px-4 py-3 rounded-xl border border-gray-300"></textarea>
+                        <select id="cible-annonce" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white">
+                            <option value="tous">Toute l'ecole</option><option value="parents">Parents</option><option value="enseignants">Enseignants</option><option value="eleves">Eleves</option>
+                        </select>
+                        <input type="text" id="signature-annonce" placeholder="Signe (ex: Le Directeur)" class="w-full px-4 py-3 rounded-xl border border-gray-300">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 mb-1">Logo de l'ecole (optionnel)</label>
+                            <input type="file" id="logo-input" accept="image/*" class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white text-xs">
+                            <div id="apercu-logo" class="hidden mt-2 bg-gray-50 p-2 rounded-xl text-center">
+                                <img id="img-apercu" src="" style="max-width: 80px; max-height: 80px; margin: auto;">
+                                <button onclick="supprimerLogo()" class="text-[10px] text-red-500 font-semibold mt-1">Retirer</button>
+                            </div>
+                        </div>
+                        <button onclick="publierAnnonce()" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl">Publier</button>
+                        <div id="message-annonce" class="text-center text-sm font-semibold"></div>
+                    </div>
+                </div>
+
+                <div id="view-annonces" class="hidden fade-in">
+                    <button onclick="retourAccueil()" class="text-2xl mb-4">⬅️</button>
+                    <h1 class="text-lg font-bold text-gray-800 mb-4">Mes annonces</h1>
+                    <div id="liste-annonces-admin" class="space-y-3"></div>
+                </div>
+
+                <div id="view-affiche" class="hidden fade-in">
+                    <button onclick="afficherAnnonces()" class="text-2xl mb-3">⬅️</button>
+                    <div id="contenu-affiche"></div>
+                </div>
+
+                <div id="view-liste-paiements" class="hidden fade-in">
+                    <div class="flex items-center gap-3 mb-4">
+                        <button onclick="retourAccueil()" class="text-2xl">⬅️</button>
+                        <h1 class="text-lg font-bold text-gray-800 flex-1">Paiements</h1>
+                        <button onclick="afficherFormPaiement()" class="bg-edu-blue text-white text-xs font-bold px-3 py-2 rounded-lg">+ Encaisser</button>
+                    </div>
+                    <div id="stats-paiements" class="mb-4"></div>
+                    <div id="liste-paiements-admin" class="space-y-3"></div>
+                </div>
+
+                <div id="view-form-paiement" class="hidden fade-in">
+                    <div class="flex items-center gap-3 mb-4">
+                        <button onclick="afficherGestionPaiements()" class="text-2xl">⬅️</button>
+                        <h1 class="text-lg font-bold text-gray-800">Encaisser</h1>
+                    </div>
+                    <div class="space-y-3">
+                        <select id="paiement-eleve" onchange="afficherSoldeEleve()" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white"><option value="">Selectionnez un eleve</option></select>
+                        <div id="info-solde" class="hidden bg-blue-50 border border-blue-100 p-3 rounded-xl text-xs"></div>
+                        <input type="number" id="paiement-montant" placeholder="Montant (FCFA)" class="w-full px-4 py-3 rounded-xl border border-gray-300">
+                        <select id="paiement-type" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white">
+                            <option value="Scolarite T1">Scolarite T1</option><option value="Scolarite T2">Scolarite T2</option><option value="Scolarite T3">Scolarite T3</option>
+                            <option value="Inscription">Inscription</option><option value="Cantine">Cantine</option><option value="Autre">Autre</option>
+                        </select>
+                        <select id="paiement-methode" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white">
+                            <option value="especes">Especes</option><option value="wave">Wave</option><option value="orange_money">Orange Money</option>
+                            <option value="free_money">Free Money</option><option value="virement">Virement</option>
+                        </select>
+                        <select id="paiement-statut" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white">
+                            <option value="paye">Paye</option><option value="en_attente">En attente</option>
+                        </select>
+                        <button onclick="sauvegarderPaiement()" class="w-full bg-edu-green text-white font-bold py-3 rounded-xl">Encaisser</button>
+                        <div id="message-paiement" class="text-center text-sm font-semibold"></div>
+                    </div>
+                </div>
+
+                <div id="view-liste-classes" class="hidden fade-in">
+                    <div class="flex items-center gap-3 mb-4">
+                        <button onclick="retourAccueil()" class="text-2xl">⬅️</button>
+                        <h1 class="text-lg font-bold text-gray-800 flex-1">Classes</h1>
+                        <button onclick="afficherFormClasse()" class="bg-edu-blue text-white text-xs font-bold px-3 py-2 rounded-lg">+ Ajouter</button>
+                    </div>
+                    <input type="text" id="recherche-classes" oninput="filtrerListe('recherche-classes', 'liste-classes-admin')" placeholder="🔍 Rechercher une classe..." class="w-full px-4 py-2.5 rounded-xl border border-gray-300 mb-3 text-sm focus:outline-none focus:ring-2 focus:ring-edu-blue">
+                    <div id="liste-classes-admin" class="space-y-3"></div>
+                </div>
+
+                <div id="view-form-classe" class="hidden fade-in">
+                    <div class="flex items-center gap-3 mb-4">
+                        <button onclick="afficherGestionClasses()" class="text-2xl">⬅️</button>
+                        <h1 id="titre-form-classe" class="text-lg font-bold text-gray-800">Ajouter une classe</h1>
+                    </div>
+                    <div class="space-y-3">
+                        <input type="hidden" id="classe-id">
+                        <input type="text" id="classe-nom" placeholder="Nom" class="w-full px-4 py-3 rounded-xl border border-gray-300">
+                        <input type="text" id="classe-niveau" placeholder="Niveau" class="w-full px-4 py-3 rounded-xl border border-gray-300">
+                        <input type="text" id="classe-annee" placeholder="Annee" class="w-full px-4 py-3 rounded-xl border border-gray-300">
+                        <input type="number" id="classe-frais" placeholder="Frais (FCFA)" class="w-full px-4 py-3 rounded-xl border border-gray-300">
+                        <button onclick="sauvegarderClasse()" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl">Enregistrer</button>
+                        <div id="message-classe" class="text-center text-sm font-semibold"></div>
+                    </div>
+                </div>
+
+                <div id="view-liste-enseignants" class="hidden fade-in">
+                    <div class="flex items-center gap-3 mb-4">
+                        <button onclick="retourAccueil()" class="text-2xl">⬅️</button>
+                        <h1 class="text-lg font-bold text-gray-800 flex-1">Enseignants</h1>
+                        <button onclick="afficherFormEnseignant()" class="bg-edu-blue text-white text-xs font-bold px-3 py-2 rounded-lg">+ Ajouter</button>
+                    </div>
+                    <input type="text" id="recherche-enseignants" oninput="filtrerListe('recherche-enseignants', 'liste-enseignants-admin')" placeholder="🔍 Rechercher un enseignant..." class="w-full px-4 py-2.5 rounded-xl border border-gray-300 mb-3 text-sm focus:outline-none focus:ring-2 focus:ring-edu-blue">
+                    <div id="liste-enseignants-admin" class="space-y-3"></div>
+                </div>
+
+                <div id="view-form-enseignant" class="hidden fade-in">
+                    <div class="flex items-center gap-3 mb-4">
+                        <button onclick="afficherGestionEnseignants()" class="text-2xl">⬅️</button>
+                        <h1 id="titre-form-ens" class="text-lg font-bold text-gray-800">Ajouter un enseignant</h1>
+                    </div>
+                    <div class="space-y-3">
+                        <input type="hidden" id="ens-id">
+                        <input type="hidden" id="ens-user-id">
+                        <input type="text" id="ens-prenom" placeholder="Prenom" class="w-full px-4 py-3 rounded-xl border border-gray-300">
+                        <input type="text" id="ens-nom" placeholder="Nom" class="w-full px-4 py-3 rounded-xl border border-gray-300">
+                        <input type="email" id="ens-email" placeholder="Email" class="w-full px-4 py-3 rounded-xl border border-gray-300">
+                        <input type="text" id="ens-password" placeholder="Mot de passe" class="w-full px-4 py-3 rounded-xl border border-gray-300">
+                        <input type="text" id="ens-specialite" placeholder="Specialite" class="w-full px-4 py-3 rounded-xl border border-gray-300">
+                        <input type="date" id="ens-embauche" class="w-full px-4 py-3 rounded-xl border border-gray-300">
+                        <select id="ens-classe" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white"><option value="">Aucune</option></select>
+                        <input type="text" id="ens-matiere" placeholder="Matiere enseignee" class="w-full px-4 py-3 rounded-xl border border-gray-300">
+                        <button onclick="sauvegarderEnseignant()" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl">Enregistrer</button>
+                        <div id="message-ens" class="text-center text-sm font-semibold"></div>
+                    </div>
+                </div>
+
+                <div id="view-liste-eleves" class="hidden fade-in">
+                    <div class="flex items-center gap-3 mb-4">
+                        <button onclick="retourAccueil()" class="text-2xl">⬅️</button>
+                        <h1 class="text-lg font-bold text-gray-800 flex-1">Eleves</h1>
+                        <button onclick="afficherFormEleve()" class="bg-edu-blue text-white text-xs font-bold px-3 py-2 rounded-lg">+ Ajouter</button>
+                    </div>
+                    <input type="text" id="recherche-eleves" oninput="filtrerListe('recherche-eleves', 'liste-eleves-admin')" placeholder="🔍 Rechercher un élève..." class="w-full px-4 py-2.5 rounded-xl border border-gray-300 mb-3 text-sm focus:outline-none focus:ring-2 focus:ring-edu-blue">
+                    <div id="liste-eleves-admin" class="space-y-3"></div>
+                </div>
+
+                <div id="view-form-eleve" class="hidden fade-in">
+                    <div class="flex items-center gap-3 mb-4">
+                        <button onclick="afficherGestionEleves()" class="text-2xl">⬅️</button>
+                        <h1 id="titre-form-eleve" class="text-lg font-bold text-gray-800">Ajouter un eleve</h1>
+                    </div>
+                    <div class="space-y-3">
+                        <input type="hidden" id="eleve-id">
+                        <input type="text" id="eleve-prenom" placeholder="Prenom" class="w-full px-4 py-3 rounded-xl border border-gray-300">
+                        <input type="text" id="eleve-nom" placeholder="Nom" class="w-full px-4 py-3 rounded-xl border border-gray-300">
+                        <input type="email" id="eleve-email" placeholder="Email" class="w-full px-4 py-3 rounded-xl border border-gray-300">
+                        <input type="text" id="eleve-password" placeholder="Mot de passe" class="w-full px-4 py-3 rounded-xl border border-gray-300">
+                        <input type="date" id="eleve-naissance" class="w-full px-4 py-3 rounded-xl border border-gray-300">
+                        <select id="eleve-classe" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white"><option value="">Classe</option></select>
+                        <select id="eleve-parent" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white"><option value="">Aucun parent</option></select>
+                        <input type="text" id="eleve-matricule" placeholder="Matricule" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-50">
+                        <button onclick="sauvegarderEleve()" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl">Enregistrer</button>
+                        <div id="message-eleve" class="text-center text-sm font-semibold"></div>
+                    </div>
+                </div>
+
+                <div id="view-notifications" class="hidden fade-in">
+                    <button onclick="retourAccueil()" class="text-2xl mb-4">⬅️</button>
+                    <h1 class="text-lg font-bold text-gray-800 mb-4">Notifications</h1>
+                    <div id="liste-notifications" class="space-y-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        function initTheme() {
+            if (localStorage.getItem('eduLinkTheme') === 'dark') { document.body.classList.add('dark-mode'); }
+            var avatar = document.getElementById('avatar-header');
+            if (avatar && !document.getElementById('btn-theme-toggle')) {
+                var btn = document.createElement('button');
+                btn.id = 'btn-theme-toggle';
+                btn.className = 'btn-theme-toggle';
+                btn.type = 'button';
+                btn.innerHTML = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+                btn.onclick = function(e) { e.preventDefault(); e.stopPropagation(); toggleThemeEduLink(); };
+                avatar.parentNode.insertBefore(btn, avatar);
+            }
+        }
+        function toggleThemeEduLink() {
+            document.body.classList.toggle('dark-mode');
+            var estDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('eduLinkTheme', estDark ? 'dark' : 'light');
+            var btn = document.getElementById('btn-theme-toggle');
+            if (btn) btn.innerHTML = estDark ? '☀️' : '🌙';
+        }
+
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFid2d1aXhjbG14dHp2bHNtYmJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4OTg1OTMsImV4cCI6MjEwNjQ3NDU5M30.8MiG5YdoMIY69KYfBdlXHIB9Zisd5miX3slaCoqVcjM';
+        const supabaseUrl = 'https://abwguixclmxtzvlsmbby.supabase.co';
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+        const sessionUser = sessionStorage.getItem('eduLinkUser');
+        if (!sessionUser) { window.location.href = 'index.html'; }
+        const parsedUser = JSON.parse(sessionUser);
+        let currentUser = null, monEcoleId = null, listeElevesGlobal = [], classeEnCours = null, logoBase64 = null, signatureBase64 = null;
+        let monCodeAcces = null;
+        let monEcoleNom = null;
+
+        const LABELS_SOUS_ROLE = {
+            surveillant: '👁️ Surveillant(e)',
+            censeur: '📋 Censeur(e)',
+            intendant: '💼 Intendant(e)',
+            bibliothecaire: '📚 Bibliothécaire',
+            secretaire: '📝 Secrétaire',
+            comptable: '💰 Comptable',
+            conseiller: '🎓 Conseiller pédagogique',
+            infirmier: '🩺 Infirmier(e)',
+            autre: '👤 Autre'
+        };
+
+        function afficherAvatarHeader() {
+            const btn = document.getElementById('avatar-header');
+            if (!btn) return;
+            if (currentUser && currentUser.photo_url) {
+                btn.innerHTML = '<img src="' + currentUser.photo_url + '" style="width:100%; height:100%; object-fit:cover;">';
+            }
+        }
+
+        window.addEventListener('load', async () => {
+            if (parsedUser.role !== 'admin') { window.location.href = 'index.html'; return; }
+            currentUser = parsedUser;
+            monEcoleId = currentUser.ecole_id;
+            afficherAvatarHeader();
+            initTheme();
+            document.getElementById('welcome-message').innerText = "M. " + currentUser.nom;
+            if (monEcoleId) {
+                const { data: ecole } = await supabaseClient.from('ecoles').select('nom, logo_url, signature_url, code_acces').eq('id', monEcoleId).single();
+                if (ecole) {
+                    monEcoleNom = ecole.nom;
+                    monCodeAcces = ecole.code_acces;
+                    document.getElementById('ecole-nom-affiche').innerText = "🏫 " + ecole.nom;
+                    if (ecole.logo_url) logoBase64 = ecole.logo_url;
+                    if (ecole.signature_url) signatureBase64 = ecole.signature_url;
+                }
+            }
+            document.getElementById('view-accueil').classList.remove('hidden');
+            chargerStats();
+            chargerBadgeNotifs();
+            chargerBadgeDemandes();
+            chargerBadgeEquipe();
+            chargerBadgeMdp();
+            setInterval(() => { chargerBadgeNotifs(); chargerBadgeDemandes(); chargerBadgeMdp(); }, 30000);
+        });
+
+        async function chargerStats() {
+            const aujourdHui = new Date().toISOString().split('T')[0];
+            const { count: c1 } = await supabaseClient.from('eleves').select('*', { count: 'exact', head: true }).eq('ecole_id', monEcoleId);
+            const { count: c2 } = await supabaseClient.from('utilisateurs').select('*', { count: 'exact', head: true }).eq('ecole_id', monEcoleId).eq('role', 'enseignant').eq('statut', 'actif');
+            const { count: c3 } = await supabaseClient.from('classes').select('*', { count: 'exact', head: true }).eq('ecole_id', monEcoleId);
+            const { count: c4 } = await supabaseClient.from('absences').select('*', { count: 'exact', head: true }).eq('ecole_id', monEcoleId).eq('date_absence', aujourdHui);
+            const { count: c5 } = await supabaseClient.from('paiements').select('*', { count: 'exact', head: true }).eq('ecole_id', monEcoleId).eq('statut', 'en_attente');
+            document.getElementById('total-eleves').innerText = c1 || 0;
+            document.getElementById('total-profs').innerText = c2 || 0;
+            document.getElementById('total-classes').innerText = c3 || 0;
+            document.getElementById('absents-jour').innerText = c4 || 0;
+            document.getElementById('paiements-attente').innerText = c5 || 0;
+        }
+
+        async function chargerBadgeNotifs() {
+            const { count } = await supabaseClient.from('notifications').select('*', { count: 'exact', head: true }).eq('utilisateur_id', currentUser.id).eq('lu', false);
+            const badge = document.getElementById('badge-notif');
+            if (count > 0) { badge.innerText = count; badge.classList.remove('hidden'); } else { badge.classList.add('hidden'); }
+        }
+
+        async function chargerBadgeDemandes() {
+            const { count } = await supabaseClient.from('utilisateurs').select('*', { count: 'exact', head: true }).eq('ecole_id', monEcoleId).eq('statut', 'en_attente');
+            const badge = document.getElementById('badge-demandes');
+            if (badge) { if (count > 0) { badge.innerText = count; badge.classList.remove('hidden'); } else { badge.classList.add('hidden'); } }
+        }
+
+        async function chargerBadgeEquipe() {
+            const { count } = await supabaseClient.from('utilisateurs').select('*', { count: 'exact', head: true }).eq('ecole_id', monEcoleId).eq('role', 'staff');
+            const badge = document.getElementById('badge-equipe');
+            if (badge) { if (count > 0) { badge.innerText = count; badge.classList.remove('hidden'); } else { badge.classList.add('hidden'); } }
+        }
+
+        async function chargerBadgeMdp() {
+            const { count } = await supabaseClient.from('demandes_mdp').select('*', { count: 'exact', head: true }).eq('ecole_id', monEcoleId).eq('statut', 'en_attente');
+            const badge = document.getElementById('badge-mdp');
+            if (badge) { if (count > 0) { badge.innerText = count; badge.classList.remove('hidden'); } else { badge.classList.add('hidden'); } }
+        }
+
+        function hideAllViews() {
+            ['view-accueil', 'view-demandes-mdp', 'view-code', 'view-equipe', 'view-form-staff', 'view-signature', 'view-demandes', 'view-emploi-classes', 'view-emploi-classe', 'view-form-cours', 'view-liste-paiements', 'view-form-paiement', 'view-liste-classes', 'view-form-classe', 'view-liste-eleves', 'view-form-eleve', 'view-liste-enseignants', 'view-form-enseignant', 'view-nouvelle-annonce', 'view-annonces', 'view-affiche', 'view-notifications'].forEach(id => document.getElementById(id).classList.add('hidden'));
+        }
+
+        // ============ DEMANDES DE MOT DE PASSE ============
+        async function afficherDemandesMdp() {
+            hideAllViews();
+            document.getElementById('view-demandes-mdp').classList.remove('hidden');
+            const { data: demandes } = await supabaseClient.from('demandes_mdp').select('*').eq('ecole_id', monEcoleId).order('date_demande', { ascending: false });
+            let html = '';
+            if (demandes && demandes.length > 0) {
+                for (const d of demandes) {
+                    const { data: u } = await supabaseClient.from('utilisateurs').select('prenom, nom, email, role, sous_role').eq('id', d.utilisateur_id).maybeSingle();
+                    if (!u) continue;
+                    const dateStr = new Date(d.date_demande).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+                    let roleLabel = u.role;
+                    if (u.role === 'staff' && u.sous_role) roleLabel = 'staff • ' + (LABELS_SOUS_ROLE[u.sous_role] || u.sous_role);
+                    let statutBadge = '';
+                    if (d.statut === 'en_attente') statutBadge = '<span class="bg-orange-100 text-edu-orange text-[10px] font-bold px-2 py-1 rounded">En attente</span>';
+                    else if (d.statut === 'traitee') statutBadge = '<span class="bg-green-100 text-edu-green text-[10px] font-bold px-2 py-1 rounded">Traitée</span>';
+                    else statutBadge = '<span class="bg-gray-100 text-gray-600 text-[10px] font-bold px-2 py-1 rounded">Refusée</span>';
+                    const initiale = (u.prenom ? u.prenom.charAt(0) : '?').toUpperCase();
+                    html += `<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold" style="background: linear-gradient(135deg, #EC4899, #8B5CF6);">${initiale}</div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-bold text-gray-800 truncate">${u.prenom} ${u.nom}</p>
+                                <p class="text-[10px] text-gray-500 truncate">${u.email}</p>
+                                <p class="text-[10px] text-edu-blue font-semibold uppercase">${roleLabel}</p>
+                            </div>
+                            ${statutBadge}
+                        </div>
+                        <p class="text-[10px] text-gray-400 mb-3">📅 Demande du ${dateStr}</p>`;
+                    if (d.statut === 'en_attente') {
+                        html += `<div class="flex gap-2">
+                            <button onclick="genererMdpTemporaire(${d.id}, ${d.utilisateur_id}, '${(u.prenom + ' ' + u.nom).replace(/'/g, "\\'")}')" class="flex-1 bg-edu-blue text-white font-bold py-2.5 rounded-xl text-xs">🔑 Générer mot de passe</button>
+                            <button onclick="refuserDemandeMdp(${d.id})" class="bg-red-50 text-edu-red font-bold py-2.5 px-3 rounded-xl text-xs">Refuser</button>
+                        </div>`;
+                    }
+                    html += `</div>`;
+                }
+            } else {
+                html = '<div class="text-center py-10"><div class="text-6xl mb-3">✅</div><p class="text-gray-500 font-medium">Aucune demande</p><p class="text-xs text-gray-400 mt-1">Tout est à jour !</p></div>';
+            }
+            document.getElementById('liste-demandes-mdp').innerHTML = html;
+            chargerBadgeMdp();
+            window.scrollTo(0, 0);
+        }
+
+        async function genererMdpTemporaire(demandeId, userId, nomComplet) {
+            const aleatoire = Math.floor(1000 + Math.random() * 9000);
+            const mdpTemp = 'EDU-' + aleatoire;
+
+            if (!confirm("Générer un mot de passe temporaire pour " + nomComplet + " ?\n\nLe mot de passe sera : " + mdpTemp + "\n\nVous devrez le communiquer à l'utilisateur.")) return;
+
+            try {
+                const { error: errMdp } = await supabaseClient.from('utilisateurs').update({ mot_de_passe: mdpTemp }).eq('id', userId);
+                if (errMdp) throw errMdp;
+
+                const { error: errD } = await supabaseClient.from('demandes_mdp').update({
+                    statut: 'traitee',
+                    date_traitement: new Date().toISOString(),
+                    traite_par: currentUser.id
+                }).eq('id', demandeId);
+                if (errD) throw errD;
+
+                await supabaseClient.from('notifications').insert([{
+                    utilisateur_id: userId,
+                    titre: '🔑 Mot de passe réinitialisé',
+                    contenu: 'Un mot de passe temporaire a été généré pour vous. Contactez l\'administration de votre école pour le récupérer.',
+                    type: 'message',
+                    lu: false,
+                    ecole_id: monEcoleId
+                }]);
+
+                afficherPopupMdp(mdpTemp, nomComplet);
+                afficherDemandesMdp();
+            } catch (err) {
+                alert("Erreur : " + err.message);
+            }
+        }
+
+        function afficherPopupMdp(mdp, nomComplet) {
+            var overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+            overlay.innerHTML = ''
+                + '<div style="background:white;border-radius:20px;padding:24px;max-width:380px;width:100%;text-align:center;font-family:Poppins,sans-serif;box-shadow:0 20px 60px rgba(0,0,0,0.3);">'
+                + '<div style="font-size:48px;margin-bottom:8px;">🔑</div>'
+                + '<h2 style="font-size:16px;font-weight:bold;color:#1f2937;margin:0 0 6px 0;">Mot de passe temporaire</h2>'
+                + '<p style="font-size:12px;color:#6b7280;margin:0 0 16px 0;">Pour <b>' + nomComplet + '</b></p>'
+                + '<div style="background:#f0f7ff;border:2px dashed #004AAD;border-radius:12px;padding:16px;margin-bottom:16px;">'
+                + '<p style="font-size:26px;font-weight:800;color:#004AAD;letter-spacing:3px;margin:0;font-family:monospace;">' + mdp + '</p>'
+                + '</div>'
+                + '<p style="font-size:11px;color:#6b7280;line-height:1.5;margin:0 0 16px 0;">📱 Communiquez ce mot de passe à l\'utilisateur (téléphone, WhatsApp...). Il pourra le changer après sa connexion.</p>'
+                + '<button id="btn-copy-mdp" style="background:#004AAD;color:white;border:none;border-radius:12px;padding:12px 16px;font-weight:bold;font-size:13px;cursor:pointer;width:100%;margin-bottom:8px;">📋 Copier le mot de passe</button>'
+                + '<button id="btn-close-mdp" style="background:#f3f4f6;color:#374151;border:none;border-radius:12px;padding:12px 16px;font-weight:bold;font-size:13px;cursor:pointer;width:100%;">Fermer</button>'
+                + '</div>';
+            document.body.appendChild(overlay);
+
+            document.getElementById('btn-copy-mdp').onclick = function() {
+                var texte = mdp;
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(texte).then(function() {
+                        document.getElementById('btn-copy-mdp').innerText = '✅ Copié !';
+                    });
+                } else {
+                    var ta = document.createElement('textarea');
+                    ta.value = texte; document.body.appendChild(ta); ta.select();
+                    try { document.execCommand('copy'); document.getElementById('btn-copy-mdp').innerText = '✅ Copié !'; } catch(e) {}
+                    document.body.removeChild(ta);
+                }
+            };
+            document.getElementById('btn-close-mdp').onclick = function() { overlay.remove(); };
+        }
+
+        async function refuserDemandeMdp(demandeId) {
+            if (!confirm("Refuser cette demande ?")) return;
+            await supabaseClient.from('demandes_mdp').update({ statut: 'refusee', date_traitement: new Date().toISOString(), traite_par: currentUser.id }).eq('id', demandeId);
+            afficherDemandesMdp();
+        }
+
+        // ============ CODE D'ACCES ============
+        function afficherCodeAcces() {
+            hideAllViews();
+            document.getElementById('view-code').classList.remove('hidden');
+            const zone = document.getElementById('code-acces-affiche');
+            if (monCodeAcces) { zone.innerText = monCodeAcces; }
+            else {
+                zone.innerText = "CODE MANQUANT";
+                zone.style.fontSize = '16px';
+                document.getElementById('message-code').innerText = "⚠️ Aucun code n'a été généré pour cette école.";
+                document.getElementById('message-code').style.color = "#EF4444";
+            }
+        }
+
+        function copierCode() {
+            if (!monCodeAcces) { afficherMessageCode("Aucun code à copier.", 'rouge'); return; }
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(monCodeAcces).then(() => { afficherMessageCode("✅ Code copié !", 'vert'); }).catch(() => { fallbackCopieCode(); });
+            } else { fallbackCopieCode(); }
+        }
+
+        function fallbackCopieCode() {
+            const ta = document.createElement('textarea');
+            ta.value = monCodeAcces; ta.style.position = 'fixed'; ta.style.left = '-9999px';
+            document.body.appendChild(ta); ta.select();
+            try { document.execCommand('copy'); afficherMessageCode("✅ Code copié !", 'vert'); }
+            catch(e) { afficherMessageCode("❌ Impossible de copier", 'rouge'); }
+            document.body.removeChild(ta);
+        }
+
+        async function partagerCode() {
+            if (!monCodeAcces) { afficherMessageCode("Aucun code à partager.", 'rouge'); return; }
+            const texte = "Rejoignez " + (monEcoleNom || 'notre école') + " sur EDU-LINK !\n\nCode d'accès : " + monCodeAcces + "\n\nInscrivez-vous sur : " + window.location.origin + "/index.html";
+            if (navigator.share) {
+                try { await navigator.share({ title: 'Code EDU-LINK', text: texte }); afficherMessageCode("✅ Partagé !", 'vert'); }
+                catch(e) { if (e.name !== 'AbortError') afficherMessageCode("Annulé.", 'gray'); }
+            } else {
+                if (navigator.clipboard) { navigator.clipboard.writeText(texte).then(() => { afficherMessageCode("📋 Copié", 'vert'); }); }
+                else { afficherMessageCode("Partage non supporté.", 'orange'); }
+            }
+        }
+
+        function afficherMessageCode(txt, couleur) {
+            const msg = document.getElementById('message-code');
+            msg.innerText = txt;
+            if (couleur === 'vert') msg.style.color = '#2EAD5E';
+            else if (couleur === 'rouge') msg.style.color = '#EF4444';
+            else if (couleur === 'orange') msg.style.color = '#F59E0B';
+            else msg.style.color = '#6b7280';
+            setTimeout(() => { if (msg.innerText === txt) msg.innerText = ''; }, 2500);
+        }
+
+        // ============ EQUIPE ============
+        async function afficherEquipe() {
+            hideAllViews();
+            document.getElementById('view-equipe').classList.remove('hidden');
+            const { data: staffs } = await supabaseClient.from('utilisateurs').select('*').eq('ecole_id', monEcoleId).eq('role', 'staff').order('sous_role').order('nom');
+            let html = '';
+            if (staffs && staffs.length > 0) {
+                staffs.forEach(s => {
+                    const label = LABELS_SOUS_ROLE[s.sous_role] || '👤 Autre';
+                    const initiale = (s.prenom ? s.prenom.charAt(0) : '?').toUpperCase();
+                    html += `<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg" style="background: linear-gradient(135deg, #0ea5e9, #2EAD5E);">${initiale}</div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-bold text-gray-800 truncate">${s.prenom} ${s.nom}</p>
+                                <p class="text-[11px] font-semibold text-teal-700">${label}</p>
+                                <p class="text-[10px] text-gray-500 truncate">${s.email}</p>
+                                ${s.telephone ? `<p class="text-[10px] text-gray-400">📞 ${s.telephone}</p>` : ''}
+                            </div>
+                        </div>
+                        <div class="flex gap-2 justify-end">
+                            <button onclick="editerStaff(${s.id})" class="bg-blue-50 text-edu-blue text-xs font-bold px-3 py-1 rounded-lg">Modifier</button>
+                            <button onclick="supprimerStaff(${s.id}, '${(s.prenom + ' ' + s.nom).replace(/'/g, "\\'")}')" class="bg-red-50 text-edu-red text-xs font-bold px-3 py-1 rounded-lg">Supprimer</button>
+                        </div>
+                    </div>`;
+                });
+            } else {
+                html = '<div class="bg-white p-8 rounded-2xl shadow-sm text-center"><div class="text-5xl mb-2">👥</div><p class="text-gray-500 text-sm">Aucun membre du staff pour le moment.</p><p class="text-[10px] text-gray-400 mt-1">Cliquez sur "+ Ajouter" pour créer le premier.</p></div>';
+            }
+            document.getElementById('liste-staff').innerHTML = html;
+            chargerBadgeEquipe();
+            window.scrollTo(0, 0);
+        }
+
+        function afficherFormStaff(staffId = null, userId = null) {
+            hideAllViews();
+            document.getElementById('view-form-staff').classList.remove('hidden');
+            document.getElementById('message-staff').innerText = '';
+            const btn = document.getElementById('btn-save-staff');
+            btn.disabled = false; btn.innerText = "Enregistrer";
+            if (userId) {
+                document.getElementById('titre-form-staff').innerText = "Modifier un membre";
+                document.getElementById('staff-id').value = userId;
+                document.getElementById('staff-user-id').value = userId;
+                supabaseClient.from('utilisateurs').select('*').eq('id', userId).single().then(({ data: u }) => {
+                    if (u) {
+                        document.getElementById('staff-prenom').value = u.prenom || '';
+                        document.getElementById('staff-nom').value = u.nom || '';
+                        document.getElementById('staff-email').value = u.email || '';
+                        document.getElementById('staff-telephone').value = u.telephone || '';
+                        document.getElementById('staff-password').value = '';
+                        document.getElementById('staff-sous-role').value = u.sous_role || 'surveillant';
+                    }
+                });
+            } else {
+                document.getElementById('titre-form-staff').innerText = "Ajouter un membre";
+                document.getElementById('staff-id').value = '';
+                document.getElementById('staff-user-id').value = '';
+                document.getElementById('staff-prenom').value = '';
+                document.getElementById('staff-nom').value = '';
+                document.getElementById('staff-email').value = '';
+                document.getElementById('staff-telephone').value = '';
+                document.getElementById('staff-password').value = '';
+                document.getElementById('staff-sous-role').value = 'surveillant';
+            }
+            window.scrollTo(0, 0);
+        }
+
+        async function editerStaff(userId) { afficherFormStaff(userId, userId); }
+
+        async function sauvegarderStaff() {
+            const userId = document.getElementById('staff-user-id').value;
+            const sousRole = document.getElementById('staff-sous-role').value;
+            const prenom = document.getElementById('staff-prenom').value.trim();
+            const nom = document.getElementById('staff-nom').value.trim();
+            const email = document.getElementById('staff-email').value.trim();
+            const telephone = document.getElementById('staff-telephone').value.trim();
+            const password = document.getElementById('staff-password').value.trim();
+            const msg = document.getElementById('message-staff');
+            const btn = document.getElementById('btn-save-staff');
+
+            if (!prenom || !nom || !email) { msg.innerText = "Prenom, nom et email obligatoires."; msg.style.color = "#EF4444"; return; }
+            if (!userId && !password) { msg.innerText = "Mot de passe obligatoire."; msg.style.color = "#EF4444"; return; }
+            if (password && password.length < 6) { msg.innerText = "Mot de passe min 6 caracteres."; msg.style.color = "#EF4444"; return; }
+
+            btn.disabled = true; btn.innerText = "Enregistrement..."; msg.innerText = '';
+
+            try {
+                if (userId) {
+                    const upd = { prenom, nom, email, sous_role: sousRole, telephone: telephone || null };
+                    if (password) upd.mot_de_passe = password;
+                    const { error } = await supabaseClient.from('utilisateurs').update(upd).eq('id', userId);
+                    if (error) throw error;
+                } else {
+                    const { data: existant } = await supabaseClient.from('utilisateurs').select('id').eq('email', email).maybeSingle();
+                    if (existant) { msg.innerText = "Cet email est deja utilise."; msg.style.color = "#EF4444"; btn.disabled = false; btn.innerText = "Enregistrer"; return; }
+                    const { error } = await supabaseClient.from('utilisateurs').insert([{
+                        ecole_id: monEcoleId, role: 'staff', sous_role: sousRole,
+                        prenom, nom, email, telephone: telephone || null,
+                        mot_de_passe: password, statut: 'actif'
+                    }]);
+                    if (error) throw error;
+                }
+                msg.innerText = "✅ Membre enregistre !"; msg.style.color = "#2EAD5E";
+                setTimeout(() => afficherEquipe(), 900);
+            } catch (err) {
+                msg.innerText = "Erreur : " + err.message; msg.style.color = "#EF4444";
+                btn.disabled = false; btn.innerText = "Enregistrer";
+            }
+        }
+
+        async function supprimerStaff(userId, nomComplet) {
+            if (!confirm("Supprimer " + nomComplet + " ?")) return;
+            const { error } = await supabaseClient.from('utilisateurs').delete().eq('id', userId);
+            if (error) { alert("Erreur : " + error.message); return; }
+            afficherEquipe();
+        }
+
+        // ============ SIGNATURE ============
+        function afficherSignature() {
+            hideAllViews();
+            document.getElementById('view-signature').classList.remove('hidden');
+            document.getElementById('message-signature').innerText = '';
+            document.getElementById('signature-input').value = '';
+            document.getElementById('apercu-signature-nouvelle').classList.add('hidden');
+            document.getElementById('btn-save-signature').classList.add('hidden');
+            mettreAJourApercuSignature();
+        }
+
+        function mettreAJourApercuSignature() {
+            const conteneur = document.getElementById('apercu-signature-actuelle');
+            const btnSuppr = document.getElementById('btn-supprimer-signature');
+            if (signatureBase64) {
+                conteneur.innerHTML = '<img src="' + signatureBase64 + '" style="max-width: 220px; max-height: 100px;">';
+                btnSuppr.classList.remove('hidden');
+            } else {
+                conteneur.innerHTML = '<p class="text-gray-400 text-xs">Aucune signature</p>';
+                btnSuppr.classList.add('hidden');
+            }
+        }
+
+        document.addEventListener('change', function(e) {
+            if (e.target && e.target.id === 'signature-input') {
+                const file = e.target.files[0];
+                const msg = document.getElementById('message-signature');
+                if (!file) return;
+                if (file.size > 200 * 1024) { msg.innerText = "⚠️ Image trop lourde (max 200 Ko)."; msg.style.color = "#EF4444"; e.target.value = ''; return; }
+                if (!file.type.startsWith('image/')) { msg.innerText = "⚠️ Format non supporté."; msg.style.color = "#EF4444"; e.target.value = ''; return; }
+                msg.innerText = '';
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    document.getElementById('img-signature-apercu').src = ev.target.result;
+                    document.getElementById('apercu-signature-nouvelle').classList.remove('hidden');
+                    document.getElementById('btn-save-signature').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        async function sauvegarderSignature() {
+            const btn = document.getElementById('btn-save-signature');
+            const msg = document.getElementById('message-signature');
+            const imgSrc = document.getElementById('img-signature-apercu').src;
+            if (!imgSrc) { msg.innerText = "Selectionnez une image."; msg.style.color = "#EF4444"; return; }
+            btn.disabled = true; btn.innerText = "Enregistrement...";
+            const { error } = await supabaseClient.from('ecoles').update({ signature_url: imgSrc }).eq('id', monEcoleId);
+            if (error) { msg.innerText = "Erreur : " + error.message; msg.style.color = "#EF4444"; btn.disabled = false; btn.innerText = "💾 Enregistrer la signature"; return; }
+            signatureBase64 = imgSrc;
+            msg.innerText = "✅ Signature enregistrée !"; msg.style.color = "#2EAD5E";
+            mettreAJourApercuSignature();
+            document.getElementById('apercu-signature-nouvelle').classList.add('hidden');
+            document.getElementById('signature-input').value = '';
+            btn.classList.add('hidden'); btn.disabled = false; btn.innerText = "💾 Enregistrer la signature";
+            setTimeout(() => { msg.innerText = ''; }, 2500);
+        }
+
+        async function supprimerSignature() {
+            if (!confirm("Supprimer la signature ?")) return;
+            const { error } = await supabaseClient.from('ecoles').update({ signature_url: null }).eq('id', monEcoleId);
+            if (error) { alert("Erreur : " + error.message); return; }
+            signatureBase64 = null;
+            mettreAJourApercuSignature();
+            document.getElementById('message-signature').innerText = "Signature supprimée.";
+            document.getElementById('message-signature').style.color = "#6b7280";
+            setTimeout(() => { document.getElementById('message-signature').innerText = ''; }, 2000);
+        }
+
+        // ============ DEMANDES INSCRIPTION ============
+        async function afficherDemandesInscription() {
+            hideAllViews();
+            document.getElementById('view-demandes').classList.remove('hidden');
+            const { data: demandes } = await supabaseClient.from('utilisateurs').select('*').eq('ecole_id', monEcoleId).eq('statut', 'en_attente').order('id', { ascending: false });
+            let html = '';
+            if (demandes && demandes.length > 0) {
+                demandes.forEach(d => {
+                    let roleIcon = '👤', roleColor = 'text-gray-600', roleBg = 'bg-gray-100';
+                    if (d.role === 'eleve') { roleIcon = '👩🏾‍🎓'; roleColor = 'text-edu-blue'; roleBg = 'bg-blue-100'; }
+                    else if (d.role === 'enseignant') { roleIcon = '👩🏾‍🏫'; roleColor = 'text-edu-green'; roleBg = 'bg-green-100'; }
+                    else if (d.role === 'parent') { roleIcon = '👨‍👩‍👧'; roleColor = 'text-edu-pink'; roleBg = 'bg-pink-100'; }
+                    html += '<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-3"><div class="flex items-center gap-3 mb-3"><div class="w-12 h-12 ' + roleBg + ' rounded-full flex items-center justify-center text-2xl">' + roleIcon + '</div><div class="flex-1"><p class="text-sm font-bold text-gray-800">' + d.prenom + ' ' + d.nom + '</p><p class="text-[10px] ' + roleColor + ' font-semibold uppercase">' + d.role + '</p><p class="text-[10px] text-gray-500">' + d.email + '</p>';
+                    if (d.telephone) html += '<p class="text-[10px] text-gray-400">📞 ' + d.telephone + '</p>';
+                    html += '</div></div><div class="flex gap-2"><button onclick="validerInscription(' + d.id + ')" class="flex-1 bg-edu-green text-white font-bold py-2.5 rounded-xl text-xs">✅ Approuver</button><button onclick="refuserInscription(' + d.id + ')" class="flex-1 bg-edu-red text-white font-bold py-2.5 rounded-xl text-xs">❌ Refuser</button></div></div>';
+                });
+            } else html = '<div class="text-center py-10"><div class="text-6xl mb-3">🎉</div><p class="text-gray-500 font-medium">Aucune demande en attente</p></div>';
+            document.getElementById('liste-demandes').innerHTML = html;
+        }
+
+        async function validerInscription(userId) {
+            if (!confirm("Approuver cette inscription ?")) return;
+            const { error } = await supabaseClient.from('utilisateurs').update({ statut: 'actif' }).eq('id', userId);
+            if (error) { alert("Erreur : " + error.message); return; }
+            const { data: user } = await supabaseClient.from('utilisateurs').select('prenom, nom, email').eq('id', userId).single();
+            if (user) { await supabaseClient.from('notifications').insert([{ utilisateur_id: userId, titre: 'Compte valide !', contenu: 'Bienvenue ' + user.prenom + ' !', type: 'annonce', lu: false, ecole_id: monEcoleId }]); }
+            alert("✅ Inscription approuvee !");
+            afficherDemandesInscription(); chargerBadgeDemandes(); chargerStats();
+        }
+
+        async function refuserInscription(userId) {
+            if (!confirm("Refuser ? Le compte sera supprime.")) return;
+            await supabaseClient.from('eleves').delete().eq('utilisateur_id', userId);
+            await supabaseClient.from('enseignants').delete().eq('utilisateur_id', userId);
+            await supabaseClient.from('utilisateurs').delete().eq('id', userId);
+            alert("❌ Refuse.");
+            afficherDemandesInscription(); chargerBadgeDemandes();
+        }
+
+        // ============ EMPLOI DU TEMPS ============
+        async function afficherGestionEmploi() {
+            hideAllViews();
+            document.getElementById('view-emploi-classes').classList.remove('hidden');
+            const { data: classes } = await supabaseClient.from('classes').select('*').eq('ecole_id', monEcoleId).order('nom');
+            let html = '';
+            if (classes && classes.length > 0) {
+                for (const c of classes) {
+                    const { count } = await supabaseClient.from('emploi_du_temps').select('*', { count: 'exact', head: true }).eq('classe_id', c.id);
+                    html += `<div onclick="afficherEmploiClasse(${c.id}, '${c.nom.replace(/'/g, "\\'")}')" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3 cursor-pointer hover:shadow-md transition"><div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-2xl">🏫</div><div class="flex-1"><p class="text-sm font-bold text-gray-800">${c.nom}</p><p class="text-[10px] text-gray-500">${count || 0} cours</p></div><span class="text-xl text-gray-400">→</span></div>`;
+                }
+            } else html = '<p class="text-gray-500 text-center py-4">Aucune classe.</p>';
+            document.getElementById('liste-classes-emploi').innerHTML = html;
+        }
+
+        async function afficherEmploiClasse(classeId, nomClasse) {
+            if (nomClasse) classeEnCours = { id: classeId, nom: nomClasse };
+            hideAllViews();
+            document.getElementById('view-emploi-classe').classList.remove('hidden');
+            document.getElementById('titre-emploi-classe').innerText = classeEnCours.nom;
+            const { data: cours } = await supabaseClient.from('emploi_du_temps').select('*').eq('classe_id', classeEnCours.id).order('heure_debut');
+            afficherTableauEmploi(cours, 'tableau-emploi', true);
+        }
+
+        function afficherTableauEmploi(cours, containerId, editable) {
+            const jours = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+            const creneaux = [];
+            if (cours && cours.length > 0) {
+                const setCreneaux = new Set();
+                cours.forEach(c => { const hd = c.heure_debut ? c.heure_debut.substring(0,5) : ''; const hf = c.heure_fin ? c.heure_fin.substring(0,5) : ''; const key = hd + '-' + hf; if (!setCreneaux.has(key)) { setCreneaux.add(key); creneaux.push({ debut: hd, fin: hf }); } });
+                creneaux.sort((a, b) => a.debut.localeCompare(b.debut));
+            }
+            if (creneaux.length === 0) { creneaux.push({ debut: '08:00', fin: '10:00' }); creneaux.push({ debut: '10:15', fin: '12:15' }); creneaux.push({ debut: '14:00', fin: '16:00' }); creneaux.push({ debut: '16:15', fin: '18:15' }); }
+            let html = '<table style="width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">';
+            html += '<thead><tr style="background: #004AAD;">';
+            html += '<th style="padding: 10px 8px; color: white; font-size: 11px; font-weight: bold; border: 1px solid #004AAD; min-width: 70px;">Heure</th>';
+            jours.forEach(j => { html += `<th style="padding: 10px 8px; color: white; font-size: 11px; font-weight: bold; border: 1px solid #004AAD; min-width: 95px; text-align: center;">${j.substring(0,3)}</th>`; });
+            html += '</tr></thead><tbody>';
+            creneaux.forEach((creneau, idx) => {
+                const bgLigne = idx % 2 === 0 ? '#ffffff' : '#f9fafb';
+                html += `<tr style="background: ${bgLigne};">`;
+                html += `<td style="padding: 8px 6px; border: 1px solid #e5e7eb; font-size: 10px; font-weight: bold; color: #1f2937; text-align: center; background: #f3f4f6;">${creneau.debut}<br><span style="font-size: 8px; color: #6b7280;">${creneau.fin}</span></td>`;
+                jours.forEach(jour => {
+                    const c = cours ? cours.find(x => x.jour === jour && x.heure_debut && x.heure_fin && x.heure_debut.substring(0,5) === creneau.debut && x.heure_fin.substring(0,5) === creneau.fin) : null;
+                    if (c) {
+                        const onClick = editable ? `onclick="ouvrirActionsCours(${c.id})"` : '';
+                        const cursor = editable ? 'cursor: pointer;' : '';
+                        html += `<td ${onClick} style="padding: 6px; border: 1px solid #e5e7eb; vertical-align: top; ${cursor}"><div style="background: #dbeafe; border-left: 3px solid #004AAD; padding: 6px; border-radius: 5px; min-height: 50px;"><p style="font-size: 10px; font-weight: bold; color: #004AAD; margin: 0; line-height: 1.2;">${c.matiere}</p>${c.salle ? `<p style="font-size: 8px; color: #6b7280; margin: 2px 0 0 0;">📍 ${c.salle}</p>` : ''}</div></td>`;
+                    } else {
+                        const onclick = editable ? `onclick="ajouterCoursRapide('${jour}', '${creneau.debut}', '${creneau.fin}')"` : '';
+                        const inner = editable ? `<div ${onclick} style="min-height: 50px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px dashed #e5e7eb; border-radius: 5px; color: #d1d5db; font-size: 16px;">+</div>` : '<div style="min-height: 50px;"></div>';
+                        html += `<td style="padding: 6px; border: 1px solid #e5e7eb; vertical-align: top;">${inner}</td>`;
+                    }
+                });
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+            document.getElementById(containerId).innerHTML = html;
+        }
+
+        async function ajouterCoursRapide(jour, debut, fin) {
+            hideAllViews();
+            document.getElementById('view-form-cours').classList.remove('hidden');
+            document.getElementById('titre-form-cours').innerText = "Ajouter un cours";
+            document.getElementById('message-cours').innerText = '';
+            ['cours-id', 'cours-matiere', 'cours-salle'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('cours-jour').value = jour;
+            document.getElementById('cours-debut').value = debut;
+            document.getElementById('cours-fin').value = fin;
+        }
+
+        function ouvrirActionsCours(coursId) {
+            const action = confirm("MODIFIER ce cours ? (Annuler pour supprimer)");
+            if (action) afficherFormCours(coursId);
+            else { if (confirm("Vraiment SUPPRIMER ?")) supprimerCours(coursId); }
+        }
+
+        async function afficherFormCours(coursId = null) {
+            hideAllViews();
+            document.getElementById('view-form-cours').classList.remove('hidden');
+            document.getElementById('message-cours').innerText = '';
+            if (coursId) {
+                document.getElementById('titre-form-cours').innerText = "Modifier un cours";
+                const { data: c } = await supabaseClient.from('emploi_du_temps').select('*').eq('id', coursId).single();
+                document.getElementById('cours-id').value = c.id;
+                document.getElementById('cours-jour').value = c.jour;
+                document.getElementById('cours-debut').value = c.heure_debut;
+                document.getElementById('cours-fin').value = c.heure_fin;
+                document.getElementById('cours-matiere').value = c.matiere;
+                document.getElementById('cours-salle').value = c.salle || '';
+            } else {
+                document.getElementById('titre-form-cours').innerText = "Ajouter un cours";
+                ['cours-id', 'cours-debut', 'cours-fin', 'cours-matiere', 'cours-salle'].forEach(id => document.getElementById(id).value = '');
+                document.getElementById('cours-jour').value = 'Lundi';
+            }
+        }
+
+        async function sauvegarderCours() {
+            const id = document.getElementById('cours-id').value;
+            const debut = document.getElementById('cours-debut').value;
+            const fin = document.getElementById('cours-fin').value;
+            const matiere = document.getElementById('cours-matiere').value.trim();
+            const salle = document.getElementById('cours-salle').value.trim();
+            const msg = document.getElementById('message-cours');
+            if (!debut || !fin || !matiere) { msg.innerText = "Remplissez tout."; msg.style.color = "red"; return; }
+            const data = { classe_id: classeEnCours.id, jour: document.getElementById('cours-jour').value, heure_debut: debut, heure_fin: fin, matiere, salle: salle || null, ecole_id: monEcoleId };
+            if (id) await supabaseClient.from('emploi_du_temps').update(data).eq('id', id);
+            else await supabaseClient.from('emploi_du_temps').insert([data]);
+            msg.innerText = "Enregistre !"; msg.style.color = "green";
+            setTimeout(() => afficherEmploiClasse(classeEnCours.id), 1000);
+        }
+
+        async function supprimerCours(id) {
+            await supabaseClient.from('emploi_du_temps').delete().eq('id', id);
+            afficherEmploiClasse(classeEnCours.id);
+        }
+
+        document.addEventListener('change', function(e) {
+            if (e.target && e.target.id === 'logo-input') {
+                const file = e.target.files[0];
+                if (!file) return;
+                if (file.size > 200 * 1024) { alert("Image trop lourde (max 200 Ko)."); e.target.value = ''; return; }
+                const reader = new FileReader();
+                reader.onload = (ev) => { logoBase64 = ev.target.result; document.getElementById('img-apercu').src = logoBase64; document.getElementById('apercu-logo').classList.remove('hidden'); };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function supprimerLogo() {
+            logoBase64 = null;
+            document.getElementById('logo-input').value = '';
+            document.getElementById('apercu-logo').classList.add('hidden');
+        }
+
+        function afficherNouvelleAnnonce() {
+            hideAllViews();
+            document.getElementById('view-nouvelle-annonce').classList.remove('hidden');
+            document.getElementById('message-annonce').innerText = '';
+            document.getElementById('titre-annonce').value = '';
+            document.getElementById('contenu-annonce').value = '';
+            document.getElementById('signature-annonce').value = currentUser.prenom + ' ' + currentUser.nom + ', Le Directeur';
+            document.getElementById('logo-input').value = '';
+            document.getElementById('apercu-logo').classList.add('hidden');
+            logoBase64 = null;
+            chargerLogoEcole();
+        }
+
+        async function chargerLogoEcole() {
+            const { data: ecole } = await supabaseClient.from('ecoles').select('logo_url').eq('id', monEcoleId).single();
+            if (ecole && ecole.logo_url) { logoBase64 = ecole.logo_url; document.getElementById('img-apercu').src = logoBase64; document.getElementById('apercu-logo').classList.remove('hidden'); }
+        }
+
+        async function publierAnnonce() {
+            const titre = document.getElementById('titre-annonce').value.trim();
+            const contenu = document.getElementById('contenu-annonce').value.trim();
+            const cible = document.getElementById('cible-annonce').value;
+            const signature = document.getElementById('signature-annonce').value.trim();
+            const msg = document.getElementById('message-annonce');
+            if (!titre || !contenu) { msg.innerText = "Titre et contenu obligatoires."; msg.style.color = "red"; return; }
+            if (logoBase64) await supabaseClient.from('ecoles').update({ logo_url: logoBase64 }).eq('id', monEcoleId);
+            const { error } = await supabaseClient.from('annonces').insert([{ ecole_id: monEcoleId, auteur_id: currentUser.id, titre, contenu, cible, signature: signature || null, logo_annonce: logoBase64 || null }]);
+            if (error) { msg.innerText = "Erreur : " + error.message; msg.style.color = "red"; return; }
+            let q = supabaseClient.from('utilisateurs').select('id').eq('ecole_id', monEcoleId).neq('id', currentUser.id);
+            if (cible !== 'tous') q = q.eq('role', cible);
+            const { data: dest } = await q;
+            if (dest && dest.length > 0) {
+                await supabaseClient.from('notifications').insert(dest.map(d => ({ utilisateur_id: d.id, titre: '📢 ' + titre, contenu, type: 'annonce', lu: false, ecole_id: monEcoleId })));
+            }
+            msg.innerText = "Annonce publiee !"; msg.style.color = "green";
+            setTimeout(() => afficherAnnonces(), 1200);
+        }
+
+        async function afficherAnnonces() {
+            hideAllViews();
+            document.getElementById('view-annonces').classList.remove('hidden');
+            const { data: annonces } = await supabaseClient.from('annonces').select('*').eq('ecole_id', monEcoleId).order('date_publication', { ascending: false });
+            let html = '';
+            if (annonces && annonces.length > 0) {
+                annonces.forEach(a => {
+                    const d = new Date(a.date_publication).toLocaleDateString('fr-FR');
+                    html += `<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100"><div class="flex justify-between items-start mb-2"><p class="text-sm font-bold text-gray-800">📢 ${a.titre}</p><span class="text-[10px] text-gray-400">${d}</span></div><p class="text-xs text-gray-600 mb-3">${a.contenu.substring(0, 100)}${a.contenu.length > 100 ? '...' : ''}</p><div class="flex justify-between items-center"><span class="text-[10px] bg-blue-50 text-edu-blue font-semibold px-2 py-1 rounded">${a.cible}</span><div class="flex gap-2"><button onclick="voirAffiche(${a.id})" class="bg-blue-50 text-edu-blue text-[10px] font-bold px-2 py-1 rounded">Voir l'affiche</button><button onclick="supprimerAnnonce(${a.id})" class="bg-red-50 text-edu-red text-[10px] font-bold px-2 py-1 rounded">Supprimer</button></div></div></div>`;
+                });
+            } else html = '<p class="text-gray-500 text-center py-4">Aucune annonce.</p>';
+            document.getElementById('liste-annonces-admin').innerHTML = html;
+        }
+
+        async function voirAffiche(id) {
+            hideAllViews();
+            document.getElementById('view-affiche').classList.remove('hidden');
+            const { data: a } = await supabaseClient.from('annonces').select('*').eq('id', id).single();
+            const { data: ecole } = await supabaseClient.from('ecoles').select('nom').eq('id', monEcoleId).single();
+            document.getElementById('contenu-affiche').innerHTML = construireAffiche(a, ecole ? ecole.nom : 'Etablissement');
+        }
+
+        function construireAffiche(a, ecoleNom) {
+            const datePub = new Date(a.date_publication).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+            const logo = a.logo_annonce || logoBase64;
+            return `<div style="background: white; border: 3px solid #004AAD; border-radius: 15px; overflow: hidden; font-family: Arial, sans-serif;"><div style="background: linear-gradient(135deg, #004AAD 0%, #0066CC 100%); padding: 20px 15px; text-align: center;">${logo ? `<img src="${logo}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 50%; border: 3px solid white; margin-bottom: 8px;">` : '<div style="font-size: 40px; margin-bottom: 5px;">📖</div>'}<h1 style="color: white; font-size: 20px; font-weight: bold; margin: 5px 0; letter-spacing: 1px;">EDU-LINK</h1><p style="color: rgba(255,255,255,0.9); font-size: 12px; margin: 0;">${ecoleNom}</p></div><div style="padding: 20px;"><div style="text-align: center; background: #f0f7ff; padding: 12px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #004AAD;"><p style="font-size: 11px; color: #004AAD; font-weight: bold; margin: 0 0 5px 0; letter-spacing: 2px;">📢 COMMUNICATION OFFICIELLE</p><h2 style="font-size: 18px; font-weight: bold; color: #004AAD; margin: 0;">${a.titre}</h2></div><div style="background: #f9fafb; padding: 15px; border-radius: 10px; margin-bottom: 20px;"><p style="font-size: 13px; color: #1f2937; line-height: 1.8; margin: 0; white-space: pre-wrap; text-align: justify;">${a.contenu}</p></div><div style="text-align: right; margin-top: 25px; padding-top: 15px; border-top: 1px solid #e5e7eb;"><p style="font-size: 11px; color: #6b7280; margin: 0;">Publiee le ${datePub}</p>${signatureBase64 ? `<img src="${signatureBase64}" style="max-height: 55px; max-width: 180px; margin-top: 8px; display: block; margin-left: auto;">` : ''}${a.signature ? `<p style="font-size: 13px; font-weight: bold; color: #004AAD; margin: 5px 0 0 0;">${a.signature}</p>` : ''}</div></div><div style="background: #004AAD; padding: 8px; text-align: center;"><p style="color: white; font-size: 9px; margin: 0;">Document officiel - EDU-LINK</p></div></div>`;
+        }
+
+        async function supprimerAnnonce(id) {
+            if (!confirm("Supprimer ?")) return;
+            await supabaseClient.from('annonces').delete().eq('id', id);
+            afficherAnnonces();
+        }
+
+        async function afficherGestionPaiements() {
+            hideAllViews();
+            document.getElementById('view-liste-paiements').classList.remove('hidden');
+            const { data: paiements } = await supabaseClient.from('paiements').select('*, eleves(matricule, utilisateurs!utilisateur_id(prenom, nom))').eq('ecole_id', monEcoleId).order('date_paiement', { ascending: false });
+            let totalE = 0, totalA = 0;
+            if (paiements) paiements.forEach(p => { if (p.statut === 'paye') totalE += parseFloat(p.montant); else if (p.statut === 'en_attente') totalA += parseFloat(p.montant); });
+            document.getElementById('stats-paiements').innerHTML = `<div class="grid grid-cols-2 gap-3"><div class="bg-green-50 p-3 rounded-2xl border border-green-100 text-center"><p class="text-[10px] text-gray-500 font-medium">Total encaisse</p><p class="text-md font-extrabold text-edu-green mt-1">${totalE.toLocaleString('fr-FR')} FCFA</p></div><div class="bg-orange-50 p-3 rounded-2xl border border-orange-100 text-center"><p class="text-[10px] text-gray-500 font-medium">En attente</p><p class="text-md font-extrabold text-edu-orange mt-1">${totalA.toLocaleString('fr-FR')} FCFA</p></div></div>`;
+            let html = '';
+            if (paiements && paiements.length > 0) {
+                paiements.forEach(p => {
+                    const c = p.statut === 'paye' ? 'bg-green-50 text-edu-green' : p.statut === 'en_attente' ? 'bg-orange-50 text-edu-orange' : 'bg-red-50 text-edu-red';
+                    const lbl = p.statut === 'paye' ? 'Paye' : p.statut === 'en_attente' ? 'En attente' : 'Echoue';
+                    html += `<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100"><div class="flex justify-between items-start mb-2"><div class="flex-1"><p class="text-sm font-bold text-gray-800">${p.eleves && p.eleves.utilisateurs ? p.eleves.utilisateurs.prenom + ' ' + p.eleves.utilisateurs.nom : 'Eleve'}</p><p class="text-[10px] text-gray-500">${p.type_paiement} - ${p.methode}</p></div><span class="${c} text-[10px] font-bold px-2 py-1 rounded">${lbl}</span></div><div class="flex justify-between items-center"><p class="text-md font-extrabold text-gray-800">${parseFloat(p.montant).toLocaleString('fr-FR')} FCFA</p><button onclick="supprimerPaiement(${p.id})" class="text-[10px] text-red-500 font-semibold">Supprimer</button></div></div>`;
+                });
+            } else html = '<p class="text-gray-500 text-center py-4">Aucun paiement.</p>';
+            document.getElementById('liste-paiements-admin').innerHTML = html;
+        }
+
+        async function afficherFormPaiement() {
+            hideAllViews();
+            document.getElementById('view-form-paiement').classList.remove('hidden');
+            document.getElementById('message-paiement').innerText = '';
+            document.getElementById('info-solde').classList.add('hidden');
+            document.getElementById('paiement-montant').value = '';
+            const { data: eleves } = await supabaseClient.from('eleves').select('id, matricule, classe_id, utilisateurs!utilisateur_id(prenom, nom), classes(nom, frais_scolarite)').eq('ecole_id', monEcoleId).order('id', { ascending: false });
+            listeElevesGlobal = eleves || [];
+            const sel = document.getElementById('paiement-eleve');
+            sel.innerHTML = '<option value="">Selectionnez un eleve</option>';
+            if (eleves) eleves.forEach(e => { sel.innerHTML += `<option value="${e.id}">${e.utilisateurs.prenom} ${e.utilisateurs.nom} - ${e.classes ? e.classes.nom : ''}</option>`; });
+        }
+
+        async function afficherSoldeEleve() {
+            const eleveId = document.getElementById('paiement-eleve').value;
+            const infoDiv = document.getElementById('info-solde');
+            if (!eleveId) { infoDiv.classList.add('hidden'); return; }
+            const eleve = listeElevesGlobal.find(e => e.id == eleveId);
+            if (!eleve) return;
+            const fraisTotal = eleve.classes && eleve.classes.frais_scolarite ? parseFloat(eleve.classes.frais_scolarite) : 0;
+            const { data: paiements } = await supabaseClient.from('paiements').select('montant').eq('eleve_id', eleveId).eq('statut', 'paye');
+            let totalPaye = 0;
+            if (paiements) paiements.forEach(p => totalPaye += parseFloat(p.montant));
+            const reste = fraisTotal - totalPaye;
+            infoDiv.innerHTML = `<p class="font-bold text-edu-blue mb-1">${eleve.utilisateurs.prenom}</p><p>Frais : <b>${fraisTotal.toLocaleString('fr-FR')} FCFA</b></p><p>Paye : <b class="text-edu-green">${totalPaye.toLocaleString('fr-FR')} FCFA</b></p><p>Reste : <b class="${reste > 0 ? 'text-edu-red' : 'text-edu-green'}">${reste.toLocaleString('fr-FR')} FCFA</b></p>`;
+            infoDiv.classList.remove('hidden');
+        }
+
+        async function sauvegarderPaiement() {
+            const eleveId = document.getElementById('paiement-eleve').value;
+            const montant = document.getElementById('paiement-montant').value;
+            const msg = document.getElementById('message-paiement');
+            if (!eleveId || !montant) { msg.innerText = "Eleve et montant obligatoires."; msg.style.color = "red"; return; }
+            const { error } = await supabaseClient.from('paiements').insert([{ eleve_id: parseInt(eleveId), montant: parseFloat(montant), type_paiement: document.getElementById('paiement-type').value, methode: document.getElementById('paiement-methode').value, statut: document.getElementById('paiement-statut').value, ecole_id: monEcoleId }]);
+            if (error) { msg.innerText = "Erreur"; msg.style.color = "red"; return; }
+            msg.innerText = "Enregistre !"; msg.style.color = "green";
+            setTimeout(() => afficherGestionPaiements(), 1000);
+        }
+
+        async function supprimerPaiement(id) {
+            if (!confirm("Supprimer ?")) return;
+            await supabaseClient.from('paiements').delete().eq('id', id);
+            afficherGestionPaiements();
+        }
+
+        async function afficherGestionClasses() {
+            hideAllViews();
+            document.getElementById('view-liste-classes').classList.remove('hidden');
+            const { data: classes } = await supabaseClient.from('classes').select('*').eq('ecole_id', monEcoleId).order('nom');
+            let html = '';
+            if (classes && classes.length > 0) {
+                for (const c of classes) {
+                    const { count } = await supabaseClient.from('eleves').select('*', { count: 'exact', head: true }).eq('classe_id', c.id);
+                    html += `<div data-search="${c.nom} ${c.niveau || ''}" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100"><div class="flex items-center gap-3 mb-2"><div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-xl">🏫</div><div class="flex-1"><p class="text-sm font-bold text-gray-800">${c.nom}</p><p class="text-[10px] text-gray-500">${c.niveau || ''} - ${count || 0} eleves - ${c.frais_scolarite || 0} FCFA</p></div></div><div class="flex gap-2 justify-end"><button onclick="editerClasse(${c.id})" class="bg-blue-50 text-edu-blue text-xs font-bold px-3 py-1 rounded-lg">Modifier</button><button onclick="supprimerClasse(${c.id}, '${c.nom}')" class="bg-red-50 text-edu-red text-xs font-bold px-3 py-1 rounded-lg">Supprimer</button></div></div>`;
+                }
+            } else html = '<p class="text-gray-500 text-center py-4">Aucune classe.</p>';
+            document.getElementById('liste-classes-admin').innerHTML = html;
+        }
+
+        async function afficherFormClasse(classeId = null) {
+            hideAllViews();
+            document.getElementById('view-form-classe').classList.remove('hidden');
+            document.getElementById('message-classe').innerText = '';
+            if (classeId) {
+                document.getElementById('titre-form-classe').innerText = "Modifier";
+                const { data: c } = await supabaseClient.from('classes').select('*').eq('id', classeId).single();
+                document.getElementById('classe-id').value = c.id;
+                document.getElementById('classe-nom').value = c.nom;
+                document.getElementById('classe-niveau').value = c.niveau || '';
+                document.getElementById('classe-annee').value = c.annee_scolaire || '';
+                document.getElementById('classe-frais').value = c.frais_scolarite || '';
+            } else {
+                document.getElementById('titre-form-classe').innerText = "Ajouter";
+                ['classe-id', 'classe-nom', 'classe-niveau', 'classe-frais'].forEach(id => document.getElementById(id).value = '');
+                document.getElementById('classe-annee').value = '2024-2025';
+            }
+        }
+
+        async function editerClasse(id) { afficherFormClasse(id); }
+
+        async function sauvegarderClasse() {
+            const id = document.getElementById('classe-id').value;
+            const nom = document.getElementById('classe-nom').value.trim();
+            const msg = document.getElementById('message-classe');
+            if (!nom) { msg.innerText = "Nom obligatoire."; msg.style.color = "red"; return; }
+            const data = { nom, niveau: document.getElementById('classe-niveau').value, annee_scolaire: document.getElementById('classe-annee').value, frais_scolarite: parseFloat(document.getElementById('classe-frais').value) || 0 };
+            if (id) await supabaseClient.from('classes').update(data).eq('id', id);
+            else await supabaseClient.from('classes').insert([{ ecole_id: monEcoleId, ...data }]);
+            msg.innerText = "Enregistre !"; msg.style.color = "green";
+            setTimeout(() => afficherGestionClasses(), 1000);
+        }
+
+        async function supprimerClasse(id, nom) {
+            const { count } = await supabaseClient.from('eleves').select('*', { count: 'exact', head: true }).eq('classe_id', id);
+            if (count > 0) { alert(count + " eleve(s)."); return; }
+            if (!confirm("Supprimer ?")) return;
+            await supabaseClient.from('classes').delete().eq('id', id);
+            afficherGestionClasses();
+        }
+
+        async function afficherGestionEnseignants() {
+            hideAllViews();
+            document.getElementById('view-liste-enseignants').classList.remove('hidden');
+            const { data: users } = await supabaseClient.from('utilisateurs').select('id, prenom, nom, email').eq('ecole_id', monEcoleId).eq('role', 'enseignant').order('nom');
+            let html = '';
+            if (users && users.length > 0) {
+                for (const u of users) {
+                    const { data: ens } = await supabaseClient.from('enseignants').select('id, specialite').eq('utilisateur_id', u.id).maybeSingle();
+                    html += `<div data-search="${u.prenom} ${u.nom} ${u.email} ${ens ? ens.specialite || '' : ''}" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100"><div class="flex items-center gap-3 mb-2"><div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-xl">👩🏾‍🏫</div><div class="flex-1"><p class="text-sm font-bold text-gray-800">${u.prenom} ${u.nom}</p><p class="text-[10px] text-gray-500">${ens ? ens.specialite || '' : ''}</p></div></div><div class="flex gap-2 justify-end"><button onclick="editerEnseignant(${ens ? ens.id : 0}, ${u.id})" class="bg-blue-50 text-edu-blue text-xs font-bold px-3 py-1 rounded-lg">Modifier</button><button onclick="supprimerEnseignant(${ens ? ens.id : 0}, ${u.id})" class="bg-red-50 text-edu-red text-xs font-bold px-3 py-1 rounded-lg">Supprimer</button></div></div>`;
+                }
+            } else html = '<p class="text-gray-500 text-center py-4">Aucun enseignant.</p>';
+            document.getElementById('liste-enseignants-admin').innerHTML = html;
+        }
+
+        async function afficherFormEnseignant(ensId = null, userId = null) {
+            hideAllViews();
+            document.getElementById('view-form-enseignant').classList.remove('hidden');
+            document.getElementById('message-ens').innerText = '';
+            const { data: classes } = await supabaseClient.from('classes').select('id, nom').eq('ecole_id', monEcoleId).order('nom');
+            const sc = document.getElementById('ens-classe');
+            sc.innerHTML = '<option value="">Aucune</option>';
+            if (classes) classes.forEach(c => sc.innerHTML += `<option value="${c.id}">${c.nom}</option>`);
+            if (ensId && userId) {
+                document.getElementById('titre-form-ens').innerText = "Modifier";
+                const { data: u } = await supabaseClient.from('utilisateurs').select('*').eq('id', userId).single();
+                document.getElementById('ens-id').value = ensId;
+                document.getElementById('ens-user-id').value = userId;
+                document.getElementById('ens-prenom').value = u.prenom;
+                document.getElementById('ens-nom').value = u.nom;
+                document.getElementById('ens-email').value = u.email;
+                document.getElementById('ens-password').value = '';
+                if (ensId) {
+                    const { data: e } = await supabaseClient.from('enseignants').select('*').eq('id', ensId).single();
+                    if (e) { document.getElementById('ens-specialite').value = e.specialite || ''; document.getElementById('ens-embauche').value = e.date_embauche || ''; }
+                }
+            } else {
+                document.getElementById('titre-form-ens').innerText = "Ajouter";
+                ['ens-id', 'ens-user-id', 'ens-prenom', 'ens-nom', 'ens-email', 'ens-password', 'ens-specialite', 'ens-embauche', 'ens-matiere'].forEach(id => document.getElementById(id).value = '');
+                document.getElementById('ens-classe').value = '';
+            }
+        }
+
+        async function editerEnseignant(ensId, userId) { afficherFormEnseignant(ensId, userId); }
+
+        async function sauvegarderEnseignant() {
+            const id = document.getElementById('ens-id').value;
+            const userId = document.getElementById('ens-user-id').value;
+            const prenom = document.getElementById('ens-prenom').value.trim();
+            const nom = document.getElementById('ens-nom').value.trim();
+            const email = document.getElementById('ens-email').value.trim();
+            const password = document.getElementById('ens-password').value.trim();
+            const msg = document.getElementById('message-ens');
+            if (!prenom || !nom || !email) { msg.innerText = "Champs obligatoires."; msg.style.color = "red"; return; }
+            if (!userId && !password) { msg.innerText = "Mot de passe obligatoire."; msg.style.color = "red"; return; }
+            try {
+                let ensIdFinal = id;
+                if (userId) {
+                    const upd = { prenom, nom, email };
+                    if (password) upd.mot_de_passe = password;
+                    await supabaseClient.from('utilisateurs').update(upd).eq('id', userId);
+                    if (ensId) await supabaseClient.from('enseignants').update({ specialite: document.getElementById('ens-specialite').value, date_embauche: document.getElementById('ens-embauche').value || null }).eq('id', ensId);
+                } else {
+                    const { data: nu } = await supabaseClient.from('utilisateurs').insert([{ ecole_id: monEcoleId, role: 'enseignant', prenom, nom, email, mot_de_passe: password, statut: 'actif' }]).select().single();
+                    const { data: ne } = await supabaseClient.from('enseignants').insert([{ utilisateur_id: nu.id, specialite: document.getElementById('ens-specialite').value, date_embauche: document.getElementById('ens-embauche').value || null }]).select().single();
+                    ensIdFinal = ne.id;
+                }
+                if (ensIdFinal) {
+                    await supabaseClient.from('affectations').delete().eq('enseignant_id', ensIdFinal);
+                    const classeId = document.getElementById('ens-classe').value;
+                    const matiere = document.getElementById('ens-matiere').value.trim();
+                    if (classeId && matiere) await supabaseClient.from('affectations').insert([{ enseignant_id: ensIdFinal, classe_id: parseInt(classeId), matiere }]);
+                }
+                msg.innerText = "Enregistre !"; msg.style.color = "green";
+                setTimeout(() => afficherGestionEnseignants(), 1000);
+            } catch (err) { msg.innerText = "Erreur : " + err.message; msg.style.color = "red"; }
+        }
+
+        async function supprimerEnseignant(ensId, userId) {
+            if (!confirm("Supprimer ?")) return;
+            if (ensId) {
+                await supabaseClient.from('affectations').delete().eq('enseignant_id', ensId);
+                await supabaseClient.from('enseignants').delete().eq('id', ensId);
+            }
+            await supabaseClient.from('utilisateurs').delete().eq('id', userId);
+            afficherGestionEnseignants();
+        }
+
+        async function afficherGestionEleves() {
+            hideAllViews();
+            document.getElementById('view-liste-eleves').classList.remove('hidden');
+            const { data: eleves } = await supabaseClient.from('eleves').select('id, matricule, date_naissance, utilisateur_id, classe_id, parent_id, utilisateurs!utilisateur_id(prenom, nom)').eq('ecole_id', monEcoleId).order('id', { ascending: false });
+            let html = '';
+            if (eleves && eleves.length > 0) {
+                for (const e of eleves) {
+                    const { data: classe } = await supabaseClient.from('classes').select('nom').eq('id', e.classe_id).single();
+                    html += `<div data-search="${e.utilisateurs.prenom} ${e.utilisateurs.nom} ${e.matricule} ${classe ? classe.nom : ''}" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100"><div class="flex items-center gap-3 mb-2"><div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-xl">👦🏾</div><div class="flex-1"><p class="text-sm font-bold text-gray-800">${e.utilisateurs.prenom} ${e.utilisateurs.nom}</p><p class="text-[10px] text-gray-500">${e.matricule} - ${classe ? classe.nom : ''}</p></div></div><div class="flex gap-2 justify-end"><button onclick="editerEleve(${e.id})" class="bg-blue-50 text-edu-blue text-xs font-bold px-3 py-1 rounded-lg">Modifier</button><button onclick="supprimerEleve(${e.id}, ${e.utilisateur_id})" class="bg-red-50 text-edu-red text-xs font-bold px-3 py-1 rounded-lg">Supprimer</button></div></div>`;
+                }
+            } else html = '<p class="text-gray-500 text-center py-4">Aucun eleve.</p>';
+            document.getElementById('liste-eleves-admin').innerHTML = html;
+        }
+
+        async function afficherFormEleve(eleveId = null) {
+            hideAllViews();
+            document.getElementById('view-form-eleve').classList.remove('hidden');
+            document.getElementById('message-eleve').innerText = '';
+            const { data: classes } = await supabaseClient.from('classes').select('id, nom').eq('ecole_id', monEcoleId).order('nom');
+            const sc = document.getElementById('eleve-classe');
+            sc.innerHTML = '<option value="">Classe</option>';
+            if (classes) classes.forEach(c => sc.innerHTML += `<option value="${c.id}">${c.nom}</option>`);
+            const { data: parents } = await supabaseClient.from('utilisateurs').select('id, prenom, nom').eq('ecole_id', monEcoleId).eq('role', 'parent').order('nom');
+            const sp = document.getElementById('eleve-parent');
+            sp.innerHTML = '<option value="">Aucun parent</option>';
+            if (parents) parents.forEach(p => sp.innerHTML += `<option value="${p.id}">${p.prenom} ${p.nom}</option>`);
+            if (eleveId) {
+                document.getElementById('titre-form-eleve').innerText = "Modifier";
+                const { data: e } = await supabaseClient.from('eleves').select('*, utilisateurs!utilisateur_id(prenom, nom, email)').eq('id', eleveId).single();
+                document.getElementById('eleve-id').value = e.id;
+                document.getElementById('eleve-prenom').value = e.utilisateurs.prenom;
+                document.getElementById('eleve-nom').value = e.utilisateurs.nom;
+                document.getElementById('eleve-email').value = e.utilisateurs.email;
+                document.getElementById('eleve-password').value = '';
+                document.getElementById('eleve-naissance').value = e.date_naissance || '';
+                document.getElementById('eleve-classe').value = e.classe_id;
+                document.getElementById('eleve-parent').value = e.parent_id || '';
+                document.getElementById('eleve-matricule').value = e.matricule;
+            } else {
+                document.getElementById('titre-form-eleve').innerText = "Ajouter";
+                ['eleve-id', 'eleve-prenom', 'eleve-nom', 'eleve-email', 'eleve-password', 'eleve-naissance'].forEach(id => document.getElementById(id).value = '');
+                document.getElementById('eleve-classe').value = '';
+                document.getElementById('eleve-parent').value = '';
+                const { count } = await supabaseClient.from('eleves').select('*', { count: 'exact', head: true }).eq('ecole_id', monEcoleId);
+                document.getElementById('eleve-matricule').value = 'ELV' + new Date().getFullYear() + String((count || 0) + 1).padStart(3, '0');
+            }
+        }
+
+        async function editerEleve(id) { afficherFormEleve(id); }
+
+        async function sauvegarderEleve() {
+            const id = document.getElementById('eleve-id').value;
+            const prenom = document.getElementById('eleve-prenom').value.trim();
+            const nom = document.getElementById('eleve-nom').value.trim();
+            const email = document.getElementById('eleve-email').value.trim();
+            const password = document.getElementById('eleve-password').value.trim();
+            const classeId = document.getElementById('eleve-classe').value;
+            const matricule = document.getElementById('eleve-matricule').value.trim();
+            const msg = document.getElementById('message-eleve');
+            if (!prenom || !nom || !email || !classeId || !matricule) { msg.innerText = "Champs manquants."; msg.style.color = "red"; return; }
+            if (!id && !password) { msg.innerText = "Mot de passe obligatoire."; msg.style.color = "red"; return; }
+            const parentId = document.getElementById('eleve-parent').value;
+            const naissance = document.getElementById('eleve-naissance').value;
+            try {
+                if (id) {
+                    const { data: ea } = await supabaseClient.from('eleves').select('utilisateur_id').eq('id', id).single();
+                    const upd = { prenom, nom, email };
+                    if (password) upd.mot_de_passe = password;
+                    await supabaseClient.from('utilisateurs').update(upd).eq('id', ea.utilisateur_id);
+                    await supabaseClient.from('eleves').update({ classe_id: parseInt(classeId), parent_id: parentId ? parseInt(parentId) : null, matricule, date_naissance: naissance || null }).eq('id', id);
+                } else {
+                    const { data: nu } = await supabaseClient.from('utilisateurs').insert([{ ecole_id: monEcoleId, role: 'eleve', prenom, nom, email, mot_de_passe: password, statut: 'actif' }]).select().single();
+                    await supabaseClient.from('eleves').insert([{ utilisateur_id: nu.id, classe_id: parseInt(classeId), parent_id: parentId ? parseInt(parentId) : null, matricule, date_naissance: naissance || null, ecole_id: monEcoleId }]);
+                }
+                msg.innerText = "Enregistre !"; msg.style.color = "green";
+                setTimeout(() => afficherGestionEleves(), 1000);
+            } catch (err) { msg.innerText = "Erreur : " + err.message; msg.style.color = "red"; }
+        }
+
+        async function supprimerEleve(eleveId, userId) {
+            if (!confirm("Supprimer ?")) return;
+            await supabaseClient.from('eleves').delete().eq('id', eleveId);
+            await supabaseClient.from('utilisateurs').delete().eq('id', userId);
+            afficherGestionEleves();
+        }
+
+        async function afficherNotifications() {
+            hideAllViews();
+            document.getElementById('view-notifications').classList.remove('hidden');
+            const { data: notifs } = await supabaseClient.from('notifications').select('*').eq('utilisateur_id', currentUser.id).order('date_creation', { ascending: false });
+            let html = '';
+            if (notifs && notifs.length > 0) {
+                notifs.forEach(n => {
+                    html += `<div class="bg-orange-50 border-l-4 border-edu-orange p-4 rounded-r-2xl mb-2"><p class="text-sm font-bold text-edu-orange">${n.titre}</p><p class="text-xs text-gray-600 mt-1">${n.contenu}</p></div>`;
+                    supabaseClient.from('notifications').update({ lu: true }).eq('id', n.id);
+                });
+                chargerBadgeNotifs();
+            } else html = '<p class="text-gray-500 text-center py-4">Aucune notification.</p>';
+            document.getElementById('liste-notifications').innerHTML = html;
+        }
+
+        function filtrerListe(inputId, containerId) {
+            const terme = document.getElementById(inputId).value.toLowerCase().trim();
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            const items = container.querySelectorAll('[data-search]');
+            items.forEach(item => {
+                if (!terme || item.getAttribute('data-search').toLowerCase().includes(terme)) item.style.display = '';
+                else item.style.display = 'none';
+            });
+        }
+
+        function retourAccueil() {
+            hideAllViews();
+            document.getElementById('view-accueil').classList.remove('hidden');
+            chargerStats();
+            chargerBadgeDemandes();
+            chargerBadgeEquipe();
+            chargerBadgeMdp();
+        }
+
+        function seDeconnecter() { sessionStorage.removeItem('eduLinkUser'); window.location.href = 'index.html'; }
+    </script>
+</body>
+</html>

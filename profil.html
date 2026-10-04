@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDU-LINK - Mon Profil</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script>
+        tailwind.config = { theme: { extend: { colors: { 'edu-blue': '#004AAD', 'edu-green': '#2EAD5E', 'edu-red': '#EF4444', 'edu-orange': '#F59E0B' } } } }
+    </script>
+    <style> body { background-color: #f3f4f6; } </style>
+</head>
+<body class="min-h-screen flex justify-center items-start pt-10 p-4">
+    <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col h-auto min-h-[600px]">
+        
+        <div id="page-profil" class="flex-1 flex-col flex">
+            <div class="p-6 pb-2 flex justify-between items-center bg-white border-b">
+                <div class="flex items-center gap-3">
+                    <button onclick="retour()" class="text-2xl">⬅️</button>
+                    <h1 class="text-lg font-bold text-gray-800">Mon profil</h1>
+                </div>
+                <button onclick="seDeconnecter()" class="text-sm font-bold text-red-500">Deconnexion</button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-6">
+                
+                <div class="text-center mb-6">
+                    <div class="relative inline-block mb-3">
+                        <div id="avatar-grand" class="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center text-5xl border-4 border-edu-blue overflow-hidden">👤</div>
+                        <label for="photo-input" class="absolute bottom-0 right-0 w-9 h-9 bg-edu-blue text-white rounded-full flex items-center justify-center text-base cursor-pointer border-2 border-white shadow-lg active:scale-95 transition">📷</label>
+                        <input type="file" id="photo-input" accept="image/*" class="hidden">
+                    </div>
+                    <h2 id="profil-nom" class="text-xl font-bold text-gray-800">...</h2>
+                    <p id="profil-role" class="text-sm text-gray-500 font-medium">...</p>
+                    <p id="profil-ecole" class="text-xs text-edu-blue font-semibold mt-1">...</p>
+                    <p id="message-photo" class="text-xs font-semibold mt-2"></p>
+                </div>
+
+                <div class="bg-gray-50 rounded-2xl p-4 mb-4">
+                    <h3 class="text-sm font-bold text-edu-blue mb-3">📋 Informations personnelles</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Prenom</label>
+                            <input type="text" id="input-prenom" class="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Nom</label>
+                            <input type="text" id="input-nom" class="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Email</label>
+                            <input type="email" id="input-email" class="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Telephone</label>
+                            <input type="tel" id="input-telephone" placeholder="+221 ..." class="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Nouveau mot de passe <span class="text-gray-400 font-normal">(laisser vide)</span></label>
+                            <input type="password" id="input-password" placeholder="********" class="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="bloc-eleve" class="hidden bg-blue-50 rounded-2xl p-4 mb-4">
+                    <h3 class="text-sm font-bold text-edu-blue mb-3">🎓 Scolarite</h3>
+                    <div class="space-y-2 text-sm">
+                        <p><b>Matricule :</b> <span id="eleve-matricule">...</span></p>
+                        <p><b>Date de naissance :</b> <span id="eleve-naissance">...</span></p>
+                        <p><b>Classe :</b> <span id="eleve-classe">...</span></p>
+                        <p><b>Contact parent :</b> <span id="eleve-parent">...</span></p>
+                    </div>
+                </div>
+
+                <div id="bloc-enseignant" class="hidden bg-green-50 rounded-2xl p-4 mb-4">
+                    <h3 class="text-sm font-bold text-edu-green mb-3">👨🏾‍🏫 Enseignement</h3>
+                    <div class="space-y-2 text-sm">
+                        <p><b>Specialite :</b> <span id="ens-specialite">...</span></p>
+                        <p><b>Date d'embauche :</b> <span id="ens-embauche">...</span></p>
+                        <p><b>Classes assignees :</b> <span id="ens-classes">...</span></p>
+                    </div>
+                </div>
+
+                <div id="bloc-admin" class="hidden bg-orange-50 rounded-2xl p-4 mb-4">
+                    <h3 class="text-sm font-bold text-edu-orange mb-3">🏫 Administration</h3>
+                    <div class="space-y-2 text-sm">
+                        <p><b>Etablissement :</b> <span id="admin-ecole">...</span></p>
+                        <p><b>Role :</b> Directeur</p>
+                    </div>
+                </div>
+
+                <button onclick="sauvegarderProfil()" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl mb-3">Enregistrer les modifications</button>
+                
+                <button id="btn-carte" onclick="telechargerCarte()" class="hidden w-full bg-edu-green text-white font-bold py-3 rounded-xl mb-3">🪪 Telecharger ma carte scolaire</button>
+
+                <div id="message-profil" class="text-center text-sm font-semibold mb-4"></div>
+
+                <div id="carte-pdf" style="position:fixed; left:-9999px; top:0; width:600px; background:white; padding:20px;">
+                    <div style="border:3px solid #004AAD; border-radius:15px; padding:20px; font-family:Arial,sans-serif; background:white;">
+                        <table style="width:100%; border-collapse:collapse;">
+                            <tr>
+                                <td style="text-align:center; padding-bottom:12px; border-bottom:2px solid #004AAD;">
+                                    <table style="width:100%; border-collapse:collapse;">
+                                        <tr>
+                                            <td style="text-align:left; vertical-align:middle;">
+                                                <span style="font-size:26px;">📖</span>
+                                                <span style="font-size:15px; font-weight:bold; color:#004AAD; margin-left:5px;">EDU-LINK</span>
+                                            </td>
+                                            <td style="text-align:right; vertical-align:middle;">
+                                                <span style="background:#004AAD; color:white; padding:4px 10px; border-radius:6px; font-size:10px; font-weight:bold;">CARTE SCOLAIRE</span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <p style="font-size:9px; color:#6b7280; margin:4px 0 0 0; text-align:left;" id="carte-ecole-nom">Etablissement</p>
+                                </td>
+                            </tr>
+                        </table>
+                        <table style="width:100%; border-collapse:collapse; margin-top:12px;">
+                            <tr>
+                                <td style="width:100px; text-align:center; vertical-align:middle;">
+                                    <div id="carte-avatar" style="width:90px; height:90px; background:#dbeafe; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:45px; border:3px solid #004AAD; overflow:hidden;">👩🏾‍🎓</div>
+                                </td>
+                                <td style="vertical-align:middle; padding-left:12px;">
+                                    <table style="width:100%; border-collapse:collapse;">
+                                        <tr><td style="font-size:10px; color:#6b7280; padding:3px 0; width:80px;">Nom</td><td style="font-size:13px; font-weight:bold; padding:3px 0; color:#1f2937;" id="carte-nom">...</td></tr>
+                                        <tr><td style="font-size:10px; color:#6b7280; padding:3px 0;">Prenom</td><td style="font-size:13px; font-weight:bold; padding:3px 0; color:#1f2937;" id="carte-prenom">...</td></tr>
+                                        <tr><td style="font-size:10px; color:#6b7280; padding:3px 0;">Matricule</td><td style="font-size:13px; font-weight:bold; padding:3px 0; color:#004AAD;" id="carte-matricule">...</td></tr>
+                                        <tr><td style="font-size:10px; color:#6b7280; padding:3px 0;">Classe</td><td style="font-size:13px; font-weight:bold; padding:3px 0; color:#1f2937;" id="carte-classe">...</td></tr>
+                                        <tr><td style="font-size:10px; color:#6b7280; padding:3px 0;">Ne(e) le</td><td style="font-size:13px; font-weight:bold; padding:3px 0; color:#1f2937;" id="carte-naissance">...</td></tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                        <table style="width:100%; border-collapse:collapse; margin-top:12px;">
+                            <tr><td style="font-size:9px; color:#6b7280; text-align:center; padding-top:10px; border-top:1px solid #d1d5db;"><p style="margin:0;">Annee scolaire 2024-2025</p><p style="margin:2px 0;">Cette carte est la propriete de l'etablissement</p><p style="margin:2px 0; font-size:8px; color:#9ca3af;">Emise par EDU-LINK</p></td></tr>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFid2d1aXhjbG14dHp2bHNtYmJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4OTg1OTMsImV4cCI6MjEwNjQ3NDU5M30.8MiG5YdoMIY69KYfBdlXHIB9Zisd5miX3slaCoqVcjM';
+        const supabaseUrl = 'https://abwguixclmxtzvlsmbby.supabase.co';
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+        
+        const sessionUser = sessionStorage.getItem('eduLinkUser');
+        if (!sessionUser) { window.location.href = 'index.html'; }
+        const parsedUser = JSON.parse(sessionUser);
+        
+        let currentUser = null;
+
+        window.addEventListener('load', async () => {
+            currentUser = parsedUser;
+            document.getElementById('profil-nom').innerText = currentUser.prenom + ' ' + currentUser.nom;
+            document.getElementById('profil-role').innerText = currentUser.role;
+            
+            afficherAvatar();
+            
+            if (currentUser.ecole_id) {
+                const { data: ecole } = await supabaseClient.from('ecoles').select('nom').eq('id', currentUser.ecole_id).single();
+                if (ecole) {
+                    document.getElementById('profil-ecole').innerText = ecole.nom;
+                    document.getElementById('carte-ecole-nom').innerText = ecole.nom;
+                    document.getElementById('admin-ecole').innerText = ecole.nom;
+                }
+            }
+            
+            document.getElementById('input-prenom').value = currentUser.prenom;
+            document.getElementById('input-nom').value = currentUser.nom;
+            document.getElementById('input-email').value = currentUser.email;
+            document.getElementById('input-telephone').value = currentUser.telephone || '';
+
+            if (currentUser.role === 'eleve') await chargerInfosEleve();
+            else if (currentUser.role === 'enseignant') await chargerInfosEnseignant();
+            else if (currentUser.role === 'admin') document.getElementById('bloc-admin').classList.remove('hidden');
+        });
+
+        function afficherAvatar() {
+            const conteneur = document.getElementById('avatar-grand');
+            const carteAvatar = document.getElementById('carte-avatar');
+            const avatarsEmoji = { eleve: '👩🏾‍🎓', enseignant: '👩🏾‍🏫', parent: '👨‍👩‍👧', admin: '👨🏾‍💼' };
+            const emoji = avatarsEmoji[currentUser.role] || '👤';
+            
+            if (currentUser.photo_url) {
+                const imgHtml = `<img src="${currentUser.photo_url}" style="width:100%; height:100%; object-fit:cover;">`;
+                conteneur.innerHTML = imgHtml;
+                if (carteAvatar) carteAvatar.innerHTML = `<img src="${currentUser.photo_url}" style="width:100%; height:100%; object-fit:cover;">`;
+            } else {
+                conteneur.innerText = emoji;
+                if (carteAvatar) carteAvatar.innerText = emoji;
+            }
+        }
+
+        document.addEventListener('change', function(e) {
+            if (e.target && e.target.id === 'photo-input') {
+                const file = e.target.files[0];
+                const msg = document.getElementById('message-photo');
+                if (!file) return;
+                
+                if (file.size > 200 * 1024) {
+                    msg.innerText = "⚠️ Image trop lourde (max 200 Ko).";
+                    msg.style.color = "#EF4444";
+                    e.target.value = '';
+                    return;
+                }
+                
+                if (!file.type.startsWith('image/')) {
+                    msg.innerText = "⚠️ Format d'image non supporté.";
+                    msg.style.color = "#EF4444";
+                    e.target.value = '';
+                    return;
+                }
+                
+                msg.innerText = "Chargement...";
+                msg.style.color = "#F59E0B";
+                
+                const reader = new FileReader();
+                reader.onload = async (ev) => {
+                    const photoBase64 = ev.target.result;
+                    const { error } = await supabaseClient.from('utilisateurs').update({ photo_url: photoBase64 }).eq('id', currentUser.id);
+                    if (error) {
+                        msg.innerText = "Erreur : " + error.message;
+                        msg.style.color = "#EF4444";
+                        return;
+                    }
+                    currentUser.photo_url = photoBase64;
+                    sessionStorage.setItem('eduLinkUser', JSON.stringify(currentUser));
+                    afficherAvatar();
+                    msg.innerText = "✅ Photo mise à jour !";
+                    msg.style.color = "#2EAD5E";
+                    setTimeout(() => { msg.innerText = ''; }, 2000);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        async function chargerInfosEleve() {
+            document.getElementById('bloc-eleve').classList.remove('hidden');
+            document.getElementById('btn-carte').classList.remove('hidden');
+            const { data: e } = await supabaseClient.from('eleves').select('*, classes(nom)').eq('utilisateur_id', currentUser.id).single();
+            if (!e) return;
+            const dateNaissance = e.date_naissance ? new Date(e.date_naissance).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : 'N/A';
+            document.getElementById('eleve-matricule').innerText = e.matricule;
+            document.getElementById('eleve-naissance').innerText = dateNaissance;
+            document.getElementById('eleve-classe').innerText = e.classes ? e.classes.nom : 'N/A';
+            if (e.parent_id) {
+                const { data: p } = await supabaseClient.from('utilisateurs').select('prenom, nom, telephone').eq('id', e.parent_id).single();
+                if (p) document.getElementById('eleve-parent').innerText = p.prenom + ' ' + p.nom + (p.telephone ? ' - ' + p.telephone : '');
+            } else document.getElementById('eleve-parent').innerText = 'Non renseigne';
+            document.getElementById('carte-nom').innerText = currentUser.nom;
+            document.getElementById('carte-prenom').innerText = currentUser.prenom;
+            document.getElementById('carte-matricule').innerText = e.matricule;
+            document.getElementById('carte-classe').innerText = e.classes ? e.classes.nom : 'N/A';
+            document.getElementById('carte-naissance').innerText = dateNaissance;
+        }
+
+        async function chargerInfosEnseignant() {
+            document.getElementById('bloc-enseignant').classList.remove('hidden');
+            const { data: e } = await supabaseClient.from('enseignants').select('*').eq('utilisateur_id', currentUser.id).single();
+            if (!e) return;
+            document.getElementById('ens-specialite').innerText = e.specialite || 'N/A';
+            document.getElementById('ens-embauche').innerText = e.date_embauche ? new Date(e.date_embauche).toLocaleDateString('fr-FR') : 'N/A';
+            const { data: aff } = await supabaseClient.from('affectations').select('matiere, classes(nom)').eq('enseignant_id', e.id);
+            if (aff && aff.length > 0) {
+                document.getElementById('ens-classes').innerText = aff.map(a => a.classes ? a.classes.nom : '?').join(', ');
+            } else document.getElementById('ens-classes').innerText = 'Aucune';
+        }
+
+        async function sauvegarderProfil() {
+            const prenom = document.getElementById('input-prenom').value.trim();
+            const nom = document.getElementById('input-nom').value.trim();
+            const email = document.getElementById('input-email').value.trim();
+            const telephone = document.getElementById('input-telephone').value.trim();
+            const password = document.getElementById('input-password').value.trim();
+            const msg = document.getElementById('message-profil');
+
+            if (!prenom || !nom || !email) { msg.innerText = "Prenom, nom et email obligatoires."; msg.style.color = "red"; return; }
+
+            const upd = { prenom, nom, email };
+            if (telephone) upd.telephone = telephone;
+            if (password) upd.mot_de_passe = password;
+
+            const { error } = await supabaseClient.from('utilisateurs').update(upd).eq('id', currentUser.id);
+            if (error) { msg.innerText = "Erreur"; msg.style.color = "red"; return; }
+
+            const { data: user } = await supabaseClient.from('utilisateurs').select('*').eq('id', currentUser.id).single();
+            sessionStorage.setItem('eduLinkUser', JSON.stringify(user));
+            currentUser = user;
+            document.getElementById('profil-nom').innerText = prenom + ' ' + nom;
+            msg.innerText = "Profil mis a jour !"; msg.style.color = "green";
+            document.getElementById('input-password').value = '';
+        }
+
+        async function telechargerCarte() {
+            const btn = document.getElementById('btn-carte');
+            const msg = document.getElementById('message-profil');
+            btn.innerText = "Generation...";
+            btn.disabled = true;
+
+            const zoneTemp = document.createElement('div');
+            zoneTemp.style.position = 'fixed';
+            zoneTemp.style.left = '-9999px';
+            zoneTemp.style.top = '0';
+            zoneTemp.style.width = '600px';
+            
+            const carteOriginal = document.getElementById('carte-pdf');
+            const carteClone = carteOriginal.cloneNode(true);
+            carteClone.style.position = 'static';
+            carteClone.style.width = '100%';
+            zoneTemp.appendChild(carteClone);
+            document.body.appendChild(zoneTemp);
+
+            try {
+                const nomFichier = 'Carte_' + currentUser.prenom + '_' + currentUser.nom + '.pdf';
+                const options = { margin: 10, filename: nomFichier, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', width: 600, windowWidth: 600, scrollX: 0, scrollY: 0 }, jsPDF: { unit: 'mm', format: [120, 85], orientation: 'landscape' } };
+                const pdfBlob = await html2pdf().set(options).from(carteClone).outputPdf('blob');
+                const fichier = new File([pdfBlob], nomFichier, { type: 'application/pdf' });
+                document.body.removeChild(zoneTemp);
+
+                if (navigator.canShare && navigator.canShare({ files: [fichier] })) {
+                    await navigator.share({ files: [fichier], title: 'Carte scolaire' });
+                    msg.innerText = "Carte partagee !"; msg.style.color = "green";
+                } else {
+                    const url = URL.createObjectURL(pdfBlob);
+                    window.open(url, '_blank');
+                    msg.innerText = "Carte ouverte !"; msg.style.color = "green";
+                }
+                btn.innerText = "🪪 Telecharger ma carte scolaire";
+                btn.disabled = false;
+            } catch (err) {
+                if (document.body.contains(zoneTemp)) document.body.removeChild(zoneTemp);
+                if (err.name === 'AbortError') { msg.innerText = "Annule."; msg.style.color = "gray"; }
+                else { msg.innerText = "Erreur"; msg.style.color = "red"; }
+                btn.innerText = "🪪 Telecharger ma carte scolaire";
+                btn.disabled = false;
+            }
+        }
+
+        function retour() {
+            const pages = { eleve: 'eleve.html', enseignant: 'enseignant.html', parent: 'parent.html', admin: 'admin.html' };
+            window.location.href = pages[currentUser.role] || 'index.html';
+        }
+
+        function seDeconnecter() {
+            sessionStorage.removeItem('eduLinkUser');
+            window.location.href = 'index.html';
+        }
+    </script>
+    <script src="theme.js"></script>
+</body>
+</html>

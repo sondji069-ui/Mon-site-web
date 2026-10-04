@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDU-LINK - Mot de passe oublié</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { theme: { extend: { colors: { 'edu-blue': '#004AAD', 'edu-green': '#2EAD5E', 'edu-red': '#EF4444', 'edu-orange': '#F59E0B' } } } }
+    </script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #f0f7ff 0%, #e6f4ea 100%); min-height: 100vh; }
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4">
+
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 my-8 fade-in">
+        <div class="text-center mb-6">
+            <div class="text-5xl mb-2">🔑</div>
+            <h1 class="text-2xl font-bold text-edu-blue">Mot de passe oublié ?</h1>
+            <p class="text-xs text-gray-500 mt-2 leading-relaxed">Saisissez votre email. Votre école sera notifiée et vous communiquera un mot de passe temporaire.</p>
+        </div>
+
+        <!-- ETAPE 1 : formulaire -->
+        <div id="etape-form">
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Adresse email</label>
+                    <input type="email" id="email" placeholder="votre@email.com" class="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-edu-blue">
+                </div>
+                <button onclick="envoyerDemande()" id="btn-envoyer" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl">
+                    📩 Envoyer la demande
+                </button>
+                <div id="message" class="text-center text-sm font-semibold"></div>
+            </div>
+
+            <div class="mt-6 pt-6 border-t border-gray-200 text-center">
+                <a href="index.html" class="text-xs text-edu-blue font-semibold hover:underline">← Retour à la connexion</a>
+            </div>
+        </div>
+
+        <!-- ETAPE 2 : confirmation -->
+        <div id="etape-succes" class="hidden">
+            <div class="bg-green-50 border-2 border-edu-green rounded-2xl p-5 text-center mb-4">
+                <div class="text-4xl mb-2">✅</div>
+                <p class="text-sm font-bold text-edu-green mb-1">Demande envoyée !</p>
+                <p class="text-xs text-gray-600 leading-relaxed">Votre école a été prévenue. Elle vous communiquera un mot de passe temporaire dans les plus brefs délais.</p>
+            </div>
+            <div class="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-4">
+                <p class="text-[11px] text-gray-700 leading-relaxed">
+                    💡 <b>Que faire en attendant ?</b><br>
+                    Contactez directement l'administration de votre école (par téléphone ou en personne) pour accélérer le traitement.
+                </p>
+            </div>
+            <button onclick="retourFormulaire()" class="w-full bg-gray-100 text-gray-700 font-bold py-3 rounded-xl text-sm">
+                Faire une autre demande
+            </button>
+            <div class="mt-3 text-center">
+                <a href="index.html" class="text-xs text-edu-blue font-semibold hover:underline">← Retour à la connexion</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFid2d1aXhjbG14dHp2bHNtYmJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4OTg1OTMsImV4cCI6MjEwNjQ3NDU5M30.8MiG5YdoMIY69KYfBdlXHIB9Zisd5miX3slaCoqVcjM';
+        const supabaseUrl = 'https://abwguixclmxtzvlsmbby.supabase.co';
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+        async function envoyerDemande() {
+            const email = document.getElementById('email').value.trim();
+            const msg = document.getElementById('message');
+            const btn = document.getElementById('btn-envoyer');
+
+            if (!email) { msg.innerText = "Veuillez saisir votre email."; msg.style.color = "#EF4444"; return; }
+
+            btn.disabled = true;
+            btn.innerText = "Envoi en cours...";
+            msg.innerText = '';
+
+            try {
+                // 1. Chercher l'utilisateur
+                const { data: user } = await supabaseClient.from('utilisateurs').select('id, ecole_id, prenom, nom').eq('email', email).maybeSingle();
+
+                if (!user) {
+                    // Message generique pour eviter l'enumeration d'emails
+                    msg.innerText = "Si cette adresse existe, une demande a été envoyée à votre école.";
+                    msg.style.color = "#F59E0B";
+                    setTimeout(() => { document.getElementById('etape-form').classList.add('hidden'); document.getElementById('etape-succes').classList.remove('hidden'); }, 1500);
+                    return;
+                }
+
+                // 2. Verifier s'il y a deja une demande en attente
+                const { data: existante } = await supabaseClient.from('demandes_mdp')
+                    .select('id')
+                    .eq('utilisateur_id', user.id)
+                    .eq('statut', 'en_attente')
+                    .maybeSingle();
+
+                if (existante) {
+                    msg.innerText = "Une demande est déjà en cours pour cet email.";
+                    msg.style.color = "#F59E0B";
+                    setTimeout(() => { document.getElementById('etape-form').classList.add('hidden'); document.getElementById('etape-succes').classList.remove('hidden'); }, 1500);
+                    return;
+                }
+
+                // 3. Creer la demande
+                const { error: errDemande } = await supabaseClient.from('demandes_mdp').insert([{
+                    utilisateur_id: user.id,
+                    ecole_id: user.ecole_id,
+                    statut: 'en_attente'
+                }]);
+
+                if (errDemande) throw errDemande;
+
+                // 4. Notifier tous les admins de l'ecole
+                const { data: admins } = await supabaseClient.from('utilisateurs').select('id').eq('ecole_id', user.ecole_id).eq('role', 'admin');
+
+                if (admins && admins.length > 0) {
+                    const notifs = admins.map(a => ({
+                        utilisateur_id: a.id,
+                        titre: '🔑 Demande de mot de passe',
+                        contenu: user.prenom + ' ' + user.nom + ' a oublié son mot de passe et demande une réinitialisation.',
+                        type: 'message',
+                        lu: false,
+                        ecole_id: user.ecole_id
+                    }));
+                    await supabaseClient.from('notifications').insert(notifs);
+                }
+
+                msg.innerText = "✅ Demande envoyée !";
+                msg.style.color = "#2EAD5E";
+                setTimeout(() => {
+                    document.getElementById('etape-form').classList.add('hidden');
+                    document.getElementById('etape-succes').classList.remove('hidden');
+                }, 900);
+
+            } catch (err) {
+                msg.innerText = "Erreur : " + err.message;
+                msg.style.color = "#EF4444";
+                btn.disabled = false;
+                btn.innerText = "📩 Envoyer la demande";
+            }
+        }
+
+        function retourFormulaire() {
+            document.getElementById('etape-succes').classList.add('hidden');
+            document.getElementById('etape-form').classList.remove('hidden');
+            document.getElementById('email').value = '';
+            document.getElementById('message').innerText = '';
+            document.getElementById('btn-envoyer').disabled = false;
+            document.getElementById('btn-envoyer').innerText = "📩 Envoyer la demande";
+        }
+
+        document.getElementById('email').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') envoyerDemande();
+        });
+    </script>
+</body>
+</html>

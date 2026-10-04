@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDU-LINK - Inscrire mon école</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { theme: { extend: { colors: { 'edu-blue': '#004AAD', 'edu-green': '#2EAD5E', 'edu-red': '#EF4444' } } } }
+    </script>
+    <style> body { background: linear-gradient(135deg, #f0f7ff 0%, #e6f4ea 100%); } </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg p-8 my-8">
+        <div class="text-center mb-6">
+            <div class="text-5xl mb-2">📖</div>
+            <h1 class="text-3xl font-bold text-edu-blue">EDU-LINK</h1>
+            <p class="text-sm text-gray-500 mt-1">Inscrivez votre etablissement</p>
+        </div>
+
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 mb-6">
+            <p class="text-xs text-edu-blue font-semibold">💡 En 2 minutes, creez votre espace ecole et recevez un code d'acces unique a partager.</p>
+        </div>
+
+        <h2 class="text-lg font-bold text-gray-800 mb-3">🏫 Informations de l'ecole</h2>
+        <div class="space-y-3 mb-6">
+            <input type="text" id="ecole-nom" placeholder="Nom de l'ecole *" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-edu-blue">
+            <input type="text" id="ecole-adresse" placeholder="Adresse (ex: Dakar, Senegal)" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-edu-blue">
+            <input type="tel" id="ecole-telephone" placeholder="Telephone (ex: +221 33 123 45 67)" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-edu-blue">
+            <input type="email" id="ecole-email" placeholder="Email de l'ecole" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-edu-blue">
+        </div>
+
+        <h2 class="text-lg font-bold text-gray-800 mb-3">👨🏾‍💼 Compte du Directeur</h2>
+        <div class="space-y-3 mb-6">
+            <input type="text" id="admin-prenom" placeholder="Votre prenom *" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-edu-blue">
+            <input type="text" id="admin-nom" placeholder="Votre nom *" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-edu-blue">
+            <input type="email" id="admin-email" placeholder="Votre email *" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-edu-blue">
+            <input type="password" id="admin-password" placeholder="Mot de passe (min. 6 caracteres) *" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-edu-blue">
+            <input type="password" id="admin-password-confirm" placeholder="Confirmer le mot de passe *" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-edu-blue">
+        </div>
+
+        <button onclick="creerEcole()" id="btn-creer" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl hover:bg-blue-800 transition">
+            🚀 Creer mon ecole
+        </button>
+        
+        <div id="message" class="mt-4 text-center text-sm font-semibold"></div>
+
+        <p class="text-center text-xs text-gray-400 mt-6">
+            Deja inscrit ? <a href="index.html" class="text-edu-blue font-bold">Se connecter</a>
+        </p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFid2d1aXhjbG14dHp2bHNtYmJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4OTg1OTMsImV4cCI6MjEwNjQ3NDU5M30.8MiG5YdoMIY69KYfBdlXHIB9Zisd5miX3slaCoqVcjM';
+        const supabaseUrl = 'https://abwguixclmxtzvlsmbby.supabase.co';
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+        // Generer un code d'acces unique type "HORIZONS-A3F7"
+        function genererCodeAcces(nomEcole) {
+            var base = nomEcole
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .toUpperCase()
+                .replace(/[^A-Z0-9]/g, '')
+                .substring(0, 10);
+            if (!base || base.length < 3) base = 'ECOLE';
+            var aleatoire = Math.random().toString(36).substring(2, 6).toUpperCase();
+            return base + '-' + aleatoire;
+        }
+
+        // Chercher un code unique (au cas ou le code genere existe deja)
+        async function trouverCodeUnique(nomEcole) {
+            for (var i = 0; i < 10; i++) {
+                var code = genererCodeAcces(nomEcole);
+                var { data } = await supabaseClient.from('ecoles').select('id').eq('code_acces', code).maybeSingle();
+                if (!data) return code;
+            }
+            // Fallback
+            return 'ECOLE-' + Date.now().toString(36).toUpperCase().substring(0, 6);
+        }
+
+        async function creerEcole() {
+            const nomEcole = document.getElementById('ecole-nom').value.trim();
+            const adresse = document.getElementById('ecole-adresse').value.trim();
+            const telephone = document.getElementById('ecole-telephone').value.trim();
+            const emailEcole = document.getElementById('ecole-email').value.trim();
+            
+            const prenom = document.getElementById('admin-prenom').value.trim();
+            const nom = document.getElementById('admin-nom').value.trim();
+            const emailAdmin = document.getElementById('admin-email').value.trim();
+            const password = document.getElementById('admin-password').value;
+            const passwordConfirm = document.getElementById('admin-password-confirm').value;
+
+            const msg = document.getElementById('message');
+            const btn = document.getElementById('btn-creer');
+
+            if (!nomEcole || !prenom || !nom || !emailAdmin || !password) {
+                msg.innerText = "Veuillez remplir tous les champs obligatoires (*)";
+                msg.style.color = "red";
+                return;
+            }
+            if (password.length < 6) {
+                msg.innerText = "Le mot de passe doit faire au moins 6 caracteres.";
+                msg.style.color = "red";
+                return;
+            }
+            if (password !== passwordConfirm) {
+                msg.innerText = "Les mots de passe ne correspondent pas.";
+                msg.style.color = "red";
+                return;
+            }
+
+            msg.innerText = "Creation de votre ecole en cours...";
+            msg.style.color = "orange";
+            btn.disabled = true;
+            btn.innerText = "Creation...";
+
+            try {
+                // 1. Verifier si l'email admin est deja utilise
+                const { data: existant } = await supabaseClient
+                    .from('utilisateurs')
+                    .select('id')
+                    .eq('email', emailAdmin)
+                    .maybeSingle();
+
+                if (existant) {
+                    msg.innerText = "Cet email est deja utilise. Essayez un autre.";
+                    msg.style.color = "red";
+                    btn.disabled = false;
+                    btn.innerText = "🚀 Creer mon ecole";
+                    return;
+                }
+
+                // 2. Generer un code d'acces unique
+                const codeAcces = await trouverCodeUnique(nomEcole);
+
+                // 3. Creer l'ecole avec le code
+                const { data: nouvelleEcole, error: errEcole } = await supabaseClient
+                    .from('ecoles')
+                    .insert([{
+                        nom: nomEcole,
+                        adresse: adresse || null,
+                        telephone: telephone || null,
+                        email: emailEcole || null,
+                        code_acces: codeAcces
+                    }])
+                    .select()
+                    .single();
+
+                if (errEcole) throw new Error("Erreur ecole : " + errEcole.message);
+
+                // 4. Creer le compte admin
+                const { error: errAdmin } = await supabaseClient
+                    .from('utilisateurs')
+                    .insert([{
+                        ecole_id: nouvelleEcole.id,
+                        role: 'admin',
+                        prenom: prenom,
+                        nom: nom,
+                        email: emailAdmin,
+                        mot_de_passe: password,
+                        statut: 'actif'
+                    }]);
+
+                if (errAdmin) {
+                    await supabaseClient.from('ecoles').delete().eq('id', nouvelleEcole.id);
+                    throw new Error("Erreur admin : " + errAdmin.message);
+                }
+
+                // 5. Creer une classe par defaut
+                await supabaseClient.from('classes').insert([{
+                    ecole_id: nouvelleEcole.id,
+                    nom: 'Classe par defaut',
+                    niveau: 'A configurer',
+                    annee_scolaire: '2024-2025',
+                    frais_scolarite: 0
+                }]);
+
+                // 6. Afficher un message de succes avec le code d'acces
+                msg.innerHTML = ''
+                    + '<div style="background: #f0fdf4; border: 2px solid #2EAD5E; border-radius: 12px; padding: 14px; text-align: left; margin-top: 10px;">'
+                    + '<p style="color: #2EAD5E; font-weight: bold; font-size: 14px; margin: 0 0 6px 0;">✅ Ecole creee avec succes !</p>'
+                    + '<p style="color: #1f2937; font-size: 12px; margin: 0 0 8px 0;">Voici votre <b>code d\'acces</b>. Partagez-le avec tous ceux qui veulent rejoindre votre ecole :</p>'
+                    + '<div style="background: white; border: 2px dashed #004AAD; border-radius: 10px; padding: 12px; text-align: center; margin-bottom: 8px;">'
+                    + '<p style="font-size: 22px; font-weight: 800; color: #004AAD; letter-spacing: 2px; margin: 0;">' + codeAcces + '</p>'
+                    + '</div>'
+                    + '<p style="color: #6b7280; font-size: 10px; margin: 0;">Redirection vers la page de connexion dans quelques secondes...</p>'
+                    + '</div>';
+                msg.style.color = '';
+                btn.innerText = "Ecole creee !";
+
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 5000);
+
+            } catch (err) {
+                msg.innerText = err.message;
+                msg.style.color = "red";
+                btn.disabled = false;
+                btn.innerText = "🚀 Creer mon ecole";
+            }
+        }
+    </script>
+</body>
+</html>
