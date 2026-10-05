@@ -43,7 +43,7 @@
     <div class="voile"></div>
 
     <div class="contenu w-full max-w-md flex flex-col items-center">
-        
+
         <div class="text-center mb-4 fade-in">
             <div class="flex justify-center mb-1">
                 <svg width="60" height="60" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="logo-flottant">
@@ -105,18 +105,18 @@
             <div class="mt-4 pt-4 border-t border-white border-opacity-30 text-center">
                 <p class="text-xs text-white font-medium mb-1" style="text-shadow: 0 2px 6px rgba(0,0,0,0.9);">Vous dirigez une école ?</p>
                 <a href="inscription-ecole.html" class="lien-ecole text-sm">
-                    Créer mon école sur EDU-LINK.s
+                    Créer mon école sur EDU-LINK
                 </a>
             </div>
 
-            <ndiv class="mt-4 pt-4', border-t border-white border-opacity-30">
- '                <p class="text-xs text-white fontProf-medium text-center mb-2" style123="text-shadow: 0 2px 6px rgba(0,0,0,0.9);">Comptes de démonstration :</p>
+            <div class="mt-4 pt-4 border-t border-white border-opacity-30">
+                <p class="text-xs text-white font-medium text-center mb-2" style="text-shadow: 0 2px 6px rgba(0,0,0,0.9);">Comptes de démonstration :</p>
                 <div class="grid grid-cols-2 gap-2">
                     <button onclick="remplir('aissatou.diop@horizons.sn', 'MotDePasse123!')" class="bouton-demo flex items-center justify-center gap-1 text-xs text-edu-blue font-semibold py-2 rounded-xl">
                         <span>👤</span>
                         <span>Élève</span>
                     </button>
-                    <button onclick="remplir('fatou.sow@horizons!')" class="bouton-demo flex items-center justify-center gap-1 text-xs text-edu-green font-semibold py-2 rounded-xl">
+                    <button onclick="remplir('fatou.sow@horizons.sn', 'Prof123!')" class="bouton-demo flex items-center justify-center gap-1 text-xs text-edu-green font-semibold py-2 rounded-xl">
                         <span>🎓</span>
                         <span>Enseignant</span>
                     </button>
@@ -139,6 +139,62 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- ============ AUTH — Hachage PBKDF2 ============ -->
+    <script>
+        const AUTH_SALT = 'EDU-LINK::v1::S3n3g4l::2024';
+        const AUTH_ITERATIONS = 100000;
+        const AUTH_PREFIX = 'pbkdf2$';
+
+        async function hashPassword(plainPassword) {
+            const enc = new TextEncoder();
+            const keyMaterial = await crypto.subtle.importKey(
+                'raw',
+                enc.encode(plainPassword),
+                { name: 'PBKDF2' },
+                false,
+                ['deriveBits']
+            );
+            const hashBuffer = await crypto.subtle.deriveBits(
+                {
+                    name: 'PBKDF2',
+                    salt: enc.encode(AUTH_SALT),
+                    iterations: AUTH_ITERATIONS,
+                    hash: 'SHA-256'
+                },
+                keyMaterial,
+                256
+            );
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return AUTH_PREFIX + AUTH_ITERATIONS + '$' + hex;
+        }
+
+        async function verifyPassword(plainPassword, storedPassword) {
+            if (!storedPassword) return { ok: false, needsRehash: false };
+            if (storedPassword.startsWith(AUTH_PREFIX)) {
+                const hashCalcule = await hashPassword(plainPassword);
+                return { ok: hashCalcule === storedPassword, needsRehash: false };
+            }
+            if (storedPassword === plainPassword) {
+                return { ok: true, needsRehash: true };
+            }
+            return { ok: false, needsRehash: false };
+        }
+
+        async function rehashSiNecessaire(supabaseClient, userId, plainPassword, needsRehash) {
+            if (!needsRehash) return;
+            try {
+                const newHash = await hashPassword(plainPassword);
+                await supabaseClient.from('utilisateurs').update({ mot_de_passe: newHash }).eq('id', userId);
+                console.log('🔐 Mot de passe migré vers PBKDF2');
+            } catch (e) {
+                console.warn('Rehash échoué (non bloquant) :', e);
+            }
+        }
+    </script>
+
+    <!-- ============ SCRIPT PRINCIPAL ============ -->
     <script>
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFid2d1aXhjbG14dHp2bHNtYmJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4OTg1OTMsImV4cCI6MjEwNjQ3NDU5M30.8MiG5YdoMIY69KYfBdlXHIB9Zisd5miX3slaCoqVcjM';
         const supabaseUrl = 'https://abwguixclmxtzvlsmbby.supabase.co';
@@ -149,10 +205,10 @@
             'https://images.pexels.com/photos/207691/pexels-photo-207691.jpeg?auto=compress&cs=tinysrgb&w=1200',
             'https://images.pexels.com/photos/159775/library-la-trobe-study-students-159775.jpeg?auto=compress&cs=tinysrgb&w=1200'
         ];
-        
+
         var indexImage = 0;
         var fondDiv = document.querySelector('.fond-image');
-        
+
         function testerImage() {
             if (indexImage >= imagesFallback.length) return;
             var img = new Image();
@@ -184,6 +240,12 @@
             else if (couleur === 'orange') div.classList.add('text-edu-orange');
         }
 
+        function resetBtn(btn, btnText) {
+            btn.disabled = false;
+            btn.classList.remove('opacity-80');
+            btnText.innerText = 'Se connecter';
+        }
+
         document.getElementById('btnLogin').addEventListener('click', async () => {
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value.trim();
@@ -205,36 +267,60 @@
 
                 if (!users || users.length === 0) {
                     afficherMessage('Email ou mot de passe incorrect.', 'rouge');
-                    btn.disabled = false;
-                    btn.classList.remove('opacity-80');
-                    btnText.innerText = 'Se connecter';
+                    resetBtn(btn, btnText);
                     return;
                 }
 
                 const user = users[0];
-                if (user.mot_de_passe !== password) {
+
+                // 🔐 Vérification sécurisée (PBKDF2 + fallback clair pour migration)
+                const verification = await verifyPassword(password, user.mot_de_passe);
+
+                if (!verification.ok) {
                     afficherMessage('Email ou mot de passe incorrect.', 'rouge');
-                    btn.disabled = false;
-                    btn.classList.remove('opacity-80');
-                    btnText.innerText = 'Se connecter';
+                    resetBtn(btn, btnText);
                     return;
+                }
+
+                // 🔄 Migration automatique si ancien mdp en clair
+                if (verification.needsRehash) {
+                    await rehashSiNecessaire(supabaseClient, user.id, password, true);
                 }
 
                 if (user.statut === 'en_attente') {
                     afficherMessage('Votre compte est en attente de validation par votre ecole.', 'orange');
-                    btn.disabled = false;
-                    btn.classList.remove('opacity-80');
-                    btnText.innerText = 'Se connecter';
+                    resetBtn(btn, btnText);
                     return;
                 }
 
                 if (user.statut === 'refuse') {
                     afficherMessage('Votre demande a ete refusee. Contactez votre ecole.', 'rouge');
-                    btn.disabled = false;
-                    btn.classList.remove('opacity-80');
-                    btnText.innerText = 'Se connecter';
+                    resetBtn(btn, btnText);
                     return;
                 }
+
+                // ============ VERIFICATION ECOLE ACTIVE ============
+                if (user.ecole_id && user.role !== 'super_admin') {
+                    const { data: ecole } = await supabaseClient.from('ecoles').select('actif, nom, plan, date_expiration').eq('id', user.ecole_id).single();
+                    if (ecole) {
+                        if (ecole.actif === false) {
+                            afficherMessage('🚫 L\'acces de votre ecole (' + ecole.nom + ') a ete temporairement suspendu. Contactez l\'administration EDU-LINK.', 'rouge');
+                            resetBtn(btn, btnText);
+                            return;
+                        }
+                        if (ecole.date_expiration) {
+                            const expiration = new Date(ecole.date_expiration);
+                            const aujourdHui = new Date();
+                            aujourdHui.setHours(0, 0, 0, 0);
+                            if (expiration < aujourdHui) {
+                                afficherMessage('⏰ L\'abonnement de votre ecole (' + ecole.nom + ') a expire le ' + expiration.toLocaleDateString('fr-FR') + '. Contactez l\'administration EDU-LINK.', 'rouge');
+                                resetBtn(btn, btnText);
+                                return;
+                            }
+                        }
+                    }
+                }
+                // ====================================================
 
                 sessionStorage.setItem('eduLinkUser', JSON.stringify(user));
                 afficherMessage('Bienvenue ' + user.prenom + ' !', 'vert');
@@ -249,21 +335,18 @@
                 else if (user.role === 'parent') fichierCible = 'parent.html';
                 else if (user.role === 'admin') fichierCible = 'admin.html';
                 else if (user.role === 'staff') fichierCible = 'staff.html';
+                else if (user.role === 'super_admin') fichierCible = 'super-admin.html';
 
                 if (fichierCible) {
                     setTimeout(function() { window.location.replace(urlBase + fichierCible); }, 700);
                 } else {
                     afficherMessage('Rôle inconnu.', 'rouge');
-                    btn.disabled = false;
-                    btn.classList.remove('opacity-80');
-                    btnText.innerText = 'Se connecter';
+                    resetBtn(btn, btnText);
                 }
 
             } catch (err) {
                 afficherMessage('Erreur : ' + err.message, 'rouge');
-                btn.disabled = false;
-                btn.classList.remove('opacity-80');
-                btnText.innerText = 'Se connecter';
+                resetBtn(btn, btnText);
             }
         });
 

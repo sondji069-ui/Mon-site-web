@@ -13,7 +13,7 @@
 </head>
 <body class="min-h-screen flex justify-center items-start pt-10 p-4">
     <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col h-auto min-h-[600px]">
-        
+
         <div id="page-profil" class="flex-1 flex-col flex">
             <div class="p-6 pb-2 flex justify-between items-center bg-white border-b">
                 <div class="flex items-center gap-3">
@@ -23,7 +23,7 @@
                 <button onclick="seDeconnecter()" class="text-sm font-bold text-red-500">Deconnexion</button>
             </div>
             <div class="flex-1 overflow-y-auto p-6">
-                
+
                 <div class="text-center mb-6">
                     <div class="relative inline-block mb-3">
                         <div id="avatar-grand" class="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center text-5xl border-4 border-edu-blue overflow-hidden">👤</div>
@@ -90,7 +90,7 @@
                 </div>
 
                 <button onclick="sauvegarderProfil()" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl mb-3">Enregistrer les modifications</button>
-                
+
                 <button id="btn-carte" onclick="telechargerCarte()" class="hidden w-full bg-edu-green text-white font-bold py-3 rounded-xl mb-3">🪪 Telecharger ma carte scolaire</button>
 
                 <div id="message-profil" class="text-center text-sm font-semibold mb-4"></div>
@@ -142,24 +142,52 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- ============ AUTH — Hachage PBKDF2 ============ -->
+    <script>
+        const AUTH_SALT = 'EDU-LINK::v1::S3n3g4l::2024';
+        const AUTH_ITERATIONS = 100000;
+        const AUTH_PREFIX = 'pbkdf2$';
+
+        async function hashPassword(plainPassword) {
+            const enc = new TextEncoder();
+            const keyMaterial = await crypto.subtle.importKey(
+                'raw',
+                enc.encode(plainPassword),
+                { name: 'PBKDF2' },
+                false,
+                ['deriveBits']
+            );
+            const hashBuffer = await crypto.subtle.deriveBits(
+                { name: 'PBKDF2', salt: enc.encode(AUTH_SALT), iterations: AUTH_ITERATIONS, hash: 'SHA-256' },
+                keyMaterial,
+                256
+            );
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return AUTH_PREFIX + AUTH_ITERATIONS + '$' + hex;
+        }
+    </script>
+
+    <!-- ============ SCRIPT PRINCIPAL ============ -->
     <script>
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFid2d1aXhjbG14dHp2bHNtYmJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4OTg1OTMsImV4cCI6MjEwNjQ3NDU5M30.8MiG5YdoMIY69KYfBdlXHIB9Zisd5miX3slaCoqVcjM';
         const supabaseUrl = 'https://abwguixclmxtzvlsmbby.supabase.co';
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
-        
+
         const sessionUser = sessionStorage.getItem('eduLinkUser');
         if (!sessionUser) { window.location.href = 'index.html'; }
         const parsedUser = JSON.parse(sessionUser);
-        
+
         let currentUser = null;
 
         window.addEventListener('load', async () => {
             currentUser = parsedUser;
             document.getElementById('profil-nom').innerText = currentUser.prenom + ' ' + currentUser.nom;
             document.getElementById('profil-role').innerText = currentUser.role;
-            
+
             afficherAvatar();
-            
+
             if (currentUser.ecole_id) {
                 const { data: ecole } = await supabaseClient.from('ecoles').select('nom').eq('id', currentUser.ecole_id).single();
                 if (ecole) {
@@ -168,7 +196,7 @@
                     document.getElementById('admin-ecole').innerText = ecole.nom;
                 }
             }
-            
+
             document.getElementById('input-prenom').value = currentUser.prenom;
             document.getElementById('input-nom').value = currentUser.nom;
             document.getElementById('input-email').value = currentUser.email;
@@ -184,7 +212,7 @@
             const carteAvatar = document.getElementById('carte-avatar');
             const avatarsEmoji = { eleve: '👩🏾‍🎓', enseignant: '👩🏾‍🏫', parent: '👨‍👩‍👧', admin: '👨🏾‍💼' };
             const emoji = avatarsEmoji[currentUser.role] || '👤';
-            
+
             if (currentUser.photo_url) {
                 const imgHtml = `<img src="${currentUser.photo_url}" style="width:100%; height:100%; object-fit:cover;">`;
                 conteneur.innerHTML = imgHtml;
@@ -200,24 +228,24 @@
                 const file = e.target.files[0];
                 const msg = document.getElementById('message-photo');
                 if (!file) return;
-                
+
                 if (file.size > 200 * 1024) {
                     msg.innerText = "⚠️ Image trop lourde (max 200 Ko).";
                     msg.style.color = "#EF4444";
                     e.target.value = '';
                     return;
                 }
-                
+
                 if (!file.type.startsWith('image/')) {
                     msg.innerText = "⚠️ Format d'image non supporté.";
                     msg.style.color = "#EF4444";
                     e.target.value = '';
                     return;
                 }
-                
+
                 msg.innerText = "Chargement...";
                 msg.style.color = "#F59E0B";
-                
+
                 const reader = new FileReader();
                 reader.onload = async (ev) => {
                     const photoBase64 = ev.target.result;
@@ -282,7 +310,12 @@
 
             const upd = { prenom, nom, email };
             if (telephone) upd.telephone = telephone;
-            if (password) upd.mot_de_passe = password;
+
+            // 🔐 Hashage du nouveau mot de passe si saisi
+            if (password) {
+                if (password.length < 6) { msg.innerText = "Mot de passe min 6 caracteres."; msg.style.color = "red"; return; }
+                upd.mot_de_passe = await hashPassword(password);
+            }
 
             const { error } = await supabaseClient.from('utilisateurs').update(upd).eq('id', currentUser.id);
             if (error) { msg.innerText = "Erreur"; msg.style.color = "red"; return; }
@@ -306,7 +339,7 @@
             zoneTemp.style.left = '-9999px';
             zoneTemp.style.top = '0';
             zoneTemp.style.width = '600px';
-            
+
             const carteOriginal = document.getElementById('carte-pdf');
             const carteClone = carteOriginal.cloneNode(true);
             carteClone.style.position = 'static';
@@ -321,14 +354,7 @@
                 const fichier = new File([pdfBlob], nomFichier, { type: 'application/pdf' });
                 document.body.removeChild(zoneTemp);
 
-                if (navigator.canShare && navigator.canShare({ files: [fichier] })) {
-                    await navigator.share({ files: [fichier], title: 'Carte scolaire' });
-                    msg.innerText = "Carte partagee !"; msg.style.color = "green";
-                } else {
-                    const url = URL.createObjectURL(pdfBlob);
-                    window.open(url, '_blank');
-                    msg.innerText = "Carte ouverte !"; msg.style.color = "green";
-                }
+                const url = URL.createObjectURL(pdfBlob); const a = document.createElement('a'); a.href = url; a.download = nomFichier; a.style.display = 'none'; document.body.appendChild(a); a.click(); setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
                 btn.innerText = "🪪 Telecharger ma carte scolaire";
                 btn.disabled = false;
             } catch (err) {
@@ -350,6 +376,5 @@
             window.location.href = 'index.html';
         }
     </script>
-    <script src="theme.js"></script>
 </body>
 </html>

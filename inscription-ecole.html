@@ -43,7 +43,7 @@
         <button onclick="creerEcole()" id="btn-creer" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl hover:bg-blue-800 transition">
             🚀 Creer mon ecole
         </button>
-        
+
         <div id="message" class="mt-4 text-center text-sm font-semibold"></div>
 
         <p class="text-center text-xs text-gray-400 mt-6">
@@ -52,12 +52,39 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- ============ AUTH — Hachage PBKDF2 ============ -->
+    <script>
+        const AUTH_SALT = 'EDU-LINK::v1::S3n3g4l::2024';
+        const AUTH_ITERATIONS = 100000;
+        const AUTH_PREFIX = 'pbkdf2$';
+
+        async function hashPassword(plainPassword) {
+            const enc = new TextEncoder();
+            const keyMaterial = await crypto.subtle.importKey(
+                'raw',
+                enc.encode(plainPassword),
+                { name: 'PBKDF2' },
+                false,
+                ['deriveBits']
+            );
+            const hashBuffer = await crypto.subtle.deriveBits(
+                { name: 'PBKDF2', salt: enc.encode(AUTH_SALT), iterations: AUTH_ITERATIONS, hash: 'SHA-256' },
+                keyMaterial,
+                256
+            );
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return AUTH_PREFIX + AUTH_ITERATIONS + '$' + hex;
+        }
+    </script>
+
+    <!-- ============ SCRIPT PRINCIPAL ============ -->
     <script>
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFid2d1aXhjbG14dHp2bHNtYmJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4OTg1OTMsImV4cCI6MjEwNjQ3NDU5M30.8MiG5YdoMIY69KYfBdlXHIB9Zisd5miX3slaCoqVcjM';
         const supabaseUrl = 'https://abwguixclmxtzvlsmbby.supabase.co';
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-        // Generer un code d'acces unique type "HORIZONS-A3F7"
         function genererCodeAcces(nomEcole) {
             var base = nomEcole
                 .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
@@ -69,14 +96,12 @@
             return base + '-' + aleatoire;
         }
 
-        // Chercher un code unique (au cas ou le code genere existe deja)
         async function trouverCodeUnique(nomEcole) {
             for (var i = 0; i < 10; i++) {
                 var code = genererCodeAcces(nomEcole);
                 var { data } = await supabaseClient.from('ecoles').select('id').eq('code_acces', code).maybeSingle();
                 if (!data) return code;
             }
-            // Fallback
             return 'ECOLE-' + Date.now().toString(36).toUpperCase().substring(0, 6);
         }
 
@@ -85,7 +110,7 @@
             const adresse = document.getElementById('ecole-adresse').value.trim();
             const telephone = document.getElementById('ecole-telephone').value.trim();
             const emailEcole = document.getElementById('ecole-email').value.trim();
-            
+
             const prenom = document.getElementById('admin-prenom').value.trim();
             const nom = document.getElementById('admin-nom').value.trim();
             const emailAdmin = document.getElementById('admin-email').value.trim();
@@ -117,7 +142,6 @@
             btn.innerText = "Creation...";
 
             try {
-                // 1. Verifier si l'email admin est deja utilise
                 const { data: existant } = await supabaseClient
                     .from('utilisateurs')
                     .select('id')
@@ -132,10 +156,8 @@
                     return;
                 }
 
-                // 2. Generer un code d'acces unique
                 const codeAcces = await trouverCodeUnique(nomEcole);
 
-                // 3. Creer l'ecole avec le code
                 const { data: nouvelleEcole, error: errEcole } = await supabaseClient
                     .from('ecoles')
                     .insert([{
@@ -150,7 +172,9 @@
 
                 if (errEcole) throw new Error("Erreur ecole : " + errEcole.message);
 
-                // 4. Creer le compte admin
+                // 🔐 Hachage du mot de passe du directeur
+                const passwordHashe = await hashPassword(password);
+
                 const { error: errAdmin } = await supabaseClient
                     .from('utilisateurs')
                     .insert([{
@@ -159,7 +183,7 @@
                         prenom: prenom,
                         nom: nom,
                         email: emailAdmin,
-                        mot_de_passe: password,
+                        mot_de_passe: passwordHashe,
                         statut: 'actif'
                     }]);
 
@@ -168,7 +192,6 @@
                     throw new Error("Erreur admin : " + errAdmin.message);
                 }
 
-                // 5. Creer une classe par defaut
                 await supabaseClient.from('classes').insert([{
                     ecole_id: nouvelleEcole.id,
                     nom: 'Classe par defaut',
@@ -177,7 +200,6 @@
                     frais_scolarite: 0
                 }]);
 
-                // 6. Afficher un message de succes avec le code d'acces
                 msg.innerHTML = ''
                     + '<div style="background: #f0fdf4; border: 2px solid #2EAD5E; border-radius: 12px; padding: 14px; text-align: left; margin-top: 10px;">'
                     + '<p style="color: #2EAD5E; font-weight: bold; font-size: 14px; margin: 0 0 6px 0;">✅ Ecole creee avec succes !</p>'

@@ -24,7 +24,6 @@
             <p class="text-xs text-gray-500 mt-2 leading-relaxed">Saisissez votre email. Votre école sera notifiée et vous communiquera un mot de passe temporaire.</p>
         </div>
 
-        <!-- ETAPE 1 : formulaire -->
         <div id="etape-form">
             <div class="space-y-3">
                 <div>
@@ -42,7 +41,6 @@
             </div>
         </div>
 
-        <!-- ETAPE 2 : confirmation -->
         <div id="etape-succes" class="hidden">
             <div class="bg-green-50 border-2 border-edu-green rounded-2xl p-5 text-center mb-4">
                 <div class="text-4xl mb-2">✅</div>
@@ -82,18 +80,15 @@
             msg.innerText = '';
 
             try {
-                // 1. Chercher l'utilisateur
                 const { data: user } = await supabaseClient.from('utilisateurs').select('id, ecole_id, prenom, nom').eq('email', email).maybeSingle();
 
                 if (!user) {
-                    // Message generique pour eviter l'enumeration d'emails
                     msg.innerText = "Si cette adresse existe, une demande a été envoyée à votre école.";
                     msg.style.color = "#F59E0B";
                     setTimeout(() => { document.getElementById('etape-form').classList.add('hidden'); document.getElementById('etape-succes').classList.remove('hidden'); }, 1500);
                     return;
                 }
 
-                // 2. Verifier s'il y a deja une demande en attente
                 const { data: existante } = await supabaseClient.from('demandes_mdp')
                     .select('id')
                     .eq('utilisateur_id', user.id)
@@ -107,7 +102,6 @@
                     return;
                 }
 
-                // 3. Creer la demande
                 const { error: errDemande } = await supabaseClient.from('demandes_mdp').insert([{
                     utilisateur_id: user.id,
                     ecole_id: user.ecole_id,
@@ -116,7 +110,6 @@
 
                 if (errDemande) throw errDemande;
 
-                // 4. Notifier tous les admins de l'ecole
                 const { data: admins } = await supabaseClient.from('utilisateurs').select('id').eq('ecole_id', user.ecole_id).eq('role', 'admin');
 
                 if (admins && admins.length > 0) {

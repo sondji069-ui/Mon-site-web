@@ -595,29 +595,42 @@
         }
 
         async function telechargerPDF() {
-            const btn = document.getElementById('btn-pdf'); const msg = document.getElementById('message-pdf');
-            btn.innerText = "Generation..."; btn.disabled = true;
-            const zoneTemp = document.createElement('div');
-            zoneTemp.style.position = 'fixed'; zoneTemp.style.left = '-9999px'; zoneTemp.style.top = '0'; zoneTemp.style.width = '800px'; zoneTemp.style.background = 'white'; zoneTemp.style.padding = '20px';
-            const bulletinOriginal = document.getElementById('bulletin-pdf');
-            const bulletinClone = bulletinOriginal.cloneNode(true); bulletinClone.style.width = '100%';
-            zoneTemp.appendChild(bulletinClone); document.body.appendChild(zoneTemp);
-            try {
-                const nomFichier = 'Bulletin_T' + trimestreActuel + '_' + currentUser.prenom + '_' + currentUser.nom + '.pdf';
-                const options = { margin: 10, filename: nomFichier, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', width: 800, windowWidth: 800, scrollX: 0, scrollY: 0 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-                const pdfBlob = await html2pdf().set(options).from(bulletinClone).outputPdf('blob');
-                const fichier = new File([pdfBlob], nomFichier, { type: 'application/pdf' });
-                document.body.removeChild(zoneTemp);
-                if (navigator.canShare && navigator.canShare({ files: [fichier] })) { await navigator.share({ files: [fichier], title: 'Bulletin scolaire' }); msg.innerText = "Bulletin partage !"; msg.style.color = "green"; }
-                else { const url = URL.createObjectURL(pdfBlob); window.open(url, '_blank'); msg.innerText = "PDF ouvert !"; msg.style.color = "green"; }
-                btn.innerText = "📥 Telecharger le bulletin T" + trimestreActuel + " en PDF"; btn.disabled = false;
-            } catch (err) {
-                if (document.body.contains(zoneTemp)) document.body.removeChild(zoneTemp);
-                if (err.name === 'AbortError') { msg.innerText = "Annule."; msg.style.color = "gray"; }
-                else { msg.innerText = "Erreur"; msg.style.color = "red"; }
-                btn.innerText = "📥 Telecharger le bulletin T" + trimestreActuel + " en PDF"; btn.disabled = false;
-            }
-        }
+    const btn = document.getElementById('btn-pdf');
+    const msg = document.getElementById('message-pdf');
+    btn.innerText = "Generation...";
+    btn.disabled = true;
+    msg.innerText = '';
+
+    try {
+        const nomFichier = 'Bulletin_T' + trimestreActuel + '.pdf';
+        const opt = {
+            margin: 5, filename: nomFichier,
+            image: { type: 'jpeg', quality: 1 },
+            html2canvas: { scale: 3, useCORS: true, backgroundColor: '#ffffff', letterRendering: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        const bulletin = document.getElementById('bulletin-pdf');
+        const pdfBlob = await html2pdf().set(opt).from(bulletin).outputPdf('blob');
+        const url = URL.createObjectURL(pdfBlob);
+        // Téléchargement direct SANS onglet
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = url;
+        document.body.appendChild(iframe);
+        msg.innerText = "PDF en cours de telechargement...";
+        msg.style.color = "green";
+        setTimeout(() => {
+            if (document.body.contains(iframe)) document.body.removeChild(iframe);
+            URL.revokeObjectURL(url);
+        }, 5000);
+    } catch (err) {
+        msg.innerText = "Erreur : " + err.message;
+        msg.style.color = "red";
+    } finally {
+        btn.innerText = "Telecharger le bulletin T" + trimestreActuel + " en PDF";
+        btn.disabled = false;
+    }
+}
 
         async function afficherAbsences() {
             document.getElementById('view-accueil').classList.add('hidden');
@@ -751,10 +764,8 @@
         }
 
         function construireAffiche(a, ecoleNom) {
-            const datePub = new Date(a.date_publication).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-            const logo = a.logo_annonce;
-            return `<div style="background: white; border: 3px solid #004AAD; border-radius: 15px; overflow: hidden; font-family: Arial, sans-serif;"><div style="background: linear-gradient(135deg, #004AAD 0%, #0066CC 100%); padding: 20px 15px; text-align: center;">${logo ? `<img src="${logo}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 50%; border: 3px solid white; margin-bottom: 8px;">` : '<div style="font-size: 40px; margin-bottom: 5px;">📖</div>'}<h1 style="color: white; font-size: 20px; font-weight: bold; margin: 5px 0; letter-spacing: 1px;">EDU-LINK</h1><p style="color: rgba(255,255,255,0.9); font-size: 12px; margin: 0;">${ecoleNom}</p></div><div style="padding: 20px;"><div style="text-align: center; background: #f0f7ff; padding: 12px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #004AAD;"><p style="font-size: 11px; color: #004AAD; font-weight: bold; margin: 0 0 5px 0; letter-spacing: 2px;">📢 COMMUNICATION OFFICIELLE</p><h2 style="font-size: 18px; font-weight: bold; color: #004AAD; margin: 0;">${a.titre}</h2></div><div style="background: #f9fafb; padding: 15px; border-radius: 10px; margin-bottom: 20px;"><p style="font-size: 13px; color: #1f2937; line-height: 1.8; margin: 0; white-space: pre-wrap; text-align: justify;">${a.contenu}</p></div><div style="text-align: right; margin-top: 25px; padding-top: 15px; border-top: 1px solid #e5e7eb;"><p style="font-size: 11px; color: #6b7280; margin: 0;">Publiee le ${datePub}</p>${signatureEcole ? `<img src="${signatureEcole}" style="max-height: 55px; max-width: 180px; margin-top: 8px; display: block; margin-left: auto;">` : ''}${a.signature ? `<p style="font-size: 13px; font-weight: bold; color: #004AAD; margin: 5px 0 0 0;">${a.signature}</p>` : ''}</div></div><div style="background: #004AAD; padding: 8px; text-align: center;"><p style="color: white; font-size: 9px; margin: 0;">Document officiel - EDU-LINK</p></div></div>`;
-        }
+    return construireAfficheSecurisee(a, ecoleNom, signatureEcole);
+}
 
         async function afficherNotifications() {
             document.getElementById('view-accueil').classList.add('hidden');

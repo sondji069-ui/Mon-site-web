@@ -25,7 +25,7 @@
 <body class="flex flex-col items-center p-4">
 
     <div class="w-full max-w-md py-6">
-        
+
         <div class="text-center mb-6">
             <div class="text-5xl mb-2">📖</div>
             <h1 class="text-3xl font-bold text-edu-blue">EDU-LINK</h1>
@@ -44,7 +44,7 @@
                     </div>
                     <span class="text-2xl text-gray-300">→</span>
                 </div>
-                
+
                 <div onclick="choisirRole('enseignant')" data-role="enseignant" class="carte-role bg-white rounded-2xl p-4 border-2 border-gray-200 flex items-center gap-4">
                     <div class="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center text-3xl">👩🏾‍🏫</div>
                     <div class="flex-1">
@@ -53,7 +53,7 @@
                     </div>
                     <span class="text-2xl text-gray-300">→</span>
                 </div>
-                
+
                 <div onclick="choisirRole('parent')" data-role="parent" class="carte-role bg-white rounded-2xl p-4 border-2 border-gray-200 flex items-center gap-4">
                     <div class="w-14 h-14 bg-pink-100 rounded-full flex items-center justify-center text-3xl">👨‍👩‍👧</div>
                     <div class="flex-1">
@@ -63,14 +63,14 @@
                     <span class="text-2xl text-gray-300">→</span>
                 </div>
             </div>
-            
+
             <div class="mt-5 pt-5 border-t border-gray-200 text-center">
                 <p class="text-xs text-gray-500 mb-2">Vous dirigez une ecole ?</p>
                 <a href="inscription-ecole.html" class="text-sm text-edu-blue font-bold hover:underline">
                     Creer mon ecole sur EDU-LINK
                 </a>
             </div>
-            
+
             <div class="mt-5 text-center">
                 <a href="index.html" class="text-xs text-gray-500 hover:underline">← Retour a la connexion</a>
             </div>
@@ -79,32 +79,32 @@
         <!-- ETAPE 2 : Code d'acces -->
         <div id="etape-code" class="hidden fade-in">
             <button onclick="retourEtape1()" class="text-2xl mb-3">⬅️</button>
-            
+
             <div class="bg-white rounded-2xl p-5 shadow-lg border-2 border-edu-blue mb-4">
                 <div class="text-center mb-4">
                     <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-3xl mx-auto mb-3">🔑</div>
                     <h2 class="text-lg font-bold text-edu-blue">Code d'acces ecole</h2>
                     <p class="text-xs text-gray-500 mt-1">Saisissez le code fourni par votre ecole</p>
                 </div>
-                
-                <input type="text" id="code-acces" placeholder="Ex: HORIZONS-2024" 
+
+                <input type="text" id="code-acces" placeholder="Ex: HORIZONS-2024"
                     class="champ w-full px-4 py-4 rounded-xl border-2 border-gray-300 text-center text-base font-bold tracking-wider uppercase"
                     onkeydown="if(event.key==='Enter'){verifierCode();}">
-                
-                <button onclick="verifierCode()" id="btn-code" 
+
+                <button onclick="verifierCode()" id="btn-code"
                     class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl mt-4 flex items-center justify-center gap-2">
                     <span id="btn-code-text">Verifier le code</span>
                 </button>
-                
+
                 <div id="message-code" class="text-center text-xs font-semibold mt-3"></div>
-                
+
                 <div class="mt-4 pt-4 border-t border-gray-200">
                     <p class="text-[10px] text-gray-400 text-center">
                         💡 Vous n'avez pas de code ? Contactez l'administration de votre ecole.
                     </p>
                 </div>
             </div>
-            
+
             <div id="ecole-trouvee" class="hidden bg-green-50 border-2 border-edu-green rounded-2xl p-4 mb-3">
                 <div class="flex items-center gap-3">
                     <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center text-2xl">🏫</div>
@@ -115,8 +115,8 @@
                     <span class="text-2xl text-edu-green">✓</span>
                 </div>
             </div>
-            
-            <button onclick="continuerVersFormulaire()" id="btn-continuer" 
+
+            <button onclick="continuerVersFormulaire()" id="btn-continuer"
                 class="hidden w-full bg-edu-green text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2">
                 Continuer →
             </button>
@@ -125,7 +125,7 @@
         <!-- ETAPE 3 : Formulaire -->
         <div id="etape-formulaire" class="hidden fade-in">
             <button onclick="retourEtapeCode()" class="text-2xl mb-3">⬅️</button>
-            
+
             <div id="role-badge" class="flex items-center gap-3 bg-white rounded-2xl p-3 border-2 border-gray-200 mb-3">
                 <div id="role-icon" class="w-12 h-12 rounded-full flex items-center justify-center text-2xl">👤</div>
                 <div class="flex-1">
@@ -134,7 +134,7 @@
                 </div>
                 <button onclick="retourEtape1()" class="text-xs text-edu-blue font-bold">Changer</button>
             </div>
-            
+
             <div class="flex items-center gap-3 bg-green-50 rounded-2xl p-3 border-2 border-edu-green mb-4">
                 <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-xl">🏫</div>
                 <div class="flex-1">
@@ -142,7 +142,7 @@
                     <p id="ecole-nom-formulaire" class="text-sm font-bold text-gray-800">...</p>
                 </div>
             </div>
-            
+
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
                 <div class="space-y-3">
                     <div>
@@ -169,7 +169,7 @@
                         <label class="block text-xs font-bold text-gray-700 mb-1">Confirmer le mot de passe *</label>
                         <input type="password" id="password2" placeholder="Retapez le mot de passe" class="champ w-full px-4 py-3 rounded-xl border border-gray-300 text-sm">
                     </div>
-                    
+
                     <div id="champs-eleve" class="hidden">
                         <div class="bg-blue-50 border border-blue-100 rounded-xl p-3 mb-3">
                             <p class="text-[10px] font-bold text-edu-blue mb-2">📚 Informations scolaires</p>
@@ -191,7 +191,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div id="champs-enseignant" class="hidden">
                         <div class="bg-green-50 border border-green-100 rounded-xl p-3 mb-3">
                             <p class="text-[10px] font-bold text-edu-green mb-2">🎓 Informations professionnelles</p>
@@ -201,7 +201,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div id="champs-parent" class="hidden">
                         <div class="bg-pink-50 border border-pink-100 rounded-xl p-3 mb-3">
                             <p class="text-[10px] font-bold text-edu-pink mb-2">👨‍👩‍👧 Informations parent</p>
@@ -209,25 +209,76 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <button onclick="creerCompte()" id="btn-inscription" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl mt-4 flex items-center justify-center gap-2">
                     <span id="btn-text">Creer mon compte</span>
                 </button>
                 <div id="message" class="text-center text-xs font-semibold mt-3"></div>
-                
+
             </div>
         </div>
-        
+
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- ============ AUTH — Hachage PBKDF2 ============ -->
     <script>
-        // ==========================================
-        // REMPLACEZ PAR VOTRE CLE API SUPABASE
-        // ==========================================
+        const AUTH_SALT = 'EDU-LINK::v1::S3n3g4l::2024';
+        const AUTH_ITERATIONS = 100000;
+        const AUTH_PREFIX = 'pbkdf2$';
+
+        async function hashPassword(plainPassword) {
+            const enc = new TextEncoder();
+            const keyMaterial = await crypto.subtle.importKey(
+                'raw',
+                enc.encode(plainPassword),
+                { name: 'PBKDF2' },
+                false,
+                ['deriveBits']
+            );
+            const hashBuffer = await crypto.subtle.deriveBits(
+                {
+                    name: 'PBKDF2',
+                    salt: enc.encode(AUTH_SALT),
+                    iterations: AUTH_ITERATIONS,
+                    hash: 'SHA-256'
+                },
+                keyMaterial,
+                256
+            );
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return AUTH_PREFIX + AUTH_ITERATIONS + '$' + hex;
+        }
+
+        async function verifyPassword(plainPassword, storedPassword) {
+            if (!storedPassword) return { ok: false, needsRehash: false };
+            if (storedPassword.startsWith(AUTH_PREFIX)) {
+                const hashCalcule = await hashPassword(plainPassword);
+                return { ok: hashCalcule === storedPassword, needsRehash: false };
+            }
+            if (storedPassword === plainPassword) {
+                return { ok: true, needsRehash: true };
+            }
+            return { ok: false, needsRehash: false };
+        }
+
+        async function rehashSiNecessaire(supabaseClient, userId, plainPassword, needsRehash) {
+            if (!needsRehash) return;
+            try {
+                const newHash = await hashPassword(plainPassword);
+                await supabaseClient.from('utilisateurs').update({ mot_de_passe: newHash }).eq('id', userId);
+                console.log('🔐 Mot de passe migré vers PBKDF2');
+            } catch (e) {
+                console.warn('Rehash échoué (non bloquant) :', e);
+            }
+        }
+    </script>
+
+    <!-- ============ SCRIPT PRINCIPAL ============ -->
+    <script>
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFid2d1aXhjbG14dHp2bHNtYmJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4OTg1OTMsImV4cCI6MjEwNjQ3NDU5M30.8MiG5YdoMIY69KYfBdlXHIB9Zisd5miX3slaCoqVcjM';
-        // ==========================================
-        
         const supabaseUrl = 'https://abwguixclmxtzvlsmbby.supabase.co';
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
@@ -236,7 +287,7 @@
 
         function choisirRole(role) {
             roleChoisi = role;
-            
+
             document.querySelectorAll('.carte-role').forEach(c => c.classList.remove('actif'));
             const carte = document.querySelector('[data-role="' + role + '"]');
             if (carte) {
@@ -245,10 +296,10 @@
                 else if (role === 'enseignant') carte.style.borderColor = '#2EAD5E';
                 else if (role === 'parent') carte.style.borderColor = '#EC4899';
             }
-            
+
             const roleIcon = document.getElementById('role-icon');
             const roleNom = document.getElementById('role-nom');
-            
+
             if (role === 'eleve') {
                 roleIcon.innerText = '👩🏾‍🎓';
                 roleIcon.className = 'w-12 h-12 rounded-full flex items-center justify-center text-2xl bg-blue-100';
@@ -265,15 +316,15 @@
                 roleNom.innerText = 'Parent';
                 roleNom.className = 'text-base font-bold text-edu-pink';
             }
-            
+
             document.getElementById('champs-eleve').classList.add('hidden');
             document.getElementById('champs-enseignant').classList.add('hidden');
             document.getElementById('champs-parent').classList.add('hidden');
-            
+
             if (role === 'eleve') document.getElementById('champs-eleve').classList.remove('hidden');
             else if (role === 'enseignant') document.getElementById('champs-enseignant').classList.remove('hidden');
             else if (role === 'parent') document.getElementById('champs-parent').classList.remove('hidden');
-            
+
             setTimeout(() => {
                 document.getElementById('etape-role').classList.add('hidden');
                 document.getElementById('etape-code').classList.remove('hidden');
@@ -307,26 +358,26 @@
             const msg = document.getElementById('message-code');
             const btn = document.getElementById('btn-code');
             const btnText = document.getElementById('btn-code-text');
-            
+
             if (!code) {
                 msg.innerText = "Veuillez saisir le code d'acces.";
                 msg.style.color = '#EF4444';
                 return;
             }
-            
+
             btn.disabled = true;
             btn.classList.add('opacity-80');
             btnText.innerHTML = '<span class="spinner"></span> Verification...';
             msg.innerText = '';
-            
+
             try {
                 const { data: ecoles, error } = await supabaseClient
                     .from('ecoles')
                     .select('id, nom, code_acces')
                     .eq('code_acces', code);
-                
+
                 if (error) throw new Error(error.message);
-                
+
                 if (!ecoles || ecoles.length === 0) {
                     msg.innerText = "❌ Code incorrect. Verifiez aupres de votre ecole.";
                     msg.style.color = '#EF4444';
@@ -337,22 +388,22 @@
                     btnText.innerText = 'Verifier le code';
                     return;
                 }
-                
+
                 ecoleValidee = ecoles[0];
-                
+
                 document.getElementById('ecole-nom-trouvee').innerText = ecoleValidee.nom;
                 document.getElementById('ecole-nom-formulaire').innerText = ecoleValidee.nom;
                 document.getElementById('ecole-trouvee').classList.remove('hidden');
                 document.getElementById('btn-continuer').classList.remove('hidden');
-                
+
                 msg.innerText = "✅ Code valide !";
                 msg.style.color = '#2EAD5E';
                 btnText.innerText = '✅ Verifie';
-                
+
                 if (roleChoisi === 'eleve') {
                     await chargerClasses(ecoleValidee.id);
                 }
-                
+
             } catch (err) {
                 msg.innerText = "Erreur : " + err.message;
                 msg.style.color = '#EF4444';
@@ -366,7 +417,7 @@
             const selectClasse = document.getElementById('eleve-classe');
             selectClasse.innerHTML = '<option value="">Chargement...</option>';
             const { data: classes } = await supabaseClient.from('classes').select('id, nom').eq('ecole_id', ecoleId).order('nom');
-            
+
             selectClasse.innerHTML = '<option value="">Selectionnez une classe</option>';
             if (classes && classes.length > 0) {
                 classes.forEach(c => {
@@ -395,24 +446,24 @@
         async function creerCompte() {
             const btn = document.getElementById('btn-inscription');
             const btnText = document.getElementById('btn-text');
-            
+
             if (!ecoleValidee) {
                 afficherMessage("Veuillez d'abord verifier votre code d'acces.", 'rouge');
                 return;
             }
-            
+
             const prenom = document.getElementById('prenom').value.trim();
             const nom = document.getElementById('nom').value.trim();
             const email = document.getElementById('email').value.trim();
             const telephone = document.getElementById('telephone').value.trim();
             const password = document.getElementById('password').value;
             const password2 = document.getElementById('password2').value;
-            
+
             if (!prenom || !nom || !email || !password) { afficherMessage("Veuillez remplir tous les champs obligatoires.", 'rouge'); return; }
             if (password.length < 6) { afficherMessage("Le mot de passe doit faire au moins 6 caracteres.", 'rouge'); return; }
             if (password !== password2) { afficherMessage("Les mots de passe ne correspondent pas.", 'rouge'); return; }
             if (!email.includes('@')) { afficherMessage("Veuillez entrer un email valide.", 'rouge'); return; }
-            
+
             let eleveClasseId = null;
             let eleveNaissance = null;
             let eleveParentEmail = null;
@@ -422,17 +473,17 @@
                 eleveParentEmail = document.getElementById('eleve-parent-email').value.trim();
                 if (!eleveClasseId) { afficherMessage("Veuillez selectionner votre classe.", 'rouge'); return; }
             }
-            
+
             let ensSpecialite = '';
             if (roleChoisi === 'enseignant') {
                 ensSpecialite = document.getElementById('ens-specialite').value.trim();
             }
-            
+
             btn.disabled = true;
             btn.classList.add('opacity-80');
             btnText.innerHTML = '<span class="spinner"></span> Creation...';
             document.getElementById('message').innerText = '';
-            
+
             try {
                 const { data: existant } = await supabaseClient.from('utilisateurs').select('id').eq('email', email).maybeSingle();
                 if (existant) {
@@ -442,7 +493,10 @@
                     btnText.innerText = 'Creer mon compte';
                     return;
                 }
-                
+
+                // 🔐 Hachage du mot de passe AVANT insertion
+                const passwordHashe = await hashPassword(password);
+
                 const { data: nouvelUtilisateur, error: errUser } = await supabaseClient.from('utilisateurs').insert([{
                     ecole_id: ecoleValidee.id,
                     role: roleChoisi,
@@ -450,23 +504,23 @@
                     nom: nom,
                     email: email,
                     telephone: telephone || null,
-                    mot_de_passe: password,
+                    mot_de_passe: passwordHashe,
                     statut: 'en_attente'
                 }]).select().single();
-                
+
                 if (errUser) throw new Error(errUser.message);
-                
+
                 if (roleChoisi === 'eleve') {
                     let parentId = null;
                     if (eleveParentEmail) {
                         const { data: parent } = await supabaseClient.from('utilisateurs').select('id').eq('email', eleveParentEmail).eq('role', 'parent').maybeSingle();
                         if (parent) parentId = parent.id;
                     }
-                    
+
                     const { count } = await supabaseClient.from('eleves').select('*', { count: 'exact', head: true }).eq('ecole_id', ecoleValidee.id);
                     const annee = new Date().getFullYear();
                     const matricule = 'ELV' + annee + String((count || 0) + 1).padStart(4, '0');
-                    
+
                     await supabaseClient.from('eleves').insert([{
                         utilisateur_id: nouvelUtilisateur.id,
                         classe_id: parseInt(eleveClasseId),
@@ -476,7 +530,7 @@
                         ecole_id: ecoleValidee.id
                     }]);
                 }
-                
+
                 if (roleChoisi === 'enseignant') {
                     await supabaseClient.from('enseignants').insert([{
                         utilisateur_id: nouvelUtilisateur.id,
@@ -484,7 +538,7 @@
                         date_embauche: new Date().toISOString().split('T')[0]
                     }]);
                 }
-                
+
                 const { data: admins } = await supabaseClient.from('utilisateurs').select('id').eq('ecole_id', ecoleValidee.id).eq('role', 'admin');
                 if (admins && admins.length > 0) {
                     const notifications = admins.map(a => ({
@@ -497,14 +551,14 @@
                     }));
                     await supabaseClient.from('notifications').insert(notifications);
                 }
-                
+
                 afficherMessage("Compte cree ! Il sera active apres validation par l'administration de votre ecole.", 'orange');
                 btnText.innerText = 'En attente de validation';
-                
+
                 setTimeout(() => {
                     window.location.href = 'index.html';
                 }, 3000);
-                
+
             } catch (err) {
                 afficherMessage("Erreur : " + err.message, 'rouge');
                 btn.disabled = false;

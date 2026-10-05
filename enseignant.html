@@ -72,6 +72,7 @@
             </div>
 
             <div class="flex-1 overflow-y-auto -mt-4 px-4 pb-6">
+                <!-- ============ VUE ACCUEIL ============ -->
                 <div id="view-accueil" class="hidden fade-in">
                     <div class="bg-gradient-to-br from-edu-green to-emerald-700 text-white rounded-2xl shadow-lg p-5 mb-3">
                         <div class="flex items-center justify-between mb-3">
@@ -104,6 +105,12 @@
                             <span class="text-3xl">📝</span><span class="text-xs font-bold text-edu-orange">Saisir les notes</span><span class="text-[9px] text-gray-500">Dernière évaluation</span>
                         </button>
                     </div>
+
+                    <button onclick="afficherRapportAbsences()" class="bouton-action w-full bg-gradient-to-r from-red-500 to-orange-500 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
+                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">📊</div>
+                        <div class="flex-1 text-left"><p class="text-sm font-bold">Rapport d'absences</p><p class="text-[10px] opacity-90">Jour, semaine, mois, trimestre, année</p></div>
+                        <span class="text-xl">→</span>
+                    </button>
 
                     <button onclick="afficherSaisieMasse()" class="bouton-action w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
                         <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">📋</div>
@@ -152,6 +159,7 @@
                     </button>
                 </div>
 
+                <!-- ============ VUE BADGES CLASSE ============ -->
                 <div id="view-badges-classe" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-2">🏆 Badges de la classe</h1>
@@ -164,12 +172,41 @@
                     <div id="liste-badges-classe" class="space-y-3"></div>
                 </div>
 
+                <!-- ============ VUE APPEL ============ -->
                 <div id="view-appel" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-3">✅ Faire l'appel</h1>
                     <div id="liste-appel" class="space-y-3"></div>
                 </div>
 
+                <!-- ============ VUE RAPPORT ABSENCES ============ -->
+                <div id="view-rapport-absences-ens" class="hidden fade-in">
+                    <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
+                    <h1 class="text-lg font-bold text-gray-800 mb-2">📊 Rapport d'absences</h1>
+                    <p class="text-xs text-gray-500 mb-3">Classe : <b id="ra-classe-nom">...</b></p>
+
+                    <div class="grid grid-cols-3 gap-2 mb-3">
+                        <button onclick="setPeriodeRapport('jour')" id="btn-per-jour" class="py-2 rounded-xl font-bold text-[10px] bg-edu-blue text-white">Aujourd'hui</button>
+                        <button onclick="setPeriodeRapport('semaine')" id="btn-per-semaine" class="py-2 rounded-xl font-bold text-[10px] bg-gray-100 text-gray-600">Semaine</button>
+                        <button onclick="setPeriodeRapport('mois')" id="btn-per-mois" class="py-2 rounded-xl font-bold text-[10px] bg-gray-100 text-gray-600">Mois</button>
+                        <button onclick="setPeriodeRapport('trimestre')" id="btn-per-trimestre" class="py-2 rounded-xl font-bold text-[10px] bg-gray-100 text-gray-600">Trimestre</button>
+                        <button onclick="setPeriodeRapport('semestre')" id="btn-per-semestre" class="py-2 rounded-xl font-bold text-[10px] bg-gray-100 text-gray-600">Semestre</button>
+                        <button onclick="setPeriodeRapport('annee')" id="btn-per-annee" class="py-2 rounded-xl font-bold text-[10px] bg-gray-100 text-gray-600">Année</button>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">
+                        <p class="text-[10px] font-bold text-gray-700 mb-2">Période personnalisée</p>
+                        <div class="grid grid-cols-2 gap-2 mb-2">
+                            <input type="date" id="ra-date-debut" class="px-3 py-2 rounded-xl border border-gray-300 text-xs">
+                            <input type="date" id="ra-date-fin" class="px-3 py-2 rounded-xl border border-gray-300 text-xs">
+                        </div>
+                        <button onclick="chargerRapportAbsences()" class="w-full bg-edu-blue text-white font-bold py-2.5 rounded-xl text-xs">Générer le rapport</button>
+                    </div>
+
+                    <div id="contenu-rapport-absences" class="space-y-3"></div>
+                </div>
+
+                <!-- ============ VUE NOTES ============ -->
                 <div id="view-notes" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-3">📝 Saisir les notes</h1>
@@ -188,6 +225,7 @@
                     </div>
                 </div>
 
+                <!-- ============ VUE NOTES MASSE ============ -->
                 <div id="view-notes-masse" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-2">📋 Saisie en masse</h1>
@@ -208,6 +246,7 @@
                     <div id="message-masse" class="text-center text-sm font-semibold mt-3"></div>
                 </div>
 
+                <!-- ============ VUE DEVOIRS ============ -->
                 <div id="view-devoirs" class="hidden fade-in">
                     <div class="flex items-center gap-3 mb-3">
                         <button onclick="retourAccueil()" class="text-2xl">⬅️</button>
@@ -217,6 +256,7 @@
                     <div id="liste-devoirs-ens" class="space-y-3"></div>
                 </div>
 
+                <!-- ============ VUE FORM DEVOIR ============ -->
                 <div id="view-form-devoir" class="hidden fade-in">
                     <div class="flex items-center gap-3 mb-4">
                         <button onclick="afficherDevoirs()" class="text-2xl">⬅️</button>
@@ -232,6 +272,7 @@
                     </div>
                 </div>
 
+                <!-- ============ VUE STATISTIQUES ============ -->
                 <div id="view-statistiques" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-2">📊 Statistiques de la classe</h1>
@@ -242,6 +283,7 @@
                     <div id="contenu-statistiques" class="space-y-3"></div>
                 </div>
 
+                <!-- ============ VUE EMPLOI ============ -->
                 <div id="view-emploi" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-3">📅 Mon emploi du temps</h1>
@@ -250,6 +292,7 @@
                     <div class="overflow-x-auto pb-2"><div id="tableau-emploi-enseignant" class="min-w-[700px]"></div></div>
                 </div>
 
+                <!-- ============ VUE ANNONCES ============ -->
                 <div id="view-annonces" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-3">📢 Annonces de l'ecole</h1>
@@ -261,6 +304,7 @@
                     <div id="contenu-affiche"></div>
                 </div>
 
+                <!-- ============ VUE NOTIFICATIONS ============ -->
                 <div id="view-notifications" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-3">🔔 Mes notifications</h1>
@@ -297,14 +341,18 @@
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFid2d1aXhjbG14dHp2bHNtYmJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4OTg1OTMsImV4cCI6MjEwNjQ3NDU5M30.8MiG5YdoMIY69KYfBdlXHIB9Zisd5miX3slaCoqVcjM';
         const supabaseUrl = 'https://abwguixclmxtzvlsmbby.supabase.co';
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
         const sessionUser = sessionStorage.getItem('eduLinkUser');
         if (!sessionUser) { window.location.href = 'index.html'; }
         const parsedUser = JSON.parse(sessionUser);
+
         let currentUser = null, monEcoleId = null, enseignantId = null, classeId = null, maMatiere = null;
         let listeEleves = [], tousLesCoursEns = [];
         let mesStatsActuelles = null;
         let signatureEcole = null;
         let trimestreBadgesEns = 1;
+        let periodeRapport = 'mois';
+        let rapportAbsencesActuel = null;
 
         function afficherAvatarHeader() {
             const btn = document.getElementById('avatar-header');
@@ -390,20 +438,15 @@
                 return;
             }
 
-            const resultats = [];
-            for (const e of listeEleves) {
-                const badges = await calculerBadgesEleve(supabaseClient, e.id, classeId, trimestreBadgesEns);
-                const nbBadges = Object.keys(badges).length;
-                resultats.push({
-                    eleve: e,
-                    badges: badges,
-                    nbBadges: nbBadges,
-                    badgesListe: obtenirBadgesObtenus(badges)
-                });
-            }
+            const eleveIds = listeEleves.map(e => e.id);
+            const badgesParEleve = await calculerBadgesClasse(supabaseClient, eleveIds, classeId, trimestreBadgesEns);
+
+            const resultats = listeEleves.map(e => {
+                const badges = badgesParEleve[e.id] || {};
+                return { eleve: e, badges: badges, nbBadges: Object.keys(badges).length, badgesListe: obtenirBadgesObtenus(badges) };
+            });
 
             resultats.sort((a, b) => b.nbBadges - a.nbBadges);
-
             const elevesAvecBadges = resultats.filter(r => r.nbBadges > 0);
 
             let html = '';
@@ -412,11 +455,10 @@
                 html = '<div class="bg-white p-8 rounded-2xl shadow-sm text-center"><div class="text-5xl mb-2">🏆</div><p class="text-gray-500 text-sm">Aucun élève n\'a encore obtenu de badge ce trimestre.</p></div>';
             } else {
                 const totalBadges = resultats.reduce((s, r) => s + r.nbBadges, 0);
-                html += `<div class="bg-gradient-to-br from-pink-500 to-rose-600 text-white rounded-2xl shadow-lg p-4 mb-3">
-                    <p class="text-xs opacity-90 mb-1">Badges obtenus dans la classe (T${trimestreBadgesEns})</p>
-                    <p class="text-3xl font-extrabold">${totalBadges}</p>
-                    <p class="text-[11px] opacity-90 mt-1">${elevesAvecBadges.length} élève(s) récompensé(s)</p>
-                </div>`;
+                html += '<div class="bg-gradient-to-br from-pink-500 to-rose-600 text-white rounded-2xl shadow-lg p-4 mb-3">'
+                    + '<p class="text-xs opacity-90 mb-1">Badges obtenus dans la classe (T' + trimestreBadgesEns + ')</p>'
+                    + '<p class="text-3xl font-extrabold">' + totalBadges + '</p>'
+                    + '<p class="text-[11px] opacity-90 mt-1">' + elevesAvecBadges.length + ' élève(s) récompensé(s)</p></div>';
 
                 resultats.forEach(r => {
                     const prenom = r.eleve.utilisateurs.prenom;
@@ -426,19 +468,16 @@
                     if (r.nbBadges === 0) {
                         badgesHtml = '<p class="text-[10px] text-gray-400 italic">Aucun badge ce trimestre</p>';
                     } else {
-                        badgesHtml = '<div class="flex flex-wrap gap-1">' + r.badgesListe.map(b => `<span class="text-xl" title="${b.label}">${b.emoji}</span>`).join('') + '</div>';
+                        badgesHtml = '<div class="flex flex-wrap gap-1">' + r.badgesListe.map(b => '<span class="text-xl" title="' + b.label + '">' + b.emoji + '</span>').join('') + '</div>';
                     }
                     const bgCard = r.nbBadges >= 3 ? 'bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200' : 'bg-white border-gray-100';
-                    html += `<div class="p-4 rounded-2xl shadow-sm border ${bgCard}">
-                        <div class="flex items-center gap-3 mb-2">
-                            <div class="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold" style="background: linear-gradient(135deg, #EC4899, #8B5CF6);">${initiale}</div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-bold text-gray-800 truncate">${prenom} ${nom}</p>
-                                <p class="text-[10px] text-gray-500">${r.nbBadges} badge(s)</p>
-                            </div>
-                        </div>
-                        ${badgesHtml}
-                    </div>`;
+                    html += '<div class="p-4 rounded-2xl shadow-sm border ' + bgCard + '">'
+                        + '<div class="flex items-center gap-3 mb-2">'
+                        + '<div class="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold" style="background: linear-gradient(135deg, #EC4899, #8B5CF6);">' + initiale + '</div>'
+                        + '<div class="flex-1 min-w-0">'
+                        + '<p class="text-sm font-bold text-gray-800 truncate">' + prenom + ' ' + nom + '</p>'
+                        + '<p class="text-[10px] text-gray-500">' + r.nbBadges + ' badge(s)</p></div></div>'
+                        + badgesHtml + '</div>';
                 });
             }
             conteneur.innerHTML = html;
@@ -492,35 +531,341 @@
             if (count > 0) { badge.innerText = count; badge.classList.remove('hidden'); } else { badge.classList.add('hidden'); }
         }
 
+        // ============ APPEL AVEC TOGGLE ============
         async function afficherAppel() {
             document.getElementById('view-accueil').classList.add('hidden');
             document.getElementById('view-appel').classList.remove('hidden');
+            document.getElementById('liste-appel').innerHTML = '<p class="text-gray-500 text-center py-6">Chargement...</p>';
+
+            const today = new Date().toISOString().split('T')[0];
+
+            const { data: absences } = await supabaseClient
+                .from('absences')
+                .select('id, eleve_id')
+                .eq('ecole_id', monEcoleId)
+                .eq('matiere', maMatiere)
+                .eq('date_absence', today);
+
+            const absentsMap = {};
+            (absences || []).forEach(a => { absentsMap[a.eleve_id] = a.id; });
+
+            const dateAffichee = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
             let html = '';
-            listeEleves.forEach(e => {
-                html += `<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-xl">👦🏾</div><span class="font-semibold text-gray-800 text-sm">${e.utilisateurs.prenom} ${e.utilisateurs.nom}</span></div><button onclick="marquerAbsent(${e.id}, this)" class="bg-red-100 text-red-600 px-3 py-1 rounded-lg text-xs font-bold">Absent</button></div>`;
-            });
-            document.getElementById('liste-appel').innerHTML = html || '<p class="text-gray-500 text-center py-4">Aucun eleve.</p>';
+
+            if (listeEleves.length === 0) {
+                html = '<p class="text-gray-500 text-center py-4">Aucun élève.</p>';
+            } else {
+                html += '<div class="bg-gradient-to-br from-edu-green to-emerald-700 text-white rounded-2xl p-4 mb-3">'
+                    + '<p class="text-[10px] opacity-80 uppercase font-bold">Appel du jour</p>'
+                    + '<p class="text-sm font-bold capitalize">' + dateAffichee + '</p>'
+                    + '<div class="flex justify-between items-center mt-2">'
+                    + '<span class="text-[11px] opacity-90">Matière : <b>' + maMatiere + '</b></span>'
+                    + '<span class="text-[11px] font-bold bg-white bg-opacity-20 px-2 py-1 rounded-full"><span id="compteur-absents">0</span> absent(s)</span>'
+                    + '</div></div>';
+
+                listeEleves.forEach(e => {
+                    const estAbsent = !!absentsMap[e.id];
+                    const initiale = e.utilisateurs.prenom.charAt(0).toUpperCase();
+                    const bgBtn = estAbsent ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-700';
+                    const label = estAbsent ? '❌ Absent' : '✅ Présent';
+                    const colorBar = estAbsent ? '#EF4444' : '#2EAD5E';
+                    const colorBar2 = estAbsent ? '#DC2626' : '#059669';
+
+                    html += '<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center">'
+                        + '<div class="flex items-center gap-3">'
+                        + '<div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white" style="background: linear-gradient(135deg, ' + colorBar + ', ' + colorBar2 + ');">' + initiale + '</div>'
+                        + '<div><p class="font-semibold text-gray-800 text-sm">' + e.utilisateurs.prenom + ' ' + e.utilisateurs.nom + '</p>'
+                        + '<p class="badge-statut-eleve text-[10px] ' + (estAbsent ? 'text-red-500 font-bold' : 'text-gray-400') + '">' + (estAbsent ? 'Marqué absent' : 'Présent') + '</p></div></div>'
+                        + '<button onclick="toggleAbsence(' + e.id + ', this)" data-absent="' + (estAbsent ? '1' : '0') + '" class="' + bgBtn + ' px-4 py-2 rounded-lg text-xs font-bold transition">' + label + '</button>'
+                        + '</div>';
+                });
+            }
+
+            document.getElementById('liste-appel').innerHTML = html;
+            majCompteurAbsents();
         }
 
-        async function marquerAbsent(eleveId, btn) {
+        async function toggleAbsence(eleveId, btn) {
+            const estAbsent = btn.getAttribute('data-absent') === '1';
             const today = new Date().toISOString().split('T')[0];
-            const { error } = await supabaseClient.from('absences').insert([{ eleve_id: eleveId, date_absence: today, matiere: maMatiere, justifiee: false, heure_debut: '08:00', heure_fin: '10:00', ecole_id: monEcoleId }]);
-            if (!error) {
-                btn.innerText = "✅ Absent"; btn.classList.remove('bg-red-100', 'text-red-600'); btn.classList.add('bg-green-100', 'text-edu-green'); btn.disabled = true;
-                const { data: eleve } = await supabaseClient.from('eleves').select('parent_id, utilisateurs!utilisateur_id(prenom)').eq('id', eleveId).single();
-                if (eleve && eleve.parent_id) {
-                    await supabaseClient.from('notifications').insert([{ utilisateur_id: eleve.parent_id, titre: 'Absence constatee', contenu: 'Votre enfant ' + eleve.utilisateurs.prenom + ' a ete marque absent en ' + maMatiere + '.', type: 'absence', lu: false, ecole_id: monEcoleId }]);
+            btn.disabled = true;
+            const texteOrig = btn.innerText;
+            btn.innerText = '⏳';
+
+            try {
+                if (estAbsent) {
+                    const { error } = await supabaseClient
+                        .from('absences')
+                        .delete()
+                        .eq('eleve_id', eleveId)
+                        .eq('matiere', maMatiere)
+                        .eq('date_absence', today)
+                        .eq('ecole_id', monEcoleId);
+                    if (error) throw error;
+                    btn.setAttribute('data-absent', '0');
+                    btn.innerText = '✅ Présent';
+                    btn.className = 'bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-xs font-bold transition';
+                    const badge = btn.closest('.bg-white').querySelector('.badge-statut-eleve');
+                    if (badge) { badge.className = 'badge-statut-eleve text-[10px] text-gray-400'; badge.innerText = 'Présent'; }
+                } else {
+                    const { error } = await supabaseClient.from('absences').insert([{
+                        eleve_id: eleveId, date_absence: today, matiere: maMatiere,
+                        justifiee: false, heure_debut: '08:00', heure_fin: '10:00', ecole_id: monEcoleId
+                    }]);
+                    if (error) throw error;
+                    btn.setAttribute('data-absent', '1');
+                    btn.innerText = '❌ Absent';
+                    btn.className = 'bg-red-500 text-white px-4 py-2 rounded-lg text-xs font-bold transition';
+                    const badge = btn.closest('.bg-white').querySelector('.badge-statut-eleve');
+                    if (badge) { badge.className = 'badge-statut-eleve text-[10px] text-red-500 font-bold'; badge.innerText = 'Marqué absent'; }
+
+                    const { data: eleve } = await supabaseClient.from('eleves').select('parent_id, utilisateurs!utilisateur_id(prenom)').eq('id', eleveId).single();
+                    if (eleve && eleve.parent_id) {
+                        await supabaseClient.from('notifications').insert([{
+                            utilisateur_id: eleve.parent_id, titre: 'Absence constatée',
+                            contenu: 'Votre enfant ' + eleve.utilisateurs.prenom + ' a été marqué absent en ' + maMatiere + '.',
+                            type: 'absence', lu: false, ecole_id: monEcoleId
+                        }]);
+                    }
                 }
+                majCompteurAbsents();
+            } catch (err) {
+                alert('Erreur : ' + err.message);
+                btn.innerText = texteOrig;
+            } finally {
+                btn.disabled = false;
             }
         }
 
+        function majCompteurAbsents() {
+            const compteur = document.getElementById('compteur-absents');
+            if (!compteur) return;
+            compteur.innerText = document.querySelectorAll('#liste-appel button[data-absent="1"]').length;
+        }
+
+        // ============ RAPPORTS D'ABSENCES ============
+        function formatDateFR(dateStr) {
+            if (!dateStr) return '';
+            const d = new Date(dateStr + 'T00:00:00');
+            return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+        }
+
+        function calculerDatesPeriode(periode) {
+            const now = new Date();
+            const y = now.getFullYear();
+            const m = now.getMonth();
+            const d = now.getDate();
+            const pad = n => String(n).padStart(2, '0');
+            const fmt = dt => dt.getFullYear() + '-' + pad(dt.getMonth() + 1) + '-' + pad(dt.getDate());
+
+            let debut, fin;
+
+            if (periode === 'jour') {
+                debut = fin = fmt(now);
+            } else if (periode === 'semaine') {
+                const day = now.getDay() || 7;
+                const lundi = new Date(now); lundi.setDate(d - day + 1);
+                const dimanche = new Date(lundi); dimanche.setDate(lundi.getDate() + 6);
+                debut = fmt(lundi); fin = fmt(dimanche);
+            } else if (periode === 'mois') {
+                debut = fmt(new Date(y, m, 1));
+                fin = fmt(new Date(y, m + 1, 0));
+            } else if (periode === 'trimestre') {
+                let t1, t2;
+                if (m >= 8) { t1 = new Date(y, 8, 1); t2 = new Date(y, 11, 31); }
+                else if (m <= 2) { t1 = new Date(y, 0, 1); t2 = new Date(y, 2, 31); }
+                else { t1 = new Date(y, 3, 1); t2 = new Date(y, 5, 30); }
+                debut = fmt(t1); fin = fmt(t2);
+            } else if (periode === 'semestre') {
+                let s1, s2;
+                if (m >= 8) { s1 = new Date(y, 8, 1); s2 = new Date(y + 1, 0, 31); }
+                else if (m <= 0) { s1 = new Date(y - 1, 8, 1); s2 = new Date(y, 0, 31); }
+                else { s1 = new Date(y, 1, 1); s2 = new Date(y, 5, 30); }
+                debut = fmt(s1); fin = fmt(s2);
+            } else {
+                if (m >= 8) { debut = y + '-09-01'; fin = (y + 1) + '-08-31'; }
+                else { debut = (y - 1) + '-09-01'; fin = y + '-08-31'; }
+            }
+            return { debut, fin };
+        }
+
+        function afficherRapportAbsences() {
+            document.getElementById('view-accueil').classList.add('hidden');
+            document.getElementById('view-rapport-absences-ens').classList.remove('hidden');
+            document.getElementById('ra-classe-nom').innerText = document.getElementById('classe-enseignant').innerText;
+            setPeriodeRapport('mois');
+            window.scrollTo(0, 0);
+        }
+
+        function setPeriodeRapport(p) {
+            periodeRapport = p;
+            ['jour', 'semaine', 'mois', 'trimestre', 'semestre', 'annee'].forEach(x => {
+                const btn = document.getElementById('btn-per-' + x);
+                if (btn) btn.className = x === p
+                    ? 'py-2 rounded-xl font-bold text-[10px] bg-edu-blue text-white'
+                    : 'py-2 rounded-xl font-bold text-[10px] bg-gray-100 text-gray-600';
+            });
+            const { debut, fin } = calculerDatesPeriode(p);
+            document.getElementById('ra-date-debut').value = debut;
+            document.getElementById('ra-date-fin').value = fin;
+            chargerRapportAbsences();
+        }
+
+        async function chargerRapportAbsences() {
+            const conteneur = document.getElementById('contenu-rapport-absences');
+            conteneur.innerHTML = '<p class="text-gray-500 text-center py-6">Chargement...</p>';
+
+            const debut = document.getElementById('ra-date-debut').value;
+            const fin = document.getElementById('ra-date-fin').value;
+            if (!debut || !fin) { conteneur.innerHTML = '<p class="text-orange-500 text-center py-6">Sélectionnez une période.</p>'; return; }
+
+            const eleveIds = listeEleves.map(e => e.id);
+            if (eleveIds.length === 0) { conteneur.innerHTML = '<p class="text-gray-500 text-center py-6">Aucun élève.</p>'; return; }
+
+            const { data: absences } = await supabaseClient
+                .from('absences')
+                .select('eleve_id, matiere, justifiee, date_absence')
+                .in('eleve_id', eleveIds)
+                .gte('date_absence', debut)
+                .lte('date_absence', fin);
+
+            const liste = absences || [];
+
+            if (liste.length === 0) {
+                conteneur.innerHTML = '<div class="bg-white p-8 rounded-2xl shadow-sm text-center"><div class="text-5xl mb-2">🎉</div><p class="text-gray-500 text-sm">Aucune absence sur cette période.</p><p class="text-[10px] text-gray-400 mt-1">Du ' + formatDateFR(debut) + ' au ' + formatDateFR(fin) + '</p></div>';
+                return;
+            }
+
+            const total = liste.length;
+            const justifiees = liste.filter(a => a.justifiee).length;
+            const nonJust = total - justifiees;
+            const parEleve = {};
+            liste.forEach(a => {
+                if (!parEleve[a.eleve_id]) parEleve[a.eleve_id] = { total: 0, just: 0, nonJust: 0 };
+                parEleve[a.eleve_id].total++;
+                if (a.justifiee) parEleve[a.eleve_id].just++; else parEleve[a.eleve_id].nonJust++;
+            });
+            const elevesConcernes = Object.keys(parEleve).length;
+
+            let html = '';
+            html += '<div class="bg-gradient-to-br from-red-500 to-orange-500 text-white rounded-2xl shadow-lg p-4 mb-3">'
+                + '<p class="text-xs opacity-90 mb-1">Rapport du ' + formatDateFR(debut) + ' au ' + formatDateFR(fin) + '</p>'
+                + '<p class="text-3xl font-extrabold">' + total + '</p>'
+                + '<p class="text-[11px] opacity-90 mt-1">absence(s) • ' + elevesConcernes + ' élève(s) concerné(s)</p>'
+                + '<div class="grid grid-cols-2 gap-2 mt-3">'
+                + '<div class="bg-white bg-opacity-20 rounded-xl p-2 text-center"><p class="text-[9px] opacity-90">Justifiées</p><p class="text-lg font-bold">' + justifiees + '</p></div>'
+                + '<div class="bg-white bg-opacity-20 rounded-xl p-2 text-center"><p class="text-[9px] opacity-90">Non justifiées</p><p class="text-lg font-bold">' + nonJust + '</p></div>'
+                + '</div></div>';
+
+            html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3"><p class="text-sm font-bold text-gray-800 mb-3">📋 Détail par élève</p>';
+
+            const elevesTries = listeEleves.map(e => ({ eleve: e, stats: parEleve[e.id] || { total: 0, just: 0, nonJust: 0 } })).sort((a, b) => b.stats.total - a.stats.total);
+
+            elevesTries.forEach(item => {
+                const eleve = item.eleve;
+                const stats = item.stats;
+                const pct = total > 0 ? Math.round((stats.total / total) * 100) : 0;
+                const couleur = stats.total === 0 ? '#2EAD5E' : (stats.total > 5 ? '#EF4444' : '#F59E0B');
+                html += '<div class="py-2 border-b border-gray-100 last:border-b-0">'
+                    + '<div class="flex justify-between items-center mb-1">'
+                    + '<span class="text-xs font-semibold text-gray-800">' + eleve.utilisateurs.prenom + ' ' + eleve.utilisateurs.nom + '</span>'
+                    + '<span class="text-xs font-bold" style="color:' + couleur + '">' + stats.total + '</span></div>'
+                    + '<div class="flex gap-2 text-[9px] text-gray-500"><span>✅ ' + stats.just + ' just.</span><span>❌ ' + stats.nonJust + ' non just.</span></div>'
+                    + (stats.total > 0 ? '<div class="w-full bg-gray-100 rounded-full h-1 mt-1"><div class="h-1 rounded-full" style="width:' + pct + '%;background:' + couleur + '"></div></div>' : '')
+                    + '</div>';
+            });
+
+            html += '</div>';
+            html += '<button onclick="telechargerRapportAbsencesPDF()" id="btn-pdf-absences" class="w-full bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2"><span>📥</span><span>Télécharger le rapport PDF</span></button><div id="message-pdf-absences" class="text-center text-sm font-semibold mt-2"></div>';
+
+            conteneur.innerHTML = html;
+            rapportAbsencesActuel = { debut, fin, total, justifiees, nonJust, elevesConcernes, elevesTries };
+        }
+
+        async function telechargerRapportAbsencesPDF() {
+            if (!rapportAbsencesActuel) { alert('Aucun rapport à télécharger.'); return; }
+            const btn = document.getElementById('btn-pdf-absences');
+            const msg = document.getElementById('message-pdf-absences');
+            btn.disabled = true; btn.classList.add('opacity-70');
+            const spanOrig = btn.innerHTML;
+            btn.innerHTML = '<span>⏳</span><span>Génération...</span>';
+
+            let iframe = null;
+            try {
+                const r = rapportAbsencesActuel;
+                const ecoleNom = document.getElementById('ecole-nom-affiche').innerText.replace('🏫 ', '');
+                const classeNom = document.getElementById('classe-enseignant').innerText;
+                const dateJour = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+                let lignes = '';
+                r.elevesTries.forEach(item => {
+                    const s = item.stats;
+                    const couleur = s.total === 0 ? '#2EAD5E' : (s.total > 5 ? '#EF4444' : '#F59E0B');
+                    lignes += '<tr><td style="padding:8px;border:1px solid #d1d5db;font-size:11px;font-weight:600;">' + item.eleve.utilisateurs.prenom + ' ' + item.eleve.utilisateurs.nom + '</td><td style="padding:8px;border:1px solid #d1d5db;font-size:11px;text-align:center;color:#2EAD5E;font-weight:600;">' + s.just + '</td><td style="padding:8px;border:1px solid #d1d5db;font-size:11px;text-align:center;color:#EF4444;font-weight:600;">' + s.nonJust + '</td><td style="padding:8px;border:1px solid #d1d5db;font-size:12px;text-align:center;font-weight:700;color:' + couleur + ';">' + s.total + '</td></tr>';
+                });
+
+                const htmlInterne = '<div style="background:white;padding:20px;border:2px solid #004AAD;border-radius:12px;font-family:Arial,sans-serif;">'
+                    + '<div style="text-align:center;border-bottom:2px solid #004AAD;padding-bottom:12px;margin-bottom:16px;">'
+                    + '<div style="font-size:32px;">📊</div>'
+                    + '<h1 style="font-size:18px;font-weight:bold;color:#004AAD;margin:4px 0;">EDU-LINK</h1>'
+                    + '<p style="font-size:10px;color:#6b7280;margin:0;">' + ecoleNom + '</p>'
+                    + '<p style="font-size:14px;font-weight:bold;color:#1f2937;margin-top:8px;">RAPPORT D\'ABSENCES — ' + classeNom + '</p>'
+                    + '<p style="font-size:11px;color:#1f2937;margin:2px 0;">Du <b>' + formatDateFR(r.debut) + '</b> au <b>' + formatDateFR(r.fin) + '</b></p>'
+                    + '</div>'
+                    + '<table style="width:100%;border-collapse:collapse;margin-bottom:14px;"><tr>'
+                    + '<td style="width:25%;text-align:center;padding:8px;background:#fef2f2;border:1px solid #d1d5db;"><p style="font-size:9px;color:#6b7280;margin:0;">Total</p><p style="font-size:18px;font-weight:bold;color:#EF4444;margin:2px 0 0 0;">' + r.total + '</p></td>'
+                    + '<td style="width:25%;text-align:center;padding:8px;background:#f0fdf4;border:1px solid #d1d5db;"><p style="font-size:9px;color:#6b7280;margin:0;">Justifiées</p><p style="font-size:18px;font-weight:bold;color:#2EAD5E;margin:2px 0 0 0;">' + r.justifiees + '</p></td>'
+                    + '<td style="width:25%;text-align:center;padding:8px;background:#fef2f2;border:1px solid #d1d5db;"><p style="font-size:9px;color:#6b7280;margin:0;">Non just.</p><p style="font-size:18px;font-weight:bold;color:#EF4444;margin:2px 0 0 0;">' + r.nonJust + '</p></td>'
+                    + '<td style="width:25%;text-align:center;padding:8px;background:#f0f7ff;border:1px solid #d1d5db;"><p style="font-size:9px;color:#6b7280;margin:0;">Élèves</p><p style="font-size:18px;font-weight:bold;color:#004AAD;margin:2px 0 0 0;">' + r.elevesConcernes + '</p></td>'
+                    + '</tr></table>'
+                    + '<table style="width:100%;border-collapse:collapse;"><thead><tr style="background:#004AAD;">'
+                    + '<th style="border:1px solid #004AAD;padding:8px;font-size:10px;color:white;text-align:left;">Élève</th>'
+                    + '<th style="border:1px solid #004AAD;padding:8px;font-size:10px;color:white;text-align:center;width:70px;">Justifiées</th>'
+                    + '<th style="border:1px solid #004AAD;padding:8px;font-size:10px;color:white;text-align:center;width:80px;">Non just.</th>'
+                    + '<th style="border:1px solid #004AAD;padding:8px;font-size:10px;color:white;text-align:center;width:70px;">Total</th>'
+                    + '</tr></thead><tbody>' + lignes + '</tbody></table>'
+                    + '<p style="text-align:center;font-size:9px;color:#9ca3af;margin-top:14px;">Document généré par EDU-LINK — ' + dateJour + '</p>'
+                    + '</div>';
+
+                iframe = document.createElement('iframe');
+                iframe.style.cssText = 'position:fixed;top:0;left:0;width:800px;height:1100px;opacity:0;pointer-events:none;z-index:-1;border:none;';
+                document.body.appendChild(iframe);
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                doc.open();
+                doc.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{margin:0;padding:20px;background:#ffffff;font-family:Arial,sans-serif;}</style></head><body>' + htmlInterne + '</body></html>');
+                doc.close();
+                await new Promise(res => setTimeout(res, 400));
+
+                const nomFichier = 'Rapport_Absences_' + (classeNom || 'classe').replace(/\s+/g, '_') + '_' + r.debut + '_' + r.fin + '.pdf';
+                const options = { margin: 10, filename: nomFichier, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', width: 800, windowWidth: 800, scrollX: 0, scrollY: 0 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+                const pdfBlob = await html2pdf().set(options).from(doc.body).outputPdf('blob');
+                const fichier = new File([pdfBlob], nomFichier, { type: 'application/pdf' });
+                document.body.removeChild(iframe); iframe = null;
+
+                if (navigator.canShare && navigator.canShare({ files: [fichier] })) {
+                    await navigator.share({ files: [fichier], title: 'Rapport d\'absences' });
+                    msg.innerText = '✅ Rapport partagé !'; msg.style.color = '#2EAD5E';
+                } else {
+                    const url = URL.createObjectURL(pdfBlob);
+                    window.open(url, '_blank');
+                    msg.innerText = '✅ PDF ouvert !'; msg.style.color = '#2EAD5E';
+                }
+            } catch (err) {
+                if (iframe && document.body.contains(iframe)) document.body.removeChild(iframe);
+                msg.innerText = 'Erreur : ' + err.message; msg.style.color = '#EF4444';
+            } finally {
+                btn.disabled = false; btn.classList.remove('opacity-70'); btn.innerHTML = spanOrig;
+            }
+        }
+
+        // ============ NOTES ============
         async function afficherSaisieNotes() {
             document.getElementById('view-accueil').classList.add('hidden');
             document.getElementById('view-notes').classList.remove('hidden');
             document.getElementById('message-note').innerText = '';
             const select = document.getElementById('select-eleve');
             select.innerHTML = '<option value="">Selectionnez un eleve</option>';
-            listeEleves.forEach(e => { select.innerHTML += `<option value="${e.id}">${e.utilisateurs.prenom} ${e.utilisateurs.nom}</option>`; });
+            listeEleves.forEach(e => { select.innerHTML += '<option value="' + e.id + '">' + e.utilisateurs.prenom + ' ' + e.utilisateurs.nom + '</option>'; });
         }
 
         async function enregistrerNote() {
@@ -557,7 +902,7 @@
             let html = '';
             if (listeEleves.length === 0) html = '<p class="text-gray-500 text-center py-4">Aucun élève dans la classe.</p>';
             else listeEleves.forEach(e => {
-                html += `<div class="bg-white p-3 rounded-xl shadow-sm border border-gray-100 flex items-center gap-3"><div class="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center text-lg flex-shrink-0">👦🏾</div><div class="flex-1 min-w-0"><p class="text-xs font-bold text-gray-800 truncate">${e.utilisateurs.prenom} ${e.utilisateurs.nom}</p></div><input type="number" min="0" max="20" step="0.25" placeholder="--" data-eleve-id="${e.id}" class="note-masse w-20 px-3 py-2 rounded-lg border border-gray-300 text-sm text-center"></div>`;
+                html += '<div class="bg-white p-3 rounded-xl shadow-sm border border-gray-100 flex items-center gap-3"><div class="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center text-lg flex-shrink-0">👦🏾</div><div class="flex-1 min-w-0"><p class="text-xs font-bold text-gray-800 truncate">' + e.utilisateurs.prenom + ' ' + e.utilisateurs.nom + '</p></div><input type="number" min="0" max="20" step="0.25" placeholder="--" data-eleve-id="' + e.id + '" class="note-masse w-20 px-3 py-2 rounded-lg border border-gray-300 text-sm text-center"></div>';
             });
             document.getElementById('liste-saisie-masse').innerHTML = html;
             window.scrollTo(0, 0);
@@ -601,6 +946,7 @@
             } catch (err) { msg.innerText = "Erreur : " + err.message; msg.style.color = "red"; btn.disabled = false; btn.classList.remove('opacity-70'); btn.innerText = "✅ Enregistrer toutes les notes"; }
         }
 
+        // ============ DEVOIRS ============
         async function afficherDevoirs() {
             document.getElementById('view-accueil').classList.add('hidden');
             document.getElementById('view-devoirs').classList.remove('hidden');
@@ -619,23 +965,17 @@
                     if (d.date_limite) {
                         const limite = new Date(d.date_limite); limite.setHours(0, 0, 0, 0);
                         const joursRestants = Math.round((limite - aujourdHui) / (1000 * 60 * 60 * 24));
-                        if (joursRestants < 0) badgeLimite = `<span class="bg-red-100 text-edu-red text-[10px] font-bold px-2 py-1 rounded">⚠️ Expiré</span>`;
-                        else if (joursRestants === 0) badgeLimite = `<span class="bg-orange-100 text-edu-orange text-[10px] font-bold px-2 py-1 rounded">⏰ Aujourd'hui</span>`;
-                        else if (joursRestants <= 2) badgeLimite = `<span class="bg-orange-100 text-edu-orange text-[10px] font-bold px-2 py-1 rounded">⏰ ${joursRestants}j</span>`;
-                        else badgeLimite = `<span class="bg-green-100 text-edu-green text-[10px] font-bold px-2 py-1 rounded">${joursRestants}j</span>`;
+                        if (joursRestants < 0) badgeLimite = '<span class="bg-red-100 text-edu-red text-[10px] font-bold px-2 py-1 rounded">⚠️ Expiré</span>';
+                        else if (joursRestants === 0) badgeLimite = '<span class="bg-orange-100 text-edu-orange text-[10px] font-bold px-2 py-1 rounded">⏰ Aujourd\'hui</span>';
+                        else if (joursRestants <= 2) badgeLimite = '<span class="bg-orange-100 text-edu-orange text-[10px] font-bold px-2 py-1 rounded">⏰ ' + joursRestants + 'j</span>';
+                        else badgeLimite = '<span class="bg-green-100 text-edu-green text-[10px] font-bold px-2 py-1 rounded">' + joursRestants + 'j</span>';
                     }
-                    html += `<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-                        <div class="flex justify-between items-start mb-2"><div class="flex-1 min-w-0"><p class="text-sm font-bold text-gray-800 truncate">📚 ${d.titre}</p><p class="text-[10px] text-gray-500">${d.matiere} • Créé le ${dateStr}</p></div>${badgeLimite}</div>
-                        ${d.description ? `<p class="text-xs text-gray-600 mb-3" style="white-space: pre-wrap;">${d.description}</p>` : ''}
-                        <div class="bg-gray-50 rounded-xl p-2 mb-3">
-                            <div class="flex justify-between items-center mb-1"><span class="text-[10px] text-gray-600 font-semibold">Suivi des élèves</span><span class="text-[10px] font-bold text-edu-blue">${nbFaitsVal}/${totalEleves} ont marqué fait</span></div>
-                            <div class="w-full bg-gray-200 rounded-full h-1.5"><div class="h-1.5 rounded-full bg-edu-green" style="width:${pctFaits}%"></div></div>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-[10px] text-gray-400">Limite : ${d.date_limite ? new Date(d.date_limite).toLocaleDateString('fr-FR') : 'Aucune'}</span>
-                            <button onclick="supprimerDevoir(${d.id})" class="bg-red-50 text-edu-red text-[10px] font-bold px-2 py-1 rounded">Supprimer</button>
-                        </div>
-                    </div>`;
+                    html += '<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">'
+                        + '<div class="flex justify-between items-start mb-2"><div class="flex-1 min-w-0"><p class="text-sm font-bold text-gray-800 truncate">📚 ' + d.titre + '</p><p class="text-[10px] text-gray-500">' + d.matiere + ' • Créé le ' + dateStr + '</p></div>' + badgeLimite + '</div>'
+                        + (d.description ? '<p class="text-xs text-gray-600 mb-3" style="white-space: pre-wrap;">' + d.description + '</p>' : '')
+                        + '<div class="bg-gray-50 rounded-xl p-2 mb-3"><div class="flex justify-between items-center mb-1"><span class="text-[10px] text-gray-600 font-semibold">Suivi des élèves</span><span class="text-[10px] font-bold text-edu-blue">' + nbFaitsVal + '/' + totalEleves + ' ont marqué fait</span></div><div class="w-full bg-gray-200 rounded-full h-1.5"><div class="h-1.5 rounded-full bg-edu-green" style="width:' + pctFaits + '%"></div></div></div>'
+                        + '<div class="flex justify-between items-center"><span class="text-[10px] text-gray-400">Limite : ' + (d.date_limite ? new Date(d.date_limite).toLocaleDateString('fr-FR') : 'Aucune') + '</span><button onclick="supprimerDevoir(' + d.id + ')" class="bg-red-50 text-edu-red text-[10px] font-bold px-2 py-1 rounded">Supprimer</button></div>'
+                        + '</div>';
                 }
             }
             document.getElementById('liste-devoirs-ens').innerHTML = html;
@@ -683,6 +1023,7 @@
             afficherDevoirs();
         }
 
+        // ============ STATISTIQUES ============
         function afficherStatistiques() {
             document.getElementById('view-accueil').classList.add('hidden');
             document.getElementById('view-statistiques').classList.remove('hidden');
@@ -737,22 +1078,18 @@
             mesStatsActuelles.top5 = top5;
 
             let html = '';
-            html += `<div class="bg-gradient-to-br from-edu-blue to-blue-700 text-white rounded-2xl shadow-lg p-5 mb-3"><p class="text-xs opacity-80 mb-1">Moyenne de la classe en ${maMatiere}</p><div class="flex items-end gap-2"><span class="text-4xl font-extrabold">${moyenneClasse.toFixed(2)}</span><span class="text-lg opacity-80 mb-1">/ 20</span></div><div class="grid grid-cols-3 gap-2 mt-4 text-center"><div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-80">Notes</p><p class="text-base font-bold">${nbAvecNotes}/${nbTotal}</p></div><div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-80">Minimum</p><p class="text-base font-bold">${noteMin.toFixed(2)}</p></div><div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-80">Maximum</p><p class="text-base font-bold">${noteMax.toFixed(2)}</p></div></div></div>`;
-            html += `<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3"><div class="flex items-center justify-between mb-2"><p class="text-sm font-bold text-gray-800">Taux de réussite</p><span class="text-xl font-extrabold" style="color:${couleurMoy}">${tauxReussite}%</span></div><div class="w-full bg-gray-200 rounded-full h-2.5 mb-2"><div class="h-2.5 rounded-full" style="width:${tauxReussite}%;background:${couleurMoy}"></div></div><p class="text-[10px] text-gray-500">${nbReussite} élève(s) sur ${nbAvecNotes} ont la moyenne (≥ 10)</p></div>`;
+            html += '<div class="bg-gradient-to-br from-edu-blue to-blue-700 text-white rounded-2xl shadow-lg p-5 mb-3"><p class="text-xs opacity-80 mb-1">Moyenne de la classe en ' + maMatiere + '</p><div class="flex items-end gap-2"><span class="text-4xl font-extrabold">' + moyenneClasse.toFixed(2) + '</span><span class="text-lg opacity-80 mb-1">/ 20</span></div><div class="grid grid-cols-3 gap-2 mt-4 text-center"><div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-80">Notes</p><p class="text-base font-bold">' + nbAvecNotes + '/' + nbTotal + '</p></div><div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-80">Minimum</p><p class="text-base font-bold">' + noteMin.toFixed(2) + '</p></div><div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-80">Maximum</p><p class="text-base font-bold">' + noteMax.toFixed(2) + '</p></div></div></div>';
+            html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3"><div class="flex items-center justify-between mb-2"><p class="text-sm font-bold text-gray-800">Taux de réussite</p><span class="text-xl font-extrabold" style="color:' + couleurMoy + '">' + tauxReussite + '%</span></div><div class="w-full bg-gray-200 rounded-full h-2.5 mb-2"><div class="h-2.5 rounded-full" style="width:' + tauxReussite + '%;background:' + couleurMoy + '"></div></div><p class="text-[10px] text-gray-500">' + nbReussite + ' élève(s) sur ' + nbAvecNotes + ' ont la moyenne (≥ 10)</p></div>';
 
-            html += `<button onclick="telechargerBulletinClasse()" id="btn-bulletin-classe" class="w-full bg-gradient-to-r from-edu-blue to-blue-700 text-white font-bold py-3 rounded-xl mb-3 flex items-center justify-center gap-2">
-                <span>📥</span>
-                <span>Télécharger le bulletin de classe PDF</span>
-            </button>
-            <div id="message-bulletin-classe" class="text-center text-sm font-semibold mb-3"></div>`;
+            html += '<button onclick="telechargerBulletinClasse()" id="btn-bulletin-classe" class="w-full bg-gradient-to-r from-edu-blue to-blue-700 text-white font-bold py-3 rounded-xl mb-3 flex items-center justify-center gap-2"><span>📥</span><span>Télécharger le bulletin de classe PDF</span></button><div id="message-bulletin-classe" class="text-center text-sm font-semibold mb-3"></div>';
 
-            html += `<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3"><p class="text-sm font-bold text-gray-800 mb-3">📊 Répartition des moyennes</p>`;
-            tranches.forEach(t => { const pct = Math.round((t.count / maxCount) * 100); html += `<div class="rangee-graph"><span class="text-[10px] text-gray-500 w-14 text-right flex-shrink-0">${t.label}</span><div class="flex-1 bg-gray-100 rounded h-5 overflow-hidden"><div class="barre-graph" style="width:${pct}%;background:${t.color}"></div></div><span class="text-[10px] font-bold text-gray-700 w-6 text-right">${t.count}</span></div>`; });
-            html += `</div>`;
-            html += `<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4"><p class="text-sm font-bold text-gray-800 mb-3">🏆 Top 5 de la classe</p>`;
+            html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3"><p class="text-sm font-bold text-gray-800 mb-3">📊 Répartition des moyennes</p>';
+            tranches.forEach(t => { const pct = Math.round((t.count / maxCount) * 100); html += '<div class="rangee-graph"><span class="text-[10px] text-gray-500 w-14 text-right flex-shrink-0">' + t.label + '</span><div class="flex-1 bg-gray-100 rounded h-5 overflow-hidden"><div class="barre-graph" style="width:' + pct + '%;background:' + t.color + '"></div></div><span class="text-[10px] font-bold text-gray-700 w-6 text-right">' + t.count + '</span></div>'; });
+            html += '</div>';
+            html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4"><p class="text-sm font-bold text-gray-800 mb-3">🏆 Top 5 de la classe</p>';
             const medailles = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
-            top5.forEach((e, idx) => { const moyCouleur = e.moyenne >= 14 ? '#004AAD' : e.moyenne >= 10 ? '#2EAD5E' : '#EF4444'; html += `<div class="flex items-center gap-3 py-2 border-b border-gray-100 last:border-b-0"><span class="text-xl flex-shrink-0">${medailles[idx]}</span><div class="flex-1 min-w-0"><p class="text-xs font-bold text-gray-800 truncate">${e.utilisateurs.prenom} ${e.utilisateurs.nom}</p></div><span class="text-sm font-extrabold" style="color:${moyCouleur}">${e.moyenne.toFixed(2)}</span></div>`; });
-            html += `</div>`;
+            top5.forEach((e, idx) => { const moyCouleur = e.moyenne >= 14 ? '#004AAD' : e.moyenne >= 10 ? '#2EAD5E' : '#EF4444'; html += '<div class="flex items-center gap-3 py-2 border-b border-gray-100 last:border-b-0"><span class="text-xl flex-shrink-0">' + medailles[idx] + '</span><div class="flex-1 min-w-0"><p class="text-xs font-bold text-gray-800 truncate">' + e.utilisateurs.prenom + ' ' + e.utilisateurs.nom + '</p></div><span class="text-sm font-extrabold" style="color:' + moyCouleur + '">' + e.moyenne.toFixed(2) + '</span></div>'; });
+            html += '</div>';
             contenu.innerHTML = html; window.scrollTo(0, 0);
         }
 
@@ -836,8 +1173,7 @@
                 const pdfBlob = await html2pdf().set(options).from(doc.body).outputPdf('blob');
                 const fichier = new File([pdfBlob], nomFichier, { type: 'application/pdf' });
                 document.body.removeChild(iframe); iframe = null;
-                if (navigator.canShare && navigator.canShare({ files: [fichier] })) { await navigator.share({ files: [fichier], title: 'Bulletin de classe' }); msg.innerText = "✅ Bulletin partagé !"; msg.style.color = "#2EAD5E"; }
-                else { const url = URL.createObjectURL(pdfBlob); window.open(url, '_blank'); msg.innerText = "✅ PDF ouvert !"; msg.style.color = "#2EAD5E"; }
+                const url = URL.createObjectURL(pdfBlob); const a = document.createElement('a'); a.href = url; a.download = nomFichier; a.style.display = 'none'; document.body.appendChild(a); a.click(); setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
             } catch (err) {
                 if (iframe && document.body.contains(iframe)) document.body.removeChild(iframe);
                 if (err.name === 'AbortError') { msg.innerText = "Annulé."; msg.style.color = "#6b7280"; }
@@ -847,6 +1183,7 @@
             }
         }
 
+        // ============ EMPLOI DU TEMPS ============
         async function afficherEmploi() {
             document.getElementById('view-accueil').classList.add('hidden');
             document.getElementById('view-emploi').classList.remove('hidden');
@@ -862,14 +1199,14 @@
             const jours = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
             const maintenant = new Date(); const jourActuel = jours[maintenant.getDay()];
             const dateAffichee = maintenant.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
-            if (jourActuel === 'Dimanche') { conteneur.innerHTML = `<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 text-center"><div class="text-3xl mb-1">🌴</div><p class="text-sm font-bold text-gray-700">Pas de cours aujourd'hui</p></div>`; return; }
+            if (jourActuel === 'Dimanche') { conteneur.innerHTML = '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 text-center"><div class="text-3xl mb-1">🌴</div><p class="text-sm font-bold text-gray-700">Pas de cours aujourd\'hui</p></div>'; return; }
             const coursDuJour = tousLesCoursEns.filter(c => c.jour === jourActuel).sort((a, b) => a.heure_debut.localeCompare(b.heure_debut));
             const heureActuelle = maintenant.getHours() * 60 + maintenant.getMinutes();
             const mesCoursDuJour = coursDuJour.filter(c => c.matiere === maMatiere);
-            let html = `<div class="bg-gradient-to-br from-edu-green to-emerald-700 text-white rounded-2xl shadow-lg p-4 mb-3"><div class="flex items-center justify-between mb-3"><div><p class="text-[10px] opacity-80 uppercase font-bold">Aujourd'hui</p><p class="text-base font-bold capitalize">${dateAffichee}</p></div><div class="w-11 h-11 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">📅</div></div>`;
-            if (coursDuJour.length === 0) html += `<p class="text-sm opacity-90 text-center py-2">Aucun cours programmé aujourd'hui.</p>`;
+            let html = '<div class="bg-gradient-to-br from-edu-green to-emerald-700 text-white rounded-2xl shadow-lg p-4 mb-3"><div class="flex items-center justify-between mb-3"><div><p class="text-[10px] opacity-80 uppercase font-bold">Aujourd\'hui</p><p class="text-base font-bold capitalize">' + dateAffichee + '</p></div><div class="w-11 h-11 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">📅</div></div>';
+            if (coursDuJour.length === 0) html += '<p class="text-sm opacity-90 text-center py-2">Aucun cours programmé aujourd\'hui.</p>';
             else {
-                html += `<p class="text-[10px] opacity-80 mb-2">${mesCoursDuJour.length} de vos cours aujourd'hui</p><div class="space-y-2">`;
+                html += '<p class="text-[10px] opacity-80 mb-2">' + mesCoursDuJour.length + ' de vos cours aujourd\'hui</p><div class="space-y-2">';
                 coursDuJour.forEach(c => {
                     const [hD, mD] = c.heure_debut.split(':').map(Number);
                     const [hF, mF] = c.heure_fin.split(':').map(Number);
@@ -884,16 +1221,16 @@
                     else if (statut === 'passe') { opacite = 'opacity-50'; badge = '<span class="text-[9px] opacity-70">Terminé</span>'; }
                     else if (estMonCours) badge = '<span class="bg-white bg-opacity-30 text-white text-[9px] font-bold px-2 py-0.5 rounded-full">MON COURS</span>';
                     else badge = '<span class="text-[9px] opacity-70">À venir</span>';
-                    html += `<div class="${opacite} rounded-xl p-3 flex items-center gap-3" style="${bgStyle}"><div class="text-center flex-shrink-0" style="min-width: 45px;"><p class="text-xs font-bold">${c.heure_debut.substring(0, 5)}</p><p class="text-[9px] opacity-70">${c.heure_fin.substring(0, 5)}</p></div><div class="flex-1 min-w-0"><p class="text-sm font-bold truncate">${estMonCours ? '⭐ ' : ''}${c.matiere}</p>${c.salle ? `<p class="text-[10px] opacity-80">📍 ${c.salle}</p>` : ''}</div>${badge}</div>`;
+                    html += '<div class="' + opacite + ' rounded-xl p-3 flex items-center gap-3" style="' + bgStyle + '"><div class="text-center flex-shrink-0" style="min-width: 45px;"><p class="text-xs font-bold">' + c.heure_debut.substring(0, 5) + '</p><p class="text-[9px] opacity-70">' + c.heure_fin.substring(0, 5) + '</p></div><div class="flex-1 min-w-0"><p class="text-sm font-bold truncate">' + (estMonCours ? '⭐ ' : '') + c.matiere + '</p>' + (c.salle ? '<p class="text-[10px] opacity-80">📍 ' + c.salle + '</p>' : '') + '</div>' + badge + '</div>';
                 });
-                html += `</div>`;
+                html += '</div>';
                 const restants = mesCoursDuJour.filter(c => { const [hF, mF] = c.heure_fin.split(':').map(Number); return heureActuelle < (hF * 60 + mF); }).length;
                 if (mesCoursDuJour.length > 0) {
-                    if (restants > 0) html += `<p class="text-[10px] opacity-80 text-center mt-3">${restants} de vos cours restant(s)</p>`;
-                    else html += `<p class="text-[10px] opacity-80 text-center mt-3">🎉 Vos cours sont terminés !</p>`;
+                    if (restants > 0) html += '<p class="text-[10px] opacity-80 text-center mt-3">' + restants + ' de vos cours restant(s)</p>';
+                    else html += '<p class="text-[10px] opacity-80 text-center mt-3">🎉 Vos cours sont terminés !</p>';
                 }
             }
-            html += `</div>`;
+            html += '</div>';
             conteneur.innerHTML = html;
         }
 
@@ -909,12 +1246,12 @@
             let html = '<table style="width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">';
             html += '<thead><tr style="background: #2EAD5E;">';
             html += '<th style="padding: 10px 8px; color: white; font-size: 11px; font-weight: bold; border: 1px solid #2EAD5E; min-width: 70px;">Heure</th>';
-            jours.forEach(j => { html += `<th style="padding: 10px 8px; color: white; font-size: 11px; font-weight: bold; border: 1px solid #2EAD5E; min-width: 95px; text-align: center;">${j.substring(0,3)}</th>`; });
+            jours.forEach(j => { html += '<th style="padding: 10px 8px; color: white; font-size: 11px; font-weight: bold; border: 1px solid #2EAD5E; min-width: 95px; text-align: center;">' + j.substring(0,3) + '</th>'; });
             html += '</tr></thead><tbody>';
             creneaux.forEach((creneau, idx) => {
                 const bgLigne = idx % 2 === 0 ? '#ffffff' : '#f9fafb';
-                html += `<tr style="background: ${bgLigne};">`;
-                html += `<td style="padding: 8px 6px; border: 1px solid #e5e7eb; font-size: 10px; font-weight: bold; color: #1f2937; text-align: center; background: #f3f4f6;">${creneau.debut}<br><span style="font-size: 8px; color: #6b7280;">${creneau.fin}</span></td>`;
+                html += '<tr style="background: ' + bgLigne + ';">';
+                html += '<td style="padding: 8px 6px; border: 1px solid #e5e7eb; font-size: 10px; font-weight: bold; color: #1f2937; text-align: center; background: #f3f4f6;">' + creneau.debut + '<br><span style="font-size: 8px; color: #6b7280;">' + creneau.fin + '</span></td>';
                 jours.forEach(jour => {
                     const c = cours ? cours.find(x => x.jour === jour && x.heure_debut && x.heure_fin && x.heure_debut.substring(0,5) === creneau.debut && x.heure_fin.substring(0,5) === creneau.fin) : null;
                     if (c) {
@@ -922,7 +1259,7 @@
                         const bgColor = estMaMatiere ? '#dcfce7' : '#dbeafe';
                         const borderColor = estMaMatiere ? '#2EAD5E' : '#004AAD';
                         const textColor = estMaMatiere ? '#166534' : '#004AAD';
-                        html += `<td style="padding: 6px; border: 1px solid #e5e7eb; vertical-align: top;"><div style="background: ${bgColor}; border-left: 3px solid ${borderColor}; padding: 6px; border-radius: 5px; min-height: 50px;"><p style="font-size: 10px; font-weight: bold; color: ${textColor}; margin: 0; line-height: 1.2;">${c.matiere}</p>${c.salle ? `<p style="font-size: 8px; color: #6b7280; margin: 2px 0 0 0;">📍 ${c.salle}</p>` : ''}</div></td>`;
+                        html += '<td style="padding: 6px; border: 1px solid #e5e7eb; vertical-align: top;"><div style="background: ' + bgColor + '; border-left: 3px solid ' + borderColor + '; padding: 6px; border-radius: 5px; min-height: 50px;"><p style="font-size: 10px; font-weight: bold; color: ' + textColor + '; margin: 0; line-height: 1.2;">' + c.matiere + '</p>' + (c.salle ? '<p style="font-size: 8px; color: #6b7280; margin: 2px 0 0 0;">📍 ' + c.salle + '</p>' : '') + '</div></td>';
                     } else html += '<td style="padding: 6px; border: 1px solid #e5e7eb; vertical-align: top;"><div style="min-height: 50px;"></div></td>';
                 });
                 html += '</tr>';
@@ -932,6 +1269,7 @@
             document.getElementById('tableau-emploi-enseignant').innerHTML = html;
         }
 
+        // ============ ANNONCES ============
         async function afficherAnnonces() {
             document.getElementById('view-accueil').classList.add('hidden');
             document.getElementById('view-annonces').classList.remove('hidden');
@@ -941,7 +1279,7 @@
             if (annonces && annonces.length > 0) {
                 annonces.forEach(a => {
                     const d = new Date(a.date_publication).toLocaleDateString('fr-FR');
-                    html += `<div onclick="voirAffiche(${a.id})" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition"><div class="flex justify-between items-start mb-2"><p class="text-sm font-bold text-gray-800">📢 ${a.titre}</p><span class="text-[10px] text-gray-400">${d}</span></div><p class="text-xs text-gray-600 mb-2">${a.contenu.substring(0, 100)}${a.contenu.length > 100 ? '...' : ''}</p><p class="text-[10px] text-edu-blue font-semibold">👆 Cliquez pour voir l'affiche</p></div>`;
+                    html += '<div onclick="voirAffiche(' + a.id + ')" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition"><div class="flex justify-between items-start mb-2"><p class="text-sm font-bold text-gray-800">📢 ' + a.titre + '</p><span class="text-[10px] text-gray-400">' + d + '</span></div><p class="text-xs text-gray-600 mb-2">' + a.contenu.substring(0, 100) + (a.contenu.length > 100 ? '...' : '') + '</p><p class="text-[10px] text-edu-blue font-semibold">👆 Cliquez pour voir l\'affiche</p></div>';
                 });
             } else html = '<p class="text-gray-500 text-center py-4">Aucune annonce.</p>';
             document.getElementById('liste-annonces').innerHTML = html;
@@ -951,13 +1289,7 @@
             document.getElementById('view-annonces').classList.add('hidden');
             document.getElementById('view-affiche').classList.remove('hidden');
             const { data: a } = await supabaseClient.from('annonces').select('*').eq('id', id).single();
-            document.getElementById('contenu-affiche').innerHTML = construireAffiche(a, document.getElementById('ecole-nom-affiche').innerText.replace('🏫 ', ''));
-        }
-
-        function construireAffiche(a, ecoleNom) {
-            const datePub = new Date(a.date_publication).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-            const logo = a.logo_annonce;
-            return `<div style="background: white; border: 3px solid #004AAD; border-radius: 15px; overflow: hidden; font-family: Arial, sans-serif;"><div style="background: linear-gradient(135deg, #004AAD 0%, #0066CC 100%); padding: 20px 15px; text-align: center;">${logo ? `<img src="${logo}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 50%; border: 3px solid white; margin-bottom: 8px;">` : '<div style="font-size: 40px; margin-bottom: 5px;">📖</div>'}<h1 style="color: white; font-size: 20px; font-weight: bold; margin: 5px 0; letter-spacing: 1px;">EDU-LINK</h1><p style="color: rgba(255,255,255,0.9); font-size: 12px; margin: 0;">${ecoleNom}</p></div><div style="padding: 20px;"><div style="text-align: center; background: #f0f7ff; padding: 12px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #004AAD;"><p style="font-size: 11px; color: #004AAD; font-weight: bold; margin: 0 0 5px 0; letter-spacing: 2px;">📢 COMMUNICATION OFFICIELLE</p><h2 style="font-size: 18px; font-weight: bold; color: #004AAD; margin: 0;">${a.titre}</h2></div><div style="background: #f9fafb; padding: 15px; border-radius: 10px; margin-bottom: 20px;"><p style="font-size: 13px; color: #1f2937; line-height: 1.8; margin: 0; white-space: pre-wrap; text-align: justify;">${a.contenu}</p></div><div style="text-align: right; margin-top: 25px; padding-top: 15px; border-top: 1px solid #e5e7eb;"><p style="font-size: 11px; color: #6b7280; margin: 0;">Publiee le ${datePub}</p>${signatureEcole ? `<img src="${signatureEcole}" style="max-height: 55px; max-width: 180px; margin-top: 8px; display: block; margin-left: auto;">` : ''}${a.signature ? `<p style="font-size: 13px; font-weight: bold; color: #004AAD; margin: 5px 0 0 0;">${a.signature}</p>` : ''}</div></div><div style="background: #004AAD; padding: 8px; text-align: center;"><p style="color: white; font-size: 9px; margin: 0;">Document officiel - EDU-LINK</p></div></div>`;
+            document.getElementById('contenu-affiche').innerHTML = construireAfficheSecurisee(a, document.getElementById('ecole-nom-affiche').innerText.replace('🏫 ', ''), signatureEcole);
         }
 
         async function afficherNotifications() {
@@ -967,7 +1299,7 @@
             let html = '';
             if (notifs && notifs.length > 0) {
                 notifs.forEach(n => {
-                    html += `<div class="bg-blue-50 border-l-4 border-edu-blue p-4 rounded-r-2xl mb-2"><p class="text-sm font-bold">${n.titre}</p><p class="text-xs text-gray-600 mt-1">${n.contenu}</p></div>`;
+                    html += '<div class="bg-blue-50 border-l-4 border-edu-blue p-4 rounded-r-2xl mb-2"><p class="text-sm font-bold">' + n.titre + '</p><p class="text-xs text-gray-600 mt-1">' + n.contenu + '</p></div>';
                     supabaseClient.from('notifications').update({ lu: true }).eq('id', n.id);
                 });
                 chargerBadgeNotifs();
@@ -976,7 +1308,10 @@
         }
 
         function retourAccueil() {
-            ['view-badges-classe', 'view-appel', 'view-notes', 'view-notes-masse', 'view-devoirs', 'view-form-devoir', 'view-statistiques', 'view-emploi', 'view-annonces', 'view-affiche', 'view-notifications'].forEach(id => { const el = document.getElementById(id); if (el) el.classList.add('hidden'); });
+            ['view-badges-classe', 'view-appel', 'view-rapport-absences-ens', 'view-notes', 'view-notes-masse', 'view-devoirs', 'view-form-devoir', 'view-statistiques', 'view-emploi', 'view-annonces', 'view-affiche', 'view-notifications'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
             document.getElementById('view-accueil').classList.remove('hidden');
             chargerProchainCoursEnseignant();
         }

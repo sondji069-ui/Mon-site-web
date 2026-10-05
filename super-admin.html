@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDU-LINK - Super Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { theme: { extend: { colors: { 'edu-blue': '#004AAD', 'edu-green': '#2EAD5E', 'edu-red': '#EF4444', 'edu-orange': '#F59E0B', 'edu-purple': '#8B5CF6', 'edu-gold': '#FBBF24', 'edu-indigo': '#4338CA' } } } }
+    </script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #f3f4f6; }
+        .carte-stat { transition: all 0.2s ease; }
+        .carte-stat:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+        .bouton-action { transition: all 0.2s ease; }
+        .bouton-action:active { transform: scale(0.96); }
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .badge-actif { background: #dcfce7; color: #166534; }
+        .badge-inactif { background: #fee2e2; color: #991b1b; }
+        .badge-expire { background: #fef3c7; color: #92400e; }
+        body.dark-mode { background-color: #0f172a; color: #e2e8f0; }
+        body.dark-mode .bg-white { background-color: #1e293b; }
+        body.dark-mode .bg-gray-50 { background-color: #0f172a; }
+        body.dark-mode .bg-gray-100 { background-color: #334155; }
+        body.dark-mode .text-gray-800 { color: #f1f5f9; }
+        body.dark-mode .text-gray-700 { color: #e2e8f0; }
+        body.dark-mode .text-gray-600 { color: #cbd5e1; }
+        body.dark-mode .text-gray-500 { color: #94a3b8; }
+        body.dark-mode .text-gray-400 { color: #64748b; }
+        body.dark-mode .border-gray-100 { border-color: #334155; }
+        body.dark-mode .border-gray-200 { border-color: #334155; }
+        body.dark-mode .border-gray-300 { border-color: #475569; }
+        body.dark-mode input, body.dark-mode select, body.dark-mode textarea { background-color: #334155; color: #f1f5f9; border-color: #475569; }
+        body.dark-mode input::placeholder { color: #94a3b8; }
+        body.dark-mode .bg-blue-50 { background-color: #1e3a5f; }
+        body.dark-mode .bg-green-50 { background-color: #14532d; }
+        body.dark-mode .bg-red-50 { background-color: #7f1d1d; }
+        body.dark-mode .bg-orange-50 { background-color: #7c2d12; }
+        body.dark-mode .bg-purple-50 { background-color: #4c1d95; }
+        body.dark-mode .bg-indigo-50 { background-color: #312e81; }
+        .btn-theme-toggle { width: 36px; height: 36px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; border: none; color: white; transition: all 0.2s ease; flex-shrink: 0; }
+        .btn-theme-toggle:hover { background: rgba(255,255,255,0.35); }
+        .btn-theme-toggle:active { transform: scale(0.92); }
+        .spinner { border: 2px solid rgba(255,255,255,0.3); border-top: 2px solid white; border-radius: 50%; width: 14px; height: 14px; animation: spin 0.7s linear infinite; display: inline-block; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="min-h-screen flex justify-center items-start pt-4 p-3">
+    <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col h-auto min-h-[600px]">
+        <div id="page-dashboard" class="flex-1 flex-col flex">
+            <div class="bg-gradient-to-br from-indigo-700 via-purple-700 to-indigo-900 text-white p-5 pb-8 relative">
+                <div class="flex justify-between items-start mb-4 relative z-10">
+                    <div>
+                        <p class="text-[10px] uppercase tracking-widest opacity-80 mb-1">Super Administrateur</p>
+                        <h1 id="welcome-message" class="text-xl font-bold">Chargement...</h1>
+                        <p class="text-xs opacity-90 mt-1">Gestion de la plateforme EDU-LINK</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="window.location.href='profil.html'" id="avatar-header" class="w-9 h-9 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-lg hover:bg-opacity-30 transition overflow-hidden">👤</button>
+                        <button onclick="seDeconnecter()" class="w-9 h-9 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-lg hover:bg-opacity-30 transition">🚪</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto -mt-4 px-4 pb-6">
+                <!-- ==================== ACCUEIL ==================== -->
+                <div id="view-accueil" class="hidden fade-in">
+                    <div class="bg-white rounded-2xl shadow-lg p-4 mb-3 grid grid-cols-2 gap-3">
+                        <div class="carte-stat bg-gradient-to-br from-indigo-50 to-indigo-100 p-3 rounded-xl border border-indigo-200">
+                            <div class="flex items-center justify-between mb-1"><span class="text-2xl">🏫</span><span class="text-[9px] bg-edu-indigo text-white px-1.5 py-0.5 rounded-full font-bold">ECOLES</span></div>
+                            <p id="total-ecoles" class="text-2xl font-extrabold text-edu-indigo">0</p>
+                        </div>
+                        <div class="carte-stat bg-gradient-to-br from-blue-50 to-blue-100 p-3 rounded-xl border border-blue-200">
+                            <div class="flex items-center justify-between mb-1"><span class="text-2xl">🎓</span><span class="text-[9px] bg-edu-blue text-white px-1.5 py-0.5 rounded-full font-bold">ELEVES</span></div>
+                            <p id="total-eleves" class="text-2xl font-extrabold text-edu-blue">0</p>
+                        </div>
+                        <div class="carte-stat bg-gradient-to-br from-green-50 to-green-100 p-3 rounded-xl border border-green-200">
+                            <div class="flex items-center justify-between mb-1"><span class="text-2xl">👨🏾‍🏫</span><span class="text-[9px] bg-edu-green text-white px-1.5 py-0.5 rounded-full font-bold">PROFS</span></div>
+                            <p id="total-profs" class="text-2xl font-extrabold text-edu-green">0</p>
+                        </div>
+                        <div class="carte-stat bg-gradient-to-br from-purple-50 to-purple-100 p-3 rounded-xl border border-purple-200">
+                            <div class="flex items-center justify-between mb-1"><span class="text-2xl">👨‍💼</span><span class="text-[9px] bg-edu-purple text-white px-1.5 py-0.5 rounded-full font-bold">ADMINS</span></div>
+                            <p id="total-admins" class="text-2xl font-extrabold text-edu-purple">0</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-edu-green to-emerald-700 text-white rounded-2xl shadow-lg p-5 mb-3">
+                        <p class="text-xs opacity-90 mb-1">💰 Chiffre d'affaires mensuel récurrent (MRR)</p>
+                        <p id="mrr" class="text-3xl font-extrabold">0 FCFA</p>
+                        <p id="mrr-detail" class="text-[11px] opacity-90 mt-1">0 abonnement(s) actif(s)</p>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-indigo-700 to-purple-700 text-white rounded-2xl shadow-lg p-4 mb-3">
+                        <p class="text-xs opacity-80 mb-1">Utilisateurs totaux sur la plateforme</p>
+                        <p id="total-users" class="text-4xl font-extrabold">0</p>
+                        <p class="text-[11px] opacity-90 mt-1">Toutes écoles confondues</p>
+                    </div>
+
+                    <button onclick="afficherEcoles()" class="bouton-action w-full bg-gradient-to-r from-indigo-600 to-purple-700 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
+                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">🏫</div>
+                        <div class="flex-1 text-left"><p class="text-sm font-bold">Gérer les écoles</p><p class="text-[10px] opacity-90">Activer, suspendre, supprimer</p></div>
+                        <span class="text-xl">→</span>
+                    </button>
+
+                    <button onclick="afficherPlans()" class="bouton-action w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
+                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">💳</div>
+                        <div class="flex-1 text-left"><p class="text-sm font-bold">Plans & tarifs</p><p class="text-[10px] opacity-90">Gérer les abonnements</p></div>
+                        <span class="text-xl">→</span>
+                    </button>
+
+                    <button onclick="afficherUtilisateurs()" class="bouton-action w-full bg-gradient-to-r from-blue-500 to-cyan-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
+                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">👥</div>
+                        <div class="flex-1 text-left"><p class="text-sm font-bold">Utilisateurs</p><p class="text-[10px] opacity-90">Support & assistance</p></div>
+                        <span class="text-xl">→</span>
+                    </button>
+
+                    <button onclick="afficherAudit()" class="bouton-action w-full bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center text-2xl">📜</div>
+                        <div class="flex-1 text-left"><p class="text-sm font-bold text-gray-800">Journal d'audit</p><p class="text-[10px] text-gray-400">Historique des actions</p></div>
+                        <span class="text-xl text-gray-300">→</span>
+                    </button>
+
+                    <div class="bg-white rounded-2xl shadow-lg p-4 mb-3">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-2">
+                                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-xl">✅</div>
+                                <div><p class="text-sm font-bold text-gray-800">Écoles actives</p></div>
+                            </div>
+                            <span id="total-ecoles-actives" class="text-xl font-extrabold text-edu-green">0</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center text-xl">🚫</div>
+                                <div><p class="text-sm font-bold text-gray-800">Désactivées</p></div>
+                            </div>
+                            <span id="total-ecoles-inactives" class="text-xl font-extrabold text-edu-red">0</span>
+                        </div>
+                        <div class="flex items-center justify-between mt-2">
+                            <div class="flex items-center gap-2">
+                                <div class="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center text-xl">⏰</div>
+                                <div><p class="text-sm font-bold text-gray-800">Expirent sous 30 j</p></div>
+                            </div>
+                            <span id="total-ecoles-expirent" class="text-xl font-extrabold text-edu-orange">0</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-amber-50 to-orange-50 border-l-4 border-edu-orange p-4 rounded-r-2xl shadow-sm">
+                        <div class="flex items-start gap-3">
+                            <span class="text-2xl">🔐</span>
+                            <div>
+                                <p class="text-xs font-bold text-edu-orange">Espace critique</p>
+                                <p class="text-[11px] text-gray-600 mt-1">Vos actions sont toutes journalisées. Utilisez un mot de passe fort et unique.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== ÉCOLES ==================== -->
+                <div id="view-ecoles" class="hidden fade-in">
+                    <div class="flex items-center gap-3 mb-3">
+                        <button onclick="retourAccueil()" class="text-2xl">⬅️</button>
+                        <h1 class="text-lg font-bold text-gray-800 flex-1">🏫 Écoles</h1>
+                    </div>
+                    <div class="bg-blue-50 border border-blue-100 p-3 rounded-xl mb-3">
+                        <p class="text-[10px] text-gray-600 leading-relaxed">💡 Les écoles sont créées <b>par les directeurs</b> depuis la page publique "Créer mon école". Votre rôle ici est de <b>surveiller et modérer</b>.</p>
+                    </div>
+                    <input type="text" id="recherche-ecoles" oninput="filtrerEcoles()" placeholder="🔍 Rechercher..." class="w-full px-4 py-2.5 rounded-xl border border-gray-300 mb-3 text-sm focus:outline-none focus:ring-2 focus:ring-edu-indigo">
+                    <div class="grid grid-cols-3 gap-2 mb-4">
+                        <button id="tab-ec-toutes" onclick="filtrerStatutEcole('toutes')" class="py-2 rounded-xl font-bold text-[11px] bg-edu-indigo text-white">Toutes</button>
+                        <button id="tab-ec-actives" onclick="filtrerStatutEcole('actives')" class="py-2 rounded-xl font-bold text-[11px] bg-gray-100 text-gray-600">Actives</button>
+                        <button id="tab-ec-inactives" onclick="filtrerStatutEcole('inactives')" class="py-2 rounded-xl font-bold text-[11px] bg-gray-100 text-gray-600">Désactivées</button>
+                    </div>
+                    <div id="liste-ecoles" class="space-y-3"></div>
+                </div>
+
+                <!-- ==================== DÉTAIL ÉCOLE ==================== -->
+                <div id="view-ecole-detail" class="hidden fade-in">
+                    <button onclick="afficherEcoles()" class="text-2xl mb-3">⬅️</button>
+                    <div id="contenu-ecole-detail"></div>
+                </div>
+
+                <!-- ==================== PLANS ==================== -->
+                <div id="view-plans" class="hidden fade-in">
+                    <div class="flex items-center gap-3 mb-3">
+                        <button onclick="retourAccueil()" class="text-2xl">⬅️</button>
+                        <h1 class="text-lg font-bold text-gray-800 flex-1">💳 Plans</h1>
+                        <button onclick="afficherFormPlan()" class="bg-edu-blue text-white text-xs font-bold px-3 py-2 rounded-lg">+ Ajouter</button>
+                    </div>
+                    <div id="liste-plans" class="space-y-3"></div>
+                </div>
+
+                <!-- ==================== FORMULAIRE PLAN ==================== -->
+                <div id="view-form-plan" class="hidden fade-in">
+                    <div class="flex items-center gap-3 mb-4">
+                        <button onclick="afficherPlans()" class="text-2xl">⬅️</button>
+                        <h1 id="titre-form-plan" class="text-lg font-bold text-gray-800">Nouveau plan</h1>
+                    </div>
+                    <div class="space-y-3">
+                        <input type="hidden" id="plan-id">
+                        <input type="text" id="plan-nom" placeholder="Nom *" class="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm">
+                        <input type="number" id="plan-prix" placeholder="Prix mensuel *" class="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm">
+                        <input type="number" id="plan-max-eleves" placeholder="Max élèves (vide = illimité)" class="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm">
+                        <input type="number" id="plan-max-profs" placeholder="Max enseignants (vide = illimité)" class="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm">
+                        <input type="number" id="plan-max-classes" placeholder="Max classes (vide = illimité)" class="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm">
+                        <textarea id="plan-features" rows="3" placeholder='Fonctionnalités (une par ligne, ex: badges&#10;ia&#10;bulletin_pdf)' class="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm"></textarea>
+                        <button onclick="sauvegarderPlan()" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl">Enregistrer</button>
+                        <div id="message-plan" class="text-center text-sm font-semibold"></div>
+                    </div>
+                </div>
+
+                <!-- ==================== UTILISATEURS ==================== -->
+                <div id="view-utilisateurs" class="hidden fade-in">
+                    <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
+                    <h1 class="text-lg font-bold text-gray-800 mb-2">👥 Utilisateurs</h1>
+                    <p class="text-xs text-gray-500 mb-3">Support : reset mdp pour résoudre les problèmes de connexion.</p>
+                    <input type="text" id="recherche-users" oninput="filtrerUsers()" placeholder="🔍 Nom ou email..." class="w-full px-4 py-2.5 rounded-xl border border-gray-300 mb-3 text-sm focus:outline-none focus:ring-2 focus:ring-edu-blue">
+                    <select id="filtre-role-users" onchange="filtrerUsers()" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white mb-3 text-sm">
+                        <option value="">Tous les rôles</option>
+                        <option value="admin">Admin</option>
+                        <option value="enseignant">Enseignant</option>
+                        <option value="eleve">Élève</option>
+                        <option value="parent">Parent</option>
+                        <option value="staff">Staff</option>
+                    </select>
+                    <div id="liste-users" class="space-y-2"></div>
+                </div>
+
+                <!-- ==================== AUDIT ==================== -->
+                <div id="view-audit" class="hidden fade-in">
+                    <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
+                    <h1 class="text-lg font-bold text-gray-800 mb-2">📜 Journal d'audit</h1>
+                    <p class="text-xs text-gray-500 mb-3">Vos 100 dernières actions.</p>
+                    <div id="liste-audit" class="space-y-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- ============ AUTH — Hachage PBKDF2 ============ -->
+    <script>
+        const AUTH_SALT = 'EDU-LINK::v1::S3n3g4l::2024';
+        const AUTH_ITERATIONS = 100000;
+        const AUTH_PREFIX = 'pbkdf2$';
+
+        async function hashPassword(plainPassword) {
+            const enc = new TextEncoder();
+            const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(plainPassword), { name: 'PBKDF2' }, false, ['deriveBits']);
+            const hashBuffer = await crypto.subtle.deriveBits(
+                { name: 'PBKDF2', salt: enc.encode(AUTH_SALT), iterations: AUTH_ITERATIONS, hash: 'SHA-256' },
+                keyMaterial, 256
+            );
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return AUTH_PREFIX + AUTH_ITERATIONS + '$' + hex;
+        }
+    </script>
+
+    <!-- ============ SCRIPT PRINCIPAL ============ -->
+    <script>
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFid2d1aXhjbG14dHp2bHNtYmJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4OTg1OTMsImV4cCI6MjEwNjQ3NDU5M30.8MiG5YdoMIY69KYfBdlXHIB9Zisd5miX3slaCoqVcjM';
+        const supabaseUrl = 'https://abwguixclmxtzvlsmbby.supabase.co';
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+        const sessionUser = sessionStorage.getItem('eduLinkUser');
+        if (!sessionUser) { window.location.href = 'index.html'; }
+        const parsedUser = JSON.parse(sessionUser);
+        let currentUser = null;
+        let toutesEcoles = [], tousPlans = [], tousUsers = [];
+        let filtreStatutEcole = 'toutes';
+
+        function initTheme() {
+            if (localStorage.getItem('eduLinkTheme') === 'dark') { document.body.classList.add('dark-mode'); }
+            var avatar = document.getElementById('avatar-header');
+            if (avatar && !document.getElementById('btn-theme-toggle')) {
+                var btn = document.createElement('button');
+                btn.id = 'btn-theme-toggle'; btn.className = 'btn-theme-toggle'; btn.type = 'button';
+                btn.innerHTML = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+                btn.onclick = function(e) { e.preventDefault(); e.stopPropagation(); toggleThemeEduLink(); };
+                avatar.parentNode.insertBefore(btn, avatar);
+            }
+        }
+        function toggleThemeEduLink() {
+            document.body.classList.toggle('dark-mode');
+            var estDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('eduLinkTheme', estDark ? 'dark' : 'light');
+            var btn = document.getElementById('btn-theme-toggle');
+            if (btn) btn.innerHTML = estDark ? '☀️' : '🌙';
+        }
+
+        function afficherAvatarHeader() {
+            const btn = document.getElementById('avatar-header');
+            if (!btn) return;
+            if (currentUser && currentUser.photo_url) {
+                btn.innerHTML = '<img src="' + currentUser.photo_url + '" style="width:100%; height:100%; object-fit:cover;">';
+            }
+        }
+
+        async function appelerSuperAdmin(action, payload) {
+            const body = { action, super_admin_id: currentUser.id, ...payload };
+            const { data, error } = await supabaseClient.functions.invoke('super-admin', { body });
+            if (error) throw new Error(error.message || 'Erreur Edge Function');
+            if (data && data.error) throw new Error(data.error);
+            return data;
+        }
+
+        window.addEventListener('load', async () => {
+            if (parsedUser.role !== 'super_admin') { window.location.href = 'index.html'; return; }
+            currentUser = parsedUser;
+            afficherAvatarHeader();
+            initTheme();
+            document.getElementById('welcome-message').innerText = currentUser.prenom + ' ' + currentUser.nom;
+            document.getElementById('view-accueil').classList.remove('hidden');
+            chargerStatsGlobales();
+        });
+
+        async function chargerStatsGlobales() {
+            const { count: cEcoles } = await supabaseClient.from('ecoles').select('*', { count: 'exact', head: true });
+            const { count: cEcolesActives } = await supabaseClient.from('ecoles').select('*', { count: 'exact', head: true }).eq('actif', true);
+            const { count: cEleves } = await supabaseClient.from('eleves').select('*', { count: 'exact', head: true });
+            const { count: cProfs } = await supabaseClient.from('utilisateurs').select('*', { count: 'exact', head: true }).eq('role', 'enseignant');
+            const { count: cAdmins } = await supabaseClient.from('utilisateurs').select('*', { count: 'exact', head: true }).eq('role', 'admin');
+            const { count: cUsers } = await supabaseClient.from('utilisateurs').select('*', { count: 'exact', head: true }).neq('role', 'super_admin');
+
+            document.getElementById('total-ecoles').innerText = cEcoles || 0;
+            document.getElementById('total-eleves').innerText = cEleves || 0;
+            document.getElementById('total-profs').innerText = cProfs || 0;
+            document.getElementById('total-admins').innerText = cAdmins || 0;
+            document.getElementById('total-users').innerText = cUsers || 0;
+            document.getElementById('total-ecoles-actives').innerText = cEcolesActives || 0;
+            document.getElementById('total-ecoles-inactives').innerText = (cEcoles || 0) - (cEcolesActives || 0);
+
+            const { data: ecolesPlans } = await supabaseClient.from('ecoles').select('plan_id, actif').eq('actif', true);
+            const { data: plans } = await supabaseClient.from('plans').select('id, prix_mensuel');
+            const mapPrix = {};
+            (plans || []).forEach(p => { mapPrix[p.id] = parseFloat(p.prix_mensuel || 0); });
+            let mrr = 0; let nbAvecPlan = 0;
+            (ecolesPlans || []).forEach(e => { if (e.plan_id && mapPrix[e.plan_id] !== undefined) { mrr += mapPrix[e.plan_id]; nbAvecPlan++; } });
+            document.getElementById('mrr').innerText = mrr.toLocaleString('fr-FR') + ' FCFA';
+            document.getElementById('mrr-detail').innerText = nbAvecPlan + ' abonnement(s) actif(s)';
+
+            const dans30j = new Date(); dans30j.setDate(dans30j.getDate() + 30);
+            const { count: cExp } = await supabaseClient.from('ecoles').select('*', { count: 'exact', head: true }).not('date_expiration', 'is', null).lte('date_expiration', dans30j.toISOString()).gte('date_expiration', new Date().toISOString());
+            document.getElementById('total-ecoles-expirent').innerText = cExp || 0;
+        }
+
+        function hideAllViews() {
+            ['view-accueil', 'view-ecoles', 'view-ecole-detail', 'view-plans', 'view-form-plan', 'view-utilisateurs', 'view-audit'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+        }
+
+        // ============ ÉCOLES ============
+        async function afficherEcoles() {
+            hideAllViews();
+            document.getElementById('view-ecoles').classList.remove('hidden');
+            const { data } = await supabaseClient.from('ecoles').select('*, plans(nom, prix_mensuel)').order('nom');
+            toutesEcoles = data || [];
+            filtrerStatutEcole(filtreStatutEcole);
+            window.scrollTo(0, 0);
+        }
+
+        function filtrerStatutEcole(statut) {
+            filtreStatutEcole = statut;
+            ['toutes', 'actives', 'inactives'].forEach(s => {
+                const tab = document.getElementById('tab-ec-' + s);
+                if (!tab) return;
+                tab.className = s === statut ? 'py-2 rounded-xl font-bold text-[11px] bg-edu-indigo text-white' : 'py-2 rounded-xl font-bold text-[11px] bg-gray-100 text-gray-600';
+            });
+            let liste = toutesEcoles;
+            if (statut === 'actives') liste = toutesEcoles.filter(e => e.actif !== false);
+            else if (statut === 'inactives') liste = toutesEcoles.filter(e => e.actif === false);
+            afficherListeEcoles(liste);
+        }
+
+        function afficherListeEcoles(ecoles) {
+            let html = '';
+            if (ecoles.length === 0) {
+                html = '<div class="bg-white p-8 rounded-2xl shadow-sm text-center"><div class="text-5xl mb-2">🏫</div><p class="text-gray-500 text-sm">Aucune école trouvée.</p></div>';
+            } else {
+                ecoles.forEach(e => {
+                    const isActif = e.actif !== false;
+                    const statutBadge = isActif ? '<span class="badge-actif text-[9px] font-bold px-2 py-0.5 rounded-full">ACTIVE</span>' : '<span class="badge-inactif text-[9px] font-bold px-2 py-0.5 rounded-full">DÉSACTIVÉE</span>';
+                    const initiale = (e.nom || '?').charAt(0).toUpperCase();
+                    const planNom = e.plans ? e.plans.nom : 'Aucun plan';
+                    const planPrix = e.plans ? parseFloat(e.plans.prix_mensuel || 0) : 0;
+                    html += `<div onclick="afficherDetailEcole(${e.id})" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition" data-search="${(e.nom || '').toLowerCase()} ${(e.adresse || '').toLowerCase()}">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0" style="background: linear-gradient(135deg, #4338CA, #8B5CF6);">${initiale}</div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <p class="text-sm font-bold text-gray-800 truncate">${e.nom}</p>
+                                    ${statutBadge}
+                                </div>
+                                <p class="text-[10px] text-gray-500 truncate">📍 ${e.adresse || 'Adresse non renseignée'}</p>
+                                <p class="text-[10px] text-edu-indigo font-semibold">💳 ${planNom} • ${planPrix.toLocaleString('fr-FR')} FCFA/mois</p>
+                            </div>
+                            <span class="text-xl text-gray-400">→</span>
+                        </div>
+                    </div>`;
+                });
+            }
+            document.getElementById('liste-ecoles').innerHTML = html;
+        }
+
+        function filtrerEcoles() {
+            const terme = document.getElementById('recherche-ecoles').value.toLowerCase().trim();
+            const items = document.querySelectorAll('#liste-ecoles > div[data-search]');
+            items.forEach(item => {
+                item.style.display = (!terme || item.getAttribute('data-search').includes(terme)) ? '' : 'none';
+            });
+        }
+
+        async function afficherDetailEcole(ecoleId) {
+            hideAllViews();
+            document.getElementById('view-ecole-detail').classList.remove('hidden');
+            const conteneur = document.getElementById('contenu-ecole-detail');
+            conteneur.innerHTML = '<p class="text-gray-500 text-center py-6">Chargement...</p>';
+
+            const { data: ecole } = await supabaseClient.from('ecoles').select('*, plans(nom, prix_mensuel)').eq('id', ecoleId).single();
+            if (!ecole) { conteneur.innerHTML = '<p class="text-red-500 text-center py-6">École introuvable.</p>'; return; }
+
+            const { count: nbEleves } = await supabaseClient.from('eleves').select('*', { count: 'exact', head: true }).eq('ecole_id', ecoleId);
+            const { count: nbProfs } = await supabaseClient.from('utilisateurs').select('*', { count: 'exact', head: true }).eq('ecole_id', ecoleId).eq('role', 'enseignant');
+            const { count: nbClasses } = await supabaseClient.from('classes').select('*', { count: 'exact', head: true }).eq('ecole_id', ecoleId);
+            const { count: nbStaff } = await supabaseClient.from('utilisateurs').select('*', { count: 'exact', head: true }).eq('ecole_id', ecoleId).eq('role', 'staff');
+            const { count: nbParents } = await supabaseClient.from('utilisateurs').select('*', { count: 'exact', head: true }).eq('ecole_id', ecoleId).eq('role', 'parent');
+            const { data: admin } = await supabaseClient.from('utilisateurs').select('id, prenom, nom, email').eq('ecole_id', ecoleId).eq('role', 'admin').maybeSingle();
+
+            const isActif = ecole.actif !== false;
+            const statutBadge = isActif ? '<span class="badge-actif text-[10px] font-bold px-3 py-1 rounded-full">ACTIVE</span>' : '<span class="badge-inactif text-[10px] font-bold px-3 py-1 rounded-full">DÉSACTIVÉE</span>';
+            const initiale = (ecole.nom || '?').charAt(0).toUpperCase();
+            const dateCreation = ecole.date_creation ? new Date(ecole.date_creation).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Inconnue';
+            const planNom = ecole.plans ? ecole.plans.nom : 'Aucun plan';
+            const planPrix = ecole.plans ? parseFloat(ecole.plans.prix_mensuel || 0) : 0;
+
+            let html = '';
+            html += `<div class="rounded-2xl shadow-lg p-5 mb-3 text-white" style="background: linear-gradient(135deg, #4338CA 0%, #8B5CF6 100%);">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-14 h-14 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl font-bold">${initiale}</div>
+                    <div class="flex-1 min-w-0">
+                        <h2 class="text-lg font-extrabold truncate">${ecole.nom}</h2>
+                        <p class="text-[11px] opacity-90 truncate">📍 ${ecole.adresse || 'Adresse non renseignée'}</p>
+                    </div>
+                    ${statutBadge}
+                </div>
+                <div class="bg-white bg-opacity-20 rounded-xl p-3 text-center">
+                    <p class="text-[10px] uppercase tracking-widest opacity-80">Code d'accès</p>
+                    <p class="text-xl font-extrabold tracking-widest mt-1">${ecole.code_acces || 'N/A'}</p>
+                </div>
+            </div>`;
+
+            html += `<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">
+                <p class="text-xs font-bold text-gray-700 mb-3">📋 Informations</p>
+                <div class="space-y-2 text-xs">
+                    <p><span class="text-gray-500">Créée le :</span> <b>${dateCreation}</b></p>
+                    <p><span class="text-gray-500">Plan :</span> <b>${planNom} • ${planPrix.toLocaleString('fr-FR')} FCFA/mois</b></p>
+                    <p><span class="text-gray-500">Téléphone :</span> <b>${ecole.telephone || 'N/A'}</b></p>
+                    <p><span class="text-gray-500">Email :</span> <b>${ecole.email || 'N/A'}</b></p>
+                    <p><span class="text-gray-500">Expiration :</span> <b>${ecole.date_expiration ? new Date(ecole.date_expiration).toLocaleDateString('fr-FR') : 'Pas d\'expiration'}</b></p>
+                </div>
+            </div>`;
+
+            html += `<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">
+                <p class="text-xs font-bold text-gray-700 mb-3">👨‍💼 Compte administrateur (Directeur)</p>`;
+            if (admin) {
+                html += `<p class="text-sm font-bold text-gray-800">${admin.prenom} ${admin.nom}</p>
+                    <p class="text-[11px] text-gray-500 mt-0.5">${admin.email}</p>
+                    <div class="flex gap-2 mt-3">
+                        <button onclick="resetMdpAdmin(${admin.id}, '${(admin.prenom + ' ' + admin.nom).replace(/'/g, "\\'")}')" class="flex-1 bg-amber-50 text-edu-orange text-xs font-bold px-3 py-2 rounded-lg">🔑 Reset mdp</button>
+                    </div>`;
+            } else {
+                html += `<p class="text-xs text-orange-600 italic">⚠️ Aucun administrateur trouvé.</p>`;
+            }
+            html += `</div>`;
+
+            html += `<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">
+                <p class="text-xs font-bold text-gray-700 mb-3">📊 Statistiques</p>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-blue-50 p-3 rounded-xl border border-blue-100 text-center"><p class="text-[10px] text-gray-500 font-semibold">Élèves</p><p class="text-xl font-extrabold text-edu-blue mt-1">${nbEleves || 0}</p></div>
+                    <div class="bg-green-50 p-3 rounded-xl border border-green-100 text-center"><p class="text-[10px] text-gray-500 font-semibold">Enseignants</p><p class="text-xl font-extrabold text-edu-green mt-1">${nbProfs || 0}</p></div>
+                    <div class="bg-purple-50 p-3 rounded-xl border border-purple-100 text-center"><p class="text-[10px] text-gray-500 font-semibold">Classes</p><p class="text-xl font-extrabold text-edu-purple mt-1">${nbClasses || 0}</p></div>
+                    <div class="bg-pink-50 p-3 rounded-xl border border-pink-100 text-center"><p class="text-[10px] text-gray-500 font-semibold">Parents</p><p class="text-xl font-extrabold text-edu-pink mt-1">${nbParents || 0}</p></div>
+                    <div class="bg-teal-50 p-3 rounded-xl border border-teal-100 text-center col-span-2"><p class="text-[10px] text-gray-500 font-semibold">Staff administratif</p><p class="text-xl font-extrabold text-teal-600 mt-1">${nbStaff || 0}</p></div>
+                </div>
+            </div>`;
+
+            html += `<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">
+                <p class="text-xs font-bold text-gray-700 mb-3">💳 Abonnement</p>
+                <select id="change-plan-select" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-sm mb-2">
+                    <option value="">— Changer le plan —</option>
+                </select>
+                <button onclick="changerPlan(${ecoleId})" class="w-full bg-edu-indigo text-white font-bold py-2.5 rounded-xl text-xs">Appliquer</button>
+                <p class="text-[10px] text-gray-400 text-center mt-2 italic">Le MRR se met à jour automatiquement.</p>
+            </div>`;
+
+            html += `<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">
+                <p class="text-xs font-bold text-gray-700 mb-3">⚙️ Actions de modération</p>
+                <p class="text-[10px] text-gray-500 mb-3 italic">💡 Les écoles sont créées par les directeurs eux-mêmes depuis la page "Créer mon école". Votre rôle est de surveiller et de modérer.</p>`;
+            if (isActif) {
+                html += `<button onclick="toggleActifEcole(${ecoleId}, false)" class="w-full bg-amber-50 text-edu-orange font-bold py-3 rounded-xl text-sm border border-amber-200 mb-2">🚫 Suspendre cette école</button>
+                    <p class="text-[10px] text-gray-400 text-center italic mb-3">Empêche la connexion de tous les utilisateurs de cette école.</p>`;
+            } else {
+                html += `<button onclick="toggleActifEcole(${ecoleId}, true)" class="w-full bg-green-50 text-edu-green font-bold py-3 rounded-xl text-sm border border-green-200 mb-2">✅ Réactiver cette école</button>
+                    <p class="text-[10px] text-gray-400 text-center italic mb-3">Rend l'accès aux utilisateurs de cette école.</p>`;
+            }
+            html += `<button onclick="supprimerEcole(${ecoleId}, '${(ecole.nom || '').replace(/'/g, "\\'")}')" class="w-full bg-red-50 text-edu-red font-bold py-3 rounded-xl text-sm border border-red-200">🗑️ Supprimer définitivement</button>
+                <p class="text-[10px] text-red-500 text-center mt-2 italic">⚠️ Irréversible. Toutes les données seront effacées.</p>
+            </div>`;
+
+            conteneur.innerHTML = html;
+
+            const { data: plans } = await supabaseClient.from('plans').select('id, nom, prix_mensuel').eq('actif', true).order('ordre');
+            const sel = document.getElementById('change-plan-select');
+            (plans || []).forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.id;
+                opt.text = p.nom + ' — ' + parseFloat(p.prix_mensuel).toLocaleString('fr-FR') + ' FCFA/mois';
+                if (p.id === ecole.plan_id) opt.selected = true;
+                sel.appendChild(opt);
+            });
+            window.scrollTo(0, 0);
+        }
+
+        async function toggleActifEcole(ecoleId, actif) {
+            if (!confirm("Voulez-vous vraiment " + (actif ? 'réactiver' : 'suspendre') + " cette école ?\n\n" + (actif ? 'Les utilisateurs pourront se reconnecter.' : 'Les utilisateurs ne pourront plus se connecter.'))) return;
+            try {
+                await appelerSuperAdmin('toggle_actif', { ecole_id: ecoleId, actif });
+                alert("✅ École " + (actif ? 'réactivée' : 'suspendue') + ".");
+                afficherDetailEcole(ecoleId);
+            } catch (err) { alert("Erreur : " + err.message); }
+        }
+
+        async function supprimerEcole(ecoleId, nomEcole) {
+            if (!confirm("⚠️ SUPPRESSION DÉFINITIVE de " + nomEcole + " ?\n\nToutes les données seront perdues (élèves, notes, paiements...).\n\nTapez OK pour continuer.")) return;
+            const saisie = prompt("Tapez le nom EXACT de l'école pour confirmer :\n\n« " + nomEcole + " »");
+            if (saisie !== nomEcole) { alert("Nom incorrect. Suppression annulée."); return; }
+            try {
+                await appelerSuperAdmin('delete_school', { ecole_id: ecoleId });
+                alert("✅ École supprimée.");
+                afficherEcoles();
+            } catch (err) { alert("Erreur : " + err.message); }
+        }
+
+        async function changerPlan(ecoleId) {
+            const val = document.getElementById('change-plan-select').value;
+            if (!val) { alert("Sélectionnez un plan."); return; }
+            const { error } = await supabaseClient.from('ecoles').update({ plan_id: parseInt(val) }).eq('id', ecoleId);
+            if (error) { alert("Erreur : " + error.message); return; }
+            alert("✅ Plan mis à jour.");
+            afficherDetailEcole(ecoleId);
+        }
+
+        async function resetMdpAdmin(userId, nomComplet) {
+            const nouveauMdp = 'EDU-' + Math.floor(1000 + Math.random() * 9000);
+            if (!confirm("Générer un nouveau mot de passe pour " + nomComplet + " ?\n\nNouveau mdp : " + nouveauMdp + "\n\nL'utilisateur devra le changer à sa prochaine connexion.")) return;
+            try {
+                const hash = await hashPassword(nouveauMdp);
+                await appelerSuperAdmin('reset_password', { utilisateur_id: userId, nouveau_hash: hash });
+                afficherPopupMdp(nouveauMdp, nomComplet);
+            } catch (err) { alert("Erreur : " + err.message); }
+        }
+
+        function afficherPopupMdp(mdp, nomComplet) {
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+            overlay.innerHTML = '<div style="background:white;border-radius:20px;padding:24px;max-width:380px;width:100%;text-align:center;font-family:Poppins,sans-serif;">'
+                + '<div style="font-size:48px;margin-bottom:8px;">🔑</div>'
+                + '<h2 style="font-size:16px;font-weight:bold;color:#1f2937;margin:0 0 6px 0;">Nouveau mot de passe</h2>'
+                + '<p style="font-size:12px;color:#6b7280;margin:0 0 16px 0;">Pour <b>' + nomComplet + '</b></p>'
+                + '<div style="background:#f0f7ff;border:2px dashed #004AAD;border-radius:12px;padding:16px;margin-bottom:16px;">'
+                + '<p style="font-size:26px;font-weight:800;color:#004AAD;letter-spacing:3px;margin:0;font-family:monospace;">' + mdp + '</p></div>'
+                + '<p style="font-size:11px;color:#6b7280;margin:0 0 16px 0;">📱 Communiquez ce mdp à l\'utilisateur.</p>'
+                + '<button id="btn-copy-mdp" style="background:#004AAD;color:white;border:none;border-radius:12px;padding:12px 16px;font-weight:bold;font-size:13px;cursor:pointer;width:100%;margin-bottom:8px;">📋 Copier</button>'
+                + '<button id="btn-close-mdp" style="background:#f3f4f6;color:#374151;border:none;border-radius:12px;padding:12px 16px;font-weight:bold;font-size:13px;cursor:pointer;width:100%;">Fermer</button></div>';
+            document.body.appendChild(overlay);
+            document.getElementById('btn-copy-mdp').onclick = function() {
+                if (navigator.clipboard) navigator.clipboard.writeText(mdp).then(() => { document.getElementById('btn-copy-mdp').innerText = '✅ Copié !'; });
+            };
+            document.getElementById('btn-close-mdp').onclick = function() { overlay.remove(); };
+        }
+
+        // ============ PLANS ============
+        async function afficherPlans() {
+            hideAllViews();
+            document.getElementById('view-plans').classList.remove('hidden');
+            const { data } = await supabaseClient.from('plans').select('*').order('ordre');
+            tousPlans = data || [];
+            let html = '';
+            if (tousPlans.length === 0) html = '<p class="text-gray-500 text-center py-6">Aucun plan.</p>';
+            else tousPlans.forEach(p => {
+                const actif = p.actif !== false;
+                const badge = actif ? '<span class="badge-actif text-[9px] font-bold px-2 py-0.5 rounded-full">ACTIF</span>' : '<span class="badge-inactif text-[9px] font-bold px-2 py-0.5 rounded-full">INACTIF</span>';
+                const features = Array.isArray(p.fonctionnalites) ? p.fonctionnalites : [];
+                html += `<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                    <div class="flex items-center gap-2 mb-2">
+                        <p class="text-sm font-bold text-gray-800 flex-1">${p.nom}</p>
+                        ${badge}
+                    </div>
+                    <p class="text-2xl font-extrabold text-edu-indigo mb-2">${parseFloat(p.prix_mensuel).toLocaleString('fr-FR')} <span class="text-xs opacity-70">${p.devise}/mois</span></p>
+                    <p class="text-[10px] text-gray-500 mb-2">Max élèves : ${p.max_eleves || '∞'} • Profs : ${p.max_enseignants || '∞'} • Classes : ${p.max_classes || '∞'}</p>
+                    ${features.length > 0 ? '<div class="flex flex-wrap gap-1 mb-3">' + features.map(f => `<span class="bg-indigo-50 text-edu-indigo text-[9px] font-semibold px-2 py-0.5 rounded">${f}</span>`).join('') + '</div>' : ''}
+                    <div class="flex gap-2 justify-end">
+                        <button onclick="afficherFormPlan(${p.id})" class="bg-blue-50 text-edu-blue text-xs font-bold px-3 py-1 rounded-lg">Modifier</button>
+                        <button onclick="supprimerPlan(${p.id}, '${p.nom}')" class="bg-red-50 text-edu-red text-xs font-bold px-3 py-1 rounded-lg">Supprimer</button>
+                    </div>
+                </div>`;
+            });
+            document.getElementById('liste-plans').innerHTML = html;
+            window.scrollTo(0, 0);
+        }
+
+        async function afficherFormPlan(planId) {
+            hideAllViews();
+            document.getElementById('view-form-plan').classList.remove('hidden');
+            document.getElementById('message-plan').innerText = '';
+            if (planId) {
+                document.getElementById('titre-form-plan').innerText = "Modifier un plan";
+                const { data: p } = await supabaseClient.from('plans').select('*').eq('id', planId).single();
+                document.getElementById('plan-id').value = p.id;
+                document.getElementById('plan-nom').value = p.nom;
+                document.getElementById('plan-prix').value = p.prix_mensuel;
+                document.getElementById('plan-max-eleves').value = p.max_eleves || '';
+                document.getElementById('plan-max-profs').value = p.max_enseignants || '';
+                document.getElementById('plan-max-classes').value = p.max_classes || '';
+                document.getElementById('plan-features').value = (Array.isArray(p.fonctionnalites) ? p.fonctionnalites : []).join('\n');
+            } else {
+                document.getElementById('titre-form-plan').innerText = "Nouveau plan";
+                ['plan-id','plan-nom','plan-prix','plan-max-eleves','plan-max-profs','plan-max-classes','plan-features'].forEach(id => document.getElementById(id).value = '');
+            }
+            window.scrollTo(0, 0);
+        }
+
+        async function sauvegarderPlan() {
+            const id = document.getElementById('plan-id').value;
+            const nom = document.getElementById('plan-nom').value.trim();
+            const prix = parseFloat(document.getElementById('plan-prix').value) || 0;
+            const msg = document.getElementById('message-plan');
+            if (!nom) { msg.innerText = "Nom obligatoire."; msg.style.color = "red"; return; }
+
+            const features = document.getElementById('plan-features').value.split('\n').map(s => s.trim()).filter(s => s);
+            const data = {
+                nom,
+                prix_mensuel: prix,
+                max_eleves: document.getElementById('plan-max-eleves').value ? parseInt(document.getElementById('plan-max-eleves').value) : null,
+                max_enseignants: document.getElementById('plan-max-profs').value ? parseInt(document.getElementById('plan-max-profs').value) : null,
+                max_classes: document.getElementById('plan-max-classes').value ? parseInt(document.getElementById('plan-max-classes').value) : null,
+                fonctionnalites: features
+            };
+
+            let error;
+            if (id) ({ error } = await supabaseClient.from('plans').update(data).eq('id', id));
+            else ({ error } = await supabaseClient.from('plans').insert([data]));
+
+            if (error) { msg.innerText = "Erreur : " + error.message; msg.style.color = "red"; return; }
+            msg.innerText = "✅ Enregistré !"; msg.style.color = "green";
+            setTimeout(() => afficherPlans(), 1000);
+        }
+
+        async function supprimerPlan(planId, nomPlan) {
+            const { count } = await supabaseClient.from('ecoles').select('*', { count: 'exact', head: true }).eq('plan_id', planId);
+            if (count > 0) { alert(count + " école(s) utilisent ce plan. Changez leur plan d'abord."); return; }
+            if (!confirm("Supprimer le plan " + nomPlan + " ?")) return;
+            const { error } = await supabaseClient.from('plans').delete().eq('id', planId);
+            if (error) { alert("Erreur : " + error.message); return; }
+            afficherPlans();
+        }
+
+        // ============ UTILISATEURS ============
+        async function afficherUtilisateurs() {
+            hideAllViews();
+            document.getElementById('view-utilisateurs').classList.remove('hidden');
+            const { data } = await supabaseClient.from('utilisateurs').select('id, prenom, nom, email, role, ecole_id, statut, ecoles(nom)').neq('role', 'super_admin').order('id', { ascending: false }).limit(300);
+            tousUsers = data || [];
+            filtrerUsers();
+            window.scrollTo(0, 0);
+        }
+
+        function filtrerUsers() {
+            const terme = document.getElementById('recherche-users').value.toLowerCase().trim();
+            const role = document.getElementById('filtre-role-users').value;
+            let liste = tousUsers;
+            if (role) liste = liste.filter(u => u.role === role);
+            if (terme) liste = liste.filter(u => (u.prenom + ' ' + u.nom + ' ' + u.email).toLowerCase().includes(terme));
+
+            let html = '';
+            if (liste.length === 0) html = '<p class="text-gray-500 text-center py-6">Aucun utilisateur.</p>';
+            else liste.forEach(u => {
+                const ecoleNom = u.ecoles ? u.ecoles.nom : 'Sans école';
+                html += `<div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 bg-indigo-100 rounded-full flex items-center justify-center text-sm">👤</div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-bold text-gray-800 truncate">${u.prenom} ${u.nom}</p>
+                            <p class="text-[10px] text-gray-500 truncate">${u.email}</p>
+                            <p class="text-[9px] text-edu-indigo uppercase font-bold">${u.role} • ${ecoleNom}</p>
+                        </div>
+                        <button onclick="resetMdpAdmin(${u.id}, '${(u.prenom + ' ' + u.nom).replace(/'/g, "\\'")}')" class="bg-amber-50 text-edu-orange text-[10px] font-bold px-2 py-1 rounded-lg">🔑</button>
+                    </div>
+                </div>`;
+            });
+            document.getElementById('liste-users').innerHTML = html;
+        }
+
+        // ============ AUDIT ============
+        async function afficherAudit() {
+            hideAllViews();
+            document.getElementById('view-audit').classList.remove('hidden');
+            const { data } = await supabaseClient.from('super_admin_log').select('*').eq('super_admin_id', currentUser.id).order('date_action', { ascending: false }).limit(100);
+            let html = '';
+            if (!data || data.length === 0) html = '<p class="text-gray-500 text-center py-6">Aucune action.</p>';
+            else data.forEach(l => {
+                const dateStr = new Date(l.date_action).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+                let libelle = l.action;
+                if (l.action === 'toggle_actif') libelle = '⏸️ Activation modifiée';
+                else if (l.action === 'delete_school') libelle = '🗑️ École supprimée';
+                else if (l.action === 'reset_password') libelle = '🔑 Mot de passe réinitialisé';
+                html += `<div class="bg-white p-3 rounded-xl shadow-sm border border-gray-100">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-xs font-bold text-gray-800">${libelle}</p>
+                            <p class="text-[10px] text-gray-500">${l.cible_type || '-'} #${l.cible_id || '-'}</p>
+                        </div>
+                        <span class="text-[10px] text-gray-400">${dateStr}</span>
+                    </div>
+                </div>`;
+            });
+            document.getElementById('liste-audit').innerHTML = html;
+            window.scrollTo(0, 0);
+        }
+
+        // ============ NAVIGATION ============
+        function retourAccueil() {
+            hideAllViews();
+            document.getElementById('view-accueil').classList.remove('hidden');
+            chargerStatsGlobales();
+            window.scrollTo(0, 0);
+        }
+
+        function seDeconnecter() { sessionStorage.removeItem('eduLinkUser'); window.location.href = 'index.html'; }
+    </script>
+</body>
+</html>
