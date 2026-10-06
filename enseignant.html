@@ -59,6 +59,10 @@
                         <p class="text-xs opacity-80 mb-1">Bonjour,</p>
                         <h1 id="welcome-message" class="text-xl font-bold">Chargement...</h1>
                         <p id="ecole-nom-affiche" class="text-xs opacity-90 mt-1">...</p>
+<p id="selecteur-classe-ens" class="hidden text-[10px] mt-1">
+    <select id="ens-classe-select" onchange="ensChangerClasse()" class="bg-white bg-opacity-20 text-white text-[11px] font-semibold px-2 py-1 rounded-lg border border-white border-opacity-30 w-full mt-1">
+    </select>
+</p>
                     </div>
                     <div class="flex items-center gap-2">
                         <button onclick="window.location.href='profil.html'" id="avatar-header" class="w-9 h-9 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-lg hover:bg-opacity-30 transition overflow-hidden">👤</button>
@@ -383,35 +387,66 @@
             setInterval(() => { chargerBadgeNotifs(); }, 30000);
         });
 
+        let mesAffectations = [];
+        let affectationActiveId = null;
+
         async function chargerInfosEnseignant() {
             const { data: ens } = await supabaseClient.from('enseignants').select('id').eq('utilisateur_id', currentUser.id).single();
             if (!ens) return;
             enseignantId = ens.id;
-            const { data: aff } = await supabaseClient.from('affectations').select('classe_id, matiere').eq('enseignant_id', enseignantId).single();
-            if (!aff) {
+
+            const { data: affs } = await supabaseClient.from('affectations').select('id, classe_id, matiere, classes(nom)').eq('enseignant_id', enseignantId);
+            mesAffectations = affs || [];
+
+            if (mesAffectations.length === 0) {
                 document.getElementById('classe-enseignant').innerText = "Aucune classe";
                 document.getElementById('matiere-enseignant').innerText = "";
                 document.getElementById('nb-eleves').innerText = "0 eleve";
+                document.getElementById('selecteur-classe-ens').classList.add('hidden');
                 return;
             }
-            classeId = aff.classe_id; maMatiere = aff.matiere;
+
+            const selecteur = document.getElementById('ens-classe-select');
+            selecteur.innerHTML = '';
+            mesAffectations.forEach(a => {
+                const opt = document.createElement('option');
+                opt.value = a.id;
+                opt.text = (a.classes ? a.classes.nom : '?') + ' - ' + a.matiere;
+                selecteur.appendChild(opt);
+            });
+
+            if (mesAffectations.length > 1) {
+                document.getElementById('selecteur-classe-ens').classList.remove('hidden');
+            }
+
+            // Charger la 1ere affectation par defaut
+            ensChargerAffectation(mesAffectations[0].id);
+        }
+
+        async function ensChangerClasse() {
+            const id = parseInt(document.getElementById('ens-classe-select').value);
+            ensChargerAffectation(id);
+        }
+
+        async function ensChargerAffectation(affId) {
+            const aff = mesAffectations.find(a => a.id === affId);
+            if (!aff) return;
+            affectationActiveId = affId;
+            classeId = aff.classe_id;
+            maMatiere = aff.matiere;
+
             document.getElementById('matiere-enseignant').innerText = aff.matiere;
             document.getElementById('matiere-note').value = aff.matiere;
             document.getElementById('stat-matiere-label').innerText = aff.matiere;
-            const { data: classe } = await supabaseClient.from('classes').select('nom').eq('id', classeId).single();
-            if (classe) document.getElementById('classe-enseignant').innerText = classe.nom;
+            if (aff.classes) document.getElementById('classe-enseignant').innerText = aff.classes.nom;
+
+            // Recharger les eleves de cette classe
             const { data: eleves } = await supabaseClient.from('eleves').select('id, utilisateur_id, utilisateurs!utilisateur_id(prenom, nom)').eq('classe_id', classeId);
             listeEleves = eleves || [];
             document.getElementById('nb-eleves').innerText = listeEleves.length + " eleves";
-        }
 
-        // ============ BADGES DE LA CLASSE ============
-        async function afficherBadgesClasse() {
-            document.getElementById('view-accueil').classList.add('hidden');
-            document.getElementById('view-badges-classe').classList.remove('hidden');
-            majTabsBadgesEns();
-            await chargerBadgesClasse();
-            window.scrollTo(0, 0);
+            // Recharger le prochain cours
+            chargerProchainCoursEnseignant();
         }
 
         async function changerTrimestreBadgesEns(t) {

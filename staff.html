@@ -293,7 +293,7 @@
             monEcoleId = currentUser.ecole_id;
             afficherAvatarHeader();
             initTheme();
-            document.getElementById('welcome-message').innerText = currentUser.prenom + ' ' + currentUser.nom;
+await chargerMesClassesStaff();            document.getElementById('welcome-message').innerText = currentUser.prenom + ' ' + currentUser.nom;
 
             const infoRole = LABELS_SOUS_ROLE[currentUser.sous_role] || LABELS_SOUS_ROLE.autre;
             document.getElementById('role-affiche').innerText = infoRole.label;
@@ -310,10 +310,42 @@
             chargerBadgeNotifs();
             setInterval(() => { chargerBadgeNotifs(); }, 30000);
         });
+let mesClassesStaff = [];       // ids de classes
+        let mesClassesStaffNoms = [];   // pour debug
+
+        async function chargerMesClassesStaff() {
+            const { data } = await supabaseClient.from('staff_classes').select('classe_id, classes(nom)').eq('staff_user_id', currentUser.id).eq('ecole_id', monEcoleId);
+            if (data && data.length > 0) {
+                mesClassesStaff = data.map(d => d.classe_id);
+                mesClassesStaffNoms = data.map(d => d.classes ? d.classes.nom : '?');
+            } else {
+                mesClassesStaff = [];
+                mesClassesStaffNoms = [];
+            }
+        }
+
+        function staffFiltrerParClasses(requete) {
+            // Si pas de classes assignees, pas de filtre
+            if (mesClassesStaff.length === 0) return requete;
+            return requete.in('classe_id', mesClassesStaff);
+        }
 
         async function chargerStats() {
-            const { count: c1 } = await supabaseClient.from('eleves').select('*', { count: 'exact', head: true }).eq('ecole_id', monEcoleId);
-            const { count: c2 } = await supabaseClient.from('classes').select('*', { count: 'exact', head: true }).eq('ecole_id', monEcoleId);
+            // Filtre : si staff a des classes assignees, on limite aux siennes
+            const aDesClasses = mesClassesStaff.length > 0;
+
+            let qEleves = supabaseClient.from('eleves').select('*', { count: 'exact', head: true }).eq('ecole_id', monEcoleId);
+            let qClasses;
+            if (aDesClasses) {
+                qEleves = qEleves.in('classe_id', mesClassesStaff);
+                qClasses = supabaseClient.from('classes').select('*', { count: 'exact', head: true }).in('id', mesClassesStaff);
+            } else {
+                qClasses = supabaseClient.from('classes').select('*', { count: 'exact', head: true }).eq('ecole_id', monEcoleId);
+            }
+
+            const { count: c1 } = await qEleves;
+            const { count: c2 } = await qClasses;
+
             document.getElementById('total-eleves').innerText = c1 || 0;
             document.getElementById('total-classes').innerText = c2 || 0;
         }
@@ -332,28 +364,47 @@
         async function afficherEleves() {
             hideAllViews();
             document.getElementById('view-eleves').classList.remove('hidden');
-            const { data: eleves } = await supabaseClient.from('eleves')
-                .select('id, matricule, date_naissance, utilisateurs!utilisateur_id(prenom, nom), classes(nom)')
+            document.getElementById('liste-eleves-staff').innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
+
+            let q = supabaseClient.from('eleves')
+                .select('id, matricule, date_naissance, utilisateurs!utilisateur_id(prenom, nom), classes(nom, id)')
                 .eq('ecole_id', monEcoleId)
                 .order('id', { ascending: false });
+
+            if (mesClassesStaff.length > 0) {
+                q = q.in('classe_id', mesClassesStaff);
+            }
+
+            const { data: eleves } = await q;
+
             let html = '';
+
+            // Bandeau info si filtre actif
+            if (mesClassesStaff.length > 0) {
+                html += '<div class="bg-teal-50 border border-teal-100 p-3 rounded-xl mb-3">';
+                html += '<p class="text-[10px] text-teal-700 font-bold mb-1">Vous voyez uniquement vos classes :</p>';
+                html += '<p class="text-[10px] text-gray-600">' + mesClassesStaffNoms.join(', ') + '</p>';
+                html += '</div>';
+            }
+
             if (eleves && eleves.length > 0) {
                 eleves.forEach(e => {
                     const prenom = e.utilisateurs ? e.utilisateurs.prenom : '?';
                     const nom = e.utilisateurs ? e.utilisateurs.nom : '?';
                     const classe = e.classes ? e.classes.nom : 'Sans classe';
                     const initiale = (prenom || '?').charAt(0).toUpperCase();
-                    html += `<div data-search="${prenom} ${nom} ${e.matricule || ''} ${classe}" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-                        <div class="flex items-center gap-3">
-                            <div class="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold" style="background: linear-gradient(135deg, #0D9488, #004AAD);">${initiale}</div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-bold text-gray-800 truncate">${prenom} ${nom}</p>
-                                <p class="text-[10px] text-gray-500">${e.matricule || ''} • ${classe}</p>
-                            </div>
-                        </div>
-                    </div>`;
+                    html += '<div data-search="' + prenom + ' ' + nom + ' ' + (e.matricule || '') + ' ' + classe + '" class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100">';
+                    html += '<div class="flex items-center gap-3">';
+                    html += '<div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm" style="background:linear-gradient(135deg,#0D9488,#004AAD);">' + initiale + '</div>';
+                    html += '<div class="flex-1 min-w-0">';
+                    html += '<p class="text-xs font-bold text-gray-800 truncate">' + prenom + ' ' + nom + '</p>';
+                    html += '<p class="text-[10px] text-gray-500">' + (e.matricule || '') + ' - ' + classe + '</p>';
+                    html += '</div></div></div>';
                 });
-            } else html = '<p class="text-gray-500 text-center py-6">Aucun eleve.</p>';
+            } else {
+                html += '<p class="text-gray-500 text-center py-6 text-sm">Aucun eleve.</p>';
+            }
+
             document.getElementById('liste-eleves-staff').innerHTML = html;
             window.scrollTo(0, 0);
         }
@@ -373,18 +424,30 @@
         async function afficherEmploi() {
             hideAllViews();
             document.getElementById('view-emploi-classes').classList.remove('hidden');
-            const { data: classes } = await supabaseClient.from('classes').select('*').eq('ecole_id', monEcoleId).order('nom');
+
+            let q = supabaseClient.from('classes').select('*').eq('ecole_id', monEcoleId).order('nom');
+            if (mesClassesStaff.length > 0) q = q.in('id', mesClassesStaff);
+
+            const { data: classes } = await q;
+
             let html = '';
+            if (mesClassesStaff.length > 0) {
+                html += '<div class="bg-teal-50 border border-teal-100 p-3 rounded-xl mb-3">';
+                html += '<p class="text-[10px] text-teal-700 font-bold">Vos classes uniquement</p>';
+                html += '</div>';
+            }
+
             if (classes && classes.length > 0) {
                 for (const c of classes) {
                     const { count } = await supabaseClient.from('emploi_du_temps').select('*', { count: 'exact', head: true }).eq('classe_id', c.id);
-                    html += `<div onclick="afficherEmploiClasse(${c.id}, '${c.nom.replace(/'/g, "\\'")}')" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3 cursor-pointer hover:shadow-md transition">
-                        <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-2xl">🏫</div>
-                        <div class="flex-1"><p class="text-sm font-bold text-gray-800">${c.nom}</p><p class="text-[10px] text-gray-500">${count || 0} cours</p></div>
-                        <span class="text-xl text-gray-400">→</span>
-                    </div>`;
+                    html += '<div onclick="afficherEmploiClasse(' + c.id + ', \'' + c.nom.replace(/'/g, "\\'") + '\')" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3 cursor-pointer hover:shadow-md transition">';
+                    html += '<div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-2xl">🏫</div>';
+                    html += '<div class="flex-1"><p class="text-sm font-bold text-gray-800">' + c.nom + '</p>';
+                    html += '<p class="text-[10px] text-gray-500">' + (count || 0) + ' cours</p></div>';
+                    html += '<span class="text-xl text-gray-400">→</span></div>';
                 }
             } else html = '<p class="text-gray-500 text-center py-4">Aucune classe.</p>';
+
             document.getElementById('liste-classes-emploi').innerHTML = html;
             window.scrollTo(0, 0);
         }
@@ -436,34 +499,52 @@
         async function afficherAbsences() {
             hideAllViews();
             document.getElementById('view-absences').classList.remove('hidden');
+            document.getElementById('liste-absences-staff').innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
+
             const aujourdHui = new Date().toISOString().split('T')[0];
-            const { data: absences } = await supabaseClient.from('absences')
-                .select('*, eleves(matricule, utilisateurs!utilisateur_id(prenom, nom), classes(nom))')
+
+            let q = supabaseClient.from('absences')
+                .select('*, eleves(matricule, classe_id, utilisateurs!utilisateur_id(prenom, nom), classes(nom))')
                 .eq('ecole_id', monEcoleId)
                 .eq('date_absence', aujourdHui)
                 .order('id', { ascending: false });
+
+            const { data: absences } = await q;
+
+            // Filtrage en memoire si le staff a des classes assignees
+            let liste = absences || [];
+            if (mesClassesStaff.length > 0) {
+                liste = liste.filter(a => a.eleves && mesClassesStaff.includes(a.eleves.classe_id));
+            }
+
             let html = '';
-            if (absences && absences.length > 0) {
-                absences.forEach(a => {
+            if (mesClassesStaff.length > 0) {
+                html += '<div class="bg-teal-50 border border-teal-100 p-3 rounded-xl mb-3">';
+                html += '<p class="text-[10px] text-teal-700 font-bold">Absences de vos classes uniquement</p>';
+                html += '</div>';
+            }
+
+            if (liste.length > 0) {
+                liste.forEach(a => {
                     const eleve = a.eleves;
                     const prenom = eleve && eleve.utilisateurs ? eleve.utilisateurs.prenom : '?';
                     const nom = eleve && eleve.utilisateurs ? eleve.utilisateurs.nom : '?';
                     const classe = eleve && eleve.classes ? eleve.classes.nom : '';
                     const matiere = a.matiere || 'Cours';
-                    const justif = a.justifiee ? '<span class="bg-green-100 text-edu-green text-[10px] font-bold px-2 py-1 rounded">Justifiée</span>' : '<span class="bg-red-100 text-edu-red text-[10px] font-bold px-2 py-1 rounded">Non justifiée</span>';
-                    html += `<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-                        <div class="flex justify-between items-start mb-2">
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-bold text-gray-800 truncate">${prenom} ${nom}</p>
-                                <p class="text-[10px] text-gray-500">${classe} • ${matiere}</p>
-                            </div>
-                            ${justif}
-                        </div>
-                    </div>`;
+                    const justif = a.justifiee
+                        ? '<span class="bg-green-100 text-edu-green text-[10px] font-bold px-2 py-1 rounded">Justifiee</span>'
+                        : '<span class="bg-red-100 text-edu-red text-[10px] font-bold px-2 py-1 rounded">Non justifiee</span>';
+                    html += '<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">';
+                    html += '<div class="flex justify-between items-start mb-2">';
+                    html += '<div class="flex-1 min-w-0">';
+                    html += '<p class="text-sm font-bold text-gray-800 truncate">' + prenom + ' ' + nom + '</p>';
+                    html += '<p class="text-[10px] text-gray-500">' + classe + ' - ' + matiere + '</p>';
+                    html += '</div>' + justif + '</div></div>';
                 });
             } else {
-                html = '<div class="bg-white p-8 rounded-2xl shadow-sm text-center"><div class="text-5xl mb-2">🎉</div><p class="text-gray-500 text-sm">Aucune absence enregistrée aujourd\'hui.</p></div>';
+                html += '<div class="bg-white p-8 rounded-2xl shadow-sm text-center"><div class="text-5xl mb-2">🎉</div><p class="text-gray-500 text-sm">Aucune absence enregistree aujourd\'hui.</p></div>';
             }
+
             document.getElementById('liste-absences-staff').innerHTML = html;
             window.scrollTo(0, 0);
         }

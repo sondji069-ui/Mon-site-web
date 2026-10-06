@@ -6,8 +6,6 @@
     <title>EDU-LINK - Administration</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-<script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
         tailwind.config = { theme: { extend: { colors: { 'edu-blue': '#004AAD', 'edu-green': '#2EAD5E', 'edu-red': '#EF4444', 'edu-orange': '#F59E0B', 'edu-purple': '#8B5CF6' } } } }
@@ -71,6 +69,7 @@
             </div>
 
             <div class="flex-1 overflow-y-auto -mt-4 px-4 pb-6">
+                <!-- ACCUEIL -->
                 <div id="view-accueil" class="hidden fade-in">
                     <div class="bg-white rounded-2xl shadow-lg p-4 mb-3 grid grid-cols-2 gap-3">
                         <div class="carte-stat bg-gradient-to-br from-blue-50 to-blue-100 p-3 rounded-xl border border-blue-200"><div class="flex items-center justify-between mb-1"><span class="text-2xl">🎓</span><span class="text-[9px] bg-edu-blue text-white px-1.5 py-0.5 rounded-full font-bold">ELEVES</span></div><p id="total-eleves" class="text-2xl font-extrabold text-edu-blue">0</p></div>
@@ -99,11 +98,6 @@
                         <div class="flex-1 text-left"><p class="text-sm font-bold">Demandes de mot de passe</p><p class="text-[10px] opacity-90">Réinitialiser les mots de passe</p></div>
                         <span id="badge-mdp" class="hidden bg-white text-edu-pink text-xs font-bold rounded-full w-7 h-7 flex items-center justify-center">0</span>
                     </button>
-<button onclick="afficherAbsencesAdmin()" class="bouton-action w-full bg-gradient-to-r from-red-500 to-orange-500 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
-                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-xl font-bold">AR</div>
-                        <div class="flex-1 text-left"><p class="text-sm font-bold">Absences et rapports</p><p class="text-[10px] opacity-90">Par classe, jour, semaine, trimestre</p></div>
-                        <span class="text-xl">-</span>
-                    </button>
 
                     <button onclick="afficherCodeAcces()" class="bouton-action w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
                         <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">🎫</div>
@@ -130,7 +124,7 @@
                             <button onclick="afficherGestionEleves()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md"><div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-2xl">🎓</div><span class="text-xs font-bold text-gray-800">Élèves</span><span class="text-[9px] text-gray-400">Gérer les inscriptions</span></button>
                             <button onclick="afficherGestionEnseignants()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md"><div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-2xl">👨🏾‍🏫</div><span class="text-xs font-bold text-gray-800">Enseignants</span><span class="text-[9px] text-gray-400">Gérer l'équipe</span></button>
                             <button onclick="afficherGestionClasses()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md"><div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-2xl">🏫</div><span class="text-xs font-bold text-gray-800">Classes</span><span class="text-[9px] text-gray-400">Organiser</span></button>
-                            <button onclick="afficherGestionPaiements()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md"><div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center text-2xl">💰</div><span class="text-xs font-bold text-gray-800">Paiements</span><span class="text-[9px] text-gray-400">Encaisser</span></button>
+                            <button onclick="afficherPaiementsV2()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border-2 border-edu-green flex flex-col items-center gap-2 hover:shadow-md"><div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-2xl">💰</div><span class="text-xs font-bold text-edu-green">Paiements V2</span><span class="text-[9px] text-gray-400">Vue globale 400+</span></button>
                         </div>
                         <p class="text-[10px] text-gray-400 uppercase font-bold mb-2 px-1">Organisation</p>
                         <div class="grid grid-cols-2 gap-3 mb-4">
@@ -146,6 +140,40 @@
                     </div>
                 </div>
 
+                <!-- PAIEMENTS V2 -->
+                <div id="view-paiements-v2" class="hidden fade-in">
+                    <button onclick="retourAccueil()" class="text-2xl mb-3">Retour</button>
+                    <h1 class="text-lg font-bold text-gray-800 mb-2">Paiements</h1>
+                    <p class="text-xs text-gray-500 mb-3">Vue globale des encaissements.</p>
+                    <div id="pv2-stats" class="mb-3"></div>
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 mb-3 space-y-2">
+                        <input type="text" id="pv2-recherche" oninput="pv2Filtrer()" placeholder="Rechercher un eleve (nom, matricule)" class="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs">
+                        <div class="grid grid-cols-2 gap-2">
+                            <select id="pv2-classe" onchange="pv2Filtrer()" class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white text-xs">
+                                <option value="">Toutes les classes</option>
+                            </select>
+                            <select id="pv2-statut" onchange="pv2Filtrer()" class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white text-xs">
+                                <option value="">Tous les statuts</option>
+                                <option value="ajour">A jour</option>
+                                <option value="partiel">Partiel</option>
+                                <option value="retard">Impaye</option>
+                            </select>
+                        </div>
+                        <div class="flex justify-between items-center text-[10px] text-gray-500 px-1">
+                            <span><span id="pv2-nb-resultats">0</span> eleve(s) affiche(s)</span>
+                            <button onclick="pv2Reset()" class="text-edu-blue font-bold">Reinitialiser</button>
+                        </div>
+                    </div>
+                    <div id="pv2-liste" class="space-y-2"></div>
+                </div>
+
+                <!-- PAIEMENTS ELEVE -->
+                <div id="view-paiements-eleve" class="hidden fade-in">
+                    <button onclick="pv2RetourContext()" class="text-2xl mb-3">Retour</button>
+                    <div id="pve-contenu"></div>
+                </div>
+
+                <!-- DEMANDES MDP -->
                 <div id="view-demandes-mdp" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-2">🔑 Demandes de mot de passe</h1>
@@ -153,6 +181,7 @@
                     <div id="liste-demandes-mdp" class="space-y-3"></div>
                 </div>
 
+                <!-- CODE ACCES -->
                 <div id="view-code" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-4">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-2">🎫 Code d'acces de l'ecole</h1>
@@ -177,6 +206,7 @@
                     </div>
                 </div>
 
+                <!-- EQUIPE -->
                 <div id="view-equipe" class="hidden fade-in">
                     <div class="flex items-center gap-3 mb-3">
                         <button onclick="retourAccueil()" class="text-2xl">⬅️</button>
@@ -187,6 +217,7 @@
                     <div id="liste-staff" class="space-y-3"></div>
                 </div>
 
+                <!-- FORM STAFF -->
                 <div id="view-form-staff" class="hidden fade-in">
                     <div class="flex items-center gap-3 mb-4">
                         <button onclick="afficherEquipe()" class="text-2xl">⬅️</button>
@@ -214,11 +245,19 @@
                         <input type="email" id="staff-email" placeholder="Email *" class="w-full px-4 py-3 rounded-xl border border-gray-300">
                         <input type="tel" id="staff-telephone" placeholder="Telephone (optionnel)" class="w-full px-4 py-3 rounded-xl border border-gray-300">
                         <input type="text" id="staff-password" placeholder="Mot de passe *" class="w-full px-4 py-3 rounded-xl border border-gray-300">
+
+                        <div class="bg-teal-50 border border-teal-100 rounded-xl p-3">
+                            <p class="text-xs font-bold text-teal-700 mb-2">Classes assignees (optionnel)</p>
+                            <p class="text-[10px] text-gray-500 mb-2">Selectionnez les classes dont ce membre est responsable.</p>
+                            <div id="staff-classes-liste" class="space-y-1 max-h-48 overflow-y-auto"></div>
+                        </div>
+
                         <button onclick="sauvegarderStaff()" id="btn-save-staff" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl">Enregistrer</button>
                         <div id="message-staff" class="text-center text-sm font-semibold"></div>
                     </div>
                 </div>
 
+                <!-- SIGNATURE -->
                 <div id="view-signature" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-4">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-2">🖋️ Ma signature</h1>
@@ -237,6 +276,7 @@
                     </div>
                 </div>
 
+                <!-- DEMANDES INSCRIPTION -->
                 <div id="view-demandes" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-2">📥 Demandes d'inscription</h1>
@@ -244,6 +284,7 @@
                     <div id="liste-demandes" class="space-y-3"></div>
                 </div>
 
+                <!-- EMPLOI CLASSES -->
                 <div id="view-emploi-classes" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-2">📅 Emploi du temps</h1>
@@ -285,6 +326,7 @@
                     </div>
                 </div>
 
+                <!-- ANNONCES -->
                 <div id="view-nouvelle-annonce" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-4">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-4">📢 Nouvelle annonce</h1>
@@ -316,6 +358,7 @@
                     <div id="contenu-affiche"></div>
                 </div>
 
+                <!-- PAIEMENTS ANCIEN (form) -->
                 <div id="view-liste-paiements" class="hidden fade-in">
                     <div class="flex items-center gap-3 mb-4">
                         <button onclick="retourAccueil()" class="text-2xl">⬅️</button>
@@ -349,6 +392,7 @@
                     </div>
                 </div>
 
+                <!-- CLASSES -->
                 <div id="view-liste-classes" class="hidden fade-in">
                     <div class="flex items-center gap-3 mb-4">
                         <button onclick="retourAccueil()" class="text-2xl">⬅️</button>
@@ -375,13 +419,14 @@
                     </div>
                 </div>
 
+                <!-- ENSEIGNANTS -->
                 <div id="view-liste-enseignants" class="hidden fade-in">
                     <div class="flex items-center gap-3 mb-4">
                         <button onclick="retourAccueil()" class="text-2xl">⬅️</button>
                         <h1 class="text-lg font-bold text-gray-800 flex-1">Enseignants</h1>
                         <button onclick="afficherFormEnseignant()" class="bg-edu-blue text-white text-xs font-bold px-3 py-2 rounded-lg">+ Ajouter</button>
                     </div>
-                    <input type="text" id="recherche-enseignants" oninput="filtrerListe('recherche-enseignants', 'liste-enseignants-admin')" placeholder="🔍 Rechercher un enseignant..." class="w-full px-4 py-2.5 rounded-xl border border-gray-300 mb-3 text-sm focus:outline-none focus:ring-2 focus:ring-edu-blue">
+                    <input type="text" id="recherche-enseignants" oninput="ensFiltrer()" placeholder="Rechercher un enseignant (nom, email, specialite, classe)" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 mb-3 text-sm focus:outline-none focus:ring-2 focus:ring-edu-blue">
                     <div id="liste-enseignants-admin" class="space-y-3"></div>
                 </div>
 
@@ -397,22 +442,54 @@
                         <input type="text" id="ens-nom" placeholder="Nom" class="w-full px-4 py-3 rounded-xl border border-gray-300">
                         <input type="email" id="ens-email" placeholder="Email" class="w-full px-4 py-3 rounded-xl border border-gray-300">
                         <input type="text" id="ens-password" placeholder="Mot de passe" class="w-full px-4 py-3 rounded-xl border border-gray-300">
-                        <input type="text" id="ens-specialite" placeholder="Specialite" class="w-full px-4 py-3 rounded-xl border border-gray-300">
+                        <input type="text" id="ens-specialite" placeholder="Specialite (ex: Mathematiques)" class="w-full px-4 py-3 rounded-xl border border-gray-300">
                         <input type="date" id="ens-embauche" class="w-full px-4 py-3 rounded-xl border border-gray-300">
-                        <select id="ens-classe" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white"><option value="">Aucune</option></select>
-                        <input type="text" id="ens-matiere" placeholder="Matiere enseignee" class="w-full px-4 py-3 rounded-xl border border-gray-300">
+
+                        <div class="bg-blue-50 border border-blue-100 rounded-xl p-3">
+                            <div class="flex justify-between items-center mb-2">
+                                <p class="text-xs font-bold text-edu-blue">Affectations (classes + matieres)</p>
+                                <button onclick="ensAjouterAffectation()" class="bg-edu-blue text-white text-[10px] font-bold px-2 py-1 rounded">+ Ajouter</button>
+                            </div>
+                            <div id="ens-affectations-liste" class="space-y-2"></div>
+                            <p class="text-[10px] text-gray-500 mt-2">Un enseignant peut avoir plusieurs classes / plusieurs matieres.</p>
+                        </div>
+
                         <button onclick="sauvegarderEnseignant()" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl">Enregistrer</button>
                         <div id="message-ens" class="text-center text-sm font-semibold"></div>
                     </div>
                 </div>
+                    </div>
+                </div>
 
+                <!-- ELEVES -->
                 <div id="view-liste-eleves" class="hidden fade-in">
                     <div class="flex items-center gap-3 mb-4">
                         <button onclick="retourAccueil()" class="text-2xl">⬅️</button>
                         <h1 class="text-lg font-bold text-gray-800 flex-1">Eleves</h1>
                         <button onclick="afficherFormEleve()" class="bg-edu-blue text-white text-xs font-bold px-3 py-2 rounded-lg">+ Ajouter</button>
+<button onclick="afficherImportEleves()" class="bg-edu-green text-white text-xs font-bold px-3 py-2 rounded-lg ml-2">Importer</button>
+<button onclick="afficherTransfertEleves()" class="bg-edu-orange text-white text-xs font-bold px-3 py-2 rounded-lg ml-2">Transferer</button>
                     </div>
-                    <input type="text" id="recherche-eleves" oninput="filtrerListe('recherche-eleves', 'liste-eleves-admin')" placeholder="🔍 Rechercher un élève..." class="w-full px-4 py-2.5 rounded-xl border border-gray-300 mb-3 text-sm focus:outline-none focus:ring-2 focus:ring-edu-blue">
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 mb-3 space-y-2">
+    <input type="text" id="recherche-eleves" oninput="elvFiltrer()" placeholder="Rechercher un eleve (nom, matricule, email)" class="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs">
+    <div class="grid grid-cols-2 gap-2">
+        <select id="elv-filtre-classe" onchange="elvFiltrer()" class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white text-xs">
+            <option value="">Toutes les classes</option>
+        </select>
+        <select id="elv-filtre-statut" onchange="elvFiltrer()" class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white text-xs">
+            <option value="">Tous statuts</option>
+            <option value="actif">Actif</option>
+            <option value="en_attente">En attente</option>
+        </select>
+    </div>
+    <div class="flex justify-between items-center text-[10px] text-gray-500 px-1">
+        <span><span id="elv-nb-resultats">0</span> eleve(s) affiche(s)</span>
+        <div class="flex gap-2">
+            <button onclick="elvReset()" class="text-edu-blue font-bold">Reinitialiser</button>
+            <button onclick="elvExporterCSV()" class="text-edu-green font-bold">Export CSV</button>
+        </div>
+    </div>
+</div>
                     <div id="liste-eleves-admin" class="space-y-3"></div>
                 </div>
 
@@ -435,41 +512,72 @@
                         <div id="message-eleve" class="text-center text-sm font-semibold"></div>
                     </div>
                 </div>
-<div id="view-absences-admin" class="hidden fade-in">
-                    <button onclick="retourAccueil()" class="text-2xl mb-3">Retour</button>
-                    <h1 class="text-lg font-bold text-gray-800 mb-2">Absences et rapports</h1>
-                    <p class="text-xs text-gray-500 mb-3">Suivi detaille par classe.</p>
 
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">
-                        <label class="block text-xs font-bold text-gray-700 mb-2">Classe</label>
-                        <select id="abs-classe-select" onchange="chargerAbsencesAdmin()" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-sm">
-                            <option value="">Chargement...</option>
+                <!-- NOTIFICATIONS -->
+<!-- VUE IMPORT ELEVES -->
+                <div id="view-import-eleves" class="hidden fade-in">
+                    <button onclick="afficherGestionEleves()" class="text-2xl mb-3">Retour</button>
+                    <h1 class="text-lg font-bold text-gray-800 mb-2">Importer des eleves</h1>
+                    <p class="text-xs text-gray-500 mb-3">Creez 400 eleves en 1 minute.</p>
+
+                    <div class="bg-blue-50 border border-blue-100 p-3 rounded-xl mb-3">
+                        <p class="text-[10px] text-gray-700 font-bold mb-1">Format attendu :</p>
+                        <p class="text-[10px] text-gray-600 font-mono">Prenom,Nom,Email,Classe,DateNaissance</p>
+                        <p class="text-[10px] text-gray-600 font-mono">Aissatou,Diop,aissatou@x.sn,CM2,2015-03-15</p>
+                        <p class="text-[10px] text-gray-500 mt-2">La 1ere ligne peut etre un en-tete. Le mot de passe sera <b>eleve2024</b> pour tous.</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 mb-3">
+                        <button onclick="impSwitchMode('fichier')" id="imp-tab-fichier" class="py-2 rounded-xl font-bold text-xs bg-edu-blue text-white">Fichier CSV</button>
+                        <button onclick="impSwitchMode('texte')" id="imp-tab-texte" class="py-2 rounded-xl font-bold text-xs bg-gray-100 text-gray-600">Copier-coller</button>
+                    </div>
+
+                    <div id="imp-mode-fichier" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">
+                        <label class="block text-xs font-bold text-gray-700 mb-2">Fichier .csv</label>
+                        <input type="file" id="imp-fichier" accept=".csv,.txt" class="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs">
+                    </div>
+
+                    <div id="imp-mode-texte" class="hidden bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">
+                        <label class="block text-xs font-bold text-gray-700 mb-2">Collez les lignes ici</label>
+                        <textarea id="imp-texte" rows="10" placeholder="Prenom,Nom,Email,Classe,DateNaissance&#10;Aissatou,Diop,aissatou@x.sn,CM2,2015-03-15" class="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs font-mono"></textarea>
+                    </div>
+
+                    <button onclick="impLancerApercu()" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl mb-3">Analyser</button>
+
+                    <div id="imp-apercu" class="hidden"></div>
+                </div>
+
+                <!-- VUE TRANSFERT ELEVES -->
+                <div id="view-transfert-eleves" class="hidden fade-in">
+                    <button onclick="afficherGestionEleves()" class="text-2xl mb-3">Retour</button>
+                    <h1 class="text-lg font-bold text-gray-800 mb-2">Transfert d'eleves</h1>
+                    <p class="text-xs text-gray-500 mb-3">Changer la classe de plusieurs eleves en 1 clic.</p>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 mb-3 space-y-2">
+                        <label class="block text-xs font-bold text-gray-700">1. Classe source</label>
+                        <select id="trf-classe-source" onchange="trfChargerEleves()" class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white text-xs">
+                            <option value="">Choisir une classe</option>
                         </select>
                     </div>
 
-                    <div id="abs-resume-jour" class="hidden mb-3"></div>
+                    <div id="trf-liste" class="space-y-2 mb-3"></div>
 
-                    <div class="grid grid-cols-3 gap-2 mb-3">
-                        <button onclick="setPeriodeAbsAdmin('jour')" id="abs-per-jour" class="py-2 rounded-xl font-bold text-[10px] bg-gray-100 text-gray-600">Jour</button>
-                        <button onclick="setPeriodeAbsAdmin('semaine')" id="abs-per-semaine" class="py-2 rounded-xl font-bold text-[10px] bg-gray-100 text-gray-600">Semaine</button>
-                        <button onclick="setPeriodeAbsAdmin('mois')" id="abs-per-mois" class="py-2 rounded-xl font-bold text-[10px] bg-edu-blue text-white">Mois</button>
-                        <button onclick="setPeriodeAbsAdmin('trimestre')" id="abs-per-trimestre" class="py-2 rounded-xl font-bold text-[10px] bg-gray-100 text-gray-600">Trimestre</button>
-                        <button onclick="setPeriodeAbsAdmin('semestre')" id="abs-per-semestre" class="py-2 rounded-xl font-bold text-[10px] bg-gray-100 text-gray-600">Semestre</button>
-                        <button onclick="setPeriodeAbsAdmin('annee')" id="abs-per-annee" class="py-2 rounded-xl font-bold text-[10px] bg-gray-100 text-gray-600">Annee</button>
+                    <div id="trf-actions" class="hidden bg-white rounded-2xl shadow-sm border-2 border-edu-orange p-3 mb-3">
+                        <label class="block text-xs font-bold text-gray-700 mb-2">2. Nouvelle classe</label>
+                        <select id="trf-classe-cible" class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white text-xs mb-2">
+                            <option value="">Choisir la classe cible</option>
+                        </select>
+                        <p class="text-[10px] text-gray-500 mb-3"><span id="trf-nb-selec">0</span> eleve(s) selectionne(s)</p>
+                        <button onclick="trfValider()" class="w-full bg-edu-orange text-white font-bold py-2.5 rounded-xl text-xs">Transferer</button>
+                        <div id="trf-message" class="text-center text-xs font-semibold mt-2"></div>
                     </div>
-
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">
-                        <p class="text-[10px] font-bold text-gray-700 mb-2">Periode personnalisee</p>
-                        <div class="grid grid-cols-2 gap-2 mb-2">
-                            <input type="date" id="abs-date-debut" class="px-3 py-2 rounded-xl border border-gray-300 text-xs">
-                            <input type="date" id="abs-date-fin" class="px-3 py-2 rounded-xl border border-gray-300 text-xs">
-                        </div>
-                        <button onclick="chargerAbsencesAdmin()" class="w-full bg-edu-blue text-white font-bold py-2.5 rounded-xl text-xs">Actualiser</button>
-                    </div>
-
-                    <div id="abs-contenu" class="space-y-3"></div>
                 </div>
 
+                <!-- VUE FICHE ELEVE -->
+                <div id="view-fiche-eleve" class="hidden fade-in">
+                    <button onclick="afficherGestionEleves()" class="text-2xl mb-3">Retour</button>
+                    <div id="fiche-eleve-contenu"></div>
+                </div>
                 <div id="view-notifications" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-4">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-4">Notifications</h1>
@@ -481,8 +589,11 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <script>
-        // ============ AUTH — Hachage PBKDF2 ============
+<!-- ==================================================== -->
+<!-- FIN PARTIE 1/2 — Colle la PARTIE 2/2 juste EN DESSOUS -->
+<!-- ==================================================== -->
+<script>
+        // ============ AUTH PBKDF2 ============
         const AUTH_SALT = 'EDU-LINK::v1::S3n3g4l::2024';
         const AUTH_ITERATIONS = 100000;
         const AUTH_PREFIX = 'pbkdf2$';
@@ -499,7 +610,7 @@
             return AUTH_PREFIX + AUTH_ITERATIONS + '$' + hex;
         }
 
-        // ============ SÉCURITÉ — Échappement HTML (anti-XSS) ============
+        // ============ SECURITE XSS ============
         function echapperHtml(texte) {
             if (texte === null || texte === undefined) return '';
             return String(texte)
@@ -518,35 +629,22 @@
             const datePub = new Date(a.date_publication).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
             const logoUrl = (typeof a.logo_annonce === 'string' && (a.logo_annonce.indexOf('data:image/') === 0 || a.logo_annonce.indexOf('https://') === 0)) ? a.logo_annonce : null;
             const sigUrl = (typeof signatureEcole === 'string' && (signatureEcole.indexOf('data:image/') === 0 || signatureEcole.indexOf('https://') === 0)) ? signatureEcole : null;
-
-            var blocLogo = logoUrl ? '<img src="' + logoUrl + '" style="width: 70px; height: 70px; object-fit: cover; border-radius: 50%; border: 3px solid white; margin-bottom: 8px;">' : '<div style="font-size: 40px; margin-bottom: 5px;">📖</div>';
-            var blocSignatureImg = sigUrl ? '<img src="' + sigUrl + '" style="max-height: 55px; max-width: 180px; margin-top: 8px; display: block; margin-left: auto;">' : '';
-            var blocSignatureTxt = signatureTxt ? '<p style="font-size: 13px; font-weight: bold; color: #004AAD; margin: 5px 0 0 0;">' + signatureTxt + '</p>' : '';
-
-            return '<div style="background: white; border: 3px solid #004AAD; border-radius: 15px; overflow: hidden; font-family: Arial, sans-serif;">'
-                + '<div style="background: linear-gradient(135deg, #004AAD 0%, #0066CC 100%); padding: 20px 15px; text-align: center;">'
-                + blocLogo
-                + '<h1 style="color: white; font-size: 20px; font-weight: bold; margin: 5px 0; letter-spacing: 1px;">EDU-LINK</h1>'
-                + '<p style="color: rgba(255,255,255,0.9); font-size: 12px; margin: 0;">' + ecoleNomSec + '</p>'
-                + '</div>'
-                + '<div style="padding: 20px;">'
-                + '<div style="text-align: center; background: #f0f7ff; padding: 12px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #004AAD;">'
-                + '<p style="font-size: 11px; color: #004AAD; font-weight: bold; margin: 0 0 5px 0; letter-spacing: 2px;">📢 COMMUNICATION OFFICIELLE</p>'
-                + '<h2 style="font-size: 18px; font-weight: bold; color: #004AAD; margin: 0;">' + titre + '</h2>'
-                + '</div>'
-                + '<div style="background: #f9fafb; padding: 15px; border-radius: 10px; margin-bottom: 20px;">'
-                + '<p style="font-size: 13px; color: #1f2937; line-height: 1.8; margin: 0; white-space: pre-wrap; text-align: justify;">' + contenu + '</p>'
-                + '</div>'
-                + '<div style="text-align: right; margin-top: 25px; padding-top: 15px; border-top: 1px solid #e5e7eb;">'
-                + '<p style="font-size: 11px; color: #6b7280; margin: 0;">Publiee le ' + datePub + '</p>'
-                + blocSignatureImg
-                + blocSignatureTxt
-                + '</div>'
-                + '</div>'
-                + '<div style="background: #004AAD; padding: 8px; text-align: center;">'
-                + '<p style="color: white; font-size: 9px; margin: 0;">Document officiel - EDU-LINK</p>'
-                + '</div>'
-                + '</div>';
+            var blocLogo = logoUrl ? '<img src="' + logoUrl + '" style="width:70px;height:70px;object-fit:cover;border-radius:50%;border:3px solid white;margin-bottom:8px;">' : '<div style="font-size:40px;margin-bottom:5px;">📖</div>';
+            var blocSignatureImg = sigUrl ? '<img src="' + sigUrl + '" style="max-height:55px;max-width:180px;margin-top:8px;display:block;margin-left:auto;">' : '';
+            var blocSignatureTxt = signatureTxt ? '<p style="font-size:13px;font-weight:bold;color:#004AAD;margin:5px 0 0 0;">' + signatureTxt + '</p>' : '';
+            return '<div style="background:white;border:3px solid #004AAD;border-radius:15px;overflow:hidden;font-family:Arial,sans-serif;">'
+                + '<div style="background:linear-gradient(135deg,#004AAD 0%,#0066CC 100%);padding:20px 15px;text-align:center;">'
+                + blocLogo + '<h1 style="color:white;font-size:20px;font-weight:bold;margin:5px 0;letter-spacing:1px;">EDU-LINK</h1>'
+                + '<p style="color:rgba(255,255,255,0.9);font-size:12px;margin:0;">' + ecoleNomSec + '</p></div>'
+                + '<div style="padding:20px;"><div style="text-align:center;background:#f0f7ff;padding:12px;border-radius:10px;margin-bottom:20px;border-left:4px solid #004AAD;">'
+                + '<p style="font-size:11px;color:#004AAD;font-weight:bold;margin:0 0 5px 0;letter-spacing:2px;">📢 COMMUNICATION OFFICIELLE</p>'
+                + '<h2 style="font-size:18px;font-weight:bold;color:#004AAD;margin:0;">' + titre + '</h2></div>'
+                + '<div style="background:#f9fafb;padding:15px;border-radius:10px;margin-bottom:20px;">'
+                + '<p style="font-size:13px;color:#1f2937;line-height:1.8;margin:0;white-space:pre-wrap;text-align:justify;">' + contenu + '</p></div>'
+                + '<div style="text-align:right;margin-top:25px;padding-top:15px;border-top:1px solid #e5e7eb;">'
+                + '<p style="font-size:11px;color:#6b7280;margin:0;">Publiee le ' + datePub + '</p>'
+                + blocSignatureImg + blocSignatureTxt + '</div></div>'
+                + '<div style="background:#004AAD;padding:8px;text-align:center;"><p style="color:white;font-size:9px;margin:0;">Document officiel - EDU-LINK</p></div></div>';
         }
     </script>
 
@@ -557,9 +655,7 @@
             var avatar = document.getElementById('avatar-header');
             if (avatar && !document.getElementById('btn-theme-toggle')) {
                 var btn = document.createElement('button');
-                btn.id = 'btn-theme-toggle';
-                btn.className = 'btn-theme-toggle';
-                btn.type = 'button';
+                btn.id = 'btn-theme-toggle'; btn.className = 'btn-theme-toggle'; btn.type = 'button';
                 btn.innerHTML = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
                 btn.onclick = function(e) { e.preventDefault(); e.stopPropagation(); toggleThemeEduLink(); };
                 avatar.parentNode.insertBefore(btn, avatar);
@@ -580,26 +676,19 @@
         if (!sessionUser) { window.location.href = 'index.html'; }
         const parsedUser = JSON.parse(sessionUser);
         let currentUser = null, monEcoleId = null, listeElevesGlobal = [], classeEnCours = null, logoBase64 = null, signatureBase64 = null;
-        let monCodeAcces = null;
-        let monEcoleNom = null;
+        let monCodeAcces = null, monEcoleNom = null;
 
         const LABELS_SOUS_ROLE = {
-            surveillant: '👁️ Surveillant(e)',
-            censeur: '📋 Censeur(e)',
-            intendant: '💼 Intendant(e)',
-            bibliothecaire: '📚 Bibliothécaire',
-            secretaire: '📝 Secrétaire',
-            comptable: '💰 Comptable',
-            conseiller: '🎓 Conseiller pédagogique',
-            infirmier: '🩺 Infirmier(e)',
-            autre: '👤 Autre'
+            surveillant: '👁️ Surveillant(e)', censeur: '📋 Censeur(e)', intendant: '💼 Intendant(e)',
+            bibliothecaire: '📚 Bibliothécaire', secretaire: '📝 Secrétaire', comptable: '💰 Comptable',
+            conseiller: '🎓 Conseiller pédagogique', infirmier: '🩺 Infirmier(e)', autre: '👤 Autre'
         };
 
         function afficherAvatarHeader() {
             const btn = document.getElementById('avatar-header');
             if (!btn) return;
             if (currentUser && currentUser.photo_url) {
-                btn.innerHTML = '<img src="' + currentUser.photo_url + '" style="width:100%; height:100%; object-fit:cover;">';
+                btn.innerHTML = '<img src="' + currentUser.photo_url + '" style="width:100%;height:100%;object-fit:cover;">';
             }
         }
 
@@ -611,7 +700,7 @@
             initTheme();
             document.getElementById('welcome-message').innerText = "M. " + currentUser.nom;
             if (monEcoleId) {
-                const { data: ecole } = await supabaseClient.from('ecoles').select('nom, logo_url, signature_url, code_acces').eq('id', monEcoleId).single();
+                const { data: ecole } = await supabaseClient.from('ecoles').select('nom,logo_url,signature_url,code_acces').eq('id', monEcoleId).single();
                 if (ecole) {
                     monEcoleNom = ecole.nom;
                     monCodeAcces = ecole.code_acces;
@@ -668,10 +757,232 @@
         }
 
         function hideAllViews() {
-            ['view-accueil', 'view-absences-admin', 'view-demandes-mdp', 'view-code', 'view-equipe', 'view-form-staff', 'view-signature', 'view-demandes', 'view-emploi-classes', 'view-emploi-classe', 'view-form-cours', 'view-liste-paiements', 'view-form-paiement', 'view-liste-classes', 'view-form-classe', 'view-liste-eleves', 'view-form-eleve', 'view-liste-enseignants', 'view-form-enseignant', 'view-nouvelle-annonce', 'view-annonces', 'view-affiche', 'view-notifications'].forEach(id => {
+            ['view-accueil', 'view-paiements-v2', 'view-paiements-eleve', 'view-demandes-mdp', 'view-code', 'view-equipe', 'view-form-staff', 'view-signature', 'view-demandes', 'view-emploi-classes', 'view-emploi-classe', 'view-form-cours', 'view-liste-paiements', 'view-form-paiement', 'view-liste-classes', 'view-form-classe', 'view-liste-eleves', 'view-form-eleve', 'view-liste-enseignants', 'view-form-enseignant', 'view-nouvelle-annonce', 'view-annonces', 'view-affiche', 'view-notifications', 'view-import-eleves', 'view-transfert-eleves', 'view-fiche-eleve'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
+        }
+
+        // ============ PAIEMENTS V2 ============
+        let pv2TousEleves = [];
+        let pv2TousPaiements = [];
+        let pv2ToutesClasses = [];
+
+        async function afficherPaiementsV2() {
+            hideAllViews();
+            document.getElementById('view-paiements-v2').classList.remove('hidden');
+            document.getElementById('pv2-liste').innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
+            document.getElementById('pv2-stats').innerHTML = '';
+            await pv2ChargerDonnees();
+            pv2RemplirSelectClasses();
+            pv2Filtrer();
+            window.scrollTo(0, 0);
+        }
+
+        async function pv2ChargerDonnees() {
+            const { data: classes } = await supabaseClient.from('classes').select('id, nom, frais_scolarite').eq('ecole_id', monEcoleId).order('nom');
+            pv2ToutesClasses = classes || [];
+
+            const { data: eleves } = await supabaseClient.from('eleves').select('id, matricule, classe_id, utilisateur_id, utilisateurs!utilisateur_id(prenom, nom), classes(nom, frais_scolarite)').eq('ecole_id', monEcoleId);
+            pv2TousEleves = eleves || [];
+
+            const { data: paiements } = await supabaseClient.from('paiements').select('id, eleve_id, montant, type_paiement, statut, methode, date_paiement').eq('ecole_id', monEcoleId).order('date_paiement', { ascending: false });
+            pv2TousPaiements = paiements || [];
+
+            pv2CalculerSoldes();
+        }
+
+        function pv2CalculerSoldes() {
+            const payesParEleve = {};
+            const tousParEleve = {};
+            pv2TousPaiements.forEach(p => {
+                if (!tousParEleve[p.eleve_id]) tousParEleve[p.eleve_id] = [];
+                tousParEleve[p.eleve_id].push(p);
+                if (p.statut === 'paye') {
+                    payesParEleve[p.eleve_id] = (payesParEleve[p.eleve_id] || 0) + parseFloat(p.montant);
+                }
+            });
+            pv2TousEleves.forEach(e => {
+                const frais = e.classes && e.classes.frais_scolarite ? parseFloat(e.classes.frais_scolarite) : 0;
+                const paye = payesParEleve[e.id] || 0;
+                e._frais = frais;
+                e._paye = paye;
+                e._solde = frais - paye;
+                e._paiements = tousParEleve[e.id] || [];
+                if (frais === 0) e._statut = 'ajour';
+                else if (paye >= frais) e._statut = 'ajour';
+                else if (paye > 0) e._statut = 'partiel';
+                else e._statut = 'retard';
+            });
+        }
+
+        function pv2RemplirSelectClasses() {
+            const sel = document.getElementById('pv2-classe');
+            sel.innerHTML = '<option value="">Toutes les classes</option>';
+            pv2ToutesClasses.forEach(c => {
+                sel.innerHTML += '<option value="' + c.id + '">' + c.nom + '</option>';
+            });
+        }
+
+        function pv2AfficherStats() {
+            const conteneur = document.getElementById('pv2-stats');
+            const totalAttendu = pv2TousEleves.reduce((s, e) => s + (e._frais || 0), 0);
+            const totalEncaisse = pv2TousEleves.reduce((s, e) => s + (e._paye || 0), 0);
+            const totalRestant = totalAttendu - totalEncaisse;
+            const pct = totalAttendu > 0 ? Math.round((totalEncaisse / totalAttendu) * 100) : 0;
+            let html = '<div class="bg-gradient-to-br from-edu-green to-emerald-700 text-white rounded-2xl shadow-lg p-4 mb-2">';
+            html += '<p class="text-[10px] opacity-90 uppercase font-bold mb-1">Taux de recouvrement</p>';
+            html += '<p class="text-3xl font-extrabold">' + pct + '%</p>';
+            html += '<div class="w-full bg-white bg-opacity-20 rounded-full h-2 mt-3"><div class="h-2 rounded-full bg-white" style="width:' + pct + '%"></div></div></div>';
+            html += '<div class="grid grid-cols-2 gap-2 mb-3">';
+            html += '<div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 text-center"><p class="text-[10px] text-gray-500 font-semibold">Attendu</p><p class="text-sm font-extrabold text-edu-blue mt-1">' + totalAttendu.toLocaleString('fr-FR') + '</p><p class="text-[9px] text-gray-400">FCFA</p></div>';
+            html += '<div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 text-center"><p class="text-[10px] text-gray-500 font-semibold">Encaisse</p><p class="text-sm font-extrabold text-edu-green mt-1">' + totalEncaisse.toLocaleString('fr-FR') + '</p><p class="text-[9px] text-gray-400">FCFA</p></div>';
+            html += '<div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 text-center"><p class="text-[10px] text-gray-500 font-semibold">Restant</p><p class="text-sm font-extrabold text-edu-red mt-1">' + totalRestant.toLocaleString('fr-FR') + '</p><p class="text-[9px] text-gray-400">FCFA</p></div>';
+            html += '<div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 text-center"><p class="text-[10px] text-gray-500 font-semibold">Eleves</p><p class="text-sm font-extrabold text-edu-purple mt-1">' + pv2TousEleves.length + '</p><p class="text-[9px] text-gray-400">au total</p></div></div>';
+            conteneur.innerHTML = html;
+        }
+
+        function pv2Filtrer() {
+            const terme = document.getElementById('pv2-recherche').value.toLowerCase().trim();
+            const classeId = document.getElementById('pv2-classe').value;
+            const statut = document.getElementById('pv2-statut').value;
+            let liste = pv2TousEleves.slice();
+            if (classeId) liste = liste.filter(e => e.classe_id == classeId);
+            if (statut) liste = liste.filter(e => e._statut === statut);
+            if (terme) {
+                liste = liste.filter(e => {
+                    const nom = (e.utilisateurs ? (e.utilisateurs.prenom + ' ' + e.utilisateurs.nom) : '').toLowerCase();
+                    const mat = (e.matricule || '').toLowerCase();
+                    return nom.indexOf(terme) !== -1 || mat.indexOf(terme) !== -1;
+                });
+            }
+            liste.sort((a, b) => {
+                const ordre = { retard: 0, partiel: 1, ajour: 2 };
+                if (ordre[a._statut] !== ordre[b._statut]) return ordre[a._statut] - ordre[b._statut];
+                return b._solde - a._solde;
+            });
+            document.getElementById('pv2-nb-resultats').innerText = liste.length;
+            pv2AfficherStats();
+            pv2AfficherListe(liste);
+        }
+
+        function pv2AfficherListe(liste) {
+            const conteneur = document.getElementById('pv2-liste');
+            if (liste.length === 0) {
+                conteneur.innerHTML = '<div class="bg-white p-8 rounded-2xl shadow-sm text-center"><p class="text-gray-500 text-sm">Aucun eleve trouve.</p></div>';
+                return;
+            }
+            const limite = liste.slice(0, 100);
+            let html = '';
+            limite.forEach(e => {
+                const prenom = e.utilisateurs ? e.utilisateurs.prenom : '?';
+                const nom = e.utilisateurs ? e.utilisateurs.nom : '?';
+                const classeNom = e.classes ? e.classes.nom : 'Sans classe';
+                const initiale = prenom.charAt(0).toUpperCase();
+                let badgeStatut = '', couleurBadge = '', couleurBar = '';
+                if (e._statut === 'ajour') { badgeStatut = 'A JOUR'; couleurBadge = 'bg-green-100 text-edu-green'; couleurBar = '#2EAD5E'; }
+                else if (e._statut === 'partiel') { badgeStatut = 'PARTIEL'; couleurBadge = 'bg-orange-100 text-edu-orange'; couleurBar = '#F59E0B'; }
+                else { badgeStatut = 'IMPAYE'; couleurBadge = 'bg-red-100 text-edu-red'; couleurBar = '#EF4444'; }
+                const pct = e._frais > 0 ? Math.min(100, Math.round((e._paye / e._frais) * 100)) : 100;
+                const soldeTxt = e._solde > 0 ? e._solde.toLocaleString('fr-FR') + ' F' : 'Solde';
+                const soldeCouleur = e._solde > 0 ? 'text-edu-red' : 'text-edu-green';
+                html += '<div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100">';
+                html += '<div class="flex items-center gap-3 mb-2">';
+                html += '<div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0" style="background:linear-gradient(135deg,#004AAD,#2EAD5E);">' + initiale + '</div>';
+                html += '<div class="flex-1 min-w-0"><p class="text-xs font-bold text-gray-800 truncate">' + prenom + ' ' + nom + '</p>';
+                html += '<p class="text-[10px] text-gray-500">' + (e.matricule || '') + ' - ' + classeNom + '</p></div>';
+                html += '<span class="' + couleurBadge + ' text-[9px] font-bold px-2 py-1 rounded">' + badgeStatut + '</span></div>';
+                html += '<div class="flex items-center gap-2 mb-2">';
+                html += '<div class="flex-1 bg-gray-100 rounded-full h-1.5 overflow-hidden"><div class="h-1.5 rounded-full" style="width:' + pct + '%;background:' + couleurBar + '"></div></div>';
+                html += '<span class="text-[10px] font-bold text-gray-700">' + pct + '%</span></div>';
+                html += '<div class="flex justify-between items-center text-[10px] mb-2">';
+                html += '<span class="text-gray-500">Paye : <b>' + e._paye.toLocaleString('fr-FR') + ' F</b></span>';
+                html += '<span class="' + soldeCouleur + ' font-bold">' + soldeTxt + '</span></div>';
+                html += '<button onclick="pv2OuvrirEleve(' + e.id + ')" class="w-full bg-blue-50 text-edu-blue font-bold py-2 rounded-lg text-xs">Voir la fiche</button>';
+                html += '</div>';
+            });
+            if (liste.length > 100) {
+                html += '<p class="text-center text-[10px] text-gray-400 py-2">' + (liste.length - 100) + ' autres resultats - Affinez la recherche</p>';
+            }
+            conteneur.innerHTML = html;
+        }
+
+        function pv2Reset() {
+            document.getElementById('pv2-recherche').value = '';
+            document.getElementById('pv2-classe').value = '';
+            document.getElementById('pv2-statut').value = '';
+            pv2Filtrer();
+        }
+
+        async function pv2OuvrirEleve(eleveId) {
+            hideAllViews();
+            document.getElementById('view-paiements-eleve').classList.remove('hidden');
+            const e = pv2TousEleves.find(x => x.id === eleveId);
+            if (!e) { document.getElementById('pve-contenu').innerHTML = '<p class="text-red-500">Eleve introuvable.</p>'; return; }
+            const prenom = e.utilisateurs ? e.utilisateurs.prenom : '?';
+            const nom = e.utilisateurs ? e.utilisateurs.nom : '?';
+            const classeNom = e.classes ? e.classes.nom : 'Sans classe';
+            const initiale = prenom.charAt(0).toUpperCase();
+            let couleurBadge = '', badgeStatut = '';
+            if (e._statut === 'ajour') { badgeStatut = 'A JOUR'; couleurBadge = 'bg-green-100 text-edu-green'; }
+            else if (e._statut === 'partiel') { badgeStatut = 'PARTIEL'; couleurBadge = 'bg-orange-100 text-edu-orange'; }
+            else { badgeStatut = 'IMPAYE'; couleurBadge = 'bg-red-100 text-edu-red'; }
+            let html = '';
+            html += '<div class="bg-gradient-to-br from-edu-blue to-blue-700 text-white rounded-2xl shadow-lg p-4 mb-3">';
+            html += '<div class="flex items-center gap-3 mb-3">';
+            html += '<div class="w-14 h-14 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-white font-bold text-xl">' + initiale + '</div>';
+            html += '<div class="flex-1 min-w-0"><p class="text-base font-bold truncate">' + prenom + ' ' + nom + '</p><p class="text-[11px] opacity-90">' + (e.matricule || '') + ' - ' + classeNom + '</p></div>';
+            html += '<span class="' + couleurBadge + ' text-[9px] font-bold px-2 py-1 rounded">' + badgeStatut + '</span></div>';
+            html += '<div class="grid grid-cols-3 gap-2 text-center">';
+            html += '<div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-90">Frais</p><p class="text-xs font-bold mt-0.5">' + e._frais.toLocaleString('fr-FR') + '</p></div>';
+            html += '<div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-90">Paye</p><p class="text-xs font-bold mt-0.5">' + e._paye.toLocaleString('fr-FR') + '</p></div>';
+            html += '<div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-90">Solde</p><p class="text-xs font-bold mt-0.5">' + e._solde.toLocaleString('fr-FR') + '</p></div></div></div>';
+            html += '<button onclick="pv2OuvrirFormPaiement(' + e.id + ')" class="w-full bg-edu-green text-white font-bold py-3 rounded-xl mb-3">+ Ajouter un paiement</button>';
+            html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">';
+            html += '<p class="text-sm font-bold text-gray-800 mb-3">Historique des paiements</p>';
+            if (e._paiements.length === 0) {
+                html += '<p class="text-xs text-gray-400 text-center py-4">Aucun paiement enregistre.</p>';
+            } else {
+                e._paiements.forEach(p => {
+                    const dateStr = p.date_paiement ? new Date(p.date_paiement).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+                    const statutColor = p.statut === 'paye' ? 'text-edu-green' : (p.statut === 'en_attente' ? 'text-edu-orange' : 'text-edu-red');
+                    const statutTxt = p.statut === 'paye' ? 'Paye' : (p.statut === 'en_attente' ? 'En attente' : 'Echoue');
+                    html += '<div class="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">';
+                    html += '<div><p class="text-xs font-bold text-gray-800">' + p.type_paiement + '</p><p class="text-[10px] text-gray-500">' + dateStr + ' - ' + p.methode + '</p></div>';
+                    html += '<div class="text-right"><p class="text-sm font-extrabold text-gray-800">' + parseFloat(p.montant).toLocaleString('fr-FR') + ' F</p><p class="text-[10px] font-semibold ' + statutColor + '">' + statutTxt + '</p></div>';
+                    html += '</div>';
+                });
+            }
+            html += '</div>';
+            document.getElementById('pve-contenu').innerHTML = html;
+            window.scrollTo(0, 0);
+        }
+
+        function pv2RetourContext() {
+            hideAllViews();
+            document.getElementById('view-paiements-v2').classList.remove('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        async function pv2OuvrirFormPaiement(eleveId) {
+            hideAllViews();
+            document.getElementById('view-form-paiement').classList.remove('hidden');
+            document.getElementById('message-paiement').innerText = '';
+            document.getElementById('info-solde').classList.add('hidden');
+            document.getElementById('paiement-montant').value = '';
+            const { data: eleves } = await supabaseClient.from('eleves').select('id, matricule, classe_id, utilisateurs!utilisateur_id(prenom, nom), classes(nom, frais_scolarite)').eq('ecole_id', monEcoleId).order('id', { ascending: false });
+            listeElevesGlobal = eleves || [];
+            const sel = document.getElementById('paiement-eleve');
+            sel.innerHTML = '<option value="">Selectionnez un eleve</option>';
+            if (eleves) eleves.forEach(e => {
+                const opt = document.createElement('option');
+                opt.value = e.id;
+                opt.text = e.utilisateurs.prenom + ' ' + e.utilisateurs.nom + ' - ' + (e.classes ? e.classes.nom : '');
+                if (e.id === eleveId) opt.selected = true;
+                sel.appendChild(opt);
+            });
+            afficherSoldeEleve();
+            window.scrollTo(0, 0);
         }
 
         // ============ DEMANDES MDP ============
@@ -689,17 +1000,17 @@
                     if (u.role === 'staff' && u.sous_role) roleLabel = 'staff - ' + (LABELS_SOUS_ROLE[u.sous_role] || u.sous_role);
                     let statutBadge = '';
                     if (d.statut === 'en_attente') statutBadge = '<span class="bg-orange-100 text-edu-orange text-[10px] font-bold px-2 py-1 rounded">En attente</span>';
-                    else if (d.statut === 'traitee') statutBadge = '<span class="bg-green-100 text-edu-green text-[10px] font-bold px-2 py-1 rounded">Traitée</span>';
-                    else statutBadge = '<span class="bg-gray-100 text-gray-600 text-[10px] font-bold px-2 py-1 rounded">Refusée</span>';
+                    else if (d.statut === 'traitee') statutBadge = '<span class="bg-green-100 text-edu-green text-[10px] font-bold px-2 py-1 rounded">Traitee</span>';
+                    else statutBadge = '<span class="bg-gray-100 text-gray-600 text-[10px] font-bold px-2 py-1 rounded">Refusee</span>';
                     const initiale = (u.prenom ? u.prenom.charAt(0) : '?').toUpperCase();
-                    html += '<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100"><div class="flex items-center gap-3 mb-3"><div class="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold" style="background: linear-gradient(135deg, #EC4899, #8B5CF6);">' + initiale + '</div><div class="flex-1 min-w-0"><p class="text-sm font-bold text-gray-800 truncate">' + u.prenom + ' ' + u.nom + '</p><p class="text-[10px] text-gray-500 truncate">' + u.email + '</p><p class="text-[10px] text-edu-blue font-semibold uppercase">' + roleLabel + '</p></div>' + statutBadge + '</div><p class="text-[10px] text-gray-400 mb-3">📅 Demande du ' + dateStr + '</p>';
+                    html += '<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100"><div class="flex items-center gap-3 mb-3"><div class="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold" style="background:linear-gradient(135deg,#EC4899,#8B5CF6);">' + initiale + '</div><div class="flex-1 min-w-0"><p class="text-sm font-bold text-gray-800 truncate">' + u.prenom + ' ' + u.nom + '</p><p class="text-[10px] text-gray-500 truncate">' + u.email + '</p><p class="text-[10px] text-edu-blue font-semibold uppercase">' + roleLabel + '</p></div>' + statutBadge + '</div><p class="text-[10px] text-gray-400 mb-3">📅 Demande du ' + dateStr + '</p>';
                     if (d.statut === 'en_attente') {
-                        html += '<div class="flex gap-2"><button onclick="genererMdpTemporaire(' + d.id + ', ' + d.utilisateur_id + ', \'' + (u.prenom + ' ' + u.nom).replace(/'/g, "\\'") + '\')" class="flex-1 bg-edu-blue text-white font-bold py-2.5 rounded-xl text-xs">🔑 Générer mot de passe</button><button onclick="refuserDemandeMdp(' + d.id + ')" class="bg-red-50 text-edu-red font-bold py-2.5 px-3 rounded-xl text-xs">Refuser</button></div>';
+                        html += '<div class="flex gap-2"><button onclick="genererMdpTemporaire(' + d.id + ', ' + d.utilisateur_id + ', \'' + (u.prenom + ' ' + u.nom).replace(/'/g, "\\'") + '\')" class="flex-1 bg-edu-blue text-white font-bold py-2.5 rounded-xl text-xs">🔑 Generer mot de passe</button><button onclick="refuserDemandeMdp(' + d.id + ')" class="bg-red-50 text-edu-red font-bold py-2.5 px-3 rounded-xl text-xs">Refuser</button></div>';
                     }
                     html += '</div>';
                 }
             } else {
-                html = '<div class="text-center py-10"><div class="text-6xl mb-3">✅</div><p class="text-gray-500 font-medium">Aucune demande</p><p class="text-xs text-gray-400 mt-1">Tout est à jour !</p></div>';
+                html = '<div class="text-center py-10"><div class="text-6xl mb-3">✅</div><p class="text-gray-500 font-medium">Aucune demande</p><p class="text-xs text-gray-400 mt-1">Tout est a jour !</p></div>';
             }
             document.getElementById('liste-demandes-mdp').innerHTML = html;
             chargerBadgeMdp();
@@ -709,14 +1020,14 @@
         async function genererMdpTemporaire(demandeId, userId, nomComplet) {
             const aleatoire = Math.floor(1000 + Math.random() * 9000);
             const mdpTemp = 'EDU-' + aleatoire;
-            if (!confirm("Générer un mot de passe temporaire pour " + nomComplet + " ?\n\nLe mot de passe sera : " + mdpTemp)) return;
+            if (!confirm("Generer un mot de passe temporaire pour " + nomComplet + " ?\n\nLe mot de passe sera : " + mdpTemp)) return;
             try {
                 const mdpTempHashe = await hashPassword(mdpTemp);
                 const { error: errMdp } = await supabaseClient.from('utilisateurs').update({ mot_de_passe: mdpTempHashe }).eq('id', userId);
                 if (errMdp) throw errMdp;
                 const { error: errD } = await supabaseClient.from('demandes_mdp').update({ statut: 'traitee', date_traitement: new Date().toISOString(), traite_par: currentUser.id }).eq('id', demandeId);
                 if (errD) throw errD;
-                await supabaseClient.from('notifications').insert([{ utilisateur_id: userId, titre: '🔑 Mot de passe réinitialisé', contenu: 'Un mot de passe temporaire a été généré. Contactez l\'administration.', type: 'message', lu: false, ecole_id: monEcoleId }]);
+                await supabaseClient.from('notifications').insert([{ utilisateur_id: userId, titre: '🔑 Mot de passe reinitialise', contenu: 'Un mot de passe temporaire a ete genere. Contactez l\'administration.', type: 'message', lu: false, ecole_id: monEcoleId }]);
                 afficherPopupMdp(mdpTemp, nomComplet);
                 afficherDemandesMdp();
             } catch (err) { alert("Erreur : " + err.message); }
@@ -728,7 +1039,7 @@
             overlay.innerHTML = '<div style="background:white;border-radius:20px;padding:24px;max-width:380px;width:100%;text-align:center;font-family:Poppins,sans-serif;"><div style="font-size:48px;margin-bottom:8px;">🔑</div><h2 style="font-size:16px;font-weight:bold;color:#1f2937;margin:0 0 6px 0;">Mot de passe temporaire</h2><p style="font-size:12px;color:#6b7280;margin:0 0 16px 0;">Pour <b>' + nomComplet + '</b></p><div style="background:#f0f7ff;border:2px dashed #004AAD;border-radius:12px;padding:16px;margin-bottom:16px;"><p style="font-size:26px;font-weight:800;color:#004AAD;letter-spacing:3px;margin:0;font-family:monospace;">' + mdp + '</p></div><button id="btn-copy-mdp" style="background:#004AAD;color:white;border:none;border-radius:12px;padding:12px 16px;font-weight:bold;font-size:13px;cursor:pointer;width:100%;margin-bottom:8px;">📋 Copier</button><button id="btn-close-mdp" style="background:#f3f4f6;color:#374151;border:none;border-radius:12px;padding:12px 16px;font-weight:bold;font-size:13px;cursor:pointer;width:100%;">Fermer</button></div>';
             document.body.appendChild(overlay);
             document.getElementById('btn-copy-mdp').onclick = function() {
-                if (navigator.clipboard) navigator.clipboard.writeText(mdp).then(() => { document.getElementById('btn-copy-mdp').innerText = '✅ Copié !'; });
+                if (navigator.clipboard) navigator.clipboard.writeText(mdp).then(() => { document.getElementById('btn-copy-mdp').innerText = '✅ Copie !'; });
             };
             document.getElementById('btn-close-mdp').onclick = function() { overlay.remove(); };
         }
@@ -739,24 +1050,19 @@
             afficherDemandesMdp();
         }
 
-        // ============ CODE D'ACCES ============
+        // ============ CODE ACCES ============
         function afficherCodeAcces() {
             hideAllViews();
             document.getElementById('view-code').classList.remove('hidden');
             const zone = document.getElementById('code-acces-affiche');
             if (monCodeAcces) { zone.innerText = monCodeAcces; }
-            else {
-                zone.innerText = "CODE MANQUANT";
-                zone.style.fontSize = '16px';
-                document.getElementById('message-code').innerText = "⚠️ Aucun code n'a été généré pour cette école.";
-                document.getElementById('message-code').style.color = "#EF4444";
-            }
+            else { zone.innerText = "CODE MANQUANT"; zone.style.fontSize = '16px'; document.getElementById('message-code').innerText = "Aucun code genere."; document.getElementById('message-code').style.color = "#EF4444"; }
         }
 
         function copierCode() {
-            if (!monCodeAcces) { afficherMessageCode("Aucun code à copier.", 'rouge'); return; }
+            if (!monCodeAcces) { afficherMessageCode("Aucun code a copier.", 'rouge'); return; }
             if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(monCodeAcces).then(() => { afficherMessageCode("✅ Code copié !", 'vert'); }).catch(() => { fallbackCopieCode(); });
+                navigator.clipboard.writeText(monCodeAcces).then(() => { afficherMessageCode("✅ Code copie !", 'vert'); }).catch(() => { fallbackCopieCode(); });
             } else { fallbackCopieCode(); }
         }
 
@@ -764,20 +1070,20 @@
             const ta = document.createElement('textarea');
             ta.value = monCodeAcces; ta.style.position = 'fixed'; ta.style.left = '-9999px';
             document.body.appendChild(ta); ta.select();
-            try { document.execCommand('copy'); afficherMessageCode("✅ Code copié !", 'vert'); }
-            catch(e) { afficherMessageCode("❌ Impossible de copier", 'rouge'); }
+            try { document.execCommand('copy'); afficherMessageCode("✅ Code copie !", 'vert'); }
+            catch(e) { afficherMessageCode("Impossible de copier", 'rouge'); }
             document.body.removeChild(ta);
         }
 
         async function partagerCode() {
-            if (!monCodeAcces) { afficherMessageCode("Aucun code à partager.", 'rouge'); return; }
-            const texte = "Rejoignez " + (monEcoleNom || 'notre école') + " sur EDU-LINK !\n\nCode d'accès : " + monCodeAcces + "\n\nInscrivez-vous sur : " + window.location.origin + "/index.html";
+            if (!monCodeAcces) { afficherMessageCode("Aucun code.", 'rouge'); return; }
+            const texte = "Rejoignez " + (monEcoleNom || 'notre ecole') + " sur EDU-LINK !\n\nCode d'acces : " + monCodeAcces + "\n\nInscrivez-vous sur : " + window.location.origin + "/index.html";
             if (navigator.share) {
-                try { await navigator.share({ title: 'Code EDU-LINK', text: texte }); afficherMessageCode("✅ Partagé !", 'vert'); }
-                catch(e) { if (e.name !== 'AbortError') afficherMessageCode("Annulé.", 'gray'); }
+                try { await navigator.share({ title: 'Code EDU-LINK', text: texte }); afficherMessageCode("✅ Partage !", 'vert'); }
+                catch(e) { if (e.name !== 'AbortError') afficherMessageCode("Annule.", 'gray'); }
             } else {
-                if (navigator.clipboard) { navigator.clipboard.writeText(texte).then(() => { afficherMessageCode("📋 Copié", 'vert'); }); }
-                else { afficherMessageCode("Partage non supporté.", 'orange'); }
+                if (navigator.clipboard) { navigator.clipboard.writeText(texte).then(() => { afficherMessageCode("Copie", 'vert'); }); }
+                else { afficherMessageCode("Non supporte.", 'orange'); }
             }
         }
 
@@ -795,33 +1101,81 @@
         async function afficherEquipe() {
             hideAllViews();
             document.getElementById('view-equipe').classList.remove('hidden');
+            document.getElementById('liste-staff').innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
+
             const { data: staffs } = await supabaseClient.from('utilisateurs').select('*').eq('ecole_id', monEcoleId).eq('role', 'staff').order('sous_role').order('nom');
-            let html = '';
-            if (staffs && staffs.length > 0) {
-                staffs.forEach(s => {
-                    const label = LABELS_SOUS_ROLE[s.sous_role] || '👤 Autre';
-                    const initiale = (s.prenom ? s.prenom.charAt(0) : '?').toUpperCase();
-                    html += '<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100"><div class="flex items-center gap-3 mb-2"><div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg" style="background: linear-gradient(135deg, #0ea5e9, #2EAD5E);">' + initiale + '</div><div class="flex-1 min-w-0"><p class="text-sm font-bold text-gray-800 truncate">' + s.prenom + ' ' + s.nom + '</p><p class="text-[11px] font-semibold text-teal-700">' + label + '</p><p class="text-[10px] text-gray-500 truncate">' + s.email + '</p></div></div><div class="flex gap-2 justify-end"><button onclick="editerStaff(' + s.id + ')" class="bg-blue-50 text-edu-blue text-xs font-bold px-3 py-1 rounded-lg">Modifier</button><button onclick="supprimerStaff(' + s.id + ', \'' + (s.prenom + ' ' + s.nom).replace(/'/g, "\\'") + '\')" class="bg-red-50 text-edu-red text-xs font-bold px-3 py-1 rounded-lg">Supprimer</button></div></div>';
-                });
-            } else {
-                html = '<div class="bg-white p-8 rounded-2xl shadow-sm text-center"><div class="text-5xl mb-2">👥</div><p class="text-gray-500 text-sm">Aucun membre du staff pour le moment.</p><p class="text-[10px] text-gray-400 mt-1">Cliquez sur "+ Ajouter" pour créer le premier.</p></div>';
+
+            if (!staffs || staffs.length === 0) {
+                document.getElementById('liste-staff').innerHTML = '<div class="bg-white p-8 rounded-2xl shadow-sm text-center"><div class="text-5xl mb-2">👥</div><p class="text-gray-500 text-sm">Aucun membre du staff.</p></div>';
+                chargerBadgeEquipe();
+                return;
             }
+
+            // Charger toutes les affectations de classes en 1 requete
+            const userIds = staffs.map(s => s.id);
+            const { data: staffClasses } = await supabaseClient.from('staff_classes').select('staff_user_id, classe_id, classes(nom)').in('staff_user_id', userIds).eq('ecole_id', monEcoleId);
+
+            const mapClassesParUser = {};
+            (staffClasses || []).forEach(sc => {
+                if (!mapClassesParUser[sc.staff_user_id]) mapClassesParUser[sc.staff_user_id] = [];
+                mapClassesParUser[sc.staff_user_id].push(sc.classes ? sc.classes.nom : '?');
+            });
+
+            let html = '';
+            staffs.forEach(s => {
+                const label = LABELS_SOUS_ROLE[s.sous_role] || '👤 Autre';
+                const initiale = (s.prenom ? s.prenom.charAt(0) : '?').toUpperCase();
+                const classesNoms = mapClassesParUser[s.id] || [];
+
+                html += '<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">';
+                html += '<div class="flex items-center gap-3 mb-2">';
+                html += '<div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0" style="background:linear-gradient(135deg,#0ea5e9,#2EAD5E);">' + initiale + '</div>';
+                html += '<div class="flex-1 min-w-0">';
+                html += '<p class="text-sm font-bold text-gray-800 truncate">' + s.prenom + ' ' + s.nom + '</p>';
+                html += '<p class="text-[11px] font-semibold text-teal-700">' + label + '</p>';
+                html += '<p class="text-[10px] text-gray-500 truncate">' + s.email + '</p>';
+                html += '</div>';
+                if (classesNoms.length > 0) html += '<span class="bg-teal-100 text-teal-700 text-[9px] font-bold px-2 py-0.5 rounded">' + classesNoms.length + ' CL.</span>';
+                html += '</div>';
+
+                if (classesNoms.length > 0) {
+                    html += '<div class="flex flex-wrap gap-1 mb-2">';
+                    classesNoms.forEach(nom => { html += '<span class="bg-teal-50 text-teal-700 text-[9px] font-semibold px-2 py-0.5 rounded">' + nom + '</span>'; });
+                    html += '</div>';
+                }
+
+                html += '<div class="flex gap-2 justify-end">';
+                html += '<button onclick="editerStaff(' + s.id + ')" class="bg-blue-50 text-edu-blue text-xs font-bold px-3 py-1 rounded-lg">Modifier</button>';
+                html += '<button onclick="supprimerStaff(' + s.id + ', \'' + (s.prenom + ' ' + s.nom).replace(/'/g, "\\'") + '\')" class="bg-red-50 text-edu-red text-xs font-bold px-3 py-1 rounded-lg">Supprimer</button>';
+                html += '</div></div>';
+            });
+
             document.getElementById('liste-staff').innerHTML = html;
             chargerBadgeEquipe();
             window.scrollTo(0, 0);
         }
+
+        let staffClassesDispo = [];
+        let staffClassesSelectionnees = new Set();
 
         function afficherFormStaff(staffId = null, userId = null) {
             hideAllViews();
             document.getElementById('view-form-staff').classList.remove('hidden');
             document.getElementById('message-staff').innerText = '';
             const btn = document.getElementById('btn-save-staff');
-            btn.disabled = false; btn.innerText = "Enregistrer";
-            if (userId) {
-                document.getElementById('titre-form-staff').innerText = "Modifier un membre";
-                document.getElementById('staff-id').value = userId;
-                document.getElementById('staff-user-id').value = userId;
-                supabaseClient.from('utilisateurs').select('*').eq('id', userId).single().then(({ data: u }) => {
+            btn.disabled = false;
+            btn.innerText = "Enregistrer";
+            staffClassesSelectionnees.clear();
+
+            // Charger les classes
+            supabaseClient.from('classes').select('id, nom').eq('ecole_id', monEcoleId).order('nom').then(async ({ data: classes }) => {
+                staffClassesDispo = classes || [];
+
+                if (userId) {
+                    document.getElementById('titre-form-staff').innerText = "Modifier un membre";
+                    document.getElementById('staff-id').value = userId;
+                    document.getElementById('staff-user-id').value = userId;
+                    const { data: u } = await supabaseClient.from('utilisateurs').select('*').eq('id', userId).single();
                     if (u) {
                         document.getElementById('staff-prenom').value = u.prenom || '';
                         document.getElementById('staff-nom').value = u.nom || '';
@@ -830,19 +1184,48 @@
                         document.getElementById('staff-password').value = '';
                         document.getElementById('staff-sous-role').value = u.sous_role || 'surveillant';
                     }
-                });
-            } else {
-                document.getElementById('titre-form-staff').innerText = "Ajouter un membre";
-                document.getElementById('staff-id').value = '';
-                document.getElementById('staff-user-id').value = '';
-                document.getElementById('staff-prenom').value = '';
-                document.getElementById('staff-nom').value = '';
-                document.getElementById('staff-email').value = '';
-                document.getElementById('staff-telephone').value = '';
-                document.getElementById('staff-password').value = '';
-                document.getElementById('staff-sous-role').value = 'surveillant';
-            }
+                    // Charger les classes assignees
+                    const { data: sc } = await supabaseClient.from('staff_classes').select('classe_id').eq('staff_user_id', userId);
+                    (sc || []).forEach(x => staffClassesSelectionnees.add(x.classe_id));
+                } else {
+                    document.getElementById('titre-form-staff').innerText = "Ajouter un membre";
+                    document.getElementById('staff-id').value = '';
+                    document.getElementById('staff-user-id').value = '';
+                    document.getElementById('staff-prenom').value = '';
+                    document.getElementById('staff-nom').value = '';
+                    document.getElementById('staff-email').value = '';
+                    document.getElementById('staff-telephone').value = '';
+                    document.getElementById('staff-password').value = '';
+                    document.getElementById('staff-sous-role').value = 'surveillant';
+                }
+
+                staffRendreClasses();
+            });
+
             window.scrollTo(0, 0);
+        }
+
+        function staffRendreClasses() {
+            const conteneur = document.getElementById('staff-classes-liste');
+            if (staffClassesDispo.length === 0) {
+                conteneur.innerHTML = '<p class="text-[10px] text-gray-400 text-center py-2">Aucune classe disponible.</p>';
+                return;
+            }
+            let html = '';
+            staffClassesDispo.forEach(c => {
+                const coche = staffClassesSelectionnees.has(c.id);
+                html += '<div onclick="staffToggleClasse(' + c.id + ')" class="flex items-center gap-2 py-1 cursor-pointer">';
+                html += '<div class="w-5 h-5 rounded border-2 flex items-center justify-center text-[9px] font-bold flex-shrink-0 ' + (coche ? 'bg-teal-600 border-teal-600 text-white' : 'border-gray-300 text-transparent') + '">OK</div>';
+                html += '<span class="text-xs text-gray-700">' + c.nom + '</span>';
+                html += '</div>';
+            });
+            conteneur.innerHTML = html;
+        }
+
+        function staffToggleClasse(classeId) {
+            if (staffClassesSelectionnees.has(classeId)) staffClassesSelectionnees.delete(classeId);
+            else staffClassesSelectionnees.add(classeId);
+            staffRendreClasses();
         }
 
         async function editerStaff(userId) { afficherFormStaff(userId, userId); }
@@ -857,11 +1240,16 @@
             const password = document.getElementById('staff-password').value.trim();
             const msg = document.getElementById('message-staff');
             const btn = document.getElementById('btn-save-staff');
+
             if (!prenom || !nom || !email) { msg.innerText = "Prenom, nom et email obligatoires."; msg.style.color = "#EF4444"; return; }
             if (!userId && !password) { msg.innerText = "Mot de passe obligatoire."; msg.style.color = "#EF4444"; return; }
             if (password && password.length < 6) { msg.innerText = "Mot de passe min 6 caracteres."; msg.style.color = "#EF4444"; return; }
+
             btn.disabled = true; btn.innerText = "Enregistrement..."; msg.innerText = '';
+
             try {
+                let userIdFinal = userId;
+
                 if (userId) {
                     const upd = { prenom, nom, email, sous_role: sousRole, telephone: telephone || null };
                     if (password) upd.mot_de_passe = await hashPassword(password);
@@ -871,13 +1259,29 @@
                     const { data: existant } = await supabaseClient.from('utilisateurs').select('id').eq('email', email).maybeSingle();
                     if (existant) { msg.innerText = "Cet email est deja utilise."; msg.style.color = "#EF4444"; btn.disabled = false; btn.innerText = "Enregistrer"; return; }
                     const passwordHashe = await hashPassword(password);
-                    const { error } = await supabaseClient.from('utilisateurs').insert([{ ecole_id: monEcoleId, role: 'staff', sous_role: sousRole, prenom, nom, email, telephone: telephone || null, mot_de_passe: passwordHashe, statut: 'actif' }]);
+                    const { data: nu, error } = await supabaseClient.from('utilisateurs').insert([{ ecole_id: monEcoleId, role: 'staff', sous_role: sousRole, prenom, nom, email, telephone: telephone || null, mot_de_passe: passwordHashe, statut: 'actif' }]).select().single();
                     if (error) throw error;
+                    userIdFinal = nu.id;
                 }
-                msg.innerText = "✅ Membre enregistre !"; msg.style.color = "#2EAD5E";
+
+                // Sauvegarder les classes
+                await supabaseClient.from('staff_classes').delete().eq('staff_user_id', userIdFinal);
+                if (staffClassesSelectionnees.size > 0) {
+                    const lignes = Array.from(staffClassesSelectionnees).map(cid => ({
+                        staff_user_id: userIdFinal,
+                        classe_id: cid,
+                        ecole_id: monEcoleId
+                    }));
+                    const { error: errSC } = await supabaseClient.from('staff_classes').insert(lignes);
+                    if (errSC) throw errSC;
+                }
+
+                msg.innerText = "✅ Membre enregistre !";
+                msg.style.color = "#2EAD5E";
                 setTimeout(() => afficherEquipe(), 900);
             } catch (err) {
-                msg.innerText = "Erreur : " + err.message; msg.style.color = "#EF4444";
+                msg.innerText = "Erreur : " + err.message;
+                msg.style.color = "#EF4444";
                 btn.disabled = false; btn.innerText = "Enregistrer";
             }
         }
@@ -904,7 +1308,7 @@
             const conteneur = document.getElementById('apercu-signature-actuelle');
             const btnSuppr = document.getElementById('btn-supprimer-signature');
             if (signatureBase64) {
-                conteneur.innerHTML = '<img src="' + signatureBase64 + '" style="max-width: 220px; max-height: 100px;">';
+                conteneur.innerHTML = '<img src="' + signatureBase64 + '" style="max-width:220px;max-height:100px;">';
                 btnSuppr.classList.remove('hidden');
             } else {
                 conteneur.innerHTML = '<p class="text-gray-400 text-xs">Aucune signature</p>';
@@ -917,8 +1321,8 @@
                 const file = e.target.files[0];
                 const msg = document.getElementById('message-signature');
                 if (!file) return;
-                if (file.size > 200 * 1024) { msg.innerText = "⚠️ Image trop lourde (max 200 Ko)."; msg.style.color = "#EF4444"; e.target.value = ''; return; }
-                if (!file.type.startsWith('image/')) { msg.innerText = "⚠️ Format non supporté."; msg.style.color = "#EF4444"; e.target.value = ''; return; }
+                if (file.size > 200 * 1024) { msg.innerText = "Image trop lourde (max 200 Ko)."; msg.style.color = "#EF4444"; e.target.value = ''; return; }
+                if (!file.type.startsWith('image/')) { msg.innerText = "Format non supporte."; msg.style.color = "#EF4444"; e.target.value = ''; return; }
                 msg.innerText = '';
                 const reader = new FileReader();
                 reader.onload = (ev) => {
@@ -945,13 +1349,13 @@
             if (!imgSrc) { msg.innerText = "Selectionnez une image."; msg.style.color = "#EF4444"; return; }
             btn.disabled = true; btn.innerText = "Enregistrement...";
             const { error } = await supabaseClient.from('ecoles').update({ signature_url: imgSrc }).eq('id', monEcoleId);
-            if (error) { msg.innerText = "Erreur : " + error.message; msg.style.color = "#EF4444"; btn.disabled = false; btn.innerText = "💾 Enregistrer la signature"; return; }
+            if (error) { msg.innerText = "Erreur : " + error.message; msg.style.color = "#EF4444"; btn.disabled = false; btn.innerText = "Enregistrer"; return; }
             signatureBase64 = imgSrc;
-            msg.innerText = "✅ Signature enregistrée !"; msg.style.color = "#2EAD5E";
+            msg.innerText = "✅ Signature enregistree !"; msg.style.color = "#2EAD5E";
             mettreAJourApercuSignature();
             document.getElementById('apercu-signature-nouvelle').classList.add('hidden');
             document.getElementById('signature-input').value = '';
-            btn.classList.add('hidden'); btn.disabled = false; btn.innerText = "💾 Enregistrer la signature";
+            btn.classList.add('hidden'); btn.disabled = false; btn.innerText = "Enregistrer";
             setTimeout(() => { msg.innerText = ''; }, 2500);
         }
 
@@ -961,7 +1365,7 @@
             if (error) { alert("Erreur : " + error.message); return; }
             signatureBase64 = null;
             mettreAJourApercuSignature();
-            document.getElementById('message-signature').innerText = "Signature supprimée.";
+            document.getElementById('message-signature').innerText = "Signature supprimee.";
             document.getElementById('message-signature').style.color = "#6b7280";
             setTimeout(() => { document.getElementById('message-signature').innerText = ''; }, 2000);
         }
@@ -979,8 +1383,8 @@
                     else if (d.role === 'enseignant') { roleIcon = '👩🏾‍🏫'; roleColor = 'text-edu-green'; roleBg = 'bg-green-100'; }
                     else if (d.role === 'parent') { roleIcon = '👨‍👩‍👧'; roleColor = 'text-edu-pink'; roleBg = 'bg-pink-100'; }
                     html += '<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-3"><div class="flex items-center gap-3 mb-3"><div class="w-12 h-12 ' + roleBg + ' rounded-full flex items-center justify-center text-2xl">' + roleIcon + '</div><div class="flex-1"><p class="text-sm font-bold text-gray-800">' + d.prenom + ' ' + d.nom + '</p><p class="text-[10px] ' + roleColor + ' font-semibold uppercase">' + d.role + '</p><p class="text-[10px] text-gray-500">' + d.email + '</p>';
-                    if (d.telephone) html += '<p class="text-[10px] text-gray-400">📞 ' + d.telephone + '</p>';
-                    html += '</div></div><div class="flex gap-2"><button onclick="validerInscription(' + d.id + ')" class="flex-1 bg-edu-green text-white font-bold py-2.5 rounded-xl text-xs">✅ Approuver</button><button onclick="refuserInscription(' + d.id + ')" class="flex-1 bg-edu-red text-white font-bold py-2.5 rounded-xl text-xs">❌ Refuser</button></div></div>';
+                    if (d.telephone) html += '<p class="text-[10px] text-gray-400">Tel ' + d.telephone + '</p>';
+                    html += '</div></div><div class="flex gap-2"><button onclick="validerInscription(' + d.id + ')" class="flex-1 bg-edu-green text-white font-bold py-2.5 rounded-xl text-xs">Approuver</button><button onclick="refuserInscription(' + d.id + ')" class="flex-1 bg-edu-red text-white font-bold py-2.5 rounded-xl text-xs">Refuser</button></div></div>';
                 });
             } else html = '<div class="text-center py-10"><div class="text-6xl mb-3">🎉</div><p class="text-gray-500 font-medium">Aucune demande en attente</p></div>';
             document.getElementById('liste-demandes').innerHTML = html;
@@ -1001,7 +1405,7 @@
             await supabaseClient.from('eleves').delete().eq('utilisateur_id', userId);
             await supabaseClient.from('enseignants').delete().eq('utilisateur_id', userId);
             await supabaseClient.from('utilisateurs').delete().eq('id', userId);
-            alert("❌ Refuse.");
+            alert("Refuse.");
             afficherDemandesInscription(); chargerBadgeDemandes();
         }
 
@@ -1038,25 +1442,25 @@
                 creneaux.sort((a, b) => a.debut.localeCompare(b.debut));
             }
             if (creneaux.length === 0) { creneaux.push({ debut: '08:00', fin: '10:00' }); creneaux.push({ debut: '10:15', fin: '12:15' }); creneaux.push({ debut: '14:00', fin: '16:00' }); creneaux.push({ debut: '16:15', fin: '18:15' }); }
-            let html = '<table style="width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">';
-            html += '<thead><tr style="background: #004AAD;">';
-            html += '<th style="padding: 10px 8px; color: white; font-size: 11px; font-weight: bold; border: 1px solid #004AAD; min-width: 70px;">Heure</th>';
-            jours.forEach(j => { html += '<th style="padding: 10px 8px; color: white; font-size: 11px; font-weight: bold; border: 1px solid #004AAD; min-width: 95px; text-align: center;">' + j.substring(0,3) + '</th>'; });
+            let html = '<table style="width:100%;border-collapse:collapse;background:white;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.1);">';
+            html += '<thead><tr style="background:#004AAD;">';
+            html += '<th style="padding:10px 8px;color:white;font-size:11px;font-weight:bold;border:1px solid #004AAD;min-width:70px;">Heure</th>';
+            jours.forEach(j => { html += '<th style="padding:10px 8px;color:white;font-size:11px;font-weight:bold;border:1px solid #004AAD;min-width:95px;text-align:center;">' + j.substring(0,3) + '</th>'; });
             html += '</tr></thead><tbody>';
             creneaux.forEach((creneau, idx) => {
                 const bgLigne = idx % 2 === 0 ? '#ffffff' : '#f9fafb';
-                html += '<tr style="background: ' + bgLigne + ';">';
-                html += '<td style="padding: 8px 6px; border: 1px solid #e5e7eb; font-size: 10px; font-weight: bold; color: #1f2937; text-align: center; background: #f3f4f6;">' + creneau.debut + '<br><span style="font-size: 8px; color: #6b7280;">' + creneau.fin + '</span></td>';
+                html += '<tr style="background:' + bgLigne + ';">';
+                html += '<td style="padding:8px 6px;border:1px solid #e5e7eb;font-size:10px;font-weight:bold;color:#1f2937;text-align:center;background:#f3f4f6;">' + creneau.debut + '<br><span style="font-size:8px;color:#6b7280;">' + creneau.fin + '</span></td>';
                 jours.forEach(jour => {
                     const c = cours ? cours.find(x => x.jour === jour && x.heure_debut && x.heure_fin && x.heure_debut.substring(0,5) === creneau.debut && x.heure_fin.substring(0,5) === creneau.fin) : null;
                     if (c) {
                         const onClick = editable ? 'onclick="ouvrirActionsCours(' + c.id + ')"' : '';
-                        const cursor = editable ? 'cursor: pointer;' : '';
-                        html += '<td ' + onClick + ' style="padding: 6px; border: 1px solid #e5e7eb; vertical-align: top; ' + cursor + '"><div style="background: #dbeafe; border-left: 3px solid #004AAD; padding: 6px; border-radius: 5px; min-height: 50px;"><p style="font-size: 10px; font-weight: bold; color: #004AAD; margin: 0; line-height: 1.2;">' + c.matiere + '</p>' + (c.salle ? '<p style="font-size: 8px; color: #6b7280; margin: 2px 0 0 0;">📍 ' + c.salle + '</p>' : '') + '</div></td>';
+                        const cursor = editable ? 'cursor:pointer;' : '';
+                        html += '<td ' + onClick + ' style="padding:6px;border:1px solid #e5e7eb;vertical-align:top;' + cursor + '"><div style="background:#dbeafe;border-left:3px solid #004AAD;padding:6px;border-radius:5px;min-height:50px;"><p style="font-size:10px;font-weight:bold;color:#004AAD;margin:0;line-height:1.2;">' + c.matiere + '</p>' + (c.salle ? '<p style="font-size:8px;color:#6b7280;margin:2px 0 0 0;">' + c.salle + '</p>' : '') + '</div></td>';
                     } else {
                         const onclick = editable ? 'onclick="ajouterCoursRapide(\'' + jour + '\', \'' + creneau.debut + '\', \'' + creneau.fin + '\')"' : '';
-                        const inner = editable ? '<div ' + onclick + ' style="min-height: 50px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px dashed #e5e7eb; border-radius: 5px; color: #d1d5db; font-size: 16px;">+</div>' : '<div style="min-height: 50px;"></div>';
-                        html += '<td style="padding: 6px; border: 1px solid #e5e7eb; vertical-align: top;">' + inner + '</td>';
+                        const inner = editable ? '<div ' + onclick + ' style="min-height:50px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:1px dashed #e5e7eb;border-radius:5px;color:#d1d5db;font-size:16px;">+</div>' : '<div style="min-height:50px;"></div>';
+                        html += '<td style="padding:6px;border:1px solid #e5e7eb;vertical-align:top;">' + inner + '</td>';
                     }
                 });
                 html += '</tr>';
@@ -1128,6 +1532,7 @@
             document.getElementById('apercu-logo').classList.add('hidden');
         }
 
+        // ============ ANNONCES ============
         function afficherNouvelleAnnonce() {
             hideAllViews();
             document.getElementById('view-nouvelle-annonce').classList.remove('hidden');
@@ -1194,6 +1599,7 @@
             afficherAnnonces();
         }
 
+        // ============ PAIEMENTS (ANCIEN) ============
         async function afficherGestionPaiements() {
             hideAllViews();
             document.getElementById('view-liste-paiements').classList.remove('hidden');
@@ -1248,7 +1654,7 @@
             const { error } = await supabaseClient.from('paiements').insert([{ eleve_id: parseInt(eleveId), montant: parseFloat(montant), type_paiement: document.getElementById('paiement-type').value, methode: document.getElementById('paiement-methode').value, statut: document.getElementById('paiement-statut').value, ecole_id: monEcoleId }]);
             if (error) { msg.innerText = "Erreur"; msg.style.color = "red"; return; }
             msg.innerText = "Enregistre !"; msg.style.color = "green";
-            setTimeout(() => afficherGestionPaiements(), 1000);
+            setTimeout(() => { afficherPaiementsV2(); }, 1000);
         }
 
         async function supprimerPaiement(id) {
@@ -1257,6 +1663,7 @@
             afficherGestionPaiements();
         }
 
+        // ============ CLASSES ============
         async function afficherGestionClasses() {
             hideAllViews();
             document.getElementById('view-liste-classes').classList.remove('hidden');
@@ -1312,28 +1719,128 @@
             afficherGestionClasses();
         }
 
+        // ============ ENSEIGNANTS ============
+        let ensTous = [];
+
         async function afficherGestionEnseignants() {
             hideAllViews();
             document.getElementById('view-liste-enseignants').classList.remove('hidden');
-            const { data: users } = await supabaseClient.from('utilisateurs').select('id, prenom, nom, email').eq('ecole_id', monEcoleId).eq('role', 'enseignant').order('nom');
-            let html = '';
-            if (users && users.length > 0) {
-                for (const u of users) {
-                    const { data: ens } = await supabaseClient.from('enseignants').select('id, specialite').eq('utilisateur_id', u.id).maybeSingle();
-                    html += '<div data-search="' + u.prenom + ' ' + u.nom + ' ' + u.email + ' ' + (ens ? ens.specialite || '' : '') + '" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100"><div class="flex items-center gap-3 mb-2"><div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-xl">👩🏾‍🏫</div><div class="flex-1"><p class="text-sm font-bold text-gray-800">' + u.prenom + ' ' + u.nom + '</p><p class="text-[10px] text-gray-500">' + (ens ? ens.specialite || '' : '') + '</p></div></div><div class="flex gap-2 justify-end"><button onclick="editerEnseignant(' + (ens ? ens.id : 0) + ', ' + u.id + ')" class="bg-blue-50 text-edu-blue text-xs font-bold px-3 py-1 rounded-lg">Modifier</button><button onclick="supprimerEnseignant(' + (ens ? ens.id : 0) + ', ' + u.id + ')" class="bg-red-50 text-edu-red text-xs font-bold px-3 py-1 rounded-lg">Supprimer</button></div></div>';
-                }
-            } else html = '<p class="text-gray-500 text-center py-4">Aucun enseignant.</p>';
-            document.getElementById('liste-enseignants-admin').innerHTML = html;
+            document.getElementById('liste-enseignants-admin').innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
+
+            const { data: users } = await supabaseClient.from('utilisateurs').select('id, prenom, nom, email, telephone, statut').eq('ecole_id', monEcoleId).eq('role', 'enseignant').order('nom');
+
+            if (!users || users.length === 0) {
+                document.getElementById('liste-enseignants-admin').innerHTML = '<div class="bg-white p-8 rounded-2xl shadow-sm text-center"><p class="text-gray-500 text-sm">Aucun enseignant.</p></div>';
+                ensTous = [];
+                return;
+            }
+
+            // Recuperer TOUS les enseignants + leurs affectations en 2 requetes
+            const userIds = users.map(u => u.id);
+            const { data: enseignants } = await supabaseClient.from('enseignants').select('id, utilisateur_id, specialite, date_embauche').in('utilisateur_id', userIds);
+            const mapEns = {};
+            (enseignants || []).forEach(e => { mapEns[e.utilisateur_id] = e; });
+
+            const ensIds = (enseignants || []).map(e => e.id);
+            let mapAff = {};
+            if (ensIds.length > 0) {
+                const { data: affs } = await supabaseClient.from('affectations').select('enseignant_id, matiere, classes(nom)').in('enseignant_id', ensIds);
+                (affs || []).forEach(a => {
+                    if (!mapAff[a.enseignant_id]) mapAff[a.enseignant_id] = [];
+                    mapAff[a.enseignant_id].push({ matiere: a.matiere, classeNom: a.classes ? a.classes.nom : '' });
+                });
+            }
+
+            ensTous = users.map(u => {
+                const ens = mapEns[u.id];
+                const affs = ens ? (mapAff[ens.id] || []) : [];
+                return {
+                    id: u.id,
+                    ensId: ens ? ens.id : null,
+                    prenom: u.prenom,
+                    nom: u.nom,
+                    email: u.email,
+                    telephone: u.telephone,
+                    statut: u.statut,
+                    specialite: ens ? ens.specialite : '',
+                    date_embauche: ens ? ens.date_embauche : '',
+                    affectations: affs
+                };
+            });
+
+            ensFiltrer();
+            window.scrollTo(0, 0);
         }
+
+        function ensFiltrer() {
+            const terme = document.getElementById('recherche-enseignants').value.toLowerCase().trim();
+            let liste = ensTous;
+            if (terme) {
+                liste = ensTous.filter(e => {
+                    const nom = (e.prenom + ' ' + e.nom).toLowerCase();
+                    const mail = (e.email || '').toLowerCase();
+                    const spec = (e.specialite || '').toLowerCase();
+                    const classes = e.affectations.map(a => a.classeNom).join(' ').toLowerCase();
+                    return nom.indexOf(terme) !== -1 || mail.indexOf(terme) !== -1 || spec.indexOf(terme) !== -1 || classes.indexOf(terme) !== -1;
+                });
+            }
+            ensAfficherListe(liste);
+        }
+
+        function ensAfficherListe(liste) {
+            const conteneur = document.getElementById('liste-enseignants-admin');
+            if (liste.length === 0) {
+                conteneur.innerHTML = '<div class="bg-white p-8 rounded-2xl shadow-sm text-center"><p class="text-gray-500 text-sm">Aucun enseignant.</p></div>';
+                return;
+            }
+
+            let html = '';
+            liste.forEach(u => {
+                const initiale = u.prenom.charAt(0).toUpperCase();
+                const nbClasses = u.affectations.length;
+                const classesTxt = u.affectations.map(a => a.classeNom).join(', ') || 'Aucune classe';
+
+                html += '<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">';
+                html += '<div class="flex items-center gap-3 mb-2">';
+                html += '<div class="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold text-base flex-shrink-0" style="background:linear-gradient(135deg,#2EAD5E,#004AAD);">' + initiale + '</div>';
+                html += '<div class="flex-1 min-w-0">';
+                html += '<p class="text-sm font-bold text-gray-800 truncate">' + u.prenom + ' ' + u.nom + '</p>';
+                html += '<p class="text-[10px] text-gray-500 truncate">' + (u.specialite || 'Aucune specialite') + '</p>';
+                html += '<p class="text-[10px] text-gray-400 truncate">' + u.email + '</p>';
+                html += '</div>';
+                html += '<span class="bg-green-100 text-edu-green text-[9px] font-bold px-2 py-0.5 rounded">' + nbClasses + ' CL.</span>';
+                html += '</div>';
+                html += '<p class="text-[10px] text-gray-600 mb-2"><b>Classes :</b> ' + classesTxt + '</p>';
+                if (u.affectations.length > 0) {
+                    html += '<div class="flex flex-wrap gap-1 mb-2">';
+                    u.affectations.forEach(a => {
+                        html += '<span class="bg-blue-50 text-edu-blue text-[9px] font-semibold px-2 py-0.5 rounded">' + a.matiere + ' - ' + a.classeNom + '</span>';
+                    });
+                    html += '</div>';
+                }
+                html += '<div class="flex gap-2 justify-end">';
+                html += '<button onclick="editerEnseignant(' + (u.ensId || 0) + ', ' + u.id + ')" class="bg-blue-50 text-edu-blue text-xs font-bold px-3 py-1 rounded-lg">Modifier</button>';
+                html += '<button onclick="supprimerEnseignant(' + (u.ensId || 0) + ', ' + u.id + ')" class="bg-red-50 text-edu-red text-xs font-bold px-3 py-1 rounded-lg">Supprimer</button>';
+                html += '</div></div>';
+            });
+            conteneur.innerHTML = html;
+        }
+
+        let ensClassesDispo = [];
+        let ensAffectationsTemp = [];
 
         async function afficherFormEnseignant(ensId = null, userId = null) {
             hideAllViews();
             document.getElementById('view-form-enseignant').classList.remove('hidden');
             document.getElementById('message-ens').innerText = '';
+
+            // Charger les classes
             const { data: classes } = await supabaseClient.from('classes').select('id, nom').eq('ecole_id', monEcoleId).order('nom');
-            const sc = document.getElementById('ens-classe');
-            sc.innerHTML = '<option value="">Aucune</option>';
-            if (classes) classes.forEach(c => sc.innerHTML += '<option value="' + c.id + '">' + c.nom + '</option>');
+            ensClassesDispo = classes || [];
+
+            ensAffectationsTemp = [];
+            document.getElementById('ens-affectations-liste').innerHTML = '';
+
             if (ensId && userId) {
                 document.getElementById('titre-form-ens').innerText = "Modifier";
                 const { data: u } = await supabaseClient.from('utilisateurs').select('*').eq('id', userId).single();
@@ -1343,15 +1850,64 @@
                 document.getElementById('ens-nom').value = u.nom;
                 document.getElementById('ens-email').value = u.email;
                 document.getElementById('ens-password').value = '';
+
                 if (ensId) {
                     const { data: e } = await supabaseClient.from('enseignants').select('*').eq('id', ensId).single();
-                    if (e) { document.getElementById('ens-specialite').value = e.specialite || ''; document.getElementById('ens-embauche').value = e.date_embauche || ''; }
+                    if (e) {
+                        document.getElementById('ens-specialite').value = e.specialite || '';
+                        document.getElementById('ens-embauche').value = e.date_embauche || '';
+                    }
+
+                    // Charger TOUTES les affectations existantes
+                    const { data: affs } = await supabaseClient.from('affectations').select('id, classe_id, matiere').eq('enseignant_id', ensId);
+                    (affs || []).forEach(a => {
+                        ensAffectationsTemp.push({ classe_id: a.classe_id, matiere: a.matiere });
+                    });
                 }
             } else {
-                document.getElementById('titre-form-ens').innerText = "Ajouter";
-                ['ens-id', 'ens-user-id', 'ens-prenom', 'ens-nom', 'ens-email', 'ens-password', 'ens-specialite', 'ens-embauche', 'ens-matiere'].forEach(id => document.getElementById(id).value = '');
-                document.getElementById('ens-classe').value = '';
+                document.getElementById('titre-form-ens').innerText = "Ajouter un enseignant";
+                ['ens-id', 'ens-user-id', 'ens-prenom', 'ens-nom', 'ens-email', 'ens-password', 'ens-specialite', 'ens-embauche'].forEach(id => document.getElementById(id).value = '');
+                // Ajouter 1 ligne vide par defaut
+                ensAffectationsTemp.push({ classe_id: '', matiere: '' });
             }
+
+            ensRendreAffectations();
+            window.scrollTo(0, 0);
+        }
+
+        function ensRendreAffectations() {
+            const conteneur = document.getElementById('ens-affectations-liste');
+            let html = '';
+            if (ensAffectationsTemp.length === 0) {
+                html = '<p class="text-[10px] text-gray-400 text-center py-2">Aucune affectation. Cliquez sur "+ Ajouter".</p>';
+            } else {
+                ensAffectationsTemp.forEach((aff, idx) => {
+                    let optionsClasses = '<option value="">-- Classe --</option>';
+                    ensClassesDispo.forEach(c => {
+                        optionsClasses += '<option value="' + c.id + '"' + (c.id == aff.classe_id ? ' selected' : '') + '>' + c.nom + '</option>';
+                    });
+                    html += '<div class="flex gap-1 items-center">';
+                    html += '<select onchange="ensModifierAffectation(' + idx + ', \'classe_id\', this.value)" class="flex-1 px-2 py-2 rounded-lg border border-gray-300 bg-white text-[11px]">' + optionsClasses + '</select>';
+                    html += '<input type="text" value="' + (aff.matiere || '').replace(/"/g, '&quot;') + '" onchange="ensModifierAffectation(' + idx + ', \'matiere\', this.value)" placeholder="Matiere" class="flex-1 px-2 py-2 rounded-lg border border-gray-300 text-[11px]">';
+                    html += '<button onclick="ensSupprimerAffectation(' + idx + ')" class="bg-red-50 text-edu-red font-bold px-2 py-2 rounded-lg text-[11px]">X</button>';
+                    html += '</div>';
+                });
+            }
+            conteneur.innerHTML = html;
+        }
+
+        function ensAjouterAffectation() {
+            ensAffectationsTemp.push({ classe_id: '', matiere: '' });
+            ensRendreAffectations();
+        }
+
+        function ensModifierAffectation(idx, champ, valeur) {
+            ensAffectationsTemp[idx][champ] = valeur;
+        }
+
+        function ensSupprimerAffectation(idx) {
+            ensAffectationsTemp.splice(idx, 1);
+            ensRendreAffectations();
         }
 
         async function editerEnseignant(ensId, userId) { afficherFormEnseignant(ensId, userId); }
@@ -1364,30 +1920,48 @@
             const email = document.getElementById('ens-email').value.trim();
             const password = document.getElementById('ens-password').value.trim();
             const msg = document.getElementById('message-ens');
+
             if (!prenom || !nom || !email) { msg.innerText = "Champs obligatoires."; msg.style.color = "red"; return; }
             if (!userId && !password) { msg.innerText = "Mot de passe obligatoire."; msg.style.color = "red"; return; }
+
+            // Filtrer les affectations valides (classe ET matiere remplies)
+            const affsValides = ensAffectationsTemp.filter(a => a.classe_id && a.matiere && a.matiere.trim());
+
             try {
                 let ensIdFinal = id;
                 if (userId) {
                     const upd = { prenom, nom, email };
                     if (password) upd.mot_de_passe = await hashPassword(password);
                     await supabaseClient.from('utilisateurs').update(upd).eq('id', userId);
-                    if (ensId) await supabaseClient.from('enseignants').update({ specialite: document.getElementById('ens-specialite').value, date_embauche: document.getElementById('ens-embauche').value || null }).eq('id', ensId);
+                    if (id) await supabaseClient.from('enseignants').update({ specialite: document.getElementById('ens-specialite').value, date_embauche: document.getElementById('ens-embauche').value || null }).eq('id', id);
                 } else {
                     const passwordHashe = await hashPassword(password);
                     const { data: nu } = await supabaseClient.from('utilisateurs').insert([{ ecole_id: monEcoleId, role: 'enseignant', prenom, nom, email, mot_de_passe: passwordHashe, statut: 'actif' }]).select().single();
                     const { data: ne } = await supabaseClient.from('enseignants').insert([{ utilisateur_id: nu.id, specialite: document.getElementById('ens-specialite').value, date_embauche: document.getElementById('ens-embauche').value || null }]).select().single();
                     ensIdFinal = ne.id;
                 }
+
                 if (ensIdFinal) {
+                    // SUPPRIMER les anciennes affectations
                     await supabaseClient.from('affectations').delete().eq('enseignant_id', ensIdFinal);
-                    const classeId = document.getElementById('ens-classe').value;
-                    const matiere = document.getElementById('ens-matiere').value.trim();
-                    if (classeId && matiere) await supabaseClient.from('affectations').insert([{ enseignant_id: ensIdFinal, classe_id: parseInt(classeId), matiere }]);
+                    // INSERER les nouvelles
+                    if (affsValides.length > 0) {
+                        const lignes = affsValides.map(a => ({
+                            enseignant_id: ensIdFinal,
+                            classe_id: parseInt(a.classe_id),
+                            matiere: a.matiere.trim()
+                        }));
+                        await supabaseClient.from('affectations').insert(lignes);
+                    }
                 }
-                msg.innerText = "Enregistre !"; msg.style.color = "green";
-                setTimeout(() => afficherGestionEnseignants(), 1000);
-            } catch (err) { msg.innerText = "Erreur : " + err.message; msg.style.color = "red"; }
+
+                msg.innerText = "Enregistre ! (" + affsValides.length + " affectation(s))";
+                msg.style.color = "green";
+                setTimeout(() => afficherGestionEnseignants(), 1200);
+            } catch (err) {
+                msg.innerText = "Erreur : " + err.message;
+                msg.style.color = "red";
+            }
         }
 
         async function supprimerEnseignant(ensId, userId) {
@@ -1400,18 +1974,126 @@
             afficherGestionEnseignants();
         }
 
+        // ============ ELEVES ============
+        let elvTous = [];
+        let elvToutesClasses = [];
+
         async function afficherGestionEleves() {
             hideAllViews();
             document.getElementById('view-liste-eleves').classList.remove('hidden');
-            const { data: eleves } = await supabaseClient.from('eleves').select('id, matricule, date_naissance, utilisateur_id, classe_id, parent_id, utilisateurs!utilisateur_id(prenom, nom)').eq('ecole_id', monEcoleId).order('id', { ascending: false });
+            document.getElementById('liste-eleves-admin').innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
+
+            // 1 requete pour classes
+            const { data: classes } = await supabaseClient.from('classes').select('id, nom').eq('ecole_id', monEcoleId).order('nom');
+            elvToutesClasses = classes || [];
+
+            // 1 requete pour eleves (avec jointure utilisateurs + classes)
+            const { data: eleves } = await supabaseClient.from('eleves').select('id, matricule, date_naissance, utilisateur_id, classe_id, parent_id, utilisateurs!utilisateur_id(prenom, nom, email, statut), classes(nom)').eq('ecole_id', monEcoleId).order('id', { ascending: false });
+            elvTous = eleves || [];
+
+            // Remplir le select classes
+            const sel = document.getElementById('elv-filtre-classe');
+            sel.innerHTML = '<option value="">Toutes les classes</option>';
+            elvToutesClasses.forEach(c => { sel.innerHTML += '<option value="' + c.id + '">' + c.nom + '</option>'; });
+
+            elvFiltrer();
+            window.scrollTo(0, 0);
+        }
+
+        function elvFiltrer() {
+            const terme = document.getElementById('recherche-eleves').value.toLowerCase().trim();
+            const classeId = document.getElementById('elv-filtre-classe').value;
+            const statut = document.getElementById('elv-filtre-statut').value;
+
+            let liste = elvTous.slice();
+            if (classeId) liste = liste.filter(e => e.classe_id == classeId);
+            if (statut) liste = liste.filter(e => e.utilisateurs && e.utilisateurs.statut === statut);
+            if (terme) {
+                liste = liste.filter(e => {
+                    const nom = e.utilisateurs ? (e.utilisateurs.prenom + ' ' + e.utilisateurs.nom).toLowerCase() : '';
+                    const mat = (e.matricule || '').toLowerCase();
+                    const mail = e.utilisateurs ? (e.utilisateurs.email || '').toLowerCase() : '';
+                    return nom.indexOf(terme) !== -1 || mat.indexOf(terme) !== -1 || mail.indexOf(terme) !== -1;
+                });
+            }
+
+            document.getElementById('elv-nb-resultats').innerText = liste.length;
+            elvAfficherListe(liste);
+        }
+
+        function elvAfficherListe(liste) {
+            const conteneur = document.getElementById('liste-eleves-admin');
+            if (liste.length === 0) {
+                conteneur.innerHTML = '<div class="bg-white p-8 rounded-2xl shadow-sm text-center"><p class="text-gray-500 text-sm">Aucun eleve trouve.</p></div>';
+                return;
+            }
+
+            // Limite a 200 pour eviter de bloquer
+            const limite = liste.slice(0, 200);
             let html = '';
-            if (eleves && eleves.length > 0) {
-                for (const e of eleves) {
-                    const { data: classe } = await supabaseClient.from('classes').select('nom').eq('id', e.classe_id).single();
-                    html += '<div data-search="' + e.utilisateurs.prenom + ' ' + e.utilisateurs.nom + ' ' + e.matricule + ' ' + (classe ? classe.nom : '') + '" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100"><div class="flex items-center gap-3 mb-2"><div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-xl">👦🏾</div><div class="flex-1"><p class="text-sm font-bold text-gray-800">' + e.utilisateurs.prenom + ' ' + e.utilisateurs.nom + '</p><p class="text-[10px] text-gray-500">' + e.matricule + ' - ' + (classe ? classe.nom : '') + '</p></div></div><div class="flex gap-2 justify-end"><button onclick="editerEleve(' + e.id + ')" class="bg-blue-50 text-edu-blue text-xs font-bold px-3 py-1 rounded-lg">Modifier</button><button onclick="supprimerEleve(' + e.id + ', ' + e.utilisateur_id + ')" class="bg-red-50 text-edu-red text-xs font-bold px-3 py-1 rounded-lg">Supprimer</button></div></div>';
-                }
-            } else html = '<p class="text-gray-500 text-center py-4">Aucun eleve.</p>';
-            document.getElementById('liste-eleves-admin').innerHTML = html;
+
+            limite.forEach(e => {
+                const prenom = e.utilisateurs ? e.utilisateurs.prenom : '?';
+                const nom = e.utilisateurs ? e.utilisateurs.nom : '?';
+                const email = e.utilisateurs ? e.utilisateurs.email : '';
+                const statutUser = e.utilisateurs ? e.utilisateurs.statut : 'actif';
+                const classeNom = e.classes ? e.classes.nom : 'Sans classe';
+                const initiale = prenom.charAt(0).toUpperCase();
+
+                let badgeStatut = '';
+                if (statutUser === 'actif') badgeStatut = '<span class="bg-green-100 text-edu-green text-[9px] font-bold px-2 py-0.5 rounded">ACTIF</span>';
+                else if (statutUser === 'en_attente') badgeStatut = '<span class="bg-orange-100 text-edu-orange text-[9px] font-bold px-2 py-0.5 rounded">EN ATTENTE</span>';
+                else badgeStatut = '<span class="bg-red-100 text-edu-red text-[9px] font-bold px-2 py-0.5 rounded">' + statutUser.toUpperCase() + '</span>';
+
+                html += '<div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition" onclick="afficherFicheEleve(' + e.id + ')">';
+                html += '<div class="flex items-center gap-3 mb-2">';
+                html += '<div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0" style="background:linear-gradient(135deg,#004AAD,#2EAD5E);">' + initiale + '</div>';
+                html += '<div class="flex-1 min-w-0">';
+                html += '<div class="flex items-center gap-1 mb-0.5"><p class="text-xs font-bold text-gray-800 truncate">' + prenom + ' ' + nom + '</p>' + badgeStatut + '</div>';
+                html += '<p class="text-[10px] text-gray-500">' + (e.matricule || '') + ' - ' + classeNom + '</p>';
+                html += '<p class="text-[10px] text-gray-400 truncate">' + email + '</p>';
+                html += '</div></div>';
+                html += '<div class="flex gap-2 justify-end">';
+                html += '<button onclick="event.stopPropagation(); editerEleve(' + e.id + ')" class="bg-blue-50 text-edu-blue text-[10px] font-bold px-3 py-1 rounded-lg">Modifier</button>';
+                html += '<button onclick="event.stopPropagation(); supprimerEleve(' + e.id + ', ' + e.utilisateur_id + ')" class="bg-red-50 text-edu-red text-[10px] font-bold px-3 py-1 rounded-lg">Supprimer</button>';
+                html += '</div></div>';
+            });
+
+            if (liste.length > 200) {
+                html += '<p class="text-center text-[10px] text-gray-400 py-2">' + (liste.length - 200) + ' autres resultats - Affinez la recherche</p>';
+            }
+
+            conteneur.innerHTML = html;
+        }
+
+        function elvReset() {
+            document.getElementById('recherche-eleves').value = '';
+            document.getElementById('elv-filtre-classe').value = '';
+            document.getElementById('elv-filtre-statut').value = '';
+            elvFiltrer();
+        }
+
+        function elvExporterCSV() {
+            if (elvTous.length === 0) { alert('Aucun eleve.'); return; }
+            let csv = 'Matricule;Prenom;Nom;Email;Classe;DateNaissance;Statut\n';
+            elvTous.forEach(e => {
+                const prenom = e.utilisateurs ? e.utilisateurs.prenom : '';
+                const nom = e.utilisateurs ? e.utilisateurs.nom : '';
+                const email = e.utilisateurs ? e.utilisateurs.email : '';
+                const statut = e.utilisateurs ? e.utilisateurs.statut : '';
+                const classeNom = e.classes ? e.classes.nom : '';
+                const dn = e.date_naissance || '';
+                csv += [e.matricule || '', prenom, nom, email, classeNom, dn, statut].join(';') + '\n';
+            });
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'eleves_' + new Date().toISOString().split('T')[0] + '.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         }
 
         async function afficherFormEleve(eleveId = null) {
@@ -1487,6 +2169,7 @@
             afficherGestionEleves();
         }
 
+        // ============ NOTIFICATIONS ============
         async function afficherNotifications() {
             hideAllViews();
             document.getElementById('view-notifications').classList.remove('hidden');
@@ -1502,6 +2185,7 @@
             document.getElementById('liste-notifications').innerHTML = html;
         }
 
+        // ============ UTILITAIRES ============
         function filtrerListe(inputId, containerId) {
             const terme = document.getElementById(inputId).value.toLowerCase().trim();
             const container = document.getElementById(containerId);
@@ -1520,187 +2204,463 @@
             chargerBadgeDemandes();
             chargerBadgeEquipe();
             chargerBadgeMdp();
+            window.scrollTo(0, 0);
         }
-// ============ ABSENCES ET RAPPORTS (ADMIN) ============
-        let absClassesListe = [];
-        let absPeriodeActuelle = 'mois';
-        let absRapportActuel = null;
+// ============ IMPORT ELEVES CSV ============
+        let impMode = 'fichier';
+        let impLignes = [];
 
-        async function afficherAbsencesAdmin() {
+        function afficherImportEleves() {
             hideAllViews();
-            document.getElementById('view-absences-admin').classList.remove('hidden');
-            document.getElementById('abs-contenu').innerHTML = '';
-            const { data: classes } = await supabaseClient.from('classes').select('id, nom').eq('ecole_id', monEcoleId).order('nom');
-            absClassesListe = classes || [];
-            const sel = document.getElementById('abs-classe-select');
-            sel.innerHTML = '<option value="">Selectionnez une classe</option>';
-            absClassesListe.forEach(c => { sel.innerHTML += '<option value="' + c.id + '">' + c.nom + '</option>'; });
-            await chargerResumeJourAbsences();
+            document.getElementById('view-import-eleves').classList.remove('hidden');
+            document.getElementById('imp-apercu').classList.add('hidden');
+            document.getElementById('imp-apercu').innerHTML = '';
+            document.getElementById('imp-fichier').value = '';
+            document.getElementById('imp-texte').value = '';
+            impLignes = [];
+            impSwitchMode('fichier');
             window.scrollTo(0, 0);
         }
 
-        async function chargerResumeJourAbsences() {
-            const conteneur = document.getElementById('abs-resume-jour');
-            const today = new Date().toISOString().split('T')[0];
-            const { data: absences } = await supabaseClient.from('absences').select('id, eleve_id, matiere, eleves!inner(classe_id, classes(nom), utilisateurs!utilisateur_id(prenom, nom))').eq('ecole_id', monEcoleId).eq('date_absence', today);
-            const liste = absences || [];
-            if (liste.length === 0) {
-                conteneur.innerHTML = '<div class="bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded-2xl shadow-lg p-4 mb-3"><div class="flex items-center gap-3"><div class="text-2xl font-bold">OK</div><div><p class="text-sm font-bold">Aucun absent aujourdhui</p><p class="text-[10px] opacity-90">Toute lecole est presente</p></div></div></div>';
-                conteneur.classList.remove('hidden');
+        function impSwitchMode(mode) {
+            impMode = mode;
+            ['fichier', 'texte'].forEach(m => {
+                const tab = document.getElementById('imp-tab-' + m);
+                if (tab) tab.className = m === mode ? 'py-2 rounded-xl font-bold text-xs bg-edu-blue text-white' : 'py-2 rounded-xl font-bold text-xs bg-gray-100 text-gray-600';
+            });
+            document.getElementById('imp-mode-fichier').classList.toggle('hidden', mode !== 'fichier');
+            document.getElementById('imp-mode-texte').classList.toggle('hidden', mode !== 'texte');
+        }
+
+        async function impLancerApercu() {
+            const conteneur = document.getElementById('imp-apercu');
+            conteneur.classList.remove('hidden');
+            conteneur.innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Analyse...</p>';
+            impLignes = [];
+
+            let texte = '';
+            if (impMode === 'fichier') {
+                const input = document.getElementById('imp-fichier');
+                if (!input.files || !input.files[0]) { conteneur.innerHTML = '<p class="text-red-500 text-center py-4 text-sm">Selectionnez un fichier.</p>'; return; }
+                texte = await input.files[0].text();
+            } else {
+                texte = document.getElementById('imp-texte').value;
+            }
+
+            if (!texte.trim()) { conteneur.innerHTML = '<p class="text-red-500 text-center py-4 text-sm">Aucune donnee.</p>'; return; }
+
+            const lignesBrutes = texte.split(/\r?\n/).map(l => l.trim()).filter(l => l);
+            if (lignesBrutes.length === 0) { conteneur.innerHTML = '<p class="text-red-500 text-center py-4 text-sm">Aucune ligne.</p>'; return; }
+
+            // Detecter si la 1ere ligne est un en-tete
+            let debut = 0;
+            const premLigne = lignesBrutes[0].toLowerCase();
+            if (premLigne.includes('prenom') || premLigne.includes('nom') || premLigne.includes('email')) { debut = 1; }
+
+            // Charger les classes pour matcher par nom
+            const { data: classes } = await supabaseClient.from('classes').select('id, nom').eq('ecole_id', monEcoleId);
+            const mapClasses = {};
+            (classes || []).forEach(c => { mapClasses[c.nom.toLowerCase().trim()] = c.id; });
+
+            const erreurs = [];
+
+            for (let i = debut; i < lignesBrutes.length; i++) {
+                const parts = lignesBrutes[i].split(',').map(p => p.trim());
+                if (parts.length < 4) { erreurs.push('Ligne ' + (i + 1) + ' : moins de 4 colonnes'); continue; }
+                const [prenom, nom, email, classeNom, dateNaissance] = parts;
+                if (!prenom || !nom || !email || !classeNom) { erreurs.push('Ligne ' + (i + 1) + ' : champs vides'); continue; }
+                if (!email.includes('@')) { erreurs.push('Ligne ' + (i + 1) + ' : email invalide (' + email + ')'); continue; }
+                const classeId = mapClasses[classeNom.toLowerCase().trim()];
+                if (!classeId) { erreurs.push('Ligne ' + (i + 1) + ' : classe inconnue (' + classeNom + ')'); continue; }
+                impLignes.push({ prenom, nom, email, classeId, classeNom, dateNaissance: dateNaissance || null });
+            }
+
+            let html = '';
+            html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">';
+            html += '<p class="text-sm font-bold text-gray-800 mb-2">Apercu</p>';
+            html += '<p class="text-xs text-gray-600 mb-2"><b>' + impLignes.length + '</b> ligne(s) valide(s) sur ' + (lignesBrutes.length - debut) + '</p>';
+            if (erreurs.length > 0) {
+                html += '<p class="text-xs text-red-500 mb-2"><b>' + erreurs.length + '</b> erreur(s) :</p>';
+                html += '<ul class="text-[10px] text-red-500 list-disc pl-4 mb-2">';
+                erreurs.slice(0, 5).forEach(e => { html += '<li>' + e + '</li>'; });
+                if (erreurs.length > 5) html += '<li>... et ' + (erreurs.length - 5) + ' autres</li>';
+                html += '</ul>';
+            }
+            html += '</div>';
+
+            if (impLignes.length > 0) {
+                html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3" style="max-height:300px;overflow-y:auto;">';
+                html += '<p class="text-sm font-bold text-gray-800 mb-2">Details (5 premiers)</p>';
+                impLignes.slice(0, 5).forEach(l => {
+                    html += '<div class="text-[10px] text-gray-600 border-b border-gray-100 py-1">' + l.prenom + ' ' + l.nom + ' - ' + l.email + ' - ' + l.classeNom + '</div>';
+                });
+                html += '</div>';
+                html += '<button onclick="impConfirmer()" id="imp-btn-confirmer" class="w-full bg-edu-green text-white font-bold py-3 rounded-xl">Importer ' + impLignes.length + ' eleve(s)</button>';
+                html += '<div id="imp-message" class="text-center text-sm font-semibold mt-3"></div>';
+            }
+
+            conteneur.innerHTML = html;
+            window.scrollTo(0, 0);
+        }
+
+        async function impConfirmer() {
+            if (impLignes.length === 0) return;
+            const btn = document.getElementById('imp-btn-confirmer');
+            const msg = document.getElementById('imp-message');
+            btn.disabled = true;
+            btn.innerText = 'Importation...';
+            msg.innerText = '';
+
+            try {
+                const passwordHashe = await hashPassword('eleve2024');
+                const { count } = await supabaseClient.from('eleves').select('*', { count: 'exact', head: true }).eq('ecole_id', monEcoleId);
+                let compteur = count || 0;
+                const annee = new Date().getFullYear();
+                let reussis = 0;
+                let echecs = 0;
+
+                for (const l of impLignes) {
+                    try {
+                        const { data: existant } = await supabaseClient.from('utilisateurs').select('id').eq('email', l.email).maybeSingle();
+                        if (existant) { echecs++; continue; }
+
+                        const { data: nu, error: errU } = await supabaseClient.from('utilisateurs').insert([{
+                            ecole_id: monEcoleId, role: 'eleve', prenom: l.prenom, nom: l.nom,
+                            email: l.email, mot_de_passe: passwordHashe, statut: 'actif'
+                        }]).select().single();
+                        if (errU) { echecs++; continue; }
+
+                        compteur++;
+                        const matricule = 'ELV' + annee + String(compteur).padStart(4, '0');
+
+                        const { error: errE } = await supabaseClient.from('eleves').insert([{
+                            utilisateur_id: nu.id, classe_id: l.classeId, parent_id: null,
+                            matricule: matricule, date_naissance: l.dateNaissance || null, ecole_id: monEcoleId
+                        }]);
+                        if (errE) { echecs++; continue; }
+
+                        reussis++;
+                    } catch (e) { echecs++; }
+                }
+
+                msg.innerText = reussis + ' eleve(s) importe(s) !' + (echecs > 0 ? ' (' + echecs + ' echec(s))' : '');
+                msg.style.color = '#2EAD5E';
+                setTimeout(() => { afficherGestionEleves(); }, 2000);
+            } catch (err) {
+                msg.innerText = 'Erreur : ' + err.message;
+                msg.style.color = '#EF4444';
+                btn.disabled = false;
+                btn.innerText = 'Importer';
+            }
+        }
+
+        // ============ TRANSFERT ELEVES ============
+        let trfSelection = new Set();
+        let trfClasseSourceId = null;
+
+        async function afficherTransfertEleves() {
+            hideAllViews();
+            document.getElementById('view-transfert-eleves').classList.remove('hidden');
+            trfSelection.clear();
+            trfClasseSourceId = null;
+            document.getElementById('trf-liste').innerHTML = '';
+            document.getElementById('trf-actions').classList.add('hidden');
+            document.getElementById('trf-message').innerText = '';
+
+            const { data: classes } = await supabaseClient.from('classes').select('id, nom').eq('ecole_id', monEcoleId).order('nom');
+            const source = document.getElementById('trf-classe-source');
+            const cible = document.getElementById('trf-classe-cible');
+            source.innerHTML = '<option value="">Choisir une classe</option>';
+            cible.innerHTML = '<option value="">Choisir la classe cible</option>';
+            (classes || []).forEach(c => {
+                source.innerHTML += '<option value="' + c.id + '">' + c.nom + '</option>';
+                cible.innerHTML += '<option value="' + c.id + '">' + c.nom + '</option>';
+            });
+            window.scrollTo(0, 0);
+        }
+
+        async function trfChargerEleves() {
+            const classeId = document.getElementById('trf-classe-source').value;
+            const conteneur = document.getElementById('trf-liste');
+            document.getElementById('trf-actions').classList.add('hidden');
+            trfSelection.clear();
+            trfClasseSourceId = classeId;
+
+            if (!classeId) { conteneur.innerHTML = ''; return; }
+
+            conteneur.innerHTML = '<p class="text-gray-500 text-center py-4 text-sm">Chargement...</p>';
+            const { data: eleves } = await supabaseClient.from('eleves').select('id, matricule, utilisateurs!utilisateur_id(prenom, nom)').eq('classe_id', classeId).eq('ecole_id', monEcoleId).order('id');
+
+            if (!eleves || eleves.length === 0) {
+                conteneur.innerHTML = '<p class="text-gray-500 text-center py-4 text-sm">Aucun eleve dans cette classe.</p>';
                 return;
             }
-            const parClasse = {};
-            liste.forEach(a => {
-                const classeNom = a.eleves && a.eleves.classes ? a.eleves.classes.nom : 'Sans classe';
-                if (!parClasse[classeNom]) parClasse[classeNom] = 0;
-                parClasse[classeNom]++;
-            });
-            let html = '<div class="bg-gradient-to-br from-red-500 to-orange-500 text-white rounded-2xl shadow-lg p-4 mb-3">';
-            html += '<div class="flex items-center justify-between mb-3"><div><p class="text-[10px] opacity-90 uppercase font-bold">Absents aujourdhui</p><p class="text-3xl font-extrabold">' + liste.length + '</p></div><div class="text-3xl font-bold">!</div></div>';
-            html += '<p class="text-[11px] opacity-90 mb-2">Repartition par classe :</p><div class="flex flex-wrap gap-2">';
-            Object.keys(parClasse).sort().forEach(cl => { html += '<span class="bg-white bg-opacity-25 px-2 py-1 rounded-full text-[10px] font-bold">' + cl + ' : ' + parClasse[cl] + '</span>'; });
-            html += '</div></div>';
-            conteneur.innerHTML = html;
-            conteneur.classList.remove('hidden');
-        }
 
-        function setPeriodeAbsAdmin(p) {
-            absPeriodeActuelle = p;
-            ['jour', 'semaine', 'mois', 'trimestre', 'semestre', 'annee'].forEach(x => {
-                const btn = document.getElementById('abs-per-' + x);
-                if (btn) btn.className = x === p ? 'py-2 rounded-xl font-bold text-[10px] bg-edu-blue text-white' : 'py-2 rounded-xl font-bold text-[10px] bg-gray-100 text-gray-600';
-            });
-            const d = calculerDatesPeriodeAdmin(p);
-            document.getElementById('abs-date-debut').value = d.debut;
-            document.getElementById('abs-date-fin').value = d.fin;
-            chargerAbsencesAdmin();
-        }
+            let html = '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 mb-3">';
+            html += '<div class="flex justify-between items-center mb-2">';
+            html += '<p class="text-xs font-bold text-gray-800">' + eleves.length + ' eleve(s)</p>';
+            html += '<button onclick="trfToutSelectionner()" class="text-[10px] text-edu-blue font-bold">Tout cocher</button>';
+            html += '</div>';
 
-        function calculerDatesPeriodeAdmin(periode) {
-            const now = new Date();
-            const y = now.getFullYear();
-            const m = now.getMonth();
-            const d = now.getDate();
-            const pad = n => String(n).padStart(2, '0');
-            const fmt = dt => dt.getFullYear() + '-' + pad(dt.getMonth() + 1) + '-' + pad(dt.getDate());
-            let debut, fin;
-            if (periode === 'jour') { debut = fin = fmt(now); }
-            else if (periode === 'semaine') {
-                const day = now.getDay() || 7;
-                const lundi = new Date(now); lundi.setDate(d - day + 1);
-                const dimanche = new Date(lundi); dimanche.setDate(lundi.getDate() + 6);
-                debut = fmt(lundi); fin = fmt(dimanche);
-            } else if (periode === 'mois') { debut = fmt(new Date(y, m, 1)); fin = fmt(new Date(y, m + 1, 0)); }
-            else if (periode === 'trimestre') {
-                let t1, t2;
-                if (m >= 8) { t1 = new Date(y, 8, 1); t2 = new Date(y, 11, 31); }
-                else if (m <= 2) { t1 = new Date(y, 0, 1); t2 = new Date(y, 2, 31); }
-                else { t1 = new Date(y, 3, 1); t2 = new Date(y, 5, 30); }
-                debut = fmt(t1); fin = fmt(t2);
-            } else if (periode === 'semestre') {
-                let s1, s2;
-                if (m >= 8) { s1 = new Date(y, 8, 1); s2 = new Date(y + 1, 0, 31); }
-                else if (m <= 0) { s1 = new Date(y - 1, 8, 1); s2 = new Date(y, 0, 31); }
-                else { s1 = new Date(y, 1, 1); s2 = new Date(y, 5, 30); }
-                debut = fmt(s1); fin = fmt(s2);
-            } else {
-                if (m >= 8) { debut = y + '-09-01'; fin = (y + 1) + '-08-31'; }
-                else { debut = (y - 1) + '-09-01'; fin = y + '-08-31'; }
-            }
-            return { debut, fin };
-        }
-
-        function formatDateFRAdmin(dateStr) {
-            if (!dateStr) return '';
-            const d = new Date(dateStr + 'T00:00:00');
-            return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-        }
-
-        async function chargerAbsencesAdmin() {
-            const classeId = document.getElementById('abs-classe-select').value;
-            const conteneur = document.getElementById('abs-contenu');
-            if (!classeId) { conteneur.innerHTML = '<div class="bg-white p-6 rounded-2xl shadow-sm text-center"><p class="text-gray-500 text-sm">Selectionnez une classe</p></div>'; return; }
-            if (!document.getElementById('abs-date-debut').value) { setPeriodeAbsAdmin(absPeriodeActuelle); return; }
-            conteneur.innerHTML = '<p class="text-gray-500 text-center py-6">Chargement...</p>';
-            const debut = document.getElementById('abs-date-debut').value;
-            const fin = document.getElementById('abs-date-fin').value;
-            const { data: eleves } = await supabaseClient.from('eleves').select('id, utilisateurs!utilisateur_id(prenom, nom)').eq('classe_id', classeId);
-            const listeEleves = eleves || [];
-            if (listeEleves.length === 0) { conteneur.innerHTML = '<div class="bg-white p-6 rounded-2xl shadow-sm text-center"><p class="text-gray-500 text-sm">Aucun eleve dans cette classe.</p></div>'; return; }
-            const eleveIds = listeEleves.map(e => e.id);
-            const { data: absences } = await supabaseClient.from('absences').select('eleve_id, matiere, justifiee, date_absence').in('eleve_id', eleveIds).gte('date_absence', debut).lte('date_absence', fin);
-            const liste = absences || [];
-            const classeObj = absClassesListe.find(c => c.id == classeId);
-            const classeNom = classeObj ? classeObj.nom : 'Classe';
-            if (liste.length === 0) { conteneur.innerHTML = '<div class="bg-white p-8 rounded-2xl shadow-sm text-center"><div class="text-4xl font-bold mb-2">OK</div><p class="text-gray-500 text-sm">Aucune absence sur cette periode.</p><p class="text-[10px] text-gray-400 mt-1">' + classeNom + ' - Du ' + formatDateFRAdmin(debut) + ' au ' + formatDateFRAdmin(fin) + '</p></div>'; return; }
-            const total = liste.length;
-            const justifiees = liste.filter(a => a.justifiee).length;
-            const nonJust = total - justifiees;
-            const parEleve = {};
-            liste.forEach(a => {
-                if (!parEleve[a.eleve_id]) parEleve[a.eleve_id] = { total: 0, just: 0, nonJust: 0 };
-                parEleve[a.eleve_id].total++;
-                if (a.justifiee) parEleve[a.eleve_id].just++; else parEleve[a.eleve_id].nonJust++;
-            });
-            const elevesConcernes = Object.keys(parEleve).length;
-            let html = '';
-            html += '<div class="bg-gradient-to-br from-red-500 to-orange-500 text-white rounded-2xl shadow-lg p-4 mb-3"><p class="text-xs opacity-90 mb-1">' + classeNom + '</p><p class="text-[10px] opacity-80">Du ' + formatDateFRAdmin(debut) + ' au ' + formatDateFRAdmin(fin) + '</p><p class="text-3xl font-extrabold mt-2">' + total + '</p><p class="text-[11px] opacity-90 mt-1">absence(s) - ' + elevesConcernes + ' eleve(s) concerne(s)</p><div class="grid grid-cols-2 gap-2 mt-3"><div class="bg-white bg-opacity-20 rounded-xl p-2 text-center"><p class="text-[9px] opacity-90">Justifiees</p><p class="text-lg font-bold">' + justifiees + '</p></div><div class="bg-white bg-opacity-20 rounded-xl p-2 text-center"><p class="text-[9px] opacity-90">Non justifiees</p><p class="text-lg font-bold">' + nonJust + '</p></div></div></div>';
-            html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3"><p class="text-sm font-bold text-gray-800 mb-3">Detail par eleve</p>';
-            const elevesTries = listeEleves.map(e => ({ eleve: e, stats: parEleve[e.id] || { total: 0, just: 0, nonJust: 0 } })).sort((a, b) => b.stats.total - a.stats.total);
-            elevesTries.forEach(item => {
-                const e = item.eleve;
-                const s = item.stats;
-                const pct = total > 0 ? Math.round((s.total / total) * 100) : 0;
-                const couleur = s.total === 0 ? '#2EAD5E' : (s.total > 5 ? '#EF4444' : '#F59E0B');
-                html += '<div class="py-2 border-b border-gray-100 last:border-b-0"><div class="flex justify-between items-center mb-1"><span class="text-xs font-semibold text-gray-800">' + e.utilisateurs.prenom + ' ' + e.utilisateurs.nom + '</span><span class="text-xs font-bold" style="color:' + couleur + '">' + s.total + '</span></div><div class="flex gap-2 text-[9px] text-gray-500"><span>' + s.just + ' just.</span><span>' + s.nonJust + ' non just.</span></div>' + (s.total > 0 ? '<div class="w-full bg-gray-100 rounded-full h-1 mt-1"><div class="h-1 rounded-full" style="width:' + pct + '%;background:' + couleur + '"></div></div>' : '') + '</div>';
+            eleves.forEach(e => {
+                const initiale = e.utilisateurs.prenom.charAt(0).toUpperCase();
+                const coche = trfSelection.has(e.id);
+                html += '<div onclick="trfToggle(' + e.id + ')" class="flex items-center gap-2 py-2 border-b border-gray-100 last:border-b-0 cursor-pointer">';
+                html += '<div class="w-6 h-6 rounded border-2 flex items-center justify-center text-[10px] font-bold flex-shrink-0 ' + (coche ? 'bg-edu-orange border-edu-orange text-white' : 'border-gray-300 text-transparent') + '">OK</div>';
+                html += '<div class="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs flex-shrink-0" style="background:linear-gradient(135deg,#004AAD,#2EAD5E);">' + initiale + '</div>';
+                html += '<div class="flex-1 min-w-0"><p class="text-xs font-bold text-gray-800 truncate">' + e.utilisateurs.prenom + ' ' + e.utilisateurs.nom + '</p>';
+                html += '<p class="text-[10px] text-gray-500">' + (e.matricule || '') + '</p></div>';
+                html += '</div>';
             });
             html += '</div>';
-            html += '<button onclick="telechargerAbsencesAdminPDF()" id="btn-pdf-abs-admin" class="w-full bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold py-3 rounded-xl">Telecharger le rapport PDF</button><div id="msg-pdf-abs-admin" class="text-center text-sm font-semibold mt-2"></div>';
+
             conteneur.innerHTML = html;
-            absRapportActuel = { classeNom: classeNom, debut: debut, fin: fin, total: total, justifiees: justifiees, nonJust: nonJust, elevesConcernes: elevesConcernes, elevesTries: elevesTries };
+            document.getElementById('trf-actions').classList.remove('hidden');
+            document.getElementById('trf-nb-selec').innerText = trfSelection.size;
         }
 
-        async function telechargerAbsencesAdminPDF() {
-            if (!absRapportActuel) return;
-            const btn = document.getElementById('btn-pdf-abs-admin');
-            const msg = document.getElementById('msg-pdf-abs-admin');
-            btn.disabled = true; btn.classList.add('opacity-70');
-            const spanOrig = btn.innerHTML;
-            btn.innerHTML = 'Generation...';
+        function trfToggle(eleveId) {
+            if (trfSelection.has(eleveId)) trfSelection.delete(eleveId);
+            else trfSelection.add(eleveId);
+            document.getElementById('trf-nb-selec').innerText = trfSelection.size;
+            const items = document.querySelectorAll('#trf-liste [onclick^="trfToggle"]');
+            // Re-render simple : on re-coche visuellement les carres
+            trfChargerElevesRapide();
+        }
+
+        async function trfChargerElevesRapide() {
+            const classeId = trfClasseSourceId;
+            const conteneur = document.getElementById('trf-liste');
+            const { data: eleves } = await supabaseClient.from('eleves').select('id, matricule, utilisateurs!utilisateur_id(prenom, nom)').eq('classe_id', classeId).eq('ecole_id', monEcoleId).order('id');
+            if (!eleves) return;
+
+            let html = '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 mb-3">';
+            html += '<div class="flex justify-between items-center mb-2">';
+            html += '<p class="text-xs font-bold text-gray-800">' + eleves.length + ' eleve(s)</p>';
+            html += '<button onclick="trfToutSelectionner()" class="text-[10px] text-edu-blue font-bold">Tout cocher</button>';
+            html += '</div>';
+            eleves.forEach(e => {
+                const initiale = e.utilisateurs.prenom.charAt(0).toUpperCase();
+                const coche = trfSelection.has(e.id);
+                html += '<div onclick="trfToggle(' + e.id + ')" class="flex items-center gap-2 py-2 border-b border-gray-100 last:border-b-0 cursor-pointer">';
+                html += '<div class="w-6 h-6 rounded border-2 flex items-center justify-center text-[10px] font-bold flex-shrink-0 ' + (coche ? 'bg-edu-orange border-edu-orange text-white' : 'border-gray-300 text-transparent') + '">OK</div>';
+                html += '<div class="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs flex-shrink-0" style="background:linear-gradient(135deg,#004AAD,#2EAD5E);">' + initiale + '</div>';
+                html += '<div class="flex-1 min-w-0"><p class="text-xs font-bold text-gray-800 truncate">' + e.utilisateurs.prenom + ' ' + e.utilisateurs.nom + '</p>';
+                html += '<p class="text-[10px] text-gray-500">' + (e.matricule || '') + '</p></div>';
+                html += '</div>';
+            });
+            html += '</div>';
+            conteneur.innerHTML = html;
+            document.getElementById('trf-nb-selec').innerText = trfSelection.size;
+        }
+
+        async function trfToutSelectionner() {
+            const { data: eleves } = await supabaseClient.from('eleves').select('id').eq('classe_id', trfClasseSourceId).eq('ecole_id', monEcoleId);
+            if (!eleves) return;
+            if (trfSelection.size === eleves.length) trfSelection.clear();
+            else eleves.forEach(e => trfSelection.add(e.id));
+            trfChargerElevesRapide();
+        }
+
+        async function trfValider() {
+            const cibleId = document.getElementById('trf-classe-cible').value;
+            const msg = document.getElementById('trf-message');
+            if (!cibleId) { msg.innerText = 'Choisissez la classe cible.'; msg.style.color = '#EF4444'; return; }
+            if (trfSelection.size === 0) { msg.innerText = 'Selectionnez au moins un eleve.'; msg.style.color = '#EF4444'; return; }
+            if (cibleId === trfClasseSourceId) { msg.innerText = 'Classes identiques.'; msg.style.color = '#EF4444'; return; }
+
+            if (!confirm('Transferer ' + trfSelection.size + ' eleve(s) ?')) return;
+
+            msg.innerText = 'Transfert...'; msg.style.color = '#F59E0B';
+            try {
+                const ids = Array.from(trfSelection);
+                const { error } = await supabaseClient.from('eleves').update({ classe_id: parseInt(cibleId) }).in('id', ids);
+                if (error) throw error;
+                msg.innerText = ids.length + ' eleve(s) transfere(s) !'; msg.style.color = '#2EAD5E';
+                trfSelection.clear();
+                setTimeout(() => trfChargerElevesRapide(), 1200);
+            } catch (err) { msg.innerText = 'Erreur : ' + err.message; msg.style.color = '#EF4444'; }
+        }
+
+        // ============ FICHE ELEVE COMPLETE ============
+        async function afficherFicheEleve(eleveId) {
+            hideAllViews();
+            document.getElementById('view-fiche-eleve').classList.remove('hidden');
+            const conteneur = document.getElementById('fiche-eleve-contenu');
+            conteneur.innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
+
+            const { data: eleve } = await supabaseClient.from('eleves').select('*, utilisateurs!utilisateur_id(prenom, nom, email, telephone), classes(nom, frais_scolarite)').eq('id', eleveId).single();
+            if (!eleve) { conteneur.innerHTML = '<p class="text-red-500 text-center py-6">Eleve introuvable.</p>'; return; }
+
+            const { data: notes } = await supabaseClient.from('notes').select('*').eq('eleve_id', eleveId).order('trimestre').order('matiere');
+            const { data: absences } = await supabaseClient.from('absences').select('*').eq('eleve_id', eleveId).order('date_absence', { ascending: false });
+            const { data: paiements } = await supabaseClient.from('paiements').select('*').eq('eleve_id', eleveId).order('date_paiement', { ascending: false });
+
+            let parent = null;
+            if (eleve.parent_id) {
+                const { data: p } = await supabaseClient.from('utilisateurs').select('prenom, nom, email, telephone').eq('id', eleve.parent_id).single();
+                parent = p;
+            }
+
+            const prenom = eleve.utilisateurs.prenom;
+            const nom = eleve.utilisateurs.nom;
+            const initiale = prenom.charAt(0).toUpperCase();
+            const classeNom = eleve.classes ? eleve.classes.nom : 'Sans classe';
+            const frais = eleve.classes && eleve.classes.frais_scolarite ? parseFloat(eleve.classes.frais_scolarite) : 0;
+
+            // Calcul stats
+            const totalPaye = (paiements || []).filter(p => p.statut === 'paye').reduce((s, p) => s + parseFloat(p.montant), 0);
+            const solde = frais - totalPaye;
+
+            // Moyenne generale
+            let moyGen = null;
+            if (notes && notes.length > 0) {
+                let tp = 0, tc = 0;
+                notes.forEach(n => { tp += parseFloat(n.note) * n.coefficient; tc += n.coefficient; });
+                moyGen = tc > 0 ? tp / tc : null;
+            }
+
+            let html = '';
+
+            // Header
+            html += '<div class="bg-gradient-to-br from-edu-blue to-blue-700 text-white rounded-2xl shadow-lg p-4 mb-3">';
+            html += '<div class="flex items-center gap-3 mb-3">';
+            html += '<div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl font-bold">' + initiale + '</div>';
+            html += '<div class="flex-1 min-w-0"><p class="text-base font-bold truncate">' + prenom + ' ' + nom + '</p>';
+            html += '<p class="text-[11px] opacity-90">' + (eleve.matricule || '') + ' - ' + classeNom + '</p>';
+            html += '<p class="text-[10px] opacity-80 truncate">' + eleve.utilisateurs.email + '</p></div></div>';
+            html += '<div class="grid grid-cols-3 gap-2 text-center">';
+            html += '<div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-90">Moyenne</p><p class="text-sm font-bold mt-0.5">' + (moyGen !== null ? moyGen.toFixed(2) : '--') + '</p></div>';
+            html += '<div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-90">Absences</p><p class="text-sm font-bold mt-0.5">' + (absences ? absences.length : 0) + '</p></div>';
+            html += '<div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-90">Solde</p><p class="text-sm font-bold mt-0.5">' + solde.toLocaleString('fr-FR') + '</p></div>';
+            html += '</div></div>';
+
+            // Boutons actions
+            html += '<div class="grid grid-cols-3 gap-2 mb-3">';
+            html += '<button onclick="editerEleve(' + eleveId + ')" class="bg-blue-50 text-edu-blue font-bold py-2.5 rounded-xl text-xs">Modifier</button>';
+            html += '<button onclick="pv2OuvrirFormPaiement(' + eleveId + ')" class="bg-green-50 text-edu-green font-bold py-2.5 rounded-xl text-xs">Paiement</button>';
+            html += '<button onclick="ficheElevePDF()" class="bg-gray-100 text-gray-700 font-bold py-2.5 rounded-xl text-xs">PDF</button>';
+            html += '</div>';
+
+            // Infos personnelles
+            html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">';
+            html += '<p class="text-sm font-bold text-gray-800 mb-2">Informations</p>';
+            html += '<div class="text-xs space-y-1">';
+            html += '<p><span class="text-gray-500">Naissance :</span> <b>' + (eleve.date_naissance ? new Date(eleve.date_naissance).toLocaleDateString('fr-FR') : 'N/A') + '</b></p>';
+            html += '<p><span class="text-gray-500">Telephone :</span> <b>' + (eleve.utilisateurs.telephone || 'N/A') + '</b></p>';
+            html += '<p><span class="text-gray-500">Parent :</span> <b>' + (parent ? parent.prenom + ' ' + parent.nom : 'Non renseigne') + '</b></p>';
+            if (parent && parent.telephone) html += '<p><span class="text-gray-500">Tel parent :</span> <b>' + parent.telephone + '</b></p>';
+            html += '</div></div>';
+
+            // Paiements
+            html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">';
+            html += '<p class="text-sm font-bold text-gray-800 mb-2">Paiements (' + (paiements ? paiements.length : 0) + ')</p>';
+            if (!paiements || paiements.length === 0) {
+                html += '<p class="text-xs text-gray-400 text-center py-2">Aucun paiement.</p>';
+            } else {
+                paiements.forEach(p => {
+                    const d = new Date(p.date_paiement).toLocaleDateString('fr-FR');
+                    const col = p.statut === 'paye' ? 'text-edu-green' : 'text-edu-orange';
+                    html += '<div class="flex justify-between py-1.5 border-b border-gray-100 last:border-b-0 text-xs">';
+                    html += '<div><p class="font-bold text-gray-800">' + p.type_paiement + '</p><p class="text-[10px] text-gray-500">' + d + ' - ' + p.methode + '</p></div>';
+                    html += '<p class="font-extrabold ' + col + '">' + parseFloat(p.montant).toLocaleString('fr-FR') + ' F</p></div>';
+                });
+            }
+            html += '</div>';
+
+            // Notes par matiere/trimestre
+            html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">';
+            html += '<p class="text-sm font-bold text-gray-800 mb-2">Notes (' + (notes ? notes.length : 0) + ')</p>';
+            if (!notes || notes.length === 0) {
+                html += '<p class="text-xs text-gray-400 text-center py-2">Aucune note.</p>';
+            } else {
+                // Grouper par matiere
+                const parMatiere = {};
+                notes.forEach(n => {
+                    if (!parMatiere[n.matiere]) parMatiere[n.matiere] = [];
+                    parMatiere[n.matiere].push(n);
+                });
+                Object.keys(parMatiere).sort().forEach(mat => {
+                    const notesMat = parMatiere[mat];
+                    let tp = 0, tc = 0;
+                    notesMat.forEach(n => { tp += parseFloat(n.note) * n.coefficient; tc += n.coefficient; });
+                    const moy = tc > 0 ? tp / tc : 0;
+                    const col = moy >= 10 ? '#2EAD5E' : '#EF4444';
+                    html += '<div class="mb-2 pb-2 border-b border-gray-100 last:border-b-0">';
+                    html += '<div class="flex justify-between items-center mb-1">';
+                    html += '<p class="text-xs font-bold text-gray-800">' + mat + '</p>';
+                    html += '<p class="text-xs font-bold" style="color:' + col + '">' + moy.toFixed(2) + '/20</p></div>';
+                    html += '<div class="flex flex-wrap gap-1">';
+                    notesMat.forEach(n => {
+                        html += '<span class="bg-gray-100 text-[10px] text-gray-700 px-2 py-0.5 rounded">T' + n.trimestre + ' : ' + parseFloat(n.note).toFixed(2) + '/' + n.coefficient + '</span>';
+                    });
+                    html += '</div></div>';
+                });
+            }
+            html += '</div>';
+
+            // Absences
+            html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">';
+            html += '<p class="text-sm font-bold text-gray-800 mb-2">Absences (' + (absences ? absences.length : 0) + ')</p>';
+            if (!absences || absences.length === 0) {
+                html += '<p class="text-xs text-gray-400 text-center py-2">Aucune absence.</p>';
+            } else {
+                absences.slice(0, 20).forEach(a => {
+                    const d = new Date(a.date_absence).toLocaleDateString('fr-FR');
+                    const badge = a.justifiee ? '<span class="text-edu-green text-[10px] font-bold">Justifiee</span>' : '<span class="text-edu-red text-[10px] font-bold">Non justifiee</span>';
+                    html += '<div class="flex justify-between py-1.5 border-b border-gray-100 last:border-b-0 text-xs">';
+                    html += '<div><p class="font-bold text-gray-800">' + (a.matiere || 'Cours') + '</p><p class="text-[10px] text-gray-500">' + d + '</p></div>';
+                    html += badge + '</div>';
+                });
+                if (absences.length > 20) html += '<p class="text-[10px] text-gray-400 text-center mt-2">... ' + (absences.length - 20) + ' autres</p>';
+            }
+            html += '</div>';
+
+            conteneur.innerHTML = html;
+            window.scrollTo(0, 0);
+        }
+async function ficheElevePDF() {
+            const conteneur = document.getElementById('fiche-eleve-contenu');
+            if (!conteneur) return;
+
             let iframe = null;
             try {
-                const r = absRapportActuel;
-                const ecoleNom = document.getElementById('ecole-nom-affiche').innerText.replace('Ecole ', '');
-                const dateJour = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-                let lignes = '';
-                r.elevesTries.forEach(item => {
-                    const s = item.stats;
-                    const couleur = s.total === 0 ? '#2EAD5E' : (s.total > 5 ? '#EF4444' : '#F59E0B');
-                    lignes += '<tr><td style="padding:8px;border:1px solid #d1d5db;font-size:11px;font-weight:600;">' + item.eleve.utilisateurs.prenom + ' ' + item.eleve.utilisateurs.nom + '</td><td style="padding:8px;border:1px solid #d1d5db;font-size:11px;text-align:center;color:#2EAD5E;font-weight:600;">' + s.just + '</td><td style="padding:8px;border:1px solid #d1d5db;font-size:11px;text-align:center;color:#EF4444;font-weight:600;">' + s.nonJust + '</td><td style="padding:8px;border:1px solid #d1d5db;font-size:12px;text-align:center;font-weight:700;color:' + couleur + ';">' + s.total + '</td></tr>';
-                });
-                const htmlInterne = '<div style="background:white;padding:20px;border:2px solid #004AAD;border-radius:12px;font-family:Arial,sans-serif;"><div style="text-align:center;border-bottom:2px solid #004AAD;padding-bottom:12px;margin-bottom:16px;"><h1 style="font-size:18px;font-weight:bold;color:#004AAD;margin:4px 0;">EDU-LINK</h1><p style="font-size:10px;color:#6b7280;margin:0;">' + ecoleNom + '</p><p style="font-size:14px;font-weight:bold;color:#1f2937;margin-top:8px;">RAPPORT ABSENCES - ' + r.classeNom + '</p><p style="font-size:11px;color:#1f2937;margin:2px 0;">Du <b>' + formatDateFRAdmin(r.debut) + '</b> au <b>' + formatDateFRAdmin(r.fin) + '</b></p></div><table style="width:100%;border-collapse:collapse;margin-bottom:14px;"><tr><td style="width:25%;text-align:center;padding:8px;background:#fef2f2;border:1px solid #d1d5db;"><p style="font-size:9px;margin:0;">Total</p><p style="font-size:18px;font-weight:bold;color:#EF4444;margin:2px 0 0 0;">' + r.total + '</p></td><td style="width:25%;text-align:center;padding:8px;background:#f0fdf4;border:1px solid #d1d5db;"><p style="font-size:9px;margin:0;">Justifiees</p><p style="font-size:18px;font-weight:bold;color:#2EAD5E;margin:2px 0 0 0;">' + r.justifiees + '</p></td><td style="width:25%;text-align:center;padding:8px;background:#fef2f2;border:1px solid #d1d5db;"><p style="font-size:9px;margin:0;">Non just.</p><p style="font-size:18px;font-weight:bold;color:#EF4444;margin:2px 0 0 0;">' + r.nonJust + '</p></td><td style="width:25%;text-align:center;padding:8px;background:#f0f7ff;border:1px solid #d1d5db;"><p style="font-size:9px;margin:0;">Eleves</p><p style="font-size:18px;font-weight:bold;color:#004AAD;margin:2px 0 0 0;">' + r.elevesConcernes + '</p></td></tr></table><table style="width:100%;border-collapse:collapse;"><thead><tr style="background:#004AAD;"><th style="border:1px solid #004AAD;padding:8px;font-size:10px;color:white;text-align:left;">Eleve</th><th style="border:1px solid #004AAD;padding:8px;font-size:10px;color:white;text-align:center;width:70px;">Just.</th><th style="border:1px solid #004AAD;padding:8px;font-size:10px;color:white;text-align:center;width:80px;">Non just.</th><th style="border:1px solid #004AAD;padding:8px;font-size:10px;color:white;text-align:center;width:70px;">Total</th></tr></thead><tbody>' + lignes + '</tbody></table><p style="text-align:center;font-size:9px;color:#9ca3af;margin-top:14px;">Document genere par EDU-LINK - ' + dateJour + '</p></div>';
+                const htmlInterne = '<div style="background:white;padding:20px;border:2px solid #004AAD;border-radius:12px;font-family:Arial,sans-serif;">'
+                    + '<div style="text-align:center;border-bottom:2px solid #004AAD;padding-bottom:12px;margin-bottom:16px;">'
+                    + '<h1 style="font-size:18px;font-weight:bold;color:#004AAD;margin:4px 0;">EDU-LINK</h1>'
+                    + '<p style="font-size:10px;color:#6b7280;margin:0;">' + (monEcoleNom || 'Etablissement') + '</p>'
+                    + '<p style="font-size:14px;font-weight:bold;color:#1f2937;margin-top:8px;">FICHE ELEVE</p>'
+                    + '</div>'
+                    + '<div style="font-family:Arial,sans-serif;color:#1f2937;">' + conteneur.innerHTML + '</div>'
+                    + '<p style="text-align:center;font-size:8px;color:#9ca3af;margin-top:14px;">Document genere par EDU-LINK</p>'
+                    + '</div>';
+
                 iframe = document.createElement('iframe');
                 iframe.style.cssText = 'position:fixed;top:0;left:0;width:800px;height:1100px;opacity:0;pointer-events:none;z-index:-1;border:none;';
                 document.body.appendChild(iframe);
                 const doc = iframe.contentDocument || iframe.contentWindow.document;
                 doc.open();
-                doc.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{margin:0;padding:20px;background:#ffffff;font-family:Arial,sans-serif;}</style></head><body>' + htmlInterne + '</body></html>');
+                doc.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{margin:0;padding:20px;background:#ffffff;font-family:Arial,sans-serif;} .bg-white{background:#fff !important;} .text-white{color:#fff !important;} .bg-gradient-to-br{background:linear-gradient(135deg,#004AAD 0%,#1e40af 100%) !important;}</style></head><body>' + htmlInterne + '</body></html>');
                 doc.close();
-                await new Promise(res => setTimeout(res, 400));
-                const nomFichier = 'Rapport_Absences_' + r.classeNom.replace(/\s+/g, '_') + '_' + r.debut + '_' + r.fin + '.pdf';
+                await new Promise(r => setTimeout(r, 500));
+
+                const nomFichier = 'Fiche_Eleve_' + new Date().toISOString().split('T')[0] + '.pdf';
                 const options = { margin: 10, filename: nomFichier, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', width: 800, windowWidth: 800, scrollX: 0, scrollY: 0 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
                 const pdfBlob = await html2pdf().set(options).from(doc.body).outputPdf('blob');
                 const fichier = new File([pdfBlob], nomFichier, { type: 'application/pdf' });
                 document.body.removeChild(iframe); iframe = null;
-                const url = URL.createObjectURL(pdfBlob); const a = document.createElement('a'); a.href = url; a.download = nomFichier; a.style.display = 'none'; document.body.appendChild(a); a.click(); setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
+
+                if (navigator.canShare && navigator.canShare({ files: [fichier] })) {
+                    await navigator.share({ files: [fichier], title: 'Fiche eleve' });
+                } else {
+                    const url = URL.createObjectURL(pdfBlob);
+                    window.open(url, '_blank');
+                }
             } catch (err) {
                 if (iframe && document.body.contains(iframe)) document.body.removeChild(iframe);
-                msg.innerText = 'Erreur : ' + err.message; msg.style.color = '#EF4444';
-            } finally {
-                btn.disabled = false; btn.classList.remove('opacity-70'); btn.innerHTML = spanOrig;
+                alert('Erreur : ' + err.message);
             }
         }
-
         function seDeconnecter() { sessionStorage.removeItem('eduLinkUser'); window.location.href = 'index.html'; }
     </script>
 </body>
