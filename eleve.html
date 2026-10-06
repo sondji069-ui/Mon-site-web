@@ -600,34 +600,47 @@
     btn.innerText = "Generation...";
     btn.disabled = true;
     msg.innerText = '';
+    let iframe = null;
 
     try {
-        const nomFichier = 'Bulletin_T' + trimestreActuel + '.pdf';
-        const opt = {
-            margin: 5, filename: nomFichier,
-            image: { type: 'jpeg', quality: 1 },
-            html2canvas: { scale: 3, useCORS: true, backgroundColor: '#ffffff', letterRendering: true },
+        const bulletinOriginal = document.getElementById('bulletin-pdf');
+        const htmlInterne = bulletinOriginal.outerHTML;
+        const nomFichier = 'Bulletin_T' + trimestreActuel + '_' + currentUser.prenom + '_' + currentUser.nom + '.pdf';
+
+        iframe = document.createElement('iframe');
+        iframe.style.cssText = 'position:fixed;top:0;left:0;width:800px;height:1100px;opacity:0;pointer-events:none;z-index:-1;border:none;';
+        document.body.appendChild(iframe);
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
+        doc.open();
+        doc.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{margin:0;padding:20px;background:#ffffff;font-family:Arial,sans-serif;}</style></head><body>' + htmlInterne + '</body></html>');
+        doc.close();
+        await new Promise(r => setTimeout(r, 400));
+
+        const options = {
+            margin: 10,
+            filename: nomFichier,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', width: 800, windowWidth: 800, scrollX: 0, scrollY: 0 },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
-        const bulletin = document.getElementById('bulletin-pdf');
-        const pdfBlob = await html2pdf().set(opt).from(bulletin).outputPdf('blob');
-        const url = URL.createObjectURL(pdfBlob);
-        // Téléchargement direct SANS onglet
-        const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        iframe.src = url;
-        document.body.appendChild(iframe);
-        msg.innerText = "PDF en cours de telechargement...";
-        msg.style.color = "green";
-        setTimeout(() => {
-            if (document.body.contains(iframe)) document.body.removeChild(iframe);
-            URL.revokeObjectURL(url);
-        }, 5000);
+        const pdfBlob = await html2pdf().set(options).from(doc.body).outputPdf('blob');
+        const fichier = new File([pdfBlob], nomFichier, { type: 'application/pdf' });
+        document.body.removeChild(iframe); iframe = null;
+
+        if (navigator.canShare && navigator.canShare({ files: [fichier] })) {
+            await navigator.share({ files: [fichier], title: 'Bulletin scolaire' });
+            msg.innerText = "Bulletin partage !"; msg.style.color = "green";
+        } else {
+            const url = URL.createObjectURL(pdfBlob);
+            window.open(url, '_blank');
+            msg.innerText = "PDF ouvert !"; msg.style.color = "green";
+        }
     } catch (err) {
-        msg.innerText = "Erreur : " + err.message;
-        msg.style.color = "red";
+        if (iframe && document.body.contains(iframe)) document.body.removeChild(iframe);
+        if (err.name === 'AbortError') { msg.innerText = "Annule."; msg.style.color = "gray"; }
+        else { msg.innerText = "Erreur"; msg.style.color = "red"; }
     } finally {
-        btn.innerText = "Telecharger le bulletin T" + trimestreActuel + " en PDF";
+        btn.innerText = "📥 Telecharger le bulletin T" + trimestreActuel + " en PDF";
         btn.disabled = false;
     }
 }
