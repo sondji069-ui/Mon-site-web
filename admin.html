@@ -335,6 +335,8 @@
                             </select>
                         </div>
                         <button onclick="sauvegarderCours()" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl">Enregistrer</button>
+<button onclick="supprimerCoursDepuisForm()" id="btn-supprimer-cours" class="hidden w-full bg-red-50 text-edu-red font-bold py-3 rounded-xl border border-red-200">🗑️ Supprimer ce cours</button>
+<button onclick="supprimerCoursDepuisForm()" id="btn-supprimer-cours" class="hidden w-full bg-red-50 text-edu-red font-bold py-3 rounded-xl border border-red-200">🗑️ Supprimer ce cours</button>
                         <div id="message-cours" class="text-center text-sm font-semibold"></div>
                     </div>
                 </div>
@@ -1549,8 +1551,7 @@
             hideAllViews();
             document.getElementById('view-form-cours').classList.remove('hidden');
             document.getElementById('message-cours').innerText = '';
-
-            await chargerEnseignantsPourCours();
+            const btnSuppr = document.getElementById('btn-supprimer-cours');
 
             if (coursId) {
                 document.getElementById('titre-form-cours').innerText = "Modifier un cours";
@@ -1561,13 +1562,14 @@
                 document.getElementById('cours-fin').value = c.heure_fin;
                 document.getElementById('cours-matiere').value = c.matiere;
                 document.getElementById('cours-salle').value = c.salle || '';
-                document.getElementById('cours-enseignant').value = c.enseignant_id || '';
+                btnSuppr.classList.remove('hidden');
             } else {
                 document.getElementById('titre-form-cours').innerText = "Ajouter un cours";
                 ['cours-id', 'cours-debut', 'cours-fin', 'cours-matiere', 'cours-salle'].forEach(id => document.getElementById(id).value = '');
                 document.getElementById('cours-jour').value = 'Lundi';
-                document.getElementById('cours-enseignant').value = '';
+                btnSuppr.classList.add('hidden');
             }
+            window.scrollTo(0, 0);
         }
 
         async function chargerEnseignantsPourCours() {
@@ -1791,6 +1793,31 @@
             }
 
             return suggestions;
+        }
+async function supprimerCoursDepuisForm() {
+            const id = document.getElementById('cours-id').value;
+            if (!id) return;
+            if (!confirm('Supprimer definitivement ce cours ?')) return;
+
+            const { error } = await supabaseClient.from('emploi_du_temps').delete().eq('id', id);
+            if (error) { alert('Erreur : ' + error.message); return; }
+
+            alert('Cours supprime.');
+            afficherEmploiClasse(classeEnCours.id);
+        }
+async function supprimerCoursDepuisForm() {
+            const id = document.getElementById('cours-id').value;
+            if (!id) return;
+            if (!confirm('Supprimer definitivement ce cours ?')) return;
+
+            const { error } = await supabaseClient.from('emploi_du_temps').delete().eq('id', id);
+            if (error) { alert('Erreur : ' + error.message); return; }
+
+            alert('Cours supprime.');
+            afficherEmploiClasse(classeEnCours.id);
+        }
+function ouvrirActionsCours(coursId) {
+            afficherFormCours(coursId);
         }
 
         async function supprimerCours(id) {
