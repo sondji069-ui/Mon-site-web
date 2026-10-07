@@ -149,7 +149,14 @@
                         </div>
                         <span id="badge-devoirs" class="hidden bg-white text-edu-orange text-xs font-bold rounded-full w-7 h-7 flex items-center justify-center">0</span>
                     </button>
-
+<button onclick="testRessources()" class="bouton-action w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
+                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">📚</div>
+                        <div class="flex-1 text-left">
+                            <p class="text-sm font-bold">Mes ressources</p>
+                            <p class="text-[10px] opacity-90">Programmes, lecons, exercices</p>
+                        </div>
+                        <span class="text-xl">→</span>
+                    </button>
                     <button onclick="window.location.href='assistant-ia.html'" class="bouton-action w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
                         <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">🤖</div>
                         <div class="flex-1 text-left">
@@ -233,7 +240,26 @@
                     <button onclick="afficherAnnonces()" class="text-2xl mb-3">⬅️</button>
                     <div id="contenu-affiche"></div>
                 </div>
+<div id="view-ressources-eleve" class="hidden fade-in">
+                    <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
+                    <h1 class="text-lg font-bold text-gray-800 mb-2">📚 Mes ressources</h1>
+                    <p class="text-xs text-gray-500 mb-3">Programmes, lecons et exercices de tes professeurs.</p>
 
+                    <div class="grid grid-cols-4 gap-2 mb-3">
+                        <button onclick="resElvFiltrerType('tous')" id="reselv-tab-tous" class="py-2 rounded-xl font-bold text-[10px] bg-edu-blue text-white">Tous</button>
+                        <button onclick="resElvFiltrerType('programme')" id="reselv-tab-programme" class="py-2 rounded-xl font-bold text-[10px] bg-gray-100 text-gray-600">Prog.</button>
+                        <button onclick="resElvFiltrerType('lecon')" id="reselv-tab-lecon" class="py-2 rounded-xl font-bold text-[10px] bg-gray-100 text-gray-600">Lecons</button>
+                        <button onclick="resElvFiltrerType('exercice')" id="reselv-tab-exercice" class="py-2 rounded-xl font-bold text-[10px] bg-gray-100 text-gray-600">Exos</button>
+                    </div>
+
+                    <div id="reselv-liste" class="space-y-2">
+                        <p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>
+                    </div>
+                </div>
+<div id="view-ressource-detail-eleve" class="hidden fade-in">
+                    <button onclick="retourRessourcesEleve()" class="text-2xl mb-3">⬅️</button>
+                    <div id="reselv-detail-contenu"></div>
+                </div>
                 <div id="view-notifications" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-3">🔔 Mes notifications</h1>
@@ -820,12 +846,203 @@
         }
 
         async function lireNotif(id) { await supabaseClient.from('notifications').update({ lu: true }).eq('id', id); await afficherNotifications(); chargerBadgeNotifs(); }
+function hideAllViews() {
+            ['view-accueil', 'view-devoirs', 'view-badges', 'view-bulletin', 'view-absences', 'view-emploi', 'view-annonces', 'view-affiche', 'view-notifications', 'view-ressources-eleve', 'view-ressource-detail-eleve'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+        }
+
+        function retourRessourcesEleve() {
+            document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
+            document.getElementById('view-ressources-eleve').classList.remove('hidden');
+            window.scrollTo(0, 0);
+        }
 
         function retourAccueil() {
-            ['view-devoirs', 'view-badges', 'view-bulletin', 'view-absences', 'view-emploi', 'view-annonces', 'view-affiche', 'view-notifications'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
             document.getElementById('view-accueil').classList.remove('hidden');
-            chargerBadgeDevoirs(); chargerProchainCours(); chargerBadges();
+            chargerBadgeDevoirs();
+            chargerProchainCours();
+            chargerBadges();
         }
+let resElvListe = [];
+        let resElvFiltreType = 'tous';
+function resElvVoir(id) {
+            const r = resElvListe.find(x => x.id === id);
+            if (!r) return;
+
+            hideAllViews();
+            document.getElementById('view-ressource-detail-eleve').classList.remove('hidden');
+
+            let typeLabel = 'Lecon';
+            let typeEmoji = '📄';
+            if (r.type === 'programme') { typeLabel = 'Programme'; typeEmoji = '📋'; }
+            else if (r.type === 'exercice') { typeLabel = 'Exercice'; typeEmoji = '✏️'; }
+
+            let html = '';
+            html += '<div class="bg-gradient-to-br from-edu-blue to-blue-700 text-white rounded-2xl shadow-lg p-4 mb-3">';
+            html += '<p class="text-[10px] opacity-80 uppercase font-bold">' + typeEmoji + ' ' + typeLabel + '</p>';
+            html += '<p class="text-lg font-extrabold mt-1">' + r.titre + '</p>';
+            html += '<p class="text-[11px] opacity-90 mt-1">' + r.matiere + '</p>';
+            html += '</div>';
+
+            if (r.description) {
+                html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">';
+                html += '<p class="text-xs font-bold text-gray-700 mb-1">Description</p>';
+                html += '<p class="text-xs text-gray-600" style="white-space:pre-wrap;">' + r.description + '</p>';
+                html += '</div>';
+            }
+
+            if (r.texte_direct) {
+                html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">';
+                html += '<p class="text-xs font-bold text-gray-700 mb-2">Contenu</p>';
+                html += '<p class="text-xs text-gray-700" style="white-space:pre-wrap;">' + r.texte_direct + '</p>';
+                html += '</div>';
+            }
+
+            if (r.fichier_base64) {
+                html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">';
+                html += '<p class="text-xs font-bold text-gray-700 mb-2">Fichier joint</p>';
+                html += '<p class="text-xs text-gray-600 mb-2">' + (r.fichier_nom || 'fichier') + '</p>';
+                html += '<button onclick="telechargerFichierBase64(' + r.id + ')" class="w-full block text-center bg-edu-blue text-white font-bold py-3 rounded-xl text-xs">📥 Telecharger</button>';
+                html += '</div>';
+            }
+
+            document.getElementById('reselv-detail-contenu').innerHTML = html;
+            window.scrollTo(0, 0);
+        }
+
+        async function telechargerFichierBase64(idRessource) {
+            try {
+                const r = resElvListe.find(x => x.id === idRessource);
+                if (!r || !r.fichier_base64) { alert('Fichier introuvable.'); return; }
+                const base64 = r.fichier_base64;
+                const nomFichier = r.fichier_nom || 'fichier';
+                const parts = base64.split(',');
+                const mimeMatch = parts[0].match(/data:(.*?);/);
+                const mime = mimeMatch ? mimeMatch[1] : 'application/octet-stream';
+                const bstr = atob(parts[1]);
+                let n = bstr.length;
+                const u8arr = new Uint8Array(n);
+                while (n--) { u8arr[n] = bstr.charCodeAt(n); }
+                const blob = new Blob([u8arr], { type: mime });
+                const fichier = new File([blob], nomFichier, { type: mime });
+
+                // Methode 1 : partage natif (mobile)
+                if (navigator.canShare && navigator.canShare({ files: [fichier] })) {
+                    await navigator.share({ files: [fichier], title: nomFichier });
+                    return;
+                }
+
+                // Methode 2 : nouvel onglet (l'utilisateur peut sauvegarder)
+                const url = URL.createObjectURL(blob);
+                const nouvelleFenetre = window.open(url, '_blank');
+                if (!nouvelleFenetre) {
+                    // Methode 3 : lien direct
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = nomFichier;
+                    a.target = '_blank';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                }
+                setTimeout(() => URL.revokeObjectURL(url), 60000);
+            } catch (err) {
+                if (err.name === 'AbortError') return;
+                alert('Erreur telechargement : ' + err.message);
+            }
+        }
+
+        async function testRessources() {
+            // Cacher TOUTES les vues (robuste)
+            document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
+            // Afficher uniquement celle-ci
+            document.getElementById('view-ressources-eleve').classList.remove('hidden');
+            document.getElementById('reselv-liste').innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
+            window.scrollTo(0, 0);
+
+            if (!monClasseId) {
+                document.getElementById('reselv-liste').innerHTML = '<div class="bg-white p-6 rounded-2xl shadow-sm text-center"><p class="text-gray-500 text-sm">Aucune classe associee.</p></div>';
+                return;
+            }
+
+            const { data, error } = await supabaseClient
+                .from('ressources')
+                .select('*')
+                .eq('classe_id', monClasseId)
+                .order('date_creation', { ascending: false });
+
+            if (error) {
+                document.getElementById('reselv-liste').innerHTML = '<div class="bg-red-50 p-4 rounded-2xl border border-red-200"><p class="text-xs font-bold text-edu-red mb-1">Erreur :</p><p class="text-[11px] text-gray-700">' + error.message + '</p></div>';
+                return;
+            }
+
+            resElvListe = data || [];
+            resElvFiltrerType(resElvFiltreType);
+        }
+
+        function resElvFiltrerType(type) {
+            resElvFiltreType = type;
+            ['tous', 'programme', 'lecon', 'exercice'].forEach(t => {
+                const tab = document.getElementById('reselv-tab-' + t);
+                if (!tab) return;
+                tab.className = t === type
+                    ? 'py-2 rounded-xl font-bold text-[10px] bg-edu-blue text-white'
+                    : 'py-2 rounded-xl font-bold text-[10px] bg-gray-100 text-gray-600';
+            });
+            resElvFiltrer();
+        }
+
+        function resElvFiltrer() {
+            const matiereSel = document.getElementById('reselv-filtre-matiere');
+            const matiere = matiereSel ? matiereSel.value : '';
+            let liste = resElvListe;
+            if (resElvFiltreType !== 'tous') liste = liste.filter(r => r.type === resElvFiltreType);
+            if (matiere) liste = liste.filter(r => r.matiere === matiere);
+            resElvAfficherListe(liste);
+        }
+
+        function resElvAfficherListe(liste) {
+            const conteneur = document.getElementById('reselv-liste');
+            if (liste.length === 0) {
+                conteneur.innerHTML = '<div class="bg-white p-8 rounded-2xl shadow-sm text-center"><div class="text-5xl mb-2">📚</div><p class="text-gray-500 text-sm">Aucune ressource pour le moment.</p></div>';
+                return;
+            }
+
+            let html = '';
+            html += '<div class="bg-blue-50 border border-blue-100 rounded-xl p-3 mb-3">';
+            html += '<p class="text-xs font-bold text-edu-blue">' + liste.length + ' ressource(s) affichee(s)</p>';
+            html += '</div>';
+
+            liste.forEach(r => {
+                let emoji = '📄';
+                let label = 'Lecon';
+                let couleur = 'bg-blue-100 text-edu-blue';
+                if (r.type === 'programme') { emoji = '📋'; label = 'Programme'; couleur = 'bg-purple-100 text-edu-purple'; }
+                else if (r.type === 'exercice') { emoji = '✏️'; label = 'Exercice'; couleur = 'bg-orange-100 text-edu-orange'; }
+
+                const dateStr = new Date(r.date_creation).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+
+                html += '<div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100">';
+                html += '<div class="flex items-start gap-3 mb-2">';
+                html += '<div class="text-2xl flex-shrink-0">' + emoji + '</div>';
+                html += '<div class="flex-1 min-w-0">';
+                html += '<div class="flex items-center gap-2 mb-1">';
+                html += '<p class="text-xs font-bold text-gray-800 truncate flex-1">' + r.titre + '</p>';
+                html += '<span class="' + couleur + ' text-[9px] font-bold px-2 py-0.5 rounded">' + label + '</span>';
+                html += '</div>';
+                html += '<p class="text-[10px] text-gray-500">' + r.matiere + ' - ' + dateStr + '</p>';
+                html += '</div></div>';
+                html += '<button onclick="resElvVoir(' + r.id + ')" class="w-full bg-blue-50 text-edu-blue text-xs font-bold py-2 rounded-lg">Voir</button>';
+                html += '</div>';
+            });
+            conteneur.innerHTML = html;
+        }
+
+
+
 
         function seDeconnecter() { sessionStorage.removeItem('eduLinkUser'); window.location.href = 'index.html'; }
     </script>

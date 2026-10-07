@@ -129,7 +129,10 @@
                         <p class="text-[10px] text-gray-400 uppercase font-bold mb-2 px-1">Organisation</p>
                         <div class="grid grid-cols-2 gap-3 mb-4">
                             <button onclick="afficherGestionEmploi()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md"><div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-2xl">📅</div><span class="text-xs font-bold text-gray-800">Emploi du temps</span><span class="text-[9px] text-gray-400">Planifier les cours</span></button>
-                            <button onclick="afficherNouvelleAnnonce()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border-2 border-edu-blue flex flex-col items-center gap-2 hover:shadow-md"><div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-2xl">📢</div><span class="text-xs font-bold text-edu-blue">Annonces</span><span class="text-[9px] text-gray-400">Communiquer</span></button>
+ <button onclick="afficherEmploiEnseignants()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md">
+                                <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center text-2xl">🗓️</div>
+                                <span class="text-xs font-bold text-gray-800">Emploi profs</span><span class="text-[9px] text-gray-400">Par enseignant</span>
+                            </button>                           <button onclick="afficherNouvelleAnnonce()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border-2 border-edu-blue flex flex-col items-center gap-2 hover:shadow-md"><div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-2xl">📢</div><span class="text-xs font-bold text-edu-blue">Annonces</span><span class="text-[9px] text-gray-400">Communiquer</span></button>
                             <button onclick="afficherAnnonces()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md"><div class="w-12 h-12 bg-cyan-100 rounded-full flex items-center justify-center text-2xl">📋</div><span class="text-xs font-bold text-gray-800">Mes annonces</span><span class="text-[9px] text-gray-400">Historique</span></button>
                             <button onclick="window.location.href='messagerie.html'" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md"><div class="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center text-2xl">💬</div><span class="text-xs font-bold text-gray-800">Messagerie</span><span class="text-[9px] text-gray-400">Discuter</span></button>
                         </div>
@@ -319,8 +322,14 @@
                             <div><label class="block text-xs font-semibold text-gray-700 mb-1">Debut</label><input type="time" id="cours-debut" class="w-full px-4 py-3 rounded-xl border border-gray-300"></div>
                             <div><label class="block text-xs font-semibold text-gray-700 mb-1">Fin</label><input type="time" id="cours-fin" class="w-full px-4 py-3 rounded-xl border border-gray-300"></div>
                         </div>
-                        <input type="text" id="cours-matiere" placeholder="Matiere" class="w-full px-4 py-3 rounded-xl border border-gray-300">
+                        <input type="text" id="cours-matiere" placeholder="Matiere" oninput="coursAutoDetecterProf()" class="w-full px-4 py-3 rounded-xl border border-gray-300">
                         <input type="text" id="cours-salle" placeholder="Salle" class="w-full px-4 py-3 rounded-xl border border-gray-300">
+<div>
+                            <label class="block text-xs font-semibold text-gray-700 mb-1">Enseignant</label>
+                            <select id="cours-enseignant" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white">
+                                <option value="">Auto (depuis affectation)</option>
+                            </select>
+                        </div>
                         <button onclick="sauvegarderCours()" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl">Enregistrer</button>
                         <div id="message-cours" class="text-center text-sm font-semibold"></div>
                     </div>
@@ -578,6 +587,20 @@
                     <button onclick="afficherGestionEleves()" class="text-2xl mb-3">Retour</button>
                     <div id="fiche-eleve-contenu"></div>
                 </div>
+<!-- VUE EMPLOI ENSEIGNANTS (LISTE) -->
+                <div id="view-emploi-enseignants" class="hidden fade-in">
+                    <button onclick="retourAccueil()" class="text-2xl mb-3">Retour</button>
+                    <h1 class="text-lg font-bold text-gray-800 mb-2">Emploi du temps par enseignant</h1>
+                    <p class="text-xs text-gray-500 mb-3">Vue globale de chaque enseignant (toutes classes confondues).</p>
+                    <div id="emp-ens-conflits-resume" class="mb-3"></div>
+                    <div id="emp-ens-liste" class="space-y-2"></div>
+                </div>
+
+                <!-- VUE EMPLOI ENSEIGNANT DETAIL -->
+                <div id="view-emploi-enseignant-detail" class="hidden fade-in">
+                    <button onclick="afficherEmploiEnseignants()" class="text-2xl mb-3">Retour</button>
+                    <div id="emp-ens-detail-contenu"></div>
+                </div>
                 <div id="view-notifications" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-4">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-4">Notifications</h1>
@@ -757,7 +780,7 @@
         }
 
         function hideAllViews() {
-            ['view-accueil', 'view-paiements-v2', 'view-paiements-eleve', 'view-demandes-mdp', 'view-code', 'view-equipe', 'view-form-staff', 'view-signature', 'view-demandes', 'view-emploi-classes', 'view-emploi-classe', 'view-form-cours', 'view-liste-paiements', 'view-form-paiement', 'view-liste-classes', 'view-form-classe', 'view-liste-eleves', 'view-form-eleve', 'view-liste-enseignants', 'view-form-enseignant', 'view-nouvelle-annonce', 'view-annonces', 'view-affiche', 'view-notifications', 'view-import-eleves', 'view-transfert-eleves', 'view-fiche-eleve'].forEach(id => {
+            ['view-accueil', 'view-paiements-v2', 'view-paiements-eleve', 'view-demandes-mdp', 'view-code', 'view-equipe', 'view-form-staff', 'view-signature', 'view-demandes', 'view-emploi-classes', 'view-emploi-classe', 'view-form-cours', 'view-liste-paiements', 'view-form-paiement', 'view-liste-classes', 'view-form-classe', 'view-liste-eleves', 'view-form-eleve', 'view-liste-enseignants', 'view-form-enseignant', 'view-nouvelle-annonce', 'view-annonces', 'view-affiche', 'view-notifications', 'view-emploi-enseignants', 'view-emploi-enseignant-detail', 'view-import-eleves', 'view-transfert-eleves', 'view-fiche-eleve'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -1424,11 +1447,29 @@
             document.getElementById('liste-classes-emploi').innerHTML = html;
         }
 
+        let mapNomsEnseignants = {};
+
         async function afficherEmploiClasse(classeId, nomClasse) {
             if (nomClasse) classeEnCours = { id: classeId, nom: nomClasse };
             hideAllViews();
             document.getElementById('view-emploi-classe').classList.remove('hidden');
             document.getElementById('titre-emploi-classe').innerText = classeEnCours.nom;
+
+            // Charger les noms des enseignants
+            // ATTENTION : la table enseignants n'a PAS ecole_id -> on filtre via utilisateurs
+            const { data: users } = await supabaseClient.from('utilisateurs').select('id, prenom, nom').eq('ecole_id', monEcoleId).eq('role', 'enseignant');
+            const userIds = (users || []).map(u => u.id);
+
+            mapNomsEnseignants = {};
+            if (userIds.length > 0) {
+                const { data: ens } = await supabaseClient.from('enseignants').select('id, utilisateur_id').in('utilisateur_id', userIds);
+                const mapUserId = {};
+                (users || []).forEach(u => { mapUserId[u.id] = u.prenom + ' ' + u.nom; });
+                (ens || []).forEach(e => {
+                    if (mapUserId[e.utilisateur_id]) mapNomsEnseignants[e.id] = mapUserId[e.utilisateur_id];
+                });
+            }
+
             const { data: cours } = await supabaseClient.from('emploi_du_temps').select('*').eq('classe_id', classeEnCours.id).order('heure_debut');
             afficherTableauEmploi(cours, 'tableau-emploi', true);
         }
@@ -1456,7 +1497,8 @@
                     if (c) {
                         const onClick = editable ? 'onclick="ouvrirActionsCours(' + c.id + ')"' : '';
                         const cursor = editable ? 'cursor:pointer;' : '';
-                        html += '<td ' + onClick + ' style="padding:6px;border:1px solid #e5e7eb;vertical-align:top;' + cursor + '"><div style="background:#dbeafe;border-left:3px solid #004AAD;padding:6px;border-radius:5px;min-height:50px;"><p style="font-size:10px;font-weight:bold;color:#004AAD;margin:0;line-height:1.2;">' + c.matiere + '</p>' + (c.salle ? '<p style="font-size:8px;color:#6b7280;margin:2px 0 0 0;">' + c.salle + '</p>' : '') + '</div></td>';
+                        const nomProf = c.enseignant_id && mapNomsEnseignants[c.enseignant_id] ? mapNomsEnseignants[c.enseignant_id] : null;
+                        html += '<td ' + onClick + ' style="padding:6px;border:1px solid #e5e7eb;vertical-align:top;' + cursor + '"><div style="background:#dbeafe;border-left:3px solid #004AAD;padding:6px;border-radius:5px;min-height:50px;"><p style="font-size:10px;font-weight:bold;color:#004AAD;margin:0;line-height:1.2;">' + c.matiere + '</p>' + (c.salle ? '<p style="font-size:8px;color:#6b7280;margin:2px 0 0 0;">' + c.salle + '</p>' : '') + (nomProf ? '<p style="font-size:8px;color:#7c3aed;margin:2px 0 0 0;">' + nomProf + '</p>' : '') + '</div></td>';
                     } else {
                         const onclick = editable ? 'onclick="ajouterCoursRapide(\'' + jour + '\', \'' + creneau.debut + '\', \'' + creneau.fin + '\')"' : '';
                         const inner = editable ? '<div ' + onclick + ' style="min-height:50px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:1px dashed #e5e7eb;border-radius:5px;color:#d1d5db;font-size:16px;">+</div>' : '<div style="min-height:50px;"></div>';
@@ -1469,6 +1511,8 @@
             document.getElementById(containerId).innerHTML = html;
         }
 
+        let ensListePourCours = [];
+
         async function ajouterCoursRapide(jour, debut, fin) {
             hideAllViews();
             document.getElementById('view-form-cours').classList.remove('hidden');
@@ -1478,18 +1522,16 @@
             document.getElementById('cours-jour').value = jour;
             document.getElementById('cours-debut').value = debut;
             document.getElementById('cours-fin').value = fin;
-        }
-
-        function ouvrirActionsCours(coursId) {
-            const action = confirm("MODIFIER ce cours ? (Annuler pour supprimer)");
-            if (action) afficherFormCours(coursId);
-            else { if (confirm("Vraiment SUPPRIMER ?")) supprimerCours(coursId); }
+            await chargerEnseignantsPourCours();
         }
 
         async function afficherFormCours(coursId = null) {
             hideAllViews();
             document.getElementById('view-form-cours').classList.remove('hidden');
             document.getElementById('message-cours').innerText = '';
+
+            await chargerEnseignantsPourCours();
+
             if (coursId) {
                 document.getElementById('titre-form-cours').innerText = "Modifier un cours";
                 const { data: c } = await supabaseClient.from('emploi_du_temps').select('*').eq('id', coursId).single();
@@ -1499,26 +1541,236 @@
                 document.getElementById('cours-fin').value = c.heure_fin;
                 document.getElementById('cours-matiere').value = c.matiere;
                 document.getElementById('cours-salle').value = c.salle || '';
+                document.getElementById('cours-enseignant').value = c.enseignant_id || '';
             } else {
                 document.getElementById('titre-form-cours').innerText = "Ajouter un cours";
                 ['cours-id', 'cours-debut', 'cours-fin', 'cours-matiere', 'cours-salle'].forEach(id => document.getElementById(id).value = '');
                 document.getElementById('cours-jour').value = 'Lundi';
+                document.getElementById('cours-enseignant').value = '';
+            }
+        }
+
+        async function chargerEnseignantsPourCours() {
+            const { data: users } = await supabaseClient.from('utilisateurs').select('id, prenom, nom').eq('ecole_id', monEcoleId).eq('role', 'enseignant').order('nom');
+            const { data: ens } = await supabaseClient.from('enseignants').select('id, utilisateur_id');
+
+            const userIds = (users || []).map(u => u.id);
+            const ensFiltres = (ens || []).filter(e => userIds.includes(e.utilisateur_id));
+
+            const mapUserId = {};
+            (users || []).forEach(u => { mapUserId[u.id] = u.prenom + ' ' + u.nom; });
+
+            ensListePourCours = ensFiltres.map(e => ({
+                ensId: e.id,
+                prenom: (mapUserId[e.utilisateur_id] || '').split(' ')[0],
+                nom: (mapUserId[e.utilisateur_id] || '').split(' ').slice(1).join(' ')
+            })).filter(e => e.prenom);
+
+            const sel = document.getElementById('cours-enseignant');
+            sel.innerHTML = '<option value="">-- Choisir un enseignant --</option>';
+            ensListePourCours.forEach(e => {
+                sel.innerHTML += '<option value="' + e.ensId + '">' + e.prenom + ' ' + e.nom + '</option>';
+            });
+
+            // Detecter automatiquement
+            coursAutoDetecterProf();
+        }
+
+        async function coursAutoDetecterProf() {
+            const matiere = document.getElementById('cours-matiere').value.trim();
+            const sel = document.getElementById('cours-enseignant');
+            const info = document.getElementById('cours-enseignant-info');
+
+            // Supprimer l'ancien message info
+            if (info) info.remove();
+
+            if (!matiere || !classeEnCours) return;
+
+            const { data: aff } = await supabaseClient.from('affectations').select('enseignant_id').eq('classe_id', classeEnCours.id).eq('matiere', matiere).maybeSingle();
+
+            if (aff && aff.enseignant_id) {
+                sel.value = aff.enseignant_id;
+                const prof = ensListePourCours.find(e => e.ensId === aff.enseignant_id);
+                if (prof) {
+                    const msg = document.createElement('p');
+                    msg.id = 'cours-enseignant-info';
+                    msg.className = 'text-[10px] text-edu-green font-semibold mt-1';
+                    msg.innerText = 'Prof detecte automatiquement : ' + prof.prenom + ' ' + prof.nom;
+                    sel.parentNode.appendChild(msg);
+                }
             }
         }
 
         async function sauvegarderCours() {
             const id = document.getElementById('cours-id').value;
+            const jour = document.getElementById('cours-jour').value;
             const debut = document.getElementById('cours-debut').value;
             const fin = document.getElementById('cours-fin').value;
             const matiere = document.getElementById('cours-matiere').value.trim();
             const salle = document.getElementById('cours-salle').value.trim();
+            let ensId = document.getElementById('cours-enseignant').value;
             const msg = document.getElementById('message-cours');
-            if (!debut || !fin || !matiere) { msg.innerText = "Remplissez tout."; msg.style.color = "red"; return; }
-            const data = { classe_id: classeEnCours.id, jour: document.getElementById('cours-jour').value, heure_debut: debut, heure_fin: fin, matiere, salle: salle || null, ecole_id: monEcoleId };
-            if (id) await supabaseClient.from('emploi_du_temps').update(data).eq('id', id);
-            else await supabaseClient.from('emploi_du_temps').insert([data]);
-            msg.innerText = "Enregistre !"; msg.style.color = "green";
-            setTimeout(() => afficherEmploiClasse(classeEnCours.id), 1000);
+
+            if (!debut || !fin || !matiere) { msg.innerText = "Remplissez jour, heures et matiere."; msg.style.color = "red"; return; }
+            if (debut >= fin) { msg.innerText = "Heure de fin doit etre apres l'heure de debut."; msg.style.color = "red"; return; }
+
+            // Si pas de prof selectionne -> chercher via affectations (classe + matiere)
+            if (!ensId) {
+                const { data: aff } = await supabaseClient.from('affectations').select('enseignant_id').eq('classe_id', classeEnCours.id).eq('matiere', matiere).maybeSingle();
+                if (aff) ensId = aff.enseignant_id;
+            }
+
+            msg.innerText = 'Verification des conflits...';
+            msg.style.color = '#F59E0B';
+
+            // Verifier les conflits
+            const conflits = await coursVerifierConflits({
+                id: id ? parseInt(id) : null,
+                classe_id: classeEnCours.id,
+                jour: jour,
+                debut: debut,
+                fin: fin,
+                salle: salle,
+                enseignant_id: ensId ? parseInt(ensId) : null
+            });
+
+            if (conflits.length > 0) {
+                let html = '<div class="bg-red-50 border-2 border-red-300 rounded-xl p-3 mt-2">';
+                html += '<p class="text-sm font-bold text-edu-red mb-2">Conflit(s) detecte(s) :</p>';
+                html += '<ul class="text-[11px] text-gray-700 list-disc pl-4 mb-3">';
+                conflits.forEach(c => { html += '<li>' + c + '</li>'; });
+                html += '</ul>';
+                html += '<p class="text-[11px] font-bold text-gray-700 mb-2">Suggestions de creneaux libres :</p>';
+                html += '<div id="cours-suggestions" class="space-y-1"><p class="text-[10px] text-gray-400">Recherche en cours...</p></div>';
+                html += '</div>';
+                msg.innerHTML = html;
+                msg.style.color = '';
+
+                // Generer les suggestions
+                const suggestions = await coursSuggererCreneaux({
+                    classe_id: classeEnCours.id,
+                    salle: salle,
+                    enseignant_id: ensId ? parseInt(ensId) : null
+                });
+
+                const conteneur = document.getElementById('cours-suggestions');
+                if (suggestions.length === 0) {
+                    conteneur.innerHTML = '<p class="text-[10px] text-gray-500">Aucun creneau libre trouve. Modifiez la salle ou le prof.</p>';
+                } else {
+                    let sh = '';
+                    suggestions.forEach(s => {
+                        sh += '<button onclick="coursUtiliserSuggestion(\'' + s.jour + '\',\'' + s.debut + '\',\'' + s.fin + '\')" class="w-full text-left bg-white border border-green-300 rounded-lg px-3 py-2 text-[11px] hover:bg-green-50 mb-1">';
+                        sh += '<b>' + s.jour + '</b> ' + s.debut + ' - ' + s.fin;
+                        if (s.info) sh += ' <span class="text-gray-500">(' + s.info + ')</span>';
+                        sh += '</button>';
+                    });
+                    conteneur.innerHTML = sh;
+                }
+                return;
+            }
+
+            // Pas de conflit -> enregistrer
+            msg.innerText = 'Enregistrement...';
+            msg.style.color = '#F59E0B';
+
+            const data = {
+                classe_id: classeEnCours.id,
+                jour: jour,
+                heure_debut: debut,
+                heure_fin: fin,
+                matiere: matiere,
+                salle: salle || null,
+                enseignant_id: ensId ? parseInt(ensId) : null,
+                ecole_id: monEcoleId
+            };
+
+            try {
+                if (id) await supabaseClient.from('emploi_du_temps').update(data).eq('id', id);
+                else await supabaseClient.from('emploi_du_temps').insert([data]);
+                msg.innerText = "Enregistre !"; msg.style.color = "green";
+                setTimeout(() => afficherEmploiClasse(classeEnCours.id), 1000);
+            } catch (err) { msg.innerText = "Erreur : " + err.message; msg.style.color = "red"; }
+        }
+
+        function coursUtiliserSuggestion(jour, debut, fin) {
+            document.getElementById('cours-jour').value = jour;
+            document.getElementById('cours-debut').value = debut;
+            document.getElementById('cours-fin').value = fin;
+            document.getElementById('message-cours').innerText = 'Creneau applique. Cliquez sur Enregistrer.';
+            document.getElementById('message-cours').style.color = '#2EAD5E';
+        }
+
+        // ============ VERIFICATION DES CONFLITS ============
+        async function coursVerifierConflits(cours) {
+            const conflits = [];
+
+            // Charger tous les cours existants (hors celui qu'on modifie)
+            let q = supabaseClient.from('emploi_du_temps').select('*').eq('jour', cours.jour).eq('ecole_id', monEcoleId);
+            const { data: tousCours } = await q;
+            const liste = (tousCours || []).filter(c => c.id !== cours.id);
+
+            liste.forEach(c => {
+                const d1 = c.heure_debut ? c.heure_debut.substring(0, 5) : '';
+                const f1 = c.heure_fin ? c.heure_fin.substring(0, 5) : '';
+                if (!d1 || !f1) return;
+                const chevauche = cours.debut < f1 && d1 < cours.fin;
+                if (!chevauche) return;
+
+                // Conflit de classe
+                if (c.classe_id === cours.classe_id) {
+                    conflits.push('Classe deja occupee le ' + cours.jour + ' ' + d1 + '-' + f1 + ' (' + c.matiere + ')');
+                }
+                // Conflit de salle
+                if (cours.salle && c.salle && c.salle.toLowerCase().trim() === cours.salle.toLowerCase().trim()) {
+                    conflits.push('Salle "' + cours.salle + '" deja utilisee le ' + cours.jour + ' ' + d1 + '-' + f1 + ' (' + c.matiere + ')');
+                }
+                // Conflit de prof
+                if (cours.enseignant_id && c.enseignant_id === cours.enseignant_id) {
+                    conflits.push('Enseignant deja en cours le ' + cours.jour + ' ' + d1 + '-' + f1 + ' (' + c.matiere + ')');
+                }
+            });
+
+            return conflits;
+        }
+
+        // ============ SUGGESTIONS DE CRENEAUX LIBRES ============
+        async function coursSuggererCreneaux(cible) {
+            const jours = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+            const heures = ['08:00-10:00', '10:15-12:15', '14:00-16:00', '16:15-18:15'];
+
+            // Charger tous les cours de l'ecole
+            const { data: tous } = await supabaseClient.from('emploi_du_temps').select('*').eq('ecole_id', monEcoleId);
+            const liste = tous || [];
+
+            const suggestions = [];
+
+            for (const jour of jours) {
+                for (const creneau of heures) {
+                    const [debut, fin] = creneau.split('-');
+
+                    // Verifier si libre
+                    let libre = true;
+                    for (const c of liste) {
+                        if (c.jour !== jour) continue;
+                        const d1 = c.heure_debut ? c.heure_debut.substring(0, 5) : '';
+                        const f1 = c.heure_fin ? c.heure_fin.substring(0, 5) : '';
+                        if (!d1 || !f1) continue;
+                        const chevauche = debut < f1 && d1 < fin;
+                        if (!chevauche) continue;
+
+                        if (c.classe_id === cible.classe_id) { libre = false; break; }
+                        if (cible.salle && c.salle && c.salle.toLowerCase().trim() === cible.salle.toLowerCase().trim()) { libre = false; break; }
+                        if (cible.enseignant_id && c.enseignant_id === cible.enseignant_id) { libre = false; break; }
+                    }
+
+                    if (libre) {
+                        suggestions.push({ jour: jour, debut: debut, fin: fin });
+                        if (suggestions.length >= 5) return suggestions;
+                    }
+                }
+            }
+
+            return suggestions;
         }
 
         async function supprimerCours(id) {
@@ -2661,6 +2913,268 @@ async function ficheElevePDF() {
                 alert('Erreur : ' + err.message);
             }
         }
+// ============ EMPLOI DU TEMPS PAR ENSEIGNANT ============
+        let empEnsTous = [];
+        let empEnsClasses = [];
+
+        async function afficherEmploiEnseignants() {
+            hideAllViews();
+            document.getElementById('view-emploi-enseignants').classList.remove('hidden');
+            document.getElementById('emp-ens-liste').innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
+            document.getElementById('emp-ens-conflits-resume').innerHTML = '';
+
+            // 1. Charger les classes pour map
+            const { data: classes } = await supabaseClient.from('classes').select('id, nom').eq('ecole_id', monEcoleId);
+            empEnsClasses = classes || [];
+            const mapClasses = {};
+            empEnsClasses.forEach(c => { mapClasses[c.id] = c.nom; });
+
+            // 2. Charger les enseignants
+            const { data: users } = await supabaseClient.from('utilisateurs').select('id, prenom, nom, email').eq('ecole_id', monEcoleId).eq('role', 'enseignant').order('nom');
+
+            if (!users || users.length === 0) {
+                document.getElementById('emp-ens-liste').innerHTML = '<div class="bg-white p-8 rounded-2xl shadow-sm text-center"><p class="text-gray-500 text-sm">Aucun enseignant.</p></div>';
+                return;
+            }
+
+            const userIds = users.map(u => u.id);
+            const { data: enseignants } = await supabaseClient.from('enseignants').select('id, utilisateur_id, specialite').in('utilisateur_id', userIds);
+            const mapEns = {};
+            (enseignants || []).forEach(e => { mapEns[e.utilisateur_id] = e; });
+
+            const ensIds = (enseignants || []).map(e => e.id);
+            let toutesAffs = [];
+            if (ensIds.length > 0) {
+                const { data: affs } = await supabaseClient.from('affectations').select('enseignant_id, classe_id, matiere').in('enseignant_id', ensIds);
+                toutesAffs = affs || [];
+            }
+
+            // 3. Charger tous les cours de toutes les classes de ces profs
+            const classeIds = [...new Set(toutesAffs.map(a => a.classe_id))];
+            let tousCours = [];
+            if (classeIds.length > 0) {
+                const { data: cours } = await supabaseClient.from('emploi_du_temps').select('*').in('classe_id', classeIds);
+                tousCours = cours || [];
+            }
+
+            // 4. Pour chaque enseignant, calculer ses creneaux
+            empEnsTous = users.map(u => {
+                const ens = mapEns[u.id];
+                const affsUser = ens ? toutesAffs.filter(a => a.enseignant_id === ens.id) : [];
+                const classeIdsUser = affsUser.map(a => a.classe_id);
+                const coursUser = tousCours.filter(c => classeIdsUser.includes(c.classe_id));
+
+                // Convertir chaque cours en creneau
+                const creneaux = coursUser.map(c => ({
+                    jour: c.jour,
+                    debut: c.heure_debut ? c.heure_debut.substring(0, 5) : '',
+                    fin: c.heure_fin ? c.heure_fin.substring(0, 5) : '',
+                    matiere: c.matiere,
+                    salle: c.salle,
+                    classe_id: c.classe_id,
+                    classeNom: mapClasses[c.classe_id] || '?'
+                })).filter(c => c.jour && c.debut && c.fin);
+
+                // Detecter conflits
+                const conflits = detecterConflitsEmploi(creneaux);
+
+                return {
+                    id: u.id,
+                    ensId: ens ? ens.id : null,
+                    prenom: u.prenom,
+                    nom: u.nom,
+                    email: u.email,
+                    specialite: ens ? ens.specialite : '',
+                    affectations: affsUser,
+                    creneaux: creneaux,
+                    conflits: conflits
+                };
+            });
+
+            empEnsAfficherResume();
+            empEnsAfficherListe();
+            window.scrollTo(0, 0);
+        }
+
+        function detecterConflitsEmploi(creneaux) {
+            const conflits = [];
+            for (let i = 0; i < creneaux.length; i++) {
+                for (let j = i + 1; j < creneaux.length; j++) {
+                    const a = creneaux[i];
+                    const b = creneaux[j];
+                    if (a.jour !== b.jour) continue;
+                    // Chevauchement ?
+                    if (a.debut < b.fin && b.debut < a.fin) {
+                        conflits.push({ a: a, b: b });
+                    }
+                }
+            }
+            return conflits;
+        }
+
+        function empEnsAfficherResume() {
+            const conteneur = document.getElementById('emp-ens-conflits-resume');
+            const nbProfsConflits = empEnsTous.filter(e => e.conflits.length > 0).length;
+            const nbTotalConflits = empEnsTous.reduce((s, e) => s + e.conflits.length, 0);
+
+            if (nbTotalConflits === 0) {
+                conteneur.innerHTML = '<div class="bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded-2xl shadow-lg p-4 mb-3"><div class="flex items-center gap-3"><div class="text-3xl">OK</div><div><p class="text-sm font-bold">Aucun conflit detecte</p><p class="text-[10px] opacity-90">Emplois du temps coherents</p></div></div></div>';
+            } else {
+                let html = '<div class="bg-gradient-to-br from-red-500 to-orange-500 text-white rounded-2xl shadow-lg p-4 mb-3">';
+                html += '<div class="flex items-center justify-between mb-2"><div><p class="text-[10px] opacity-90 uppercase font-bold">Conflits detectes</p><p class="text-3xl font-extrabold">' + nbTotalConflits + '</p></div><div class="text-3xl font-bold">!</div></div>';
+                html += '<p class="text-[11px] opacity-90">' + nbProfsConflits + ' enseignant(s) avec au moins 1 conflit</p>';
+                html += '</div>';
+                conteneur.innerHTML = html;
+            }
+        }
+
+        function empEnsAfficherListe() {
+            const conteneur = document.getElementById('emp-ens-liste');
+            let html = '';
+            empEnsTous.sort((a, b) => b.conflits.length - a.conflits.length || a.nom.localeCompare(b.nom));
+
+            empEnsTous.forEach(e => {
+                const initiale = e.prenom.charAt(0).toUpperCase();
+                const nbCreneaux = e.creneaux.length;
+                const nbConflits = e.conflits.length;
+                const nbClasses = [...new Set(e.affectations.map(a => a.classe_id))].length;
+
+                let badgeConflit = '';
+                if (nbConflits > 0) badgeConflit = '<span class="bg-red-100 text-edu-red text-[9px] font-bold px-2 py-0.5 rounded">' + nbConflits + ' CONFLIT(S)</span>';
+
+                html += '<div onclick="afficherEmploiEnseignantDetail(' + e.id + ')" class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition">';
+                html += '<div class="flex items-center gap-3 mb-2">';
+                html += '<div class="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold text-base flex-shrink-0" style="background:linear-gradient(135deg,#2EAD5E,#004AAD);">' + initiale + '</div>';
+                html += '<div class="flex-1 min-w-0">';
+                html += '<div class="flex items-center gap-1 mb-0.5"><p class="text-xs font-bold text-gray-800 truncate">' + e.prenom + ' ' + e.nom + '</p>' + badgeConflit + '</div>';
+                html += '<p class="text-[10px] text-gray-500 truncate">' + (e.specialite || 'Aucune specialite') + '</p>';
+                html += '</div></div>';
+                html += '<div class="grid grid-cols-3 gap-1 text-center">';
+                html += '<div class="bg-blue-50 rounded-lg p-1.5"><p class="text-[9px] text-gray-500">Creneaux</p><p class="text-xs font-bold text-edu-blue">' + nbCreneaux + '</p></div>';
+                html += '<div class="bg-purple-50 rounded-lg p-1.5"><p class="text-[9px] text-gray-500">Classes</p><p class="text-xs font-bold text-edu-purple">' + nbClasses + '</p></div>';
+                html += '<div class="bg-green-50 rounded-lg p-1.5"><p class="text-[9px] text-gray-500">Affect.</p><p class="text-xs font-bold text-edu-green">' + e.affectations.length + '</p></div>';
+                html += '</div></div>';
+            });
+
+            conteneur.innerHTML = html;
+        }
+
+        async function afficherEmploiEnseignantDetail(userId) {
+            hideAllViews();
+            document.getElementById('view-emploi-enseignant-detail').classList.remove('hidden');
+            const conteneur = document.getElementById('emp-ens-detail-contenu');
+            const e = empEnsTous.find(x => x.id === userId);
+            if (!e) { conteneur.innerHTML = '<p class="text-red-500 text-center py-6">Enseignant introuvable.</p>'; return; }
+
+            const initiale = e.prenom.charAt(0).toUpperCase();
+
+            let html = '';
+            html += '<div class="bg-gradient-to-br from-edu-blue to-blue-700 text-white rounded-2xl shadow-lg p-4 mb-3">';
+            html += '<div class="flex items-center gap-3">';
+            html += '<div class="w-14 h-14 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-white font-bold text-xl">' + initiale + '</div>';
+            html += '<div class="flex-1 min-w-0"><p class="text-base font-bold truncate">' + e.prenom + ' ' + e.nom + '</p>';
+            html += '<p class="text-[11px] opacity-90">' + (e.specialite || 'Enseignant') + '</p>';
+            html += '<p class="text-[10px] opacity-80 truncate">' + e.email + '</p></div></div>';
+            html += '<div class="grid grid-cols-3 gap-2 mt-3 text-center">';
+            html += '<div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-90">Creneaux</p><p class="text-xs font-bold mt-0.5">' + e.creneaux.length + '</p></div>';
+            html += '<div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-90">Classes</p><p class="text-xs font-bold mt-0.5">' + [...new Set(e.affectations.map(a => a.classe_id))].length + '</p></div>';
+            html += '<div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-90">Conflits</p><p class="text-xs font-bold mt-0.5">' + e.conflits.length + '</p></div>';
+            html += '</div></div>';
+
+            // Liste des affectations
+            html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 mb-3">';
+            html += '<p class="text-sm font-bold text-gray-800 mb-2">Classes / Matieres</p>';
+            if (e.affectations.length === 0) {
+                html += '<p class="text-xs text-gray-400 text-center py-2">Aucune affectation.</p>';
+            } else {
+                html += '<div class="flex flex-wrap gap-1">';
+                e.affectations.forEach(a => {
+                    const classeNom = empEnsClasses.find(c => c.id === a.classe_id);
+                    html += '<span class="bg-blue-50 text-edu-blue text-[10px] font-semibold px-2 py-1 rounded">' + a.matiere + ' - ' + (classeNom ? classeNom.nom : '?') + '</span>';
+                });
+                html += '</div>';
+            }
+            html += '</div>';
+
+            // Conflits
+            if (e.conflits.length > 0) {
+                html += '<div class="bg-red-50 border border-red-200 rounded-2xl p-3 mb-3">';
+                html += '<p class="text-sm font-bold text-edu-red mb-2">Conflits detectes (' + e.conflits.length + ')</p>';
+                e.conflits.forEach(c => {
+                    html += '<div class="text-[10px] text-gray-700 border-b border-red-100 last:border-b-0 py-1.5">';
+                    html += '<p><b>' + c.a.jour + ' ' + c.a.debut + '-' + c.a.fin + '</b></p>';
+                    html += '<p>' + c.a.matiere + ' (' + c.a.classeNom + ')' + (c.a.salle ? ' salle ' + c.a.salle : '') + ' ↔ ' + c.b.matiere + ' (' + c.b.classeNom + ')' + (c.b.salle ? ' salle ' + c.b.salle : '') + '</p>';
+                    html += '</div>';
+                });
+                html += '</div>';
+            }
+
+            // Tableau emploi du temps
+            html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 mb-3">';
+            html += '<p class="text-sm font-bold text-gray-800 mb-2">Emploi du temps</p>';
+            html += empEnsConstruireTableau(e.creneaux);
+            html += '</div>';
+
+            conteneur.innerHTML = html;
+            window.scrollTo(0, 0);
+        }
+
+        function empEnsConstruireTableau(creneaux) {
+            const jours = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+            const creneauxHoraire = [];
+            const setCreneaux = new Set();
+            creneaux.forEach(c => {
+                const key = c.debut + '-' + c.fin;
+                if (!setCreneaux.has(key)) { setCreneaux.add(key); creneauxHoraire.push({ debut: c.debut, fin: c.fin }); }
+            });
+            creneauxHoraire.sort((a, b) => a.debut.localeCompare(b.debut));
+
+            if (creneauxHoraire.length === 0) {
+                return '<p class="text-xs text-gray-400 text-center py-4">Aucun creneau.</p>';
+            }
+
+            let html = '<div class="overflow-x-auto pb-2"><table style="width:100%;border-collapse:collapse;min-width:600px;">';
+            html += '<thead><tr style="background:#004AAD;">';
+            html += '<th style="padding:8px 6px;color:white;font-size:10px;border:1px solid #004AAD;min-width:70px;">Heure</th>';
+            jours.forEach(j => { html += '<th style="padding:8px 6px;color:white;font-size:10px;border:1px solid #004AAD;min-width:90px;text-align:center;">' + j.substring(0,3) + '</th>'; });
+            html += '</tr></thead><tbody>';
+
+            creneauxHoraire.forEach((ch, idx) => {
+                const bg = idx % 2 === 0 ? '#fff' : '#f9fafb';
+                html += '<tr style="background:' + bg + ';">';
+                html += '<td style="padding:6px;border:1px solid #e5e7eb;font-size:9px;font-weight:bold;text-align:center;background:#f3f4f6;">' + ch.debut + '<br><span style="color:#6b7280;">' + ch.fin + '</span></td>';
+                jours.forEach(jour => {
+                    const coursIci = creneaux.filter(c => c.jour === jour && c.debut === ch.debut && c.fin === ch.fin);
+                    if (coursIci.length === 0) {
+                        html += '<td style="padding:4px;border:1px solid #e5e7eb;"></td>';
+                    } else if (coursIci.length === 1) {
+                        const c = coursIci[0];
+                        html += '<td style="padding:4px;border:1px solid #e5e7eb;vertical-align:top;">';
+                        html += '<div style="background:#dcfce7;border-left:3px solid #2EAD5E;padding:4px;border-radius:4px;">';
+                        html += '<p style="font-size:9px;font-weight:bold;color:#166534;margin:0;">' + c.matiere + '</p>';
+                        html += '<p style="font-size:8px;color:#6b7280;margin:1px 0 0 0;">' + c.classeNom + '</p>';
+                        if (c.salle) html += '<p style="font-size:8px;color:#6b7280;margin:1px 0 0 0;">' + c.salle + '</p>';
+                        html += '</div></td>';
+                    } else {
+                        // CONFLIT : plusieurs cours au meme moment
+                        html += '<td style="padding:4px;border:2px solid #EF4444;background:#fef2f2;vertical-align:top;">';
+                        html += '<p style="font-size:9px;font-weight:bold;color:#EF4444;margin:0 0 2px 0;">CONFLIT</p>';
+                        coursIci.forEach(c => {
+                            html += '<div style="background:#fee2e2;border-left:3px solid #EF4444;padding:3px;border-radius:4px;margin-bottom:2px;">';
+                            html += '<p style="font-size:9px;font-weight:bold;color:#991b1b;margin:0;">' + c.matiere + '</p>';
+                            html += '<p style="font-size:8px;color:#7f1d1d;margin:1px 0 0 0;">' + c.classeNom + '</p>';
+                            html += '</div>';
+                        });
+                        html += '</td>';
+                    }
+                });
+                html += '</tr>';
+            });
+
+            html += '</tbody></table></div>';
+            return html;
+        }
+
         function seDeconnecter() { sessionStorage.removeItem('eduLinkUser'); window.location.href = 'index.html'; }
     </script>
 </body>

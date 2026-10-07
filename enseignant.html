@@ -121,7 +121,11 @@
                         <div class="flex-1 text-left"><p class="text-sm font-bold">Saisie en masse des notes</p><p class="text-[10px] opacity-90">Noter toute la classe en une seule fois</p></div>
                         <span class="text-xl">→</span>
                     </button>
-
+<button onclick="afficherMesRessources()" class="bouton-action w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
+                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">📚</div>
+                        <div class="flex-1 text-left"><p class="text-sm font-bold">Mes ressources pedagogiques</p><p class="text-[10px] opacity-90">Programmes, lecons, exercices</p></div>
+                        <span class="text-xl">→</span>
+                    </button>
                     <button onclick="afficherDevoirs()" class="bouton-action w-full bg-gradient-to-r from-amber-500 to-orange-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
                         <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">📚</div>
                         <div class="flex-1 text-left"><p class="text-sm font-bold">Mes devoirs</p><p class="text-[10px] opacity-90">Créer et gérer les devoirs</p></div>
@@ -309,6 +313,62 @@
                 </div>
 
                 <!-- ============ VUE NOTIFICATIONS ============ -->
+<!-- VUE RESSOURCES ENSEIGNANT -->
+                <div id="view-ressources-ens" class="hidden fade-in">
+                    <div class="flex items-center gap-3 mb-3">
+                        <button onclick="retourAccueil()" class="text-2xl">⬅️</button>
+                        <h1 class="text-lg font-bold text-gray-800 flex-1">Mes ressources</h1>
+                        <button onclick="afficherFormRessource()" class="bg-edu-blue text-white text-xs font-bold px-3 py-2 rounded-lg">+ Nouvelle</button>
+                    </div>
+
+                    <div class="grid grid-cols-4 gap-2 mb-3">
+                        <button onclick="resFiltrerType('tous')" id="res-tab-tous" class="py-2 rounded-xl font-bold text-[10px] bg-edu-blue text-white">Tous</button>
+                        <button onclick="resFiltrerType('programme')" id="res-tab-programme" class="py-2 rounded-xl font-bold text-[10px] bg-gray-100 text-gray-600">Programmes</button>
+                        <button onclick="resFiltrerType('lecon')" id="res-tab-lecon" class="py-2 rounded-xl font-bold text-[10px] bg-gray-100 text-gray-600">Lecons</button>
+                        <button onclick="resFiltrerType('exercice')" id="res-tab-exercice" class="py-2 rounded-xl font-bold text-[10px] bg-gray-100 text-gray-600">Exercices</button>
+                    </div>
+
+                    <input type="text" id="res-recherche" oninput="resFiltrer()" placeholder="Rechercher (titre, matiere)" class="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs mb-3">
+
+                    <div id="res-liste" class="space-y-2"></div>
+                </div>
+
+                <!-- VUE FORMULAIRE RESSOURCE -->
+                <div id="view-form-ressource" class="hidden fade-in">
+                    <div class="flex items-center gap-3 mb-4">
+                        <button onclick="afficherMesRessources()" class="text-2xl">⬅️</button>
+                        <h1 id="titre-form-ressource" class="text-lg font-bold text-gray-800">Nouvelle ressource</h1>
+                    </div>
+                    <div class="space-y-3">
+                        <input type="hidden" id="res-id">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Type *</label>
+                            <select id="res-type" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white">
+                                <option value="programme">Programme</option>
+                                <option value="lecon" selected>Lecon</option>
+                                <option value="exercice">Exercice</option>
+                            </select>
+                        </div>
+                        <input type="text" id="res-titre" placeholder="Titre *" class="w-full px-4 py-3 rounded-xl border border-gray-300">
+                        <input type="text" id="res-matiere-input" placeholder="Matiere *" class="w-full px-4 py-3 rounded-xl border border-gray-300">
+                        <textarea id="res-description" rows="2" placeholder="Description (optionnel)" class="w-full px-4 py-3 rounded-xl border border-gray-300"></textarea>
+
+                        <div class="bg-blue-50 border border-blue-100 rounded-xl p-3">
+                            <p class="text-xs font-bold text-edu-blue mb-2">Contenu</p>
+                            <p class="text-[10px] text-gray-600 mb-2">Remplissez l'un ou l'autre (ou les deux).</p>
+
+                            <label class="block text-[10px] font-bold text-gray-700 mb-1">Texte direct (lecon, consignes)</label>
+                            <textarea id="res-texte" rows="4" placeholder="Ecrivez ici le contenu..." class="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs mb-3"></textarea>
+
+                            <label class="block text-[10px] font-bold text-gray-700 mb-1">Fichier joint (max 400 Ko)</label>
+                            <input type="file" id="res-fichier" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt" class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white text-xs">
+                            <p id="res-fichier-info" class="text-[10px] text-gray-500 mt-1"></p>
+                        </div>
+
+                        <button onclick="sauvegarderRessource()" id="btn-save-ressource" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl">Publier</button>
+                        <div id="message-ressource" class="text-center text-sm font-semibold"></div>
+                    </div>
+                </div>
                 <div id="view-notifications" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-3">🔔 Mes notifications</h1>
@@ -1346,13 +1406,282 @@
             document.getElementById('liste-notifications').innerHTML = html;
         }
 
+        function hideAllViews() {
+            document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
+        }
+
         function retourAccueil() {
-            ['view-badges-classe', 'view-appel', 'view-rapport-absences-ens', 'view-notes', 'view-notes-masse', 'view-devoirs', 'view-form-devoir', 'view-statistiques', 'view-emploi', 'view-annonces', 'view-affiche', 'view-notifications'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.classList.add('hidden');
-            });
+            document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
             document.getElementById('view-accueil').classList.remove('hidden');
             chargerProchainCoursEnseignant();
+            window.scrollTo(0, 0);
+        }
+// ============ RESSOURCES PEDAGOGIQUES (ENSEIGNANT) ============
+        let resListe = [];
+        let resFiltreType = 'tous';
+        let resFichierBase64 = null;
+        let resFichierNom = null;
+        let resFichierType = null;
+
+        async function afficherMesRessources() {
+            document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
+            document.getElementById('view-ressources-ens').classList.remove('hidden');
+            document.getElementById('res-liste').innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
+
+            const { data } = await supabaseClient
+                .from('ressources')
+                .select('*')
+                .eq('enseignant_id', enseignantId)
+                .order('date_creation', { ascending: false });
+
+            resListe = data || [];
+            resFiltrerType(resFiltreType);
+            window.scrollTo(0, 0);
+        }
+
+        function resFiltrerType(type) {
+            resFiltreType = type;
+            ['tous', 'programme', 'lecon', 'exercice'].forEach(t => {
+                const tab = document.getElementById('res-tab-' + t);
+                if (!tab) return;
+                tab.className = t === type
+                    ? 'py-2 rounded-xl font-bold text-[10px] bg-edu-blue text-white'
+                    : 'py-2 rounded-xl font-bold text-[10px] bg-gray-100 text-gray-600';
+            });
+            resFiltrer();
+        }
+
+        function resFiltrer() {
+            const terme = (document.getElementById('res-recherche').value || '').toLowerCase().trim();
+            let liste = resListe;
+            if (resFiltreType !== 'tous') liste = liste.filter(r => r.type === resFiltreType);
+            if (terme) {
+                liste = liste.filter(r => {
+                    const t = (r.titre || '').toLowerCase();
+                    const m = (r.matiere || '').toLowerCase();
+                    return t.indexOf(terme) !== -1 || m.indexOf(terme) !== -1;
+                });
+            }
+            resAfficherListe(liste);
+        }
+
+        function resAfficherListe(liste) {
+            const conteneur = document.getElementById('res-liste');
+            if (liste.length === 0) {
+                conteneur.innerHTML = '<div class="bg-white p-8 rounded-2xl shadow-sm text-center"><div class="text-5xl mb-2">📚</div><p class="text-gray-500 text-sm">Aucune ressource.</p><p class="text-[10px] text-gray-400 mt-1">Cliquez sur "+ Nouvelle" pour en ajouter.</p></div>';
+                return;
+            }
+            let html = '';
+            liste.forEach(r => {
+                let emoji = '📄';
+                let label = 'Lecon';
+                let couleur = 'bg-blue-100 text-edu-blue';
+                if (r.type === 'programme') { emoji = '📋'; label = 'Programme'; couleur = 'bg-purple-100 text-edu-purple'; }
+                else if (r.type === 'exercice') { emoji = '✏️'; label = 'Exercice'; couleur = 'bg-orange-100 text-edu-orange'; }
+
+                const dateStr = new Date(r.date_creation).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+                const aFichier = !!r.fichier_base64;
+                const aTexte = !!r.texte_direct;
+
+                html += '<div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100">';
+                html += '<div class="flex items-start gap-3 mb-2">';
+                html += '<div class="text-2xl flex-shrink-0">' + emoji + '</div>';
+                html += '<div class="flex-1 min-w-0">';
+                html += '<div class="flex items-center gap-2 mb-1">';
+                html += '<p class="text-xs font-bold text-gray-800 truncate flex-1">' + r.titre + '</p>';
+                html += '<span class="' + couleur + ' text-[9px] font-bold px-2 py-0.5 rounded">' + label + '</span>';
+                html += '</div>';
+                html += '<p class="text-[10px] text-gray-500">' + r.matiere + ' - ' + dateStr + '</p>';
+                if (r.description) html += '<p class="text-[10px] text-gray-600 mt-1">' + r.description.substring(0, 80) + (r.description.length > 80 ? '...' : '') + '</p>';
+                html += '<div class="flex gap-1 mt-1">';
+                if (aTexte) html += '<span class="bg-gray-100 text-gray-600 text-[9px] px-1.5 py-0.5 rounded">Texte</span>';
+                if (aFichier) html += '<span class="bg-gray-100 text-gray-600 text-[9px] px-1.5 py-0.5 rounded">' + (r.fichier_nom || 'Fichier') + '</span>';
+                html += '</div></div></div>';
+                html += '<div class="flex gap-2 justify-end">';
+                html += '<button onclick="resVoir(' + r.id + ')" class="bg-blue-50 text-edu-blue text-[10px] font-bold px-3 py-1 rounded-lg">Voir</button>';
+                html += '<button onclick="resSupprimer(' + r.id + ', \'' + r.titre.replace(/'/g, "\\'") + '\')" class="bg-red-50 text-edu-red text-[10px] font-bold px-3 py-1 rounded-lg">Supprimer</button>';
+                html += '</div></div>';
+            });
+            conteneur.innerHTML = html;
+        }
+
+        function afficherFormRessource() {
+            document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
+            document.getElementById('view-form-ressource').classList.remove('hidden');
+            document.getElementById('titre-form-ressource').innerText = 'Nouvelle ressource';
+            document.getElementById('res-id').value = '';
+            document.getElementById('res-type').value = 'lecon';
+            document.getElementById('res-titre').value = '';
+            document.getElementById('res-matiere-input').value = maMatiere || '';
+            document.getElementById('res-description').value = '';
+            document.getElementById('res-texte').value = '';
+            document.getElementById('res-fichier').value = '';
+            document.getElementById('res-fichier-info').innerText = '';
+            document.getElementById('message-ressource').innerText = '';
+            resFichierBase64 = null;
+            resFichierNom = null;
+            resFichierType = null;
+            document.getElementById('btn-save-ressource').disabled = false;
+            document.getElementById('btn-save-ressource').innerText = 'Publier';
+            window.scrollTo(0, 0);
+        }
+
+        document.addEventListener('change', function(e) {
+            if (e.target && e.target.id === 'res-fichier') {
+                const file = e.target.files[0];
+                const info = document.getElementById('res-fichier-info');
+                if (!file) { info.innerText = ''; resFichierBase64 = null; return; }
+
+                if (file.size > 400 * 1024) {
+                    info.innerText = 'Fichier trop lourd (' + Math.round(file.size / 1024) + ' Ko). Maximum 400 Ko.';
+                    info.style.color = '#EF4444';
+                    e.target.value = '';
+                    resFichierBase64 = null;
+                    return;
+                }
+
+                info.innerText = 'Chargement... (' + Math.round(file.size / 1024) + ' Ko)';
+                info.style.color = '#F59E0B';
+
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    resFichierBase64 = ev.target.result;
+                    resFichierNom = file.name;
+                    resFichierType = file.type || 'application/octet-stream';
+                    info.innerText = 'Pret : ' + file.name + ' (' + Math.round(file.size / 1024) + ' Ko)';
+                    info.style.color = '#2EAD5E';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        async function sauvegarderRessource() {
+            const type = document.getElementById('res-type').value;
+            const titre = document.getElementById('res-titre').value.trim();
+            const matiere = document.getElementById('res-matiere-input').value.trim();
+            const description = document.getElementById('res-description').value.trim();
+            const texte = document.getElementById('res-texte').value.trim();
+            const msg = document.getElementById('message-ressource');
+            const btn = document.getElementById('btn-save-ressource');
+
+            if (!titre || !matiere) { msg.innerText = 'Titre et matiere obligatoires.'; msg.style.color = 'red'; return; }
+            if (!texte && !resFichierBase64) { msg.innerText = 'Ecrivez du texte OU joignez un fichier.'; msg.style.color = 'red'; return; }
+
+            btn.disabled = true; btn.innerText = 'Publication...'; msg.innerText = '';
+
+            try {
+                const { error } = await supabaseClient.from('ressources').insert([{
+                    ecole_id: monEcoleId,
+                    classe_id: classeId,
+                    enseignant_id: enseignantId,
+                    matiere: matiere,
+                    type: type,
+                    titre: titre,
+                    description: description || null,
+                    fichier_base64: resFichierBase64 || null,
+                    fichier_nom: resFichierNom || null,
+                    fichier_type: resFichierType || null,
+                    texte_direct: texte || null
+                }]);
+                if (error) throw error;
+
+                // Notifier les eleves de la classe
+                if (listeEleves.length > 0) {
+                    const typeLabel = type === 'programme' ? 'Programme' : (type === 'lecon' ? 'Lecon' : 'Exercice');
+                    const notifs = listeEleves.filter(e => e.utilisateur_id).map(e => ({
+                        utilisateur_id: e.utilisateur_id,
+                        titre: '📚 ' + typeLabel + ' : ' + titre,
+                        contenu: maMatiere + ' - nouvelle ressource disponible',
+                        type: 'devoir',
+                        lu: false,
+                        ecole_id: monEcoleId
+                    }));
+                    if (notifs.length > 0) await supabaseClient.from('notifications').insert(notifs);
+                }
+
+                msg.innerText = '✅ Ressource publiee !';
+                msg.style.color = '#2EAD5E';
+                setTimeout(() => afficherMesRessources(), 1200);
+            } catch (err) {
+                msg.innerText = 'Erreur : ' + err.message;
+                msg.style.color = '#EF4444';
+                btn.disabled = false; btn.innerText = 'Publier';
+            }
+        }
+
+        function resVoir(id) {
+            const r = resListe.find(x => x.id === id);
+            if (!r) return;
+
+            let html = '';
+            html += '<div class="bg-gradient-to-br from-edu-blue to-blue-700 text-white rounded-2xl shadow-lg p-4 mb-3">';
+            html += '<p class="text-[10px] opacity-80 uppercase font-bold">' + r.type + '</p>';
+            html += '<p class="text-lg font-extrabold mt-1">' + r.titre + '</p>';
+            html += '<p class="text-[11px] opacity-90">' + r.matiere + '</p>';
+            html += '</div>';
+
+            if (r.description) {
+                html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">';
+                html += '<p class="text-xs font-bold text-gray-700 mb-1">Description</p>';
+                html += '<p class="text-xs text-gray-600">' + r.description + '</p></div>';
+            }
+
+            if (r.texte_direct) {
+                html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">';
+                html += '<p class="text-xs font-bold text-gray-700 mb-2">Contenu</p>';
+                html += '<p class="text-xs text-gray-700" style="white-space:pre-wrap;">' + r.texte_direct + '</p></div>';
+            }
+
+            if (r.fichier_base64) {
+                html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">';
+                html += '<p class="text-xs font-bold text-gray-700 mb-2">Fichier joint</p>';
+                html += '<p class="text-xs text-gray-600 mb-2">' + (r.fichier_nom || 'fichier') + '</p>';
+                html += '<button onclick="telechargerFichierBase64(' + r.id + ')" class="w-full block text-center bg-edu-blue text-white font-bold py-2.5 rounded-xl text-xs">Telecharger</button>';
+                html += '</div>';
+            }
+
+            html += '<button onclick="afficherMesRessources()" class="w-full bg-gray-100 text-gray-700 font-bold py-3 rounded-xl">Retour</button>';
+
+            hideAllViews();
+            document.getElementById('view-ressources-ens').classList.remove('hidden');
+            document.getElementById('res-liste').innerHTML = html;
+            window.scrollTo(0, 0);
+        }
+
+        async function resSupprimer(id, titre) {
+            if (!confirm('Supprimer "' + titre + '" ?')) return;
+            const { error } = await supabaseClient.from('ressources').delete().eq('id', id);
+            if (error) { alert('Erreur : ' + error.message); return; }
+            afficherMesRessources();
+        }
+function telechargerFichierBase64(idRessource) {
+            try {
+                const r = resListe.find(x => x.id === idRessource);
+                if (!r || !r.fichier_base64) { alert('Fichier introuvable.'); return; }
+                const base64 = r.fichier_base64;
+                const nomFichier = r.fichier_nom || 'fichier';
+                const parts = base64.split(',');
+                const mimeMatch = parts[0].match(/data:(.*?);/);
+                const mime = mimeMatch ? mimeMatch[1] : 'application/octet-stream';
+                const bstr = atob(parts[1]);
+                let n = bstr.length;
+                const u8arr = new Uint8Array(n);
+                while (n--) { u8arr[n] = bstr.charCodeAt(n); }
+                const blob = new Blob([u8arr], { type: mime });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = nomFichier;
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }, 1000);
+            } catch (err) {
+                alert('Erreur telechargement : ' + err.message);
+            }
         }
 
         function seDeconnecter() { sessionStorage.removeItem('eduLinkUser'); window.location.href = 'index.html'; }
