@@ -44,6 +44,11 @@ Administration</title>
         body.dark-mode .bg-pink-50 { background-color: #831843; }
         body.dark-mode .bg-cyan-50 { background-color: #164e63; }
         body.dark-mode .bg-indigo-50 { background-color: #312e81; }
+[id^="view-"].hidden {
+            display: none !important;
+            height: 0 !important;
+            overflow: hidden !important;
+        }
         .btn-theme-toggle { width: 36px; height: 36px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; border: none; color: white; transition: all 0.2s ease; flex-shrink: 0; }
         .btn-theme-toggle:hover { background: rgba(255,255,255,0.35); }
         .btn-theme-toggle:active { transform: scale(0.92); }
@@ -70,14 +75,58 @@ Administration</title>
                 </div>
             </div>
 
-            <div class="flex-1 overflow-y-auto -mt-4 px-4 pb-6">
+            <div class="flex-1 overflow-y-auto -mt-4 pt-6 px-4 pb-6">
                 <!-- ACCUEIL -->
                 <div id="view-accueil" class="hidden fade-in">
-                    <div class="bg-white rounded-2xl shadow-lg p-4 mb-3 grid grid-cols-2 gap-3">
-                        <div class="carte-stat bg-gradient-to-br from-blue-50 to-blue-100 p-3 rounded-xl border border-blue-200"><div class="flex items-center justify-between mb-1"><span class="text-2xl">🎓</span><span class="text-[9px] bg-edu-blue text-white px-1.5 py-0.5 rounded-full font-bold">ELEVES</span></div><p id="total-eleves" class="text-2xl font-extrabold text-edu-blue">0</p></div>
-                        <div class="carte-stat bg-gradient-to-br from-green-50 to-green-100 p-3 rounded-xl border border-green-200"><div class="flex items-center justify-between mb-1"><span class="text-2xl">👨🏾‍🏫</span><span class="text-[9px] bg-edu-green text-white px-1.5 py-0.5 rounded-full font-bold">PROFS</span></div><p id="total-profs" class="text-2xl font-extrabold text-edu-green">0</p></div>
-                        <div class="carte-stat bg-gradient-to-br from-purple-50 to-purple-100 p-3 rounded-xl border border-purple-200"><div class="flex items-center justify-between mb-1"><span class="text-2xl">🏫</span><span class="text-[9px] bg-edu-purple text-white px-1.5 py-0.5 rounded-full font-bold">CLASSES</span></div><p id="total-classes" class="text-2xl font-extrabold text-edu-purple">0</p></div>
-                        <div class="carte-stat bg-gradient-to-br from-red-50 to-red-100 p-3 rounded-xl border border-red-200"><div class="flex items-center justify-between mb-1"><span class="text-2xl">⚠️</span><span class="text-[9px] bg-edu-red text-white px-1.5 py-0.5 rounded-full font-bold">ABSENTS</span></div><p id="absents-jour" class="text-2xl font-extrabold text-edu-red">0</p></div>
+<div id="dashboard-jour" class="mb-3">
+                        <div class="bg-gradient-to-br from-indigo-600 to-purple-700 text-white rounded-2xl shadow-lg p-4">
+                            <div class="flex items-center justify-between mb-3">
+                                <div>
+                                    <p class="text-[10px] opacity-80 uppercase font-bold">Aujourd'hui</p>
+                                    <p id="dash-date" class="text-sm font-bold">—</p>
+                                </div>
+                                <div class="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-xl">📊</div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 mb-2">
+                                <div class="bg-white bg-opacity-15 rounded-xl p-2">
+                                    <div class="flex items-center gap-2 mb-1"><span class="text-lg">⚠️</span><p class="text-[9px] opacity-90">Absents</p></div>
+                                    <p id="dash-absents" class="text-xl font-extrabold">—</p>
+                                </div>
+                                <div class="bg-white bg-opacity-15 rounded-xl p-2">
+                                    <div class="flex items-center gap-2 mb-1"><span class="text-lg">💰</span><p class="text-[9px] opacity-90">Encaisse</p></div>
+                                    <p id="dash-encaisses" class="text-sm font-extrabold">—</p>
+                                    <p class="text-[8px] opacity-70">FCFA aujourd'hui</p>
+                                </div>
+                                <div class="bg-white bg-opacity-15 rounded-xl p-2">
+                                    <div class="flex items-center gap-2 mb-1"><span class="text-lg">📥</span><p class="text-[9px] opacity-90">Inscriptions</p></div>
+                                    <p id="dash-inscriptions" class="text-xl font-extrabold">—</p>
+                                    <p class="text-[8px] opacity-70">en attente</p>
+                                </div>
+                                <div class="bg-white bg-opacity-15 rounded-xl p-2">
+                                    <div class="flex items-center gap-2 mb-1"><span class="text-lg">📉</span><p class="text-[9px] opacity-90">Alertes</p></div>
+                                    <p id="dash-alertes" class="text-xl font-extrabold">—</p>
+                                    <p class="text-[8px] opacity-70">moyenne &lt; 8/20</p>
+                                </div>
+                            </div>
+                            <p class="text-[10px] opacity-80 uppercase font-bold mb-2 mt-3">Ecole</p>
+                            <div class="grid grid-cols-3 gap-2">
+                                <div class="bg-white bg-opacity-15 rounded-xl p-2 text-center">
+                                    <p class="text-xl mb-0.5">🎓</p>
+                                    <p id="dash-total-eleves" class="text-lg font-extrabold">—</p>
+                                    <p class="text-[8px] opacity-70">Eleves</p>
+                                </div>
+                                <div class="bg-white bg-opacity-15 rounded-xl p-2 text-center">
+                                    <p class="text-xl mb-0.5">👨🏾‍🏫</p>
+                                    <p id="dash-total-profs" class="text-lg font-extrabold">—</p>
+                                    <p class="text-[8px] opacity-70">Profs</p>
+                                </div>
+                                <div class="bg-white bg-opacity-15 rounded-xl p-2 text-center">
+                                    <p class="text-xl mb-0.5">🏫</p>
+                                    <p id="dash-total-classes" class="text-lg font-extrabold">—</p>
+                                    <p class="text-[8px] opacity-70">Classes</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="bg-white rounded-2xl shadow-lg p-4 mb-3">
@@ -126,7 +175,18 @@ Administration</title>
                             <button onclick="afficherGestionEleves()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md"><div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-2xl">🎓</div><span class="text-xs font-bold text-gray-800">Élèves</span><span class="text-[9px] text-gray-400">Gérer les inscriptions</span></button>
                             <button onclick="afficherGestionEnseignants()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md"><div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-2xl">👨🏾‍🏫</div><span class="text-xs font-bold text-gray-800">Enseignants</span><span class="text-[9px] text-gray-400">Gérer l'équipe</span></button>
                             <button onclick="afficherGestionClasses()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md"><div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-2xl">🏫</div><span class="text-xs font-bold text-gray-800">Classes</span><span class="text-[9px] text-gray-400">Organiser</span></button>
-                            <button onclick="afficherPaiementsV2()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border-2 border-edu-green flex flex-col items-center gap-2 hover:shadow-md"><div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-2xl">💰</div><span class="text-xs font-bold text-edu-green">Paiements V2</span><span class="text-[9px] text-gray-400">Vue globale 400+</span></button>
+<button onclick="afficherRapportAbsencesAdmin()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md">
+                                <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center text-2xl">📊</div>
+                                <span class="text-xs font-bold text-gray-800">Rapport absences</span><span class="text-[9px] text-gray-400">Par classe</span>
+                            </button>
+                            <button onclick="afficherStatsGlobales()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md">
+                                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-2xl">📈</div>
+                                <span class="text-xs font-bold text-gray-800">Stats ecole</span><span class="text-[9px] text-gray-400">Toutes classes</span>
+                            </button>
+<button onclick="afficherAlertesEleves()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md">
+                                <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center text-2xl">⚠️</div>
+                                <span class="text-xs font-bold text-gray-800">Alertes</span><span class="text-[9px] text-gray-400">Eleves en difficulte</span>
+                            </button>                            <button onclick="afficherPaiementsV2()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border-2 border-edu-green flex flex-col items-center gap-2 hover:shadow-md"><div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-2xl">💰</div><span class="text-xs font-bold text-edu-green">Paiements V2</span><span class="text-[9px] text-gray-400">Vue globale 400+</span></button>
 <button onclick="afficherLiensParents()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md">
                                 <div class="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center text-2xl">🔗</div>
                                 <span class="text-xs font-bold text-gray-800">Liens parents</span><span class="text-[9px] text-gray-400">Voir les liens</span>
@@ -625,6 +685,76 @@ Administration</title>
 
                     <div id="liens-liste" class="space-y-2"></div>
                 </div>
+<div id="view-rapport-absences-admin" class="hidden fade-in">
+                    <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
+                    <h1 class="text-lg font-bold text-gray-800 mb-2">📊 Rapport d'absences</h1>
+                    <p class="text-xs text-gray-500 mb-3">Toute l'ecole ou par classe.</p>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 mb-3 space-y-2">
+                        <select id="absadm-classe" onchange="absadmCharger()" class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white text-xs">
+                            <option value="">Toute l'ecole</option>
+                        </select>
+                        <select id="absadm-periode" onchange="absadmCharger()" class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white text-xs">
+                            <option value="jour">Aujourd'hui</option>
+                            <option value="semaine">Cette semaine</option>
+                            <option value="mois" selected>Ce mois</option>
+                            <option value="trimestre">Ce trimestre</option>
+                            <option value="annee">Cette annee</option>
+                        </select>
+                    </div>
+
+                    <div id="absadm-contenu"></div>
+                </div>
+
+                <div id="view-stats-globales" class="hidden fade-in">
+                    <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
+                    <h1 class="text-lg font-bold text-gray-800 mb-2">📈 Statistiques ecole</h1>
+                    <p class="text-xs text-gray-500 mb-3">Vue globale et comparaison entre classes.</p>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 mb-3 space-y-2">
+                        <select id="stats-trimestre" onchange="statsGlobalesCharger()" class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white text-xs">
+                            <option value="1">Trimestre 1</option>
+                            <option value="2">Trimestre 2</option>
+                            <option value="3">Trimestre 3</option>
+                        </select>
+                    </div>
+
+                    <div id="stats-globales-contenu"></div>
+                </div>
+<div id="view-alertes-eleves" class="hidden fade-in">
+                    <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
+                    <h1 class="text-lg font-bold text-gray-800 mb-2">⚠️ Alertes eleves</h1>
+                    <p class="text-xs text-gray-500 mb-3">Eleves en difficulte scolaire ou d'assiduite.</p>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 mb-3 space-y-2">
+                        <select id="alerte-classe" onchange="chargerAlertes()" class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white text-xs">
+                            <option value="">Toutes les classes</option>
+                        </select>
+                        <select id="alerte-type" onchange="chargerAlertes()" class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white text-xs">
+                            <option value="tous">Toutes les alertes</option>
+                            <option value="moyenne">Moyenne faible (moins de 8/20)</option>
+                            <option value="absences">Absences non justifiees (5+)</option>
+                        </select>
+                        <select id="alerte-trimestre" onchange="chargerAlertes()" class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white text-xs">
+                            <option value="1">Trimestre 1</option>
+                            <option value="2">Trimestre 2</option>
+                            <option value="3">Trimestre 3</option>
+                        </select>
+                    </div>
+                    <div id="alertes-stats" class="mb-3"></div>
+                    <div id="alertes-liste" class="space-y-2"></div>
+                </div>
+<div id="view-groupes" class="hidden fade-in">
+                    <div class="flex items-center gap-3 mb-3">
+                        <button onclick="retourAccueil()" class="text-2xl">⬅️</button>
+                        <h1 class="text-lg font-bold text-gray-800 flex-1">👥 Groupes de discussion</h1>
+                        <button onclick="afficherFormGroupe()" class="bg-edu-blue text-white text-xs font-bold px-3 py-2 rounded-lg">+ Nouveau</button>
+                    </div>
+                    <p class="text-xs text-gray-500 mb-3">Creez des groupes pour envoyer des messages a plusieurs personnes a la fois.</p>
+                    <div id="groupes-liste" class="space-y-3"></div>
+                </div>
+
+                
                 <div id="view-notifications" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-4">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-4">Notifications</h1>
@@ -756,7 +886,9 @@ Administration</title>
                     if (ecole.signature_url) signatureBase64 = ecole.signature_url;
                 }
             }
+chargerDashboardJour();
             document.getElementById('view-accueil').classList.remove('hidden');
+            chargerDashboardJour();
             chargerStats();
             chargerBadgeNotifs();
             chargerBadgeDemandes();
@@ -804,12 +936,9 @@ Administration</title>
         }
 
         function hideAllViews() {
-            ['view-accueil', 'view-paiements-v2', 'view-paiements-eleve', 'view-demandes-mdp', 'view-code', 'view-equipe', 'view-form-staff', 'view-signature', 'view-demandes', 'view-emploi-classes', 'view-emploi-classe', 'view-form-cours', 'view-liste-paiements', 'view-form-paiement', 'view-liste-classes', 'view-form-classe', 'view-liste-eleves', 'view-form-eleve', 'view-liste-enseignants', 'view-form-enseignant', 'view-nouvelle-annonce', 'view-annonces', 'view-affiche', 'view-notifications', 'view-emploi-enseignants', 'view-emploi-enseignant-detail', 'view-import-eleves', 'view-transfert-eleves', 'view-fiche-eleve'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.classList.add('hidden');
-            });
+            document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
         }
-
+'view-alertes-eleves'
         // ============ PAIEMENTS V2 ============
         let pv2TousEleves = [];
         let pv2TousPaiements = [];
@@ -2502,6 +2631,7 @@ function ouvrirActionsCours(coursId) {
             hideAllViews();
             document.getElementById('view-accueil').classList.remove('hidden');
             chargerStats();
+            chargerDashboardJour();
             chargerBadgeDemandes();
             chargerBadgeEquipe();
             chargerBadgeMdp();
@@ -3344,8 +3474,533 @@ async function ficheElevePDF() {
             alert('✅ ' + nomEleve + ' a ete delie.');
             afficherLiensParents();
         }
+// ============ RAPPORT ABSENCES ADMIN ============
+        let absAdmClasses = [];
+
+        async function afficherRapportAbsencesAdmin() {
+            hideAllViews();
+            document.getElementById('view-rapport-absences-admin').classList.remove('hidden');
+
+            if (absAdmClasses.length === 0) {
+                const { data } = await supabaseClient.from('classes').select('id, nom').eq('ecole_id', monEcoleId).order('nom');
+                absAdmClasses = data || [];
+                const sel = document.getElementById('absadm-classe');
+                sel.innerHTML = '<option value="">Toute l\'ecole</option>';
+                absAdmClasses.forEach(c => { sel.innerHTML += '<option value="' + c.id + '">' + c.nom + '</option>'; });
+            }
+            absadmCharger();
+            window.scrollTo(0, 0);
+        }
+
+        function absadmCalculerDates(periode) {
+            const now = new Date();
+            const y = now.getFullYear(), m = now.getMonth(), d = now.getDate();
+            const pad = n => String(n).padStart(2, '0');
+            const fmt = dt => dt.getFullYear() + '-' + pad(dt.getMonth() + 1) + '-' + pad(dt.getDate());
+            let debut, fin;
+            if (periode === 'jour') { debut = fin = fmt(now); }
+            else if (periode === 'semaine') {
+                const day = now.getDay() || 7;
+                const lundi = new Date(now); lundi.setDate(d - day + 1);
+                const dim = new Date(lundi); dim.setDate(lundi.getDate() + 6);
+                debut = fmt(lundi); fin = fmt(dim);
+            } else if (periode === 'mois') { debut = fmt(new Date(y, m, 1)); fin = fmt(new Date(y, m + 1, 0)); }
+            else if (periode === 'trimestre') {
+                let t1, t2;
+                if (m >= 8) { t1 = new Date(y, 8, 1); t2 = new Date(y, 11, 31); }
+                else if (m <= 2) { t1 = new Date(y, 0, 1); t2 = new Date(y, 2, 31); }
+                else { t1 = new Date(y, 3, 1); t2 = new Date(y, 5, 30); }
+                debut = fmt(t1); fin = fmt(t2);
+            } else { debut = (m >= 8 ? y : y - 1) + '-09-01'; fin = (m >= 8 ? y + 1 : y) + '-08-31'; }
+            return { debut, fin };
+        }
+
+        async function absadmCharger() {
+            const conteneur = document.getElementById('absadm-contenu');
+            conteneur.innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
+
+            const classeId = document.getElementById('absadm-classe').value;
+            const periode = document.getElementById('absadm-periode').value;
+            const { debut, fin } = absadmCalculerDates(periode);
+
+            let q = supabaseClient.from('absences').select('eleve_id, matiere, justifiee, date_absence, eleves!inner(classe_id, utilisateurs!utilisateur_id(prenom, nom), classes(nom))').eq('ecole_id', monEcoleId).gte('date_absence', debut).lte('date_absence', fin);
+            if (classeId) q = q.eq('eleves.classe_id', classeId);
+
+            const { data } = await q;
+            const liste = data || [];
+
+            if (liste.length === 0) {
+                conteneur.innerHTML = '<div class="bg-white p-6 rounded-2xl shadow-sm text-center"><div class="text-5xl mb-2">🎉</div><p class="text-gray-500 text-sm">Aucune absence sur cette periode.</p></div>';
+                return;
+            }
+
+            const justifiees = liste.filter(a => a.justifiee).length;
+            const nonJust = liste.length - justifiees;
+            const parEleve = {};
+            liste.forEach(a => {
+                const nom = a.eleves && a.eleves.utilisateurs ? a.eleves.utilisateurs.prenom + ' ' + a.eleves.utilisateurs.nom : '?';
+                const classeNom = a.eleves && a.eleves.classes ? a.eleves.classes.nom : '';
+                const key = a.eleve_id;
+                if (!parEleve[key]) parEleve[key] = { nom: nom, classe: classeNom, total: 0, just: 0, nonJust: 0 };
+                parEleve[key].total++;
+                if (a.justifiee) parEleve[key].just++; else parEleve[key].nonJust++;
+            });
+            const elevesTries = Object.values(parEleve).sort((a, b) => b.total - a.total);
+
+            let html = '';
+            html += '<div class="bg-gradient-to-br from-red-500 to-orange-500 text-white rounded-2xl shadow-lg p-4 mb-3">';
+            html += '<p class="text-xs opacity-90 mb-1">Total absences</p>';
+            html += '<p class="text-3xl font-extrabold">' + liste.length + '</p>';
+            html += '<p class="text-[11px] opacity-90 mt-1">' + elevesTries.length + ' eleve(s) concerne(s)</p>';
+            html += '<div class="grid grid-cols-2 gap-2 mt-3">';
+            html += '<div class="bg-white bg-opacity-20 rounded-xl p-2 text-center"><p class="text-[9px]">Justifiees</p><p class="text-lg font-bold">' + justifiees + '</p></div>';
+            html += '<div class="bg-white bg-opacity-20 rounded-xl p-2 text-center"><p class="text-[9px]">Non just.</p><p class="text-lg font-bold">' + nonJust + '</p></div>';
+            html += '</div></div>';
+
+            html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">';
+            html += '<p class="text-sm font-bold text-gray-800 mb-3">Top absents</p>';
+            elevesTries.slice(0, 15).forEach(e => {
+                const couleur = e.total > 5 ? '#EF4444' : (e.total > 2 ? '#F59E0B' : '#2EAD5E');
+                html += '<div class="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">';
+                html += '<div class="flex-1 min-w-0"><p class="text-xs font-bold text-gray-800 truncate">' + e.nom + '</p><p class="text-[10px] text-gray-500">' + e.classe + '</p></div>';
+                html += '<span class="text-sm font-bold" style="color:' + couleur + '">' + e.total + '</span>';
+                html += '</div>';
+            });
+            if (elevesTries.length > 15) html += '<p class="text-[10px] text-gray-400 text-center mt-2">... et ' + (elevesTries.length - 15) + ' autres</p>';
+            html += '</div>';
+
+            html += '<button onclick="absadmPDF()" class="w-full bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold py-3 rounded-xl">📥 Telecharger le PDF</button><div id="absadm-msg" class="text-center text-sm font-semibold mt-2"></div>';
+
+            conteneur.innerHTML = html;
+            window._absAdmRapport = { liste: liste, elevesTries: elevesTries, justifiees: justifiees, nonJust: nonJust, debut: debut, fin: fin, classeNom: classeId ? (absAdmClasses.find(c => c.id == classeId) || {}).nom : 'Toute l\'ecole' };
+        }
+
+        async function absadmPDF() {
+            const r = window._absAdmRapport;
+            if (!r) return;
+            const btn = event.target;
+            const msg = document.getElementById('absadm-msg');
+            btn.disabled = true; btn.innerText = 'Generation...';
+
+            let iframe = null;
+            try {
+                const ecoleNom = document.getElementById('ecole-nom-affiche').innerText.replace('🏫 ', '');
+                const dateJour = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+                let lignes = '';
+                r.elevesTries.forEach(e => {
+                    const c = e.total > 5 ? '#EF4444' : (e.total > 2 ? '#F59E0B' : '#2EAD5E');
+                    lignes += '<tr><td style="padding:6px;border:1px solid #d1d5db;font-size:11px;font-weight:600;">' + e.nom + '</td><td style="padding:6px;border:1px solid #d1d5db;font-size:11px;color:#6b7280;">' + e.classe + '</td><td style="padding:6px;border:1px solid #d1d5db;font-size:11px;text-align:center;color:#2EAD5E;">' + e.just + '</td><td style="padding:6px;border:1px solid #d1d5db;font-size:11px;text-align:center;color:#EF4444;">' + e.nonJust + '</td><td style="padding:6px;border:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;color:' + c + ';">' + e.total + '</td></tr>';
+                });
+                const htmlInterne = '<div style="background:white;padding:20px;border:2px solid #004AAD;border-radius:12px;font-family:Arial,sans-serif;">'
+                    + '<div style="text-align:center;border-bottom:2px solid #004AAD;padding-bottom:10px;margin-bottom:14px;"><h1 style="font-size:18px;color:#004AAD;margin:4px 0;">EDU-LINK</h1>'
+                    + '<p style="font-size:10px;color:#6b7280;margin:0;">' + ecoleNom + '</p>'
+                    + '<p style="font-size:14px;font-weight:bold;margin-top:6px;">RAPPORT D ABSENCES - ' + r.classeNom + '</p>'
+                    + '<p style="font-size:11px;margin:2px 0;">Du <b>' + r.debut + '</b> au <b>' + r.fin + '</b></p></div>'
+                    + '<table style="width:100%;border-collapse:collapse;margin-bottom:12px;"><tr>'
+                    + '<td style="text-align:center;padding:6px;background:#fef2f2;border:1px solid #d1d5db;"><p style="font-size:9px;margin:0;">Total</p><p style="font-size:16px;font-weight:bold;color:#EF4444;margin:2px 0 0 0;">' + r.liste.length + '</p></td>'
+                    + '<td style="text-align:center;padding:6px;background:#f0fdf4;border:1px solid #d1d5db;"><p style="font-size:9px;margin:0;">Justifiees</p><p style="font-size:16px;font-weight:bold;color:#2EAD5E;margin:2px 0 0 0;">' + r.justifiees + '</p></td>'
+                    + '<td style="text-align:center;padding:6px;background:#fef2f2;border:1px solid #d1d5db;"><p style="font-size:9px;margin:0;">Non just.</p><p style="font-size:16px;font-weight:bold;color:#EF4444;margin:2px 0 0 0;">' + r.nonJust + '</p></td></tr></table>'
+                    + '<table style="width:100%;border-collapse:collapse;"><thead><tr style="background:#004AAD;"><th style="padding:6px;font-size:10px;color:white;border:1px solid #004AAD;text-align:left;">Eleve</th><th style="padding:6px;font-size:10px;color:white;border:1px solid #004AAD;">Classe</th><th style="padding:6px;font-size:10px;color:white;border:1px solid #004AAD;">Just.</th><th style="padding:6px;font-size:10px;color:white;border:1px solid #004AAD;">Non just.</th><th style="padding:6px;font-size:10px;color:white;border:1px solid #004AAD;">Total</th></tr></thead><tbody>' + lignes + '</tbody></table>'
+                    + '<p style="text-align:center;font-size:8px;color:#9ca3af;margin-top:12px;">Genere par EDU-LINK - ' + dateJour + '</p></div>';
+
+                iframe = document.createElement('iframe');
+                iframe.style.cssText = 'position:fixed;top:0;left:0;width:800px;height:1100px;opacity:0;pointer-events:none;z-index:-1;border:none;';
+                document.body.appendChild(iframe);
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                doc.open();
+                doc.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{margin:0;padding:20px;background:#fff;font-family:Arial,sans-serif;}</style></head><body>' + htmlInterne + '</body></html>');
+                doc.close();
+                await new Promise(res => setTimeout(res, 400));
+                const nom = 'Rapport_Absences_' + (r.classeNom || 'ecole').replace(/\s+/g, '_') + '_' + r.debut + '_' + r.fin + '.pdf';
+                const options = { margin: 10, filename: nom, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', width: 800, windowWidth: 800 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+                const pdfBlob = await html2pdf().set(options).from(doc.body).outputPdf('blob');
+                const fichier = new File([pdfBlob], nom, { type: 'application/pdf' });
+                document.body.removeChild(iframe); iframe = null;
+
+                if (navigator.canShare && navigator.canShare({ files: [fichier] })) {
+                    await navigator.share({ files: [fichier], title: 'Rapport absences' });
+                    msg.innerText = '✅ Partage !'; msg.style.color = '#2EAD5E';
+                } else {
+                    window.open(URL.createObjectURL(pdfBlob), '_blank');
+                    msg.innerText = '✅ PDF ouvert !'; msg.style.color = '#2EAD5E';
+                }
+            } catch (err) {
+                if (iframe && document.body.contains(iframe)) document.body.removeChild(iframe);
+                msg.innerText = 'Erreur : ' + err.message; msg.style.color = '#EF4444';
+            } finally {
+                btn.disabled = false; btn.innerText = '📥 Telecharger le PDF';
+            }
+        }
+// ============ STATISTIQUES GLOBALES ============
+        async function afficherStatsGlobales() {
+            hideAllViews();
+            document.getElementById('view-stats-globales').classList.remove('hidden');
+            statsGlobalesCharger();
+            window.scrollTo(0, 0);
+        }
+
+        async function statsGlobalesCharger() {
+            const conteneur = document.getElementById('stats-globales-contenu');
+            conteneur.innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
+
+            const trimestre = parseInt(document.getElementById('stats-trimestre').value);
+
+            // Charger les classes + eleves
+            const { data: classes } = await supabaseClient.from('classes').select('id, nom').eq('ecole_id', monEcoleId).order('nom');
+            const { data: eleves } = await supabaseClient.from('eleves').select('id, classe_id').eq('ecole_id', monEcoleId);
+
+            if (!classes || classes.length === 0) {
+                conteneur.innerHTML = '<div class="bg-white p-6 rounded-2xl shadow-sm text-center"><p class="text-gray-500 text-sm">Aucune classe.</p></div>';
+                return;
+            }
+
+            // Charger toutes les notes du trimestre
+            const eleveIds = (eleves || []).map(e => e.id);
+            let toutesNotes = [];
+            if (eleveIds.length > 0) {
+                const { data } = await supabaseClient.from('notes').select('eleve_id, note, coefficient').in('eleve_id', eleveIds).eq('trimestre', trimestre);
+                toutesNotes = data || [];
+            }
+
+            // Charger les absences du trimestre (simplifie)
+            let toutesAbs = [];
+            if (eleveIds.length > 0) {
+                const { data } = await supabaseClient.from('absences').select('eleve_id, justifiee').in('eleve_id', eleveIds);
+                toutesAbs = data || [];
+            }
+
+            // Calculs par eleve
+            const moyParEleve = {};
+            toutesNotes.forEach(n => {
+                if (!moyParEleve[n.eleve_id]) moyParEleve[n.eleve_id] = { p: 0, c: 0 };
+                moyParEleve[n.eleve_id].p += parseFloat(n.note) * n.coefficient;
+                moyParEleve[n.eleve_id].c += n.coefficient;
+            });
+
+            const absParEleve = {};
+            toutesAbs.forEach(a => {
+                if (!absParEleve[a.eleve_id]) absParEleve[a.eleve_id] = { total: 0, nonJust: 0 };
+                absParEleve[a.eleve_id].total++;
+                if (!a.justifiee) absParEleve[a.eleve_id].nonJust++;
+            });
+
+            // Stats par classe
+            const statsParClasse = classes.map(c => {
+                const elevesClasse = (eleves || []).filter(e => e.classe_id === c.id);
+                let tp = 0, tc = 0, nbNotes = 0, nbReussite = 0, nbAvecNotes = 0;
+                let totalAbs = 0, totalNonJust = 0;
+                elevesClasse.forEach(e => {
+                    const m = moyParEleve[e.id];
+                    if (m && m.c > 0) {
+                        const moy = m.p / m.c;
+                        tp += m.p; tc += m.c; nbNotes += m.c;
+                        nbAvecNotes++;
+                        if (moy >= 10) nbReussite++;
+                    }
+                    const a = absParEleve[e.id];
+                    if (a) { totalAbs += a.total; totalNonJust += a.nonJust; }
+                });
+                const moyClasse = tc > 0 ? tp / tc : null;
+                const tauxReussite = nbAvecNotes > 0 ? Math.round((nbReussite / nbAvecNotes) * 100) : 0;
+                return { nom: c.nom, nbEleves: elevesClasse.length, nbAvecNotes: nbAvecNotes, moyClasse: moyClasse, tauxReussite: tauxReussite, totalAbs: totalAbs, totalNonJust: totalNonJust };
+            }).sort((a, b) => (b.moyClasse || 0) - (a.moyClasse || 0));
+
+            // Stats globales
+            let tpG = 0, tcG = 0, nbAvecNotesG = 0, nbReussiteG = 0;
+            Object.keys(moyParEleve).forEach(id => {
+                const m = moyParEleve[id];
+                if (m.c > 0) {
+                    const moy = m.p / m.c;
+                    tpG += m.p; tcG += m.c; nbAvecNotesG++;
+                    if (moy >= 10) nbReussiteG++;
+                }
+            });
+            const moyEcole = tcG > 0 ? tpG / tcG : 0;
+            const tauxReussiteEcole = nbAvecNotesG > 0 ? Math.round((nbReussiteG / nbAvecNotesG) * 100) : 0;
+
+            let html = '';
+            // Carte globale
+            html += '<div class="bg-gradient-to-br from-edu-blue to-blue-700 text-white rounded-2xl shadow-lg p-4 mb-3">';
+            html += '<p class="text-[10px] opacity-80 uppercase font-bold">Moyenne ecole - Trimestre ' + trimestre + '</p>';
+            html += '<p class="text-4xl font-extrabold mt-1">' + moyEcole.toFixed(2) + '<span class="text-lg opacity-70">/20</span></p>';
+            html += '<div class="grid grid-cols-3 gap-2 mt-3 text-center">';
+            html += '<div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px]">Classes</p><p class="text-sm font-bold">' + classes.length + '</p></div>';
+            html += '<div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px]">Eleves notes</p><p class="text-sm font-bold">' + nbAvecNotesG + '</p></div>';
+            html += '<div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px]">Reussite</p><p class="text-sm font-bold">' + tauxReussiteEcole + '%</p></div>';
+            html += '</div></div>';
+
+            // Classement des classes
+            html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">';
+            html += '<p class="text-sm font-bold text-gray-800 mb-3">Classement des classes</p>';
+            statsParClasse.forEach((s, idx) => {
+                const medaille = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : (idx + 1) + '.';
+                const moyStr = s.moyClasse !== null ? s.moyClasse.toFixed(2) : '--';
+                const col = s.moyClasse === null ? '#6b7280' : (s.moyClasse >= 14 ? '#004AAD' : (s.moyClasse >= 10 ? '#2EAD5E' : '#EF4444'));
+                html += '<div class="flex items-center gap-3 py-2 border-b border-gray-100 last:border-b-0">';
+                html += '<span class="text-sm w-6 text-center flex-shrink-0">' + medaille + '</span>';
+                html += '<div class="flex-1 min-w-0"><p class="text-xs font-bold text-gray-800 truncate">' + s.nom + '</p>';
+                html += '<p class="text-[10px] text-gray-500">' + s.nbEleves + ' eleves - ' + s.nbAvecNotes + ' notes</p></div>';
+                html += '<div class="text-right flex-shrink-0"><p class="text-sm font-extrabold" style="color:' + col + '">' + moyStr + '</p><p class="text-[9px] text-gray-500">' + s.tauxReussite + '% reussite</p></div></div>';
+            });
+            html += '</div>';
+
+            // Absences par classe
+            html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">';
+            html += '<p class="text-sm font-bold text-gray-800 mb-3">Absences par classe</p>';
+            const classesAbs = [...statsParClasse].sort((a, b) => b.totalAbs - a.totalAbs);
+            const maxAbs = Math.max(...classesAbs.map(c => c.totalAbs), 1);
+            classesAbs.forEach(s => {
+                const pct = Math.round((s.totalAbs / maxAbs) * 100);
+                const col = s.totalAbs > 20 ? '#EF4444' : (s.totalAbs > 10 ? '#F59E0B' : '#2EAD5E');
+                html += '<div class="flex items-center gap-2 mb-2"><span class="text-[10px] text-gray-600 w-20 truncate flex-shrink-0">' + s.nom + '</span>';
+                html += '<div class="flex-1 bg-gray-100 rounded-full h-3 overflow-hidden"><div class="h-3 rounded-full" style="width:' + pct + '%;background:' + col + '"></div></div>';
+                html += '<span class="text-[10px] font-bold text-gray-700 w-8 text-right">' + s.totalAbs + '</span></div>';
+            });
+            html += '<p class="text-[9px] text-gray-400 text-center mt-2">Total absences (annee)</p>';
+            html += '</div>';
+
+            conteneur.innerHTML = html;
+        }
+// ============ ALERTES ELEVES EN DIFFICULTE ============
+        let alertesClasses = [];
+
+        async function afficherAlertesEleves() {
+            hideAllViews();
+            document.getElementById('view-alertes-eleves').classList.remove('hidden');
+
+            if (alertesClasses.length === 0) {
+                const { data } = await supabaseClient.from('classes').select('id, nom').eq('ecole_id', monEcoleId).order('nom');
+                alertesClasses = data || [];
+                const sel = document.getElementById('alerte-classe');
+                sel.innerHTML = '<option value="">Toutes les classes</option>';
+                alertesClasses.forEach(c => { sel.innerHTML += '<option value="' + c.id + '">' + c.nom + '</option>'; });
+            }
+            chargerAlertes();
+            window.scrollTo(0, 0);
+        }
+
+        async function chargerAlertes() {
+            const conteneur = document.getElementById('alertes-liste');
+            conteneur.innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
+
+            const classeId = document.getElementById('alerte-classe').value;
+            const typeFiltre = document.getElementById('alerte-type').value;
+            const trimestre = parseInt(document.getElementById('alerte-trimestre').value);
+
+            // Charger les eleves
+            let q = supabaseClient.from('eleves').select('id, matricule, classe_id, parent_id, utilisateurs!utilisateur_id(prenom, nom), classes(nom)').eq('ecole_id', monEcoleId);
+            if (classeId) q = q.eq('classe_id', classeId);
+            const { data: eleves } = await q;
+
+            if (!eleves || eleves.length === 0) {
+                conteneur.innerHTML = '<div class="bg-white p-6 rounded-2xl shadow-sm text-center"><p class="text-gray-500 text-sm">Aucun eleve.</p></div>';
+                document.getElementById('alertes-stats').innerHTML = '';
+                return;
+            }
+
+            const eleveIds = eleves.map(e => e.id);
+
+            // Charger notes du trimestre
+            const { data: notes } = await supabaseClient.from('notes').select('eleve_id, note, coefficient').in('eleve_id', eleveIds).eq('trimestre', trimestre);
+
+            // Charger absences
+            const { data: absences } = await supabaseClient.from('absences').select('eleve_id, justifiee').in('eleve_id', eleveIds);
+
+            // Calculer moyennes
+            const moyParEleve = {};
+            (notes || []).forEach(n => {
+                if (!moyParEleve[n.eleve_id]) moyParEleve[n.eleve_id] = { p: 0, c: 0, nb: 0 };
+                moyParEleve[n.eleve_id].p += parseFloat(n.note) * n.coefficient;
+                moyParEleve[n.eleve_id].c += n.coefficient;
+                moyParEleve[n.eleve_id].nb++;
+            });
+
+            // Calculer absences
+            const absParEleve = {};
+            (absences || []).forEach(a => {
+                if (!absParEleve[a.eleve_id]) absParEleve[a.eleve_id] = { total: 0, nonJust: 0 };
+                absParEleve[a.eleve_id].total++;
+                if (!a.justifiee) absParEleve[a.eleve_id].nonJust++;
+            });
+
+            // Analyser chaque eleve
+            const alertes = [];
+            eleves.forEach(e => {
+                const m = moyParEleve[e.id];
+                const a = absParEleve[e.id] || { total: 0, nonJust: 0 };
+                const moy = m && m.c > 0 ? m.p / m.c : null;
+                const nbNotes = m ? m.nb : 0;
+
+                const declencheurs = [];
+                if (moy !== null && moy < 8 && nbNotes >= 2) {
+                    declencheurs.push({ type: 'moyenne', label: 'Moyenne faible', valeur: moy.toFixed(2) + '/20', couleur: '#EF4444', emoji: '📉' });
+                }
+                if (a.nonJust >= 5) {
+                    declencheurs.push({ type: 'absences', label: 'Absences non justifiees', valeur: a.nonJust + ' abs.', couleur: '#F59E0B', emoji: '⚠️' });
+                }
+
+                if (declencheurs.length > 0) {
+                    // Filtrer par type
+                    if (typeFiltre !== 'tous') {
+                        const aLeBonType = declencheurs.some(d => d.type === typeFiltre);
+                        if (!aLeBonType) return;
+                    }
+                    alertes.push({
+                        eleve: e,
+                        moy: moy,
+                        nbNotes: nbNotes,
+                        absTotal: a.total,
+                        absNonJust: a.nonJust,
+                        declencheurs: declencheurs,
+                        nbDeclencheurs: declencheurs.length
+                    });
+                }
+            });
+
+            // Trier : plus de declencheurs d'abord, puis moyenne croissante
+            alertes.sort((a, b) => {
+                if (b.nbDeclencheurs !== a.nbDeclencheurs) return b.nbDeclencheurs - a.nbDeclencheurs;
+                return (a.moy || 20) - (b.moy || 20);
+            });
+
+            // Stats
+            const statsConteneur = document.getElementById('alertes-stats');
+            const nbCritiques = alertes.filter(a => a.nbDeclencheurs >= 2).length;
+            const nbMoyenne = alertes.filter(a => a.declencheurs.some(d => d.type === 'moyenne')).length;
+            const nbAbsences = alertes.filter(a => a.declencheurs.some(d => d.type === 'absences')).length;
+
+            let statsHtml = '<div class="bg-gradient-to-br from-red-500 to-orange-500 text-white rounded-2xl shadow-lg p-4 mb-2">';
+            statsHtml += '<p class="text-[10px] opacity-90 uppercase font-bold">Eleves en difficulte</p>';
+            statsHtml += '<p class="text-3xl font-extrabold mt-1">' + alertes.length + '</p>';
+            statsHtml += '<p class="text-[11px] opacity-90 mt-1">' + nbCritiques + ' en situation critique (2+ alertes)</p>';
+            statsHtml += '</div>';
+            statsHtml += '<div class="grid grid-cols-2 gap-2 mb-3">';
+            statsHtml += '<div class="bg-white p-2 rounded-xl border border-gray-100 text-center"><p class="text-[9px] text-gray-500">Moyenne faible</p><p class="text-lg font-bold text-edu-red">' + nbMoyenne + '</p></div>';
+            statsHtml += '<div class="bg-white p-2 rounded-xl border border-gray-100 text-center"><p class="text-[9px] text-gray-500">Absences</p><p class="text-lg font-bold text-edu-orange">' + nbAbsences + '</p></div>';
+            statsHtml += '</div>';
+            statsConteneur.innerHTML = statsHtml;
+
+            // Liste
+            if (alertes.length === 0) {
+                conteneur.innerHTML = '<div class="bg-white p-8 rounded-2xl shadow-sm text-center"><div class="text-5xl mb-2">🎉</div><p class="text-gray-500 text-sm">Aucune alerte.</p><p class="text-[10px] text-gray-400 mt-1">Tous les eleves sont dans les normes !</p></div>';
+                return;
+            }
+
+            let html = '';
+            alertes.forEach(item => {
+                const e = item.eleve;
+                const prenom = e.utilisateurs ? e.utilisateurs.prenom : '?';
+                const nom = e.utilisateurs ? e.utilisateurs.nom : '?';
+                const classeNom = e.classes ? e.classes.nom : 'Sans classe';
+                const initiale = prenom.charAt(0).toUpperCase();
+                const estCritique = item.nbDeclencheurs >= 2;
+
+                const borderClass = estCritique ? 'border-2 border-red-300 bg-red-50' : 'border border-gray-100';
+
+                html += '<div class="bg-white p-3 rounded-2xl shadow-sm ' + borderClass + '">';
+                html += '<div class="flex items-center gap-3 mb-2">';
+                html += '<div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0" style="background:linear-gradient(135deg,#DC2626,#F59E0B);">' + initiale + '</div>';
+                html += '<div class="flex-1 min-w-0">';
+                html += '<p class="text-xs font-bold text-gray-800 truncate">' + prenom + ' ' + nom + '</p>';
+                html += '<p class="text-[10px] text-gray-500">' + (e.matricule || '') + ' - ' + classeNom + '</p>';
+                html += '</div>';
+                if (estCritique) html += '<span class="bg-red-100 text-edu-red text-[9px] font-bold px-2 py-0.5 rounded">CRITIQUE</span>';
+                html += '</div>';
+                html += '<div class="space-y-1 mb-2">';
+                item.declencheurs.forEach(d => {
+                    html += '<div class="flex items-center gap-2 text-[11px]"><span>' + d.emoji + '</span><span class="text-gray-700">' + d.label + ' : <b style="color:' + d.couleur + '">' + d.valeur + '</b></span></div>';
+                });
+                html += '</div>';
+                html += '<div class="flex gap-2 justify-end">';
+                html += '<button onclick="editerEleve(' + e.id + ')" class="bg-blue-50 text-edu-blue text-[10px] font-bold px-3 py-1 rounded-lg">Modifier</button>';
+                html += '<button onclick="alerteNotifierParent(' + e.id + ', \'' + (prenom + ' ' + nom).replace(/'/g, "\\'") + '\', ' + (e.parent_id || 0) + ')" class="bg-orange-50 text-edu-orange text-[10px] font-bold px-3 py-1 rounded-lg">Prevenir parent</button>';
+                html += '</div></div>';
+            });
+            conteneur.innerHTML = html;
+        }
+
+        async function alerteNotifierParent(eleveId, nomComplet, parentId) {
+            if (!parentId) { alert('Cet eleve n\'a pas de parent lie.'); return; }
+            if (!confirm('Envoyer une notification au parent de ' + nomComplet + ' ?')) return;
+
+            const contenu = 'Votre enfant ' + nomComplet + ' est en difficulte (moyenne faible ou absences). Merci de contacter l\'administration de l\'ecole.';
+
+            const { error } = await supabaseClient.from('notifications').insert([{
+                utilisateur_id: parentId,
+                titre: '⚠️ Suivi de votre enfant',
+                contenu: contenu,
+                type: 'absence',
+                lu: false,
+                ecole_id: monEcoleId
+            }]);
+            if (error) { alert('Erreur : ' + error.message); return; }
+            alert('✅ Notification envoyee au parent.');
+        }
+// ============ DASHBOARD JOUR ============
+        async function chargerDashboardJour() {
+            // Date immediate
+            const maintenant = new Date();
+            const dateAffichee = maintenant.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+            const dateEl = document.getElementById('dash-date');
+            if (dateEl) dateEl.innerText = dateAffichee;
+
+            const aujourdHui = maintenant.toISOString().split('T')[0];
+            const trimestreActuel = maintenant.getMonth() >= 8 ? 1 : (maintenant.getMonth() <= 2 ? 2 : 3);
+
+            // TOUTES LES REQUETES EN PARALLELE
+            const [
+                resAbsents,
+                resPaiements,
+                resAttente,
+                resEleves,
+                resTotalProfs,
+                resTotalClasses
+            ] = await Promise.all([
+                supabaseClient.from('absences').select('*', { count: 'exact', head: true }).eq('ecole_id', monEcoleId).eq('date_absence', aujourdHui),
+                supabaseClient.from('paiements').select('montant').eq('ecole_id', monEcoleId).eq('statut', 'paye').gte('date_paiement', aujourdHui + 'T00:00:00').lte('date_paiement', aujourdHui + 'T23:59:59'),
+                supabaseClient.from('utilisateurs').select('*', { count: 'exact', head: true }).eq('ecole_id', monEcoleId).eq('statut', 'en_attente'),
+                supabaseClient.from('eleves').select('id').eq('ecole_id', monEcoleId),
+                supabaseClient.from('utilisateurs').select('*', { count: 'exact', head: true }).eq('ecole_id', monEcoleId).eq('role', 'enseignant').eq('statut', 'actif'),
+                supabaseClient.from('classes').select('*', { count: 'exact', head: true }).eq('ecole_id', monEcoleId)
+            ]);
+
+            // Remplir les 4 KPIs du jour
+            const elAbs = document.getElementById('dash-absents');
+            const elEnc = document.getElementById('dash-encaisses');
+            const elIns = document.getElementById('dash-inscriptions');
+            if (elAbs) elAbs.innerText = resAbsents.count || 0;
+            if (elEnc) elEnc.innerText = (resPaiements.data || []).reduce((s, p) => s + parseFloat(p.montant), 0).toLocaleString('fr-FR');
+            if (elIns) elIns.innerText = resAttente.count || 0;
+
+            // Remplir les 3 KPIs ecole
+            const eleveIds = (resEleves.data || []).map(e => e.id);
+            const elTotalElv = document.getElementById('dash-total-eleves');
+            const elTotalProfs = document.getElementById('dash-total-profs');
+            const elTotalClasses = document.getElementById('dash-total-classes');
+            if (elTotalElv) elTotalElv.innerText = eleveIds.length;
+            if (elTotalProfs) elTotalProfs.innerText = resTotalProfs.count || 0;
+            if (elTotalClasses) elTotalClasses.innerText = resTotalClasses.count || 0;
+
+            // Alertes
+            let nbAlertes = 0;
+            if (eleveIds.length > 0) {
+                const { data: notes } = await supabaseClient.from('notes').select('eleve_id, note, coefficient').in('eleve_id', eleveIds).eq('trimestre', trimestreActuel);
+                const moyennes = {};
+                (notes || []).forEach(n => {
+                    if (!moyennes[n.eleve_id]) moyennes[n.eleve_id] = { p: 0, c: 0 };
+                    moyennes[n.eleve_id].p += parseFloat(n.note) * n.coefficient;
+                    moyennes[n.eleve_id].c += n.coefficient;
+                });
+                Object.keys(moyennes).forEach(id => {
+                    if (moyennes[id].c > 0 && (moyennes[id].p / moyennes[id].c) < 8) nbAlertes++;
+                });
+            }
+            const elAlertes = document.getElementById('dash-alertes');
+            if (elAlertes) elAlertes.innerText = nbAlertes;
+        }
 
         function seDeconnecter() { sessionStorage.removeItem('eduLinkUser'); window.location.href = 'index.html'; }
     </script>
+</body>
 </body>
 </html>

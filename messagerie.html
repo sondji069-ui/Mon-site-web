@@ -31,12 +31,12 @@
                 <div id="view-conversations">
                     <button onclick="afficherNouveau()" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl mb-4">✏️ Nouveau message</button>
                     
-                    <div class="grid grid-cols-3 gap-2 mb-4">
-                        <button id="tab-msg-toutes" onclick="filtrerConversations('toutes')" class="py-2 rounded-xl font-bold text-[11px] bg-edu-blue text-white">Toutes</button>
-                        <button id="tab-msg-admin" onclick="filtrerConversations('admin')" class="py-2 rounded-xl font-bold text-[11px] bg-gray-100 text-gray-600">Administration</button>
-                        <button id="tab-msg-ens" onclick="filtrerConversations('enseignants')" class="py-2 rounded-xl font-bold text-[11px] bg-gray-100 text-gray-600">Enseignants</button>
-                    </div>
                     
+<div class="grid grid-cols-3 gap-2 mb-4">
+    <button id="tab-msg-toutes" onclick="filtrerConversations('toutes')" class="py-2 rounded-xl font-bold text-[11px] bg-edu-blue text-white">Toutes</button>
+    <button id="tab-msg-admin" onclick="filtrerConversations('admin')" class="py-2 rounded-xl font-bold text-[11px] bg-gray-100 text-gray-600">Admin</button>
+    <button id="tab-msg-ens" onclick="filtrerConversations('enseignants')" class="py-2 rounded-xl font-bold text-[11px] bg-gray-100 text-gray-600">Enseignants</button>
+</div>                    
                     <div id="liste-conversations" class="space-y-3"></div>
                 </div>
 
@@ -56,6 +56,8 @@
                     <div id="message-reponse" class="text-center text-sm font-semibold mt-2"></div>
                 </div>
 
+                    <div id="liste-thread-groupe" class="space-y-3 mb-4"></div>
+                    
                 <div id="view-nouveau" class="hidden">
                     <div class="flex items-center gap-3 mb-4">
                         <button onclick="afficherConversations()" class="text-2xl">⬅️</button>
@@ -89,7 +91,7 @@
         let currentUser = parsedUser;
         let monEcoleId = parsedUser.ecole_id;
         let conversationActuelle = null;
-        let filtreConversations = 'toutes';
+        let filtreConversationsActuel = 'toutes';
 
         window.addEventListener('load', async () => {
             document.getElementById('page-login').classList.add('hidden');
@@ -99,18 +101,17 @@
             document.getElementById('role-label').innerText = currentUser.role;
             afficherConversations();
         });
-
-        function filtrerConversations(filtre) {
-            filtreConversations = filtre;
+function filtrerConversations(filtre) {
+            filtreConversationsActuel = filtre;
             const tabs = { toutes: 'tab-msg-toutes', admin: 'tab-msg-admin', enseignants: 'tab-msg-ens' };
             Object.keys(tabs).forEach(k => {
                 const tab = document.getElementById(tabs[k]);
+                if (!tab) return;
                 if (k === filtre) tab.className = 'py-2 rounded-xl font-bold text-[11px] bg-edu-blue text-white';
                 else tab.className = 'py-2 rounded-xl font-bold text-[11px] bg-gray-100 text-gray-600';
             });
             afficherConversations();
         }
-
         async function afficherConversations() {
             document.getElementById('view-conversations').classList.remove('hidden');
             document.getElementById('view-thread').classList.add('hidden');
@@ -143,8 +144,8 @@
                 
                 if (u.ecole_id !== monEcoleId) continue;
 
-                if (filtreConversations === 'admin' && u.role !== 'admin') continue;
-                if (filtreConversations === 'enseignants' && u.role !== 'enseignant') continue;
+                if (filtreConversationsActuel === 'admin' && u.role !== 'admin') continue;
+                if (filtreConversationsActuel === 'enseignants' && u.role !== 'enseignant') continue;
 
                 totalAffichees++;
 
@@ -277,7 +278,7 @@
                 messageDiv.innerText = "Message envoye !";
                 messageDiv.style.color = "green";
                 setTimeout(() => {
-                    filtreConversations = 'toutes';
+                    filtreConversationsActuel = 'toutes';
                     document.getElementById('tab-msg-toutes').className = 'py-2 rounded-xl font-bold text-[11px] bg-edu-blue text-white';
                     document.getElementById('tab-msg-admin').className = 'py-2 rounded-xl font-bold text-[11px] bg-gray-100 text-gray-600';
                     document.getElementById('tab-msg-ens').className = 'py-2 rounded-xl font-bold text-[11px] bg-gray-100 text-gray-600';
