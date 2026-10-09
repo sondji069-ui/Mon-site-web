@@ -92,25 +92,25 @@
                         </div>
                     </div>
 
-                    <button onclick="afficherEleves()" class="bouton-action w-full bg-gradient-to-r from-blue-500 to-cyan-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
+                    <button id="btn-nav-eleves" onclick="afficherEleves()" class="bouton-action w-full bg-gradient-to-r from-blue-500 to-cyan-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
                         <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">🎓</div>
                         <div class="flex-1 text-left"><p class="text-sm font-bold">Liste des eleves</p><p class="text-[10px] opacity-90">Consulter tous les eleves</p></div>
                         <span class="text-xl">→</span>
                     </button>
 
-                    <button onclick="afficherEmploi()" class="bouton-action w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
+                    <button id="btn-nav-emploi" onclick="afficherEmploi()" class="bouton-action w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
                         <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">📅</div>
                         <div class="flex-1 text-left"><p class="text-sm font-bold">Emploi du temps</p><p class="text-[10px] opacity-90">Par classe</p></div>
                         <span class="text-xl">→</span>
                     </button>
 
-                    <button onclick="afficherAbsences()" class="bouton-action w-full bg-gradient-to-r from-orange-500 to-red-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
+                    <button id="btn-nav-absences" onclick="afficherAbsences()" class="bouton-action w-full bg-gradient-to-r from-orange-500 to-red-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
                         <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">⚠️</div>
                         <div class="flex-1 text-left"><p class="text-sm font-bold">Suivi des absences</p><p class="text-[10px] opacity-90">Eleves absents du jour</p></div>
                         <span class="text-xl">→</span>
                     </button>
 
-                    <button onclick="afficherAnnonces()" class="bouton-action w-full bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3 mb-3">
+                    <button id="btn-nav-annonces" onclick="afficherAnnonces()" class="bouton-action w-full bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3 mb-3">
                         <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center text-2xl">📢</div>
                         <div class="flex-1 text-left"><p class="text-sm font-bold text-gray-800">Annonces de l'ecole</p><p class="text-[10px] text-gray-400">Communications officielles</p></div>
                         <span class="text-xl text-gray-300">→</span>
@@ -305,7 +305,7 @@ await chargerMesClassesStaff();            document.getElementById('welcome-mess
                 if (ecole) document.getElementById('ecole-nom-affiche').innerText = "🏫 " + ecole.nom;
             }
 
-            document.getElementById('view-accueil').classList.remove('hidden');
+chargerMesPermissions();            document.getElementById('view-accueil').classList.remove('hidden');
             chargerStats();
             chargerBadgeNotifs();
             setInterval(() => { chargerBadgeNotifs(); }, 30000);
@@ -362,6 +362,7 @@ let mesClassesStaff = [];       // ids de classes
 
         // ============ ELEVES ============
         async function afficherEleves() {
+            if (!aPermission('eleves')) { alert('Acces refuse.'); return; }
             hideAllViews();
             document.getElementById('view-eleves').classList.remove('hidden');
             document.getElementById('liste-eleves-staff').innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
@@ -422,6 +423,7 @@ let mesClassesStaff = [];       // ids de classes
 
         // ============ EMPLOI DU TEMPS ============
         async function afficherEmploi() {
+if (!aPermission('emploi')) { alert('Acces refuse.'); return; }
             hideAllViews();
             document.getElementById('view-emploi-classes').classList.remove('hidden');
 
@@ -497,6 +499,7 @@ let mesClassesStaff = [];       // ids de classes
 
         // ============ ABSENCES DU JOUR ============
         async function afficherAbsences() {
+if (!aPermission('absences')) { alert('Acces refuse.'); return; }
             hideAllViews();
             document.getElementById('view-absences').classList.remove('hidden');
             document.getElementById('liste-absences-staff').innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
@@ -551,6 +554,7 @@ let mesClassesStaff = [];       // ids de classes
 
         // ============ ANNONCES ============
         async function afficherAnnonces() {
+if (!aPermission('annonces')) { alert('Acces refuse.'); return; }
             hideAllViews();
             document.getElementById('view-annonces').classList.remove('hidden');
             document.getElementById('view-affiche').classList.add('hidden');
@@ -608,6 +612,50 @@ let mesClassesStaff = [];       // ids de classes
             document.getElementById('view-accueil').classList.remove('hidden');
             chargerStats();
             window.scrollTo(0, 0);
+        }
+// ============ PERMISSIONS ============
+        let mesPermissions = {};
+
+        function chargerMesPermissions() {
+            mesPermissions = currentUser.permissions || {};
+            appliquerPermissions();
+        }
+
+        function aPermission(moduleId) {
+            return mesPermissions[moduleId] === true;
+        }
+
+        function appliquerPermissions() {
+            // Cache ou affiche les boutons selon les permissions
+            const modules = {
+                'eleves': 'btn-nav-eleves',
+                'emploi': 'btn-nav-emploi',
+                'absences': 'btn-nav-absences',
+                'annonces': 'btn-nav-annonces'
+            };
+
+            Object.keys(modules).forEach(mod => {
+                const btn = document.getElementById(modules[mod]);
+                if (!btn) return;
+                if (aPermission(mod)) btn.classList.remove('hidden');
+                else btn.classList.add('hidden');
+            });
+
+            // Si aucun module, afficher un message
+            const nb = Object.keys(modules).filter(m => aPermission(m)).length;
+            if (nb === 0) {
+                const accueil = document.getElementById('view-accueil');
+                if (accueil) {
+                    const existant = document.getElementById('msg-aucun-acces');
+                    if (!existant) {
+                        const msg = document.createElement('div');
+                        msg.id = 'msg-aucun-acces';
+                        msg.className = 'bg-orange-50 border border-orange-200 rounded-2xl p-4 mb-3 text-center';
+                        msg.innerHTML = '<div class="text-3xl mb-2">🔒</div><p class="text-sm font-bold text-edu-orange mb-1">Acces limite</p><p class="text-[11px] text-gray-600">Vous n\'avez acces a aucun module. Contactez l\'administration.</p>';
+                        accueil.appendChild(msg);
+                    }
+                }
+            }
         }
 
         function seDeconnecter() { sessionStorage.removeItem('eduLinkUser'); window.location.href = 'index.html'; }

@@ -121,6 +121,11 @@
                         <div class="flex-1 text-left"><p class="text-sm font-bold">Saisie en masse des notes</p><p class="text-[10px] opacity-90">Noter toute la classe en une seule fois</p></div>
                         <span class="text-xl">→</span>
                     </button>
+<button onclick="afficherNotesSaisies()" class="bouton-action w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
+                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">📝</div>
+                        <div class="flex-1 text-left"><p class="text-sm font-bold">Notes saisies</p><p class="text-[10px] opacity-90">Modifier ou supprimer une note</p></div>
+                        <span class="text-xl">→</span>
+                    </button>
 <button onclick="afficherMesRessources()" class="bouton-action w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
                         <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">📚</div>
                         <div class="flex-1 text-left"><p class="text-sm font-bold">Mes ressources pedagogiques</p><p class="text-[10px] opacity-90">Programmes, lecons, exercices</p></div>
@@ -172,10 +177,9 @@
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-2">🏆 Badges de la classe</h1>
                     <p class="text-xs text-gray-500 mb-3">Récompenses obtenues par vos élèves.</p>
-                    <div class="grid grid-cols-3 gap-2 mb-4">
-                        <button id="tab-badges-t1" onclick="changerTrimestreBadgesEns(1)" class="py-2 rounded-xl font-bold text-xs bg-edu-blue text-white">T1</button>
-                        <button id="tab-badges-t2" onclick="changerTrimestreBadgesEns(2)" class="py-2 rounded-xl font-bold text-xs bg-gray-100 text-gray-600">T2</button>
-                        <button id="tab-badges-t3" onclick="changerTrimestreBadgesEns(3)" class="py-2 rounded-xl font-bold text-xs bg-gray-100 text-gray-600">T3</button>
+                    <div class="grid grid-cols-2 gap-2 mb-4">
+                        <button id="tab-badges-s1" onclick="changerTrimestreBadgesEns(1)" class="py-2 rounded-xl font-bold text-xs bg-edu-blue text-white">Semestre 1</button>
+                        <button id="tab-badges-s2" onclick="changerTrimestreBadgesEns(2)" class="py-2 rounded-xl font-bold text-xs bg-gray-100 text-gray-600">Semestre 2</button>
                     </div>
                     <div id="liste-badges-classe" class="space-y-3"></div>
                 </div>
@@ -222,11 +226,26 @@
                         <select id="select-eleve" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white"><option value="">Chargement...</option></select>
                         <input type="text" id="matiere-note" readonly class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-100 text-gray-500">
                         <input type="number" id="valeur-note" min="0" max="20" step="0.25" placeholder="Note sur 20" class="w-full px-4 py-3 rounded-xl border border-gray-300">
+<div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Type d'evaluation</label>
+                            <select id="type-evaluation" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white">
+                                <option value="devoir1">Devoir 1</option>
+                                <option value="devoir2">Devoir 2</option>
+                                <option value="devoir3">Devoir 3 (optionnel)</option>
+                                <option value="composition">Composition</option>
+                            </select>
+                        </div>
                         <select id="coefficient-note" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white">
-                            <option value="1">Coefficient 1</option><option value="2" selected>Coefficient 2</option><option value="4">Coefficient 4</option>
-                        </select>
+    <option value="1">Coefficient 1</option>
+    <option value="2" selected>Coefficient 2</option>
+    <option value="3">Coefficient 3</option>
+    <option value="4">Coefficient 4</option>
+    <option value="5">Coefficient 5</option>
+    <option value="6">Coefficient 6</option>
+</select>
                         <select id="trimestre-note" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white">
-                            <option value="1">Trimestre 1</option><option value="2">Trimestre 2</option><option value="3">Trimestre 3</option>
+                            <option value="1">Semestre 1</option>
+                            <option value="2">Semestre 2</option>
                         </select>
                         <button onclick="enregistrerNote()" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl">Enregistrer</button>
                         <div id="message-note" class="text-center text-sm font-semibold"></div>
@@ -242,10 +261,29 @@
                         <div><label class="block text-xs font-bold text-gray-700 mb-1">Matière</label><input type="text" id="masse-matiere" readonly class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-100 text-gray-600 text-sm font-semibold"></div>
                         <div class="grid grid-cols-2 gap-2">
                             <div><label class="block text-xs font-bold text-gray-700 mb-1">Trimestre</label>
-                                <select id="masse-trimestre" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-sm"><option value="1">Trimestre 1</option><option value="2">Trimestre 2</option><option value="3">Trimestre 3</option></select>
+                                <select id="masse-trimestre" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-sm">
+                                    <option value="1">Semestre 1</option>
+                                    <option value="2">Semestre 2</option>
+                                </select>
                             </div>
                             <div><label class="block text-xs font-bold text-gray-700 mb-1">Coefficient</label>
-                                <select id="masse-coefficient" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-sm"><option value="1">Coef 1</option><option value="2" selected>Coef 2</option><option value="4">Coef 4</option></select>
+                                <select id="masse-coefficient" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-sm">
+    <option value="1">Coef 1</option>
+    <option value="2" selected>Coef 2</option>
+    <option value="3">Coef 3</option>
+    <option value="4">Coef 4</option>
+    <option value="5">Coef 5</option>
+    <option value="6">Coef 6</option>
+</select>
+<div class="col-span-2">
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Type d'evaluation</label>
+                                <select id="masse-type-evaluation" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-sm">
+                                    <option value="devoir1">Devoir 1</option>
+                                    <option value="devoir2">Devoir 2</option>
+                                    <option value="devoir3">Devoir 3 (optionnel)</option>
+                                    <option value="composition">Composition</option>
+                                </select>
+                            </div>
                             </div>
                         </div>
                     </div>
@@ -286,7 +324,10 @@
                     <h1 class="text-lg font-bold text-gray-800 mb-2">📊 Statistiques de la classe</h1>
                     <p class="text-xs text-gray-500 mb-3">Vue d'ensemble des performances en <b id="stat-matiere-label">...</b>.</p>
                     <div class="mb-3"><label class="block text-xs font-bold text-gray-700 mb-1">Trimestre</label>
-                        <select id="stat-trimestre" onchange="chargerStatistiques()" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-sm"><option value="1">Trimestre 1</option><option value="2">Trimestre 2</option><option value="3">Trimestre 3</option></select>
+                        <select id="stat-trimestre" onchange="chargerStatistiques()" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-sm">
+                            <option value="1">Semestre 1</option>
+                            <option value="2">Semestre 2</option>
+                        </select>
                     </div>
                     <div id="contenu-statistiques" class="space-y-3"></div>
                 </div>
@@ -368,6 +409,30 @@
                         <button onclick="sauvegarderRessource()" id="btn-save-ressource" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl">Publier</button>
                         <div id="message-ressource" class="text-center text-sm font-semibold"></div>
                     </div>
+                </div>
+<div id="view-notes-saisies" class="hidden fade-in">
+                    <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
+                    <h1 class="text-lg font-bold text-gray-800 mb-2">📝 Notes saisies</h1>
+                    <p class="text-xs text-gray-500 mb-3">Modifiez ou supprimez vos notes.</p>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 mb-3 space-y-2">
+                        <div class="grid grid-cols-2 gap-2">
+                            <select id="ns-semestre" onchange="chargerNotesSaisies()" class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white text-xs">
+                                <option value="1">Semestre 1</option>
+                                <option value="2">Semestre 2</option>
+                            </select>
+                            <select id="ns-type" onchange="chargerNotesSaisies()" class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white text-xs">
+                                <option value="">Tous les types</option>
+                                <option value="devoir1">Devoir 1</option>
+                                <option value="devoir2">Devoir 2</option>
+                                <option value="devoir3">Devoir 3</option>
+                                <option value="composition">Composition</option>
+                            </select>
+                        </div>
+                        <input type="text" id="ns-recherche" oninput="filtrerNotesSaisies()" placeholder="Rechercher un eleve" class="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs">
+                    </div>
+
+                    <div id="ns-liste" class="space-y-2"></div>
                 </div>
                 <div id="view-notifications" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
@@ -516,12 +581,19 @@
         }
 
         function majTabsBadgesEns() {
-            [1, 2, 3].forEach(i => {
-                const tab = document.getElementById('tab-badges-t' + i);
+            [1, 2].forEach(i => {
+                const tab = document.getElementById('tab-badges-s' + i);
                 if (!tab) return;
                 if (i === trimestreBadgesEns) tab.className = 'py-2 rounded-xl font-bold text-xs bg-edu-blue text-white';
                 else tab.className = 'py-2 rounded-xl font-bold text-xs bg-gray-100 text-gray-600';
             });
+        }
+async function afficherBadgesClasse() {
+            document.getElementById('view-accueil').classList.add('hidden');
+            document.getElementById('view-badges-classe').classList.remove('hidden');
+            majTabsBadgesEns();
+            await chargerBadgesClasse();
+            window.scrollTo(0, 0);
         }
 
         async function chargerBadgesClasse() {
@@ -967,49 +1039,83 @@
             const eleveId = document.getElementById('select-eleve').value;
             const note = document.getElementById('valeur-note').value;
             const coefficient = document.getElementById('coefficient-note').value;
-            const trimestre = document.getElementById('trimestre-note').value;
+            const semestre = document.getElementById('trimestre-note').value;
+            const typeEval = document.getElementById('type-evaluation').value;
             const msg = document.getElementById('message-note');
+
             if (!eleveId || !note) { msg.innerText = "Remplissez tous les champs."; msg.style.color = "red"; return; }
             const v = parseFloat(note);
             if (v < 0 || v > 20) { msg.innerText = "Note entre 0 et 20."; msg.style.color = "red"; return; }
-            msg.innerText = "Enregistrement..."; msg.style.color = "orange";
-            const { error } = await supabaseClient.from('notes').insert([{ eleve_id: parseInt(eleveId), matiere: maMatiere, note: v, coefficient: parseInt(coefficient), trimestre: parseInt(trimestre), date_evaluation: new Date().toISOString().split('T')[0], enseignant_id: enseignantId, ecole_id: monEcoleId }]);
+
+            msg.innerText = "Verification..."; msg.style.color = "orange";
+
+            // Verifier si une note du meme type existe deja
+            const { data: existante } = await supabaseClient.from('notes')
+                .select('id')
+                .eq('eleve_id', parseInt(eleveId))
+                .eq('matiere', maMatiere)
+                .eq('semestre', parseInt(semestre))
+                .eq('type_evaluation', typeEval)
+                .maybeSingle();
+
+            if (existante) {
+                const confirmer = confirm('Une note de type "' + typeEval + '" existe deja pour cet eleve dans cette matiere et ce semestre.\n\nVoulez-vous la REMPLACER ?');
+                if (!confirmer) { msg.innerText = "Annule."; msg.style.color = "gray"; return; }
+
+                msg.innerText = "Mise a jour...";
+                const { error: errUpd } = await supabaseClient.from('notes').update({
+                    note: v,
+                    coefficient: parseInt(coefficient),
+                    date_evaluation: new Date().toISOString().split('T')[0]
+                }).eq('id', existante.id);
+
+                if (errUpd) { msg.innerText = "Erreur : " + errUpd.message; msg.style.color = "red"; return; }
+                msg.innerText = "Note mise a jour !"; msg.style.color = "green";
+                document.getElementById('valeur-note').value = '';
+                document.getElementById('select-eleve').value = '';
+                return;
+            }
+
+            msg.innerText = "Enregistrement...";
+            const { error } = await supabaseClient.from('notes').insert([{
+                eleve_id: parseInt(eleveId),
+                matiere: maMatiere,
+                note: v,
+                coefficient: parseInt(coefficient),
+                trimestre: parseInt(semestre) === 1 ? 1 : 3,
+                semestre: parseInt(semestre),
+                type_evaluation: typeEval,
+                date_evaluation: new Date().toISOString().split('T')[0],
+                enseignant_id: enseignantId,
+                ecole_id: monEcoleId
+            }]);
             if (error) { msg.innerText = "Erreur : " + error.message; msg.style.color = "red"; return; }
+
+            // Notifier
             const { data: eleve } = await supabaseClient.from('eleves').select('parent_id, utilisateur_id, utilisateurs!utilisateur_id(prenom)').eq('id', eleveId).single();
+            const typeLabels = { devoir1: 'Devoir 1', devoir2: 'Devoir 2', devoir3: 'Devoir 3', composition: 'Composition' };
+            const typeLabel = typeLabels[typeEval] || 'Note';
             if (eleve && eleve.utilisateur_id) {
-                await supabaseClient.from('notifications').insert([{ utilisateur_id: eleve.utilisateur_id, titre: 'Nouvelle note', contenu: 'Note de ' + v + '/20 en ' + maMatiere + ' (T' + trimestre + ').', type: 'note', lu: false, ecole_id: monEcoleId }]);
+                await supabaseClient.from('notifications').insert([{ utilisateur_id: eleve.utilisateur_id, titre: 'Nouvelle note', contenu: typeLabel + ' de ' + v + '/20 en ' + maMatiere + ' (S' + semestre + ').', type: 'note', lu: false, ecole_id: monEcoleId }]);
             }
             if (eleve && eleve.parent_id) {
-                await supabaseClient.from('notifications').insert([{ utilisateur_id: eleve.parent_id, titre: 'Nouvelle note pour ' + eleve.utilisateurs.prenom, contenu: 'Note de ' + v + '/20 en ' + maMatiere + ' (T' + trimestre + ').', type: 'note', lu: false, ecole_id: monEcoleId }]);
+                await supabaseClient.from('notifications').insert([{ utilisateur_id: eleve.parent_id, titre: 'Nouvelle note pour ' + eleve.utilisateurs.prenom, contenu: typeLabel + ' de ' + v + '/20 en ' + maMatiere + ' (S' + semestre + ').', type: 'note', lu: false, ecole_id: monEcoleId }]);
             }
+
             msg.innerText = "Note enregistree !"; msg.style.color = "green";
             document.getElementById('valeur-note').value = '';
             document.getElementById('select-eleve').value = '';
         }
 
-        async function afficherSaisieMasse() {
-            document.getElementById('view-accueil').classList.add('hidden');
-            document.getElementById('view-notes-masse').classList.remove('hidden');
-            document.getElementById('message-masse').innerText = '';
-            document.getElementById('masse-matiere').value = maMatiere || '';
-            const btn = document.getElementById('btn-masse');
-            btn.disabled = false; btn.classList.remove('opacity-70'); btn.innerText = "✅ Enregistrer toutes les notes";
-            let html = '';
-            if (listeEleves.length === 0) html = '<p class="text-gray-500 text-center py-4">Aucun élève dans la classe.</p>';
-            else listeEleves.forEach(e => {
-                html += '<div class="bg-white p-3 rounded-xl shadow-sm border border-gray-100 flex items-center gap-3"><div class="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center text-lg flex-shrink-0">👦🏾</div><div class="flex-1 min-w-0"><p class="text-xs font-bold text-gray-800 truncate">' + e.utilisateurs.prenom + ' ' + e.utilisateurs.nom + '</p></div><input type="number" min="0" max="20" step="0.25" placeholder="--" data-eleve-id="' + e.id + '" class="note-masse w-20 px-3 py-2 rounded-lg border border-gray-300 text-sm text-center"></div>';
-            });
-            document.getElementById('liste-saisie-masse').innerHTML = html;
-            window.scrollTo(0, 0);
-        }
-
         async function enregistrerNotesMasse() {
             const btn = document.getElementById('btn-masse');
             const msg = document.getElementById('message-masse');
-            const trimestre = document.getElementById('masse-trimestre').value;
+            const semestre = document.getElementById('masse-trimestre').value;
             const coefficient = parseInt(document.getElementById('masse-coefficient').value);
+            const typeEval = document.getElementById('masse-type-evaluation').value;
             const champs = document.querySelectorAll('.note-masse');
             const notesAEnregistrer = []; let erreur = false;
+
             champs.forEach(champ => {
                 const valeur = champ.value.trim();
                 if (valeur !== '') {
@@ -1019,26 +1125,71 @@
                     notesAEnregistrer.push({ eleve_id: parseInt(champ.getAttribute('data-eleve-id')), valeur: note });
                 }
             });
-            if (erreur) { msg.innerText = "Certaines notes sont invalides (doivent être entre 0 et 20)."; msg.style.color = "red"; return; }
-            if (notesAEnregistrer.length === 0) { msg.innerText = "Aucune note à enregistrer."; msg.style.color = "orange"; return; }
+
+            if (erreur) { msg.innerText = "Certaines notes sont invalides."; msg.style.color = "red"; return; }
+            if (notesAEnregistrer.length === 0) { msg.innerText = "Aucune note a enregistrer."; msg.style.color = "orange"; return; }
+
             btn.disabled = true; btn.classList.add('opacity-70'); btn.innerText = "Enregistrement..."; msg.innerText = '';
+
             try {
                 const dateJour = new Date().toISOString().split('T')[0];
-                const lignes = notesAEnregistrer.map(n => ({ eleve_id: n.eleve_id, matiere: maMatiere, note: n.valeur, coefficient: coefficient, trimestre: parseInt(trimestre), date_evaluation: dateJour, enseignant_id: enseignantId, ecole_id: monEcoleId }));
+                const eleveIds = notesAEnregistrer.map(n => n.eleve_id);
+
+                // Verifier les notes existantes du meme type
+                const { data: existantes } = await supabaseClient.from('notes')
+                    .select('id, eleve_id')
+                    .in('eleve_id', eleveIds)
+                    .eq('matiere', maMatiere)
+                    .eq('semestre', parseInt(semestre))
+                    .eq('type_evaluation', typeEval);
+
+                const dejaExistantes = existantes || [];
+
+                if (dejaExistantes.length > 0) {
+                    const confirmer = confirm(dejaExistantes.length + ' eleve(s) ont deja une note de type "' + typeEval + '" dans cette matiere et ce semestre.\n\nVoulez-vous les REMPLACER ?');
+                    if (!confirmer) { btn.disabled = false; btn.classList.remove('opacity-70'); btn.innerText = "✅ Enregistrer toutes les notes"; msg.innerText = "Annule."; msg.style.color = "gray"; return; }
+
+                    const idsASupprimer = dejaExistantes.map(e => e.id);
+                    await supabaseClient.from('notes').delete().in('id', idsASupprimer);
+                }
+
+                // Inserer
+                const lignes = notesAEnregistrer.map(n => ({
+                    eleve_id: n.eleve_id,
+                    matiere: maMatiere,
+                    note: n.valeur,
+                    coefficient: coefficient,
+                    trimestre: parseInt(semestre) === 1 ? 1 : 3,
+                    semestre: parseInt(semestre),
+                    type_evaluation: typeEval,
+                    date_evaluation: dateJour,
+                    enseignant_id: enseignantId,
+                    ecole_id: monEcoleId
+                }));
+
                 const { error } = await supabaseClient.from('notes').insert(lignes);
                 if (error) throw error;
+
+                // Notifier
+                const typeLabels = { devoir1: 'Devoir 1', devoir2: 'Devoir 2', devoir3: 'Devoir 3', composition: 'Composition' };
+                const typeLabel = typeLabels[typeEval] || 'Note';
+
                 for (const n of notesAEnregistrer) {
                     const { data: eleve } = await supabaseClient.from('eleves').select('parent_id, utilisateur_id, utilisateurs!utilisateur_id(prenom)').eq('id', n.eleve_id).single();
                     if (eleve && eleve.utilisateur_id) {
-                        await supabaseClient.from('notifications').insert([{ utilisateur_id: eleve.utilisateur_id, titre: 'Nouvelle note', contenu: 'Note de ' + n.valeur + '/20 en ' + maMatiere + ' (T' + trimestre + ').', type: 'note', lu: false, ecole_id: monEcoleId }]);
+                        await supabaseClient.from('notifications').insert([{ utilisateur_id: eleve.utilisateur_id, titre: 'Nouvelle note', contenu: typeLabel + ' de ' + n.valeur + '/20 en ' + maMatiere + ' (S' + semestre + ').', type: 'note', lu: false, ecole_id: monEcoleId }]);
                     }
                     if (eleve && eleve.parent_id) {
-                        await supabaseClient.from('notifications').insert([{ utilisateur_id: eleve.parent_id, titre: 'Nouvelle note pour ' + eleve.utilisateurs.prenom, contenu: 'Note de ' + n.valeur + '/20 en ' + maMatiere + ' (T' + trimestre + ').', type: 'note', lu: false, ecole_id: monEcoleId }]);
+                        await supabaseClient.from('notifications').insert([{ utilisateur_id: eleve.parent_id, titre: 'Nouvelle note pour ' + eleve.utilisateurs.prenom, contenu: typeLabel + ' de ' + n.valeur + '/20 en ' + maMatiere + ' (S' + semestre + ').', type: 'note', lu: false, ecole_id: monEcoleId }]);
                     }
                 }
-                msg.innerText = "✅ " + notesAEnregistrer.length + " note(s) enregistrée(s) !"; msg.style.color = "green";
+
+                msg.innerText = "✅ " + notesAEnregistrer.length + " note(s) enregistree(s) !"; msg.style.color = "green";
                 setTimeout(() => { retourAccueil(); }, 1500);
-            } catch (err) { msg.innerText = "Erreur : " + err.message; msg.style.color = "red"; btn.disabled = false; btn.classList.remove('opacity-70'); btn.innerText = "✅ Enregistrer toutes les notes"; }
+            } catch (err) {
+                msg.innerText = "Erreur : " + err.message; msg.style.color = "red";
+                btn.disabled = false; btn.classList.remove('opacity-70'); btn.innerText = "✅ Enregistrer toutes les notes";
+            }
         }
 
         // ============ DEVOIRS ============
@@ -1129,33 +1280,53 @@
         async function chargerStatistiques() {
             const contenu = document.getElementById('contenu-statistiques');
             contenu.innerHTML = '<p class="text-gray-500 text-center py-6">Chargement...</p>';
-            const trimestre = document.getElementById('stat-trimestre').value;
-            if (listeEleves.length === 0) { contenu.innerHTML = '<div class="bg-white p-6 rounded-2xl shadow-sm text-center"><p class="text-gray-500 text-sm">Aucun élève dans la classe.</p></div>'; return; }
-            const elevesIds = listeEleves.map(e => e.id);
-            const { data: notes } = await supabaseClient.from('notes').select('eleve_id, note, coefficient').in('eleve_id', elevesIds).eq('matiere', maMatiere).eq('trimestre', parseInt(trimestre));
-            const parEleve = {};
-            (notes || []).forEach(n => { if (!parEleve[n.eleve_id]) parEleve[n.eleve_id] = { points: 0, coefs: 0, nbNotes: 0 }; parEleve[n.eleve_id].points += parseFloat(n.note) * n.coefficient; parEleve[n.eleve_id].coefs += n.coefficient; parEleve[n.eleve_id].nbNotes++; });
-            const elevesAvecMoyenne = listeEleves.map(e => { const d = parEleve[e.id]; const moy = d && d.coefs > 0 ? d.points / d.coefs : null; return { ...e, moyenne: moy, nbNotes: d ? d.nbNotes : 0 }; });
-            const avecNotes = elevesAvecMoyenne.filter(e => e.moyenne !== null);
-            const nbAvecNotes = avecNotes.length; const nbTotal = listeEleves.length;
+            const semestre = document.getElementById('stat-trimestre').value;
 
-            mesStatsActuelles = { trimestre: trimestre, elevesAvecMoyenne: elevesAvecMoyenne, avecNotes: avecNotes, nbAvecNotes: nbAvecNotes, nbTotal: nbTotal };
+            if (listeEleves.length === 0) {
+                contenu.innerHTML = '<div class="bg-white p-6 rounded-2xl shadow-sm text-center"><p class="text-gray-500 text-sm">Aucun eleve dans la classe.</p></div>';
+                return;
+            }
+
+            const elevesIds = listeEleves.map(e => e.id);
+            const { data: notes } = await supabaseClient.from('notes').select('eleve_id, note, coefficient').in('eleve_id', elevesIds).eq('matiere', maMatiere).eq('semestre', parseInt(semestre));
+            const parEleve = {};
+            (notes || []).forEach(n => {
+                if (!parEleve[n.eleve_id]) parEleve[n.eleve_id] = { points: 0, coefs: 0, nbNotes: 0 };
+                parEleve[n.eleve_id].points += parseFloat(n.note) * n.coefficient;
+                parEleve[n.eleve_id].coefs += n.coefficient;
+                parEleve[n.eleve_id].nbNotes++;
+            });
+            const elevesAvecMoyenne = listeEleves.map(e => {
+                const d = parEleve[e.id];
+                const moy = d && d.coefs > 0 ? d.points / d.coefs : null;
+                return { ...e, moyenne: moy, nbNotes: d ? d.nbNotes : 0 };
+            });
+            const avecNotes = elevesAvecMoyenne.filter(e => e.moyenne !== null);
+            const nbAvecNotes = avecNotes.length;
+            const nbTotal = listeEleves.length;
+
+            mesStatsActuelles = { semestre: semestre, elevesAvecMoyenne, avecNotes, nbAvecNotes, nbTotal };
 
             if (nbAvecNotes === 0) {
                 mesStatsActuelles.moyenneClasse = null;
-                contenu.innerHTML = '<div class="bg-white p-6 rounded-2xl shadow-sm text-center"><div class="text-5xl mb-2">📭</div><p class="text-gray-500 text-sm">Aucune note enregistrée pour le Trimestre ' + trimestre + '.</p></div>';
+                contenu.innerHTML = '<div class="bg-white p-6 rounded-2xl shadow-sm text-center"><div class="text-5xl mb-2">📭</div><p class="text-gray-500 text-sm">Aucune note enregistree pour le Semestre ' + semestre + '.</p></div>';
                 return;
             }
+
             const moyenneClasse = avecNotes.reduce((s, e) => s + e.moyenne, 0) / nbAvecNotes;
             const nbReussite = avecNotes.filter(e => e.moyenne >= 10).length;
             const tauxReussite = Math.round((nbReussite / nbAvecNotes) * 100);
             const notesTri = avecNotes.map(e => e.moyenne).sort((a, b) => a - b);
-            const noteMin = notesTri[0]; const noteMax = notesTri[notesTri.length - 1];
+            const noteMin = notesTri[0];
+            const noteMax = notesTri[notesTri.length - 1];
             const tranches = [
-                { label: '0 à 5', min: 0, max: 5, count: 0, color: '#EF4444' }, { label: '5 à 8', min: 5, max: 8, count: 0, color: '#F59E0B' },
-                { label: '8 à 10', min: 8, max: 10, count: 0, color: '#F59E0B' }, { label: '10 à 12', min: 10, max: 12, count: 0, color: '#2EAD5E' },
-                { label: '12 à 14', min: 12, max: 14, count: 0, color: '#2EAD5E' }, { label: '14 à 16', min: 14, max: 16, count: 0, color: '#004AAD' },
-                { label: '16 à 20', min: 16, max: 20.01, count: 0, color: '#004AAD' }
+                { label: '0 a 5', min: 0, max: 5, count: 0, color: '#EF4444' },
+                { label: '5 a 8', min: 5, max: 8, count: 0, color: '#F59E0B' },
+                { label: '8 a 10', min: 8, max: 10, count: 0, color: '#F59E0B' },
+                { label: '10 a 12', min: 10, max: 12, count: 0, color: '#2EAD5E' },
+                { label: '12 a 14', min: 12, max: 14, count: 0, color: '#2EAD5E' },
+                { label: '14 a 16', min: 14, max: 16, count: 0, color: '#004AAD' },
+                { label: '16 a 20', min: 16, max: 20.01, count: 0, color: '#004AAD' }
             ];
             avecNotes.forEach(e => { const t = tranches.find(t => e.moyenne >= t.min && e.moyenne < t.max); if (t) t.count++; });
             const maxCount = Math.max(...tranches.map(t => t.count), 1);
@@ -1173,19 +1344,26 @@
             mesStatsActuelles.top5 = top5;
 
             let html = '';
-            html += '<div class="bg-gradient-to-br from-edu-blue to-blue-700 text-white rounded-2xl shadow-lg p-5 mb-3"><p class="text-xs opacity-80 mb-1">Moyenne de la classe en ' + maMatiere + '</p><div class="flex items-end gap-2"><span class="text-4xl font-extrabold">' + moyenneClasse.toFixed(2) + '</span><span class="text-lg opacity-80 mb-1">/ 20</span></div><div class="grid grid-cols-3 gap-2 mt-4 text-center"><div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-80">Notes</p><p class="text-base font-bold">' + nbAvecNotes + '/' + nbTotal + '</p></div><div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-80">Minimum</p><p class="text-base font-bold">' + noteMin.toFixed(2) + '</p></div><div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-80">Maximum</p><p class="text-base font-bold">' + noteMax.toFixed(2) + '</p></div></div></div>';
-            html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3"><div class="flex items-center justify-between mb-2"><p class="text-sm font-bold text-gray-800">Taux de réussite</p><span class="text-xl font-extrabold" style="color:' + couleurMoy + '">' + tauxReussite + '%</span></div><div class="w-full bg-gray-200 rounded-full h-2.5 mb-2"><div class="h-2.5 rounded-full" style="width:' + tauxReussite + '%;background:' + couleurMoy + '"></div></div><p class="text-[10px] text-gray-500">' + nbReussite + ' élève(s) sur ' + nbAvecNotes + ' ont la moyenne (≥ 10)</p></div>';
+            html += '<div class="bg-gradient-to-br from-edu-blue to-blue-700 text-white rounded-2xl shadow-lg p-5 mb-3"><p class="text-xs opacity-80 mb-1">Moyenne de la classe en ' + maMatiere + ' - Semestre ' + semestre + '</p><div class="flex items-end gap-2"><span class="text-4xl font-extrabold">' + moyenneClasse.toFixed(2) + '</span><span class="text-lg opacity-80 mb-1">/ 20</span></div><div class="grid grid-cols-3 gap-2 mt-4 text-center"><div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-80">Notes</p><p class="text-base font-bold">' + nbAvecNotes + '/' + nbTotal + '</p></div><div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-80">Minimum</p><p class="text-base font-bold">' + noteMin.toFixed(2) + '</p></div><div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-80">Maximum</p><p class="text-base font-bold">' + noteMax.toFixed(2) + '</p></div></div></div>';
+            html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3"><div class="flex items-center justify-between mb-2"><p class="text-sm font-bold text-gray-800">Taux de reussite</p><span class="text-xl font-extrabold" style="color:' + couleurMoy + '">' + tauxReussite + '%</span></div><div class="w-full bg-gray-200 rounded-full h-2.5 mb-2"><div class="h-2.5 rounded-full" style="width:' + tauxReussite + '%;background:' + couleurMoy + '"></div></div><p class="text-[10px] text-gray-500">' + nbReussite + ' eleve(s) sur ' + nbAvecNotes + ' ont la moyenne (>= 10)</p></div>';
 
-            html += '<button onclick="telechargerBulletinClasse()" id="btn-bulletin-classe" class="w-full bg-gradient-to-r from-edu-blue to-blue-700 text-white font-bold py-3 rounded-xl mb-3 flex items-center justify-center gap-2"><span>📥</span><span>Télécharger le bulletin de classe PDF</span></button><div id="message-bulletin-classe" class="text-center text-sm font-semibold mb-3"></div>';
+            html += '<button onclick="telechargerBulletinClasse()" id="btn-bulletin-classe" class="w-full bg-gradient-to-r from-edu-blue to-blue-700 text-white font-bold py-3 rounded-xl mb-3 flex items-center justify-center gap-2"><span>Telecharger le bulletin de classe PDF</span></button><div id="message-bulletin-classe" class="text-center text-sm font-semibold mb-3"></div>';
 
-            html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3"><p class="text-sm font-bold text-gray-800 mb-3">📊 Répartition des moyennes</p>';
-            tranches.forEach(t => { const pct = Math.round((t.count / maxCount) * 100); html += '<div class="rangee-graph"><span class="text-[10px] text-gray-500 w-14 text-right flex-shrink-0">' + t.label + '</span><div class="flex-1 bg-gray-100 rounded h-5 overflow-hidden"><div class="barre-graph" style="width:' + pct + '%;background:' + t.color + '"></div></div><span class="text-[10px] font-bold text-gray-700 w-6 text-right">' + t.count + '</span></div>'; });
+            html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3"><p class="text-sm font-bold text-gray-800 mb-3">Repartition des moyennes</p>';
+            tranches.forEach(t => {
+                const pct = Math.round((t.count / maxCount) * 100);
+                html += '<div class="rangee-graph"><span class="text-[10px] text-gray-500 w-14 text-right flex-shrink-0">' + t.label + '</span><div class="flex-1 bg-gray-100 rounded h-5 overflow-hidden"><div class="barre-graph" style="width:' + pct + '%;background:' + t.color + '"></div></div><span class="text-[10px] font-bold text-gray-700 w-6 text-right">' + t.count + '</span></div>';
+            });
             html += '</div>';
-            html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4"><p class="text-sm font-bold text-gray-800 mb-3">🏆 Top 5 de la classe</p>';
-            const medailles = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
-            top5.forEach((e, idx) => { const moyCouleur = e.moyenne >= 14 ? '#004AAD' : e.moyenne >= 10 ? '#2EAD5E' : '#EF4444'; html += '<div class="flex items-center gap-3 py-2 border-b border-gray-100 last:border-b-0"><span class="text-xl flex-shrink-0">' + medailles[idx] + '</span><div class="flex-1 min-w-0"><p class="text-xs font-bold text-gray-800 truncate">' + e.utilisateurs.prenom + ' ' + e.utilisateurs.nom + '</p></div><span class="text-sm font-extrabold" style="color:' + moyCouleur + '">' + e.moyenne.toFixed(2) + '</span></div>'; });
+            html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4"><p class="text-sm font-bold text-gray-800 mb-3">Top 5 de la classe</p>';
+            const medailles = ['1er', '2eme', '3eme', '4eme', '5eme'];
+            top5.forEach((e, idx) => {
+                const moyCouleur = e.moyenne >= 14 ? '#004AAD' : e.moyenne >= 10 ? '#2EAD5E' : '#EF4444';
+                html += '<div class="flex items-center gap-3 py-2 border-b border-gray-100 last:border-b-0"><span class="text-xs w-8 text-center font-bold">' + medailles[idx] + '</span><div class="flex-1 min-w-0"><p class="text-xs font-bold text-gray-800 truncate">' + e.utilisateurs.prenom + ' ' + e.utilisateurs.nom + '</p></div><span class="text-sm font-extrabold" style="color:' + moyCouleur + '">' + e.moyenne.toFixed(2) + '</span></div>';
+            });
             html += '</div>';
-            contenu.innerHTML = html; window.scrollTo(0, 0);
+            contenu.innerHTML = html;
+            window.scrollTo(0, 0);
         }
 
         async function telechargerBulletinClasse() {
@@ -1682,6 +1860,144 @@ function telechargerFichierBase64(idRessource) {
             } catch (err) {
                 alert('Erreur telechargement : ' + err.message);
             }
+        }
+async function afficherSaisieMasse() {
+            document.getElementById('view-accueil').classList.add('hidden');
+            document.getElementById('view-notes-masse').classList.remove('hidden');
+            document.getElementById('message-masse').innerText = '';
+            document.getElementById('masse-matiere').value = maMatiere || '';
+
+            const btn = document.getElementById('btn-masse');
+            btn.disabled = false;
+            btn.classList.remove('opacity-70');
+            btn.innerText = "✅ Enregistrer toutes les notes";
+
+            let html = '';
+            if (listeEleves.length === 0) {
+                html = '<p class="text-gray-500 text-center py-4">Aucun eleve dans la classe.</p>';
+            } else {
+                listeEleves.forEach(e => {
+                    html += '<div class="bg-white p-3 rounded-xl shadow-sm border border-gray-100 flex items-center gap-3">';
+                    html += '<div class="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center text-lg flex-shrink-0">👦🏾</div>';
+                    html += '<div class="flex-1 min-w-0"><p class="text-xs font-bold text-gray-800 truncate">' + e.utilisateurs.prenom + ' ' + e.utilisateurs.nom + '</p></div>';
+                    html += '<input type="number" min="0" max="20" step="0.25" placeholder="--" data-eleve-id="' + e.id + '" class="note-masse w-20 px-3 py-2 rounded-lg border border-gray-300 text-sm text-center">';
+                    html += '</div>';
+                });
+            }
+            document.getElementById('liste-saisie-masse').innerHTML = html;
+            window.scrollTo(0, 0);
+        }
+// ============ NOTES SAISIES (MODIFIER/SUPPRIMER) ============
+        let notesSaisiesListe = [];
+
+        async function afficherNotesSaisies() {
+            hideAllViews();
+            document.getElementById('view-notes-saisies').classList.remove('hidden');
+            chargerNotesSaisies();
+            window.scrollTo(0, 0);
+        }
+
+        async function chargerNotesSaisies() {
+            const conteneur = document.getElementById('ns-liste');
+            conteneur.innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
+
+            const semestre = parseInt(document.getElementById('ns-semestre').value);
+            const typeFiltre = document.getElementById('ns-type').value;
+
+            let q = supabaseClient.from('notes')
+                .select('id, note, coefficient, type_evaluation, date_evaluation, eleve_id, eleves(utilisateurs!utilisateur_id(prenom, nom))')
+                .eq('enseignant_id', enseignantId)
+                .eq('matiere', maMatiere)
+                .eq('semestre', semestre)
+                .order('date_evaluation', { ascending: false });
+
+            if (typeFiltre) q = q.eq('type_evaluation', typeFiltre);
+
+            const { data, error } = await q;
+            if (error) { conteneur.innerHTML = '<div class="bg-red-50 p-4 rounded-2xl"><p class="text-xs text-red-600">Erreur : ' + error.message + '</p></div>'; return; }
+
+            notesSaisiesListe = data || [];
+            filtrerNotesSaisies();
+        }
+
+        function filtrerNotesSaisies() {
+            const terme = (document.getElementById('ns-recherche').value || '').toLowerCase().trim();
+            let liste = notesSaisiesListe;
+            if (terme) {
+                liste = liste.filter(n => {
+                    const u = n.eleves && n.eleves.utilisateurs;
+                    const nom = u ? (u.prenom + ' ' + u.nom).toLowerCase() : '';
+                    return nom.indexOf(terme) !== -1;
+                });
+            }
+            afficherListeNotesSaisies(liste);
+        }
+
+        function afficherListeNotesSaisies(liste) {
+            const conteneur = document.getElementById('ns-liste');
+            if (liste.length === 0) {
+                conteneur.innerHTML = '<div class="bg-white p-6 rounded-2xl shadow-sm text-center"><p class="text-gray-500 text-sm">Aucune note.</p></div>';
+                return;
+            }
+
+            const typeLabels = { devoir1: 'Devoir 1', devoir2: 'Devoir 2', devoir3: 'Devoir 3', composition: 'Composition' };
+            let html = '<p class="text-[10px] text-gray-500 mb-2 px-1">' + liste.length + ' note(s)</p>';
+
+            liste.forEach(n => {
+                const u = n.eleves && n.eleves.utilisateurs;
+                const prenom = u ? u.prenom : '?';
+                const nom = u ? u.nom : '?';
+                const initiale = prenom.charAt(0).toUpperCase();
+                const typeLabel = typeLabels[n.type_evaluation] || n.type_evaluation || 'Note';
+                const dateStr = n.date_evaluation ? new Date(n.date_evaluation).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : '';
+                const noteVal = parseFloat(n.note);
+                let couleur = '#EF4444';
+                if (noteVal >= 10) couleur = '#2EAD5E';
+                if (noteVal >= 14) couleur = '#004AAD';
+
+                html += '<div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100">';
+                html += '<div class="flex items-center gap-3 mb-2">';
+                html += '<div class="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-xs flex-shrink-0" style="background:linear-gradient(135deg,#004AAD,#2EAD5E);">' + initiale + '</div>';
+                html += '<div class="flex-1 min-w-0">';
+                html += '<p class="text-xs font-bold text-gray-800 truncate">' + prenom + ' ' + nom + '</p>';
+                html += '<p class="text-[10px] text-gray-500">' + typeLabel + ' - Coef ' + n.coefficient + ' - ' + dateStr + '</p>';
+                html += '</div>';
+                html += '<span class="text-lg font-extrabold" style="color:' + couleur + '">' + noteVal.toFixed(2) + '</span>';
+                html += '</div>';
+                html += '<div class="flex gap-2">';
+                html += '<button onclick="modifierNoteSaisie(' + n.id + ')" class="flex-1 bg-blue-50 text-edu-blue text-[10px] font-bold py-1.5 rounded-lg">Modifier</button>';
+                html += '<button onclick="supprimerNoteSaisie(' + n.id + ', \'' + (prenom + ' ' + nom).replace(/'/g, "\\'") + '\', \'' + typeLabel + '\')" class="flex-1 bg-red-50 text-edu-red text-[10px] font-bold py-1.5 rounded-lg">Supprimer</button>';
+                html += '</div></div>';
+            });
+            conteneur.innerHTML = html;
+        }
+
+        async function modifierNoteSaisie(noteId) {
+            const n = notesSaisiesListe.find(x => x.id === noteId);
+            if (!n) return;
+
+            const nouvelleNote = prompt('Nouvelle valeur (0-20) :', parseFloat(n.note).toFixed(2));
+            if (nouvelleNote === null) return;
+            const v = parseFloat(nouvelleNote);
+            if (isNaN(v) || v < 0 || v > 20) { alert('Note invalide. Doit etre entre 0 et 20.'); return; }
+
+            const nouveauCoef = prompt('Coefficient (1-6) :', n.coefficient);
+            if (nouveauCoef === null) return;
+            const c = parseInt(nouveauCoef);
+            if (isNaN(c) || c < 1 || c > 6) { alert('Coefficient invalide. Doit etre entre 1 et 6.'); return; }
+
+            const { error } = await supabaseClient.from('notes').update({ note: v, coefficient: c }).eq('id', noteId);
+            if (error) { alert('Erreur : ' + error.message); return; }
+            alert('Note mise a jour !');
+            chargerNotesSaisies();
+        }
+
+        async function supprimerNoteSaisie(noteId, nomEleve, typeLabel) {
+            if (!confirm('Supprimer la note ' + typeLabel + ' de ' + nomEleve + ' ?')) return;
+
+            const { error } = await supabaseClient.from('notes').delete().eq('id', noteId);
+            if (error) { alert('Erreur : ' + error.message); return; }
+            chargerNotesSaisies();
         }
 
         function seDeconnecter() { sessionStorage.removeItem('eduLinkUser'); window.location.href = 'index.html'; }

@@ -152,10 +152,9 @@
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-2">🏆 Badges de mes enfants</h1>
                     <p class="text-xs text-gray-500 mb-3">Récompenses obtenues par vos enfants.</p>
-                    <div class="grid grid-cols-3 gap-2 mb-4">
-                        <button id="tab-badges-t1" onclick="changerTrimestreBadgesParent(1)" class="py-2 rounded-xl font-bold text-xs bg-edu-blue text-white">T1</button>
-                        <button id="tab-badges-t2" onclick="changerTrimestreBadgesParent(2)" class="py-2 rounded-xl font-bold text-xs bg-gray-100 text-gray-600">T2</button>
-                        <button id="tab-badges-t3" onclick="changerTrimestreBadgesParent(3)" class="py-2 rounded-xl font-bold text-xs bg-gray-100 text-gray-600">T3</button>
+                    <div class="grid grid-cols-2 gap-2 mb-4">
+                        <button id="tab-badges-s1" onclick="changerTrimestreBadgesParent(1)" class="py-2 rounded-xl font-bold text-xs bg-edu-blue text-white">Semestre 1</button>
+                        <button id="tab-badges-s2" onclick="changerTrimestreBadgesParent(2)" class="py-2 rounded-xl font-bold text-xs bg-gray-100 text-gray-600">Semestre 2</button>
                     </div>
                     <div id="liste-badges-enfants" class="space-y-3"></div>
                 </div>
@@ -177,10 +176,9 @@
                 <div id="view-bulletin" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-3">📄 Bulletin</h1>
-                    <div class="grid grid-cols-3 gap-2 mb-4">
-                        <button id="tab-t1" onclick="changerTrimestre(1)" class="py-2 rounded-xl font-bold text-xs bg-edu-blue text-white">T1</button>
-                        <button id="tab-t2" onclick="changerTrimestre(2)" class="py-2 rounded-xl font-bold text-xs bg-gray-100 text-gray-600">T2</button>
-                        <button id="tab-t3" onclick="changerTrimestre(3)" class="py-2 rounded-xl font-bold text-xs bg-gray-100 text-gray-600">T3</button>
+                    <div class="grid grid-cols-2 gap-2 mb-4">
+                        <button id="tab-t1" onclick="changerTrimestre(1)" class="py-2 rounded-xl font-bold text-xs bg-edu-blue text-white">Semestre 1</button>
+                        <button id="tab-t2" onclick="changerTrimestre(2)" class="py-2 rounded-xl font-bold text-xs bg-gray-100 text-gray-600">Semestre 2</button>
                     </div>
                     <div id="contenu-bulletin"></div>
                 </div>
@@ -357,8 +355,8 @@
         }
 
         function majTabsBadgesParent() {
-            [1, 2, 3].forEach(i => {
-                const tab = document.getElementById('tab-badges-t' + i);
+            [1, 2].forEach(i => {
+                const tab = document.getElementById('tab-badges-s' + i);
                 if (!tab) return;
                 if (i === trimestreBadgesParent) tab.className = 'py-2 rounded-xl font-bold text-xs bg-edu-blue text-white';
                 else tab.className = 'py-2 rounded-xl font-bold text-xs bg-gray-100 text-gray-600';
@@ -581,8 +579,9 @@
 
         async function changerTrimestre(n) {
             trimestreActuel = n;
-            [1, 2, 3].forEach(i => {
+            [1, 2].forEach(i => {
                 const tab = document.getElementById('tab-t' + i);
+                if (!tab) return;
                 if (i === n) tab.className = 'py-2 rounded-xl font-bold text-xs bg-edu-blue text-white';
                 else tab.className = 'py-2 rounded-xl font-bold text-xs bg-gray-100 text-gray-600';
             });
@@ -594,30 +593,56 @@
             if (!eleveId) return;
             const enfant = listeEnfants.find(e => e.id == eleveId);
             const { data: eleve } = await supabaseClient.from('eleves').select('*, classes(nom)').eq('id', eleveId).single();
-            const { data: notes } = await supabaseClient.from('notes').select('matiere, note, coefficient').eq('eleve_id', eleveId).eq('trimestre', trimestreActuel);
+            const { data: notes } = await supabaseClient.from('notes').select('matiere, note, coefficient, type_evaluation').eq('eleve_id', eleveId).eq('semestre', trimestreActuel);
+
             const matieres = {};
-            if (notes) notes.forEach(n => { if (!matieres[n.matiere]) matieres[n.matiere] = []; matieres[n.matiere].push({ note: parseFloat(n.note), coef: n.coefficient }); });
+            if (notes) {
+                notes.forEach(n => {
+                    if (!matieres[n.matiere]) matieres[n.matiere] = { devoir1: null, devoir2: null, devoir3: null, composition: null };
+                    matieres[n.matiere][n.type_evaluation || 'composition'] = { note: parseFloat(n.note), coef: n.coefficient };
+                });
+            }
+
             let totalPoints = 0, totalCoef = 0, lignes = '';
             const ordreMatieres = Object.keys(matieres).sort();
-            if (ordreMatieres.length === 0) lignes = '<tr><td colspan="5" style="padding: 20px; text-align: center; color: #6b7280; font-size: 12px;">Aucune note pour ce trimestre</td></tr>';
-            else {
+
+            if (ordreMatieres.length === 0) {
+                lignes = '<tr><td colspan="7" style="padding: 20px; text-align: center; color: #6b7280; font-size: 12px;">Aucune note pour ce semestre</td></tr>';
+            } else {
                 let i = 0;
                 ordreMatieres.forEach(mat => {
-                    const notesMat = matieres[mat];
-                    let points = 0, coefs = 0; const details = [];
-                    notesMat.forEach(n => { points += n.note * n.coef; coefs += n.coef; details.push(n.note + '/' + n.coef); });
+                    const data = matieres[mat];
+                    let points = 0, coefs = 0;
+                    ['devoir1', 'devoir2', 'devoir3', 'composition'].forEach(t => {
+                        if (data[t]) { points += data[t].note * data[t].coef; coefs += data[t].coef; }
+                    });
                     const moyMat = coefs > 0 ? (points / coefs) : 0;
                     totalPoints += points; totalCoef += coefs;
+
                     let couleur = '#EF4444', bgNote = '#fef2f2';
                     if (moyMat >= 10) { couleur = '#2EAD5E'; bgNote = '#f0fdf4'; }
                     if (moyMat >= 14) { couleur = '#2EAD5E'; bgNote = '#dcfce7'; }
+
                     const bgLigne = (i % 2 === 0) ? '#ffffff' : '#f9fafb'; i++;
                     let apprec = 'Insuffisant';
                     if (moyMat >= 16) apprec = 'Excellent'; else if (moyMat >= 14) apprec = 'Tres bien';
                     else if (moyMat >= 12) apprec = 'Bien'; else if (moyMat >= 10) apprec = 'Passable';
-                    lignes += `<tr style="background: ${bgLigne};"><td style="padding: 10px 8px; border: 1px solid #d1d5db; font-size: 12px; font-weight: 600; color: #1f2937;">${mat}</td><td style="padding: 10px 8px; border: 1px solid #d1d5db; font-size: 10px; color: #6b7280; text-align: center;">${details.join(' - ')}</td><td style="padding: 10px 8px; border: 1px solid #d1d5db; font-size: 12px; text-align: center; color: #1f2937;">${coefs}</td><td style="padding: 10px 8px; border: 1px solid #d1d5db; font-size: 13px; font-weight: 700; text-align: center; color: ${couleur}; background: ${bgNote};">${moyMat.toFixed(2)}</td><td style="padding: 10px 8px; border: 1px solid #d1d5db; font-size: 10px; text-align: center; color: ${couleur}; font-weight: 600;">${apprec}</td></tr>`;
+
+                    const fNote = (d) => d ? d.note.toFixed(2) : '--';
+                    const fCoef = (d) => d ? 'c' + d.coef : '';
+
+                    lignes += '<tr style="background: ' + bgLigne + ';">';
+                    lignes += '<td style="padding: 6px 4px; border: 1px solid #d1d5db; font-size: 11px; font-weight: 600; color: #1f2937;">' + mat + '</td>';
+                    lignes += '<td style="padding: 6px 4px; border: 1px solid #d1d5db; font-size: 10px; text-align: center; color: #1f2937;">' + fNote(data.devoir1) + '<br><span style="color:#9ca3af;font-size:8px;">' + fCoef(data.devoir1) + '</span></td>';
+                    lignes += '<td style="padding: 6px 4px; border: 1px solid #d1d5db; font-size: 10px; text-align: center; color: #1f2937;">' + fNote(data.devoir2) + '<br><span style="color:#9ca3af;font-size:8px;">' + fCoef(data.devoir2) + '</span></td>';
+                    lignes += '<td style="padding: 6px 4px; border: 1px solid #d1d5db; font-size: 10px; text-align: center; color: #9ca3af;">' + fNote(data.devoir3) + '<br><span style="font-size:8px;">' + fCoef(data.devoir3) + '</span></td>';
+                    lignes += '<td style="padding: 6px 4px; border: 1px solid #d1d5db; font-size: 10px; text-align: center; color: #1f2937;">' + fNote(data.composition) + '<br><span style="color:#9ca3af;font-size:8px;">' + fCoef(data.composition) + '</span></td>';
+                    lignes += '<td style="padding: 6px 4px; border: 1px solid #d1d5db; font-size: 11px; font-weight: 700; text-align: center; color: ' + couleur + '; background: ' + bgNote + ';">' + moyMat.toFixed(2) + '</td>';
+                    lignes += '<td style="padding: 6px 4px; border: 1px solid #d1d5db; font-size: 9px; text-align: center; color: ' + couleur + '; font-weight: 600;">' + apprec + '</td>';
+                    lignes += '</tr>';
                 });
             }
+
             const moyenneGenerale = totalCoef > 0 ? (totalPoints / totalCoef) : 0;
             const moyStr = totalCoef > 0 ? moyenneGenerale.toFixed(2) : '--';
             const mention = moyenneGenerale >= 16 ? 'Felicitations' : moyenneGenerale >= 14 ? 'Tres bien' : moyenneGenerale >= 12 ? 'Bien' : moyenneGenerale >= 10 ? 'Passable' : 'Insuffisant';
@@ -636,7 +661,7 @@
                     <div style="text-align: center; border-bottom: 2px solid #004AAD; padding-bottom: 12px; margin-bottom: 16px;">
                         <div style="font-size: 32px;">📖</div><h1 style="font-size: 18px; font-weight: bold; color: #004AAD; margin: 4px 0;">EDU-LINK</h1>
                         <p style="font-size: 10px; color: #6b7280; margin: 0;">${document.getElementById('ecole-nom-affiche').innerText.replace('🏫 ', '')}</p>
-                        <p style="font-size: 13px; font-weight: bold; color: #1f2937; margin-top: 8px;">BULLETIN SCOLAIRE - TRIMESTRE ${trimestreActuel}</p>
+                        <p style="font-size: 13px; font-weight: bold; color: #1f2937; margin-top: 8px;">BULLETIN SCOLAIRE - SEMESTRE ${trimestreActuel}</p>
                     </div>
                     <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 12px;">
                         <tr><td style="padding: 4px 0;"><b>Eleve :</b> ${enfant.prenom} ${enfant.nom}</td></tr>
@@ -644,39 +669,76 @@
                         <tr><td style="padding: 4px 0;"><b>Classe :</b> ${eleve.classes ? eleve.classes.nom : 'N/A'}</td></tr>
                         <tr><td style="padding: 4px 0;"><b>Parent :</b> ${currentUser.prenom} ${currentUser.nom}</td></tr>
                     </table>
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px;"><thead><tr style="background: #004AAD;"><th style="border: 1px solid #004AAD; padding: 8px; font-size: 11px; color: white; text-align: left;">Matiere</th><th style="border: 1px solid #004AAD; padding: 8px; font-size: 11px; color: white; text-align: center;">Notes</th><th style="border: 1px solid #004AAD; padding: 8px; font-size: 11px; color: white; text-align: center;">Coef</th><th style="border: 1px solid #004AAD; padding: 8px; font-size: 11px; color: white; text-align: center;">Moy</th><th style="border: 1px solid #004AAD; padding: 8px; font-size: 11px; color: white; text-align: center;">Appreciation</th></tr></thead><tbody>${lignes}</tbody></table>
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px;">
+                        <thead><tr style="background: #004AAD;">
+                            <th style="border: 1px solid #004AAD; padding: 6px 4px; font-size: 10px; color: white; text-align: left;">Matiere</th>
+                            <th style="border: 1px solid #004AAD; padding: 6px 4px; font-size: 10px; color: white; text-align: center;">Dev. 1</th>
+                            <th style="border: 1px solid #004AAD; padding: 6px 4px; font-size: 10px; color: white; text-align: center;">Dev. 2</th>
+                            <th style="border: 1px solid #004AAD; padding: 6px 4px; font-size: 10px; color: white; text-align: center;">Dev. 3</th>
+                            <th style="border: 1px solid #004AAD; padding: 6px 4px; font-size: 10px; color: white; text-align: center;">Comp.</th>
+                            <th style="border: 1px solid #004AAD; padding: 6px 4px; font-size: 10px; color: white; text-align: center;">Moy.</th>
+                            <th style="border: 1px solid #004AAD; padding: 6px 4px; font-size: 10px; color: white; text-align: center;">Apprec.</th>
+                        </tr></thead>
+                        <tbody>${lignes}</tbody>
+                    </table>
                     <div style="border: 2px solid #004AAD; padding: 12px; text-align: center; background: #f0f7ff; border-radius: 6px;"><p style="font-size: 10px; color: #004AAD; margin: 0; font-weight: 600;">MOYENNE GENERALE</p><p style="font-size: 24px; font-weight: 800; color: ${mentionCouleur}; margin: 4px 0 0 0;">${moyStr}/20</p><p style="font-size: 14px; font-weight: bold; color: ${mentionCouleur}; margin: 4px 0 0 0;">Mention : ${mention}</p></div>
                     ${blocSignature}
                     <p style="text-align: center; font-size: 8px; color: #9ca3af; margin-top: 12px;">Document genere par EDU-LINK</p>
                 </div>
-                <button onclick="telechargerPDF()" id="btn-pdf" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl mt-4">📥 Telecharger le bulletin T${trimestreActuel} en PDF</button>
+                <button onclick="telechargerPDF()" id="btn-pdf" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl mt-4">📥 Telecharger le bulletin S${trimestreActuel} en PDF</button>
                 <div id="message-pdf" class="text-center text-sm font-semibold mt-2"></div>
             `;
         }
 
         async function telechargerPDF() {
-            const btn = document.getElementById('btn-pdf'); const msg = document.getElementById('message-pdf');
-            btn.innerText = "Generation..."; btn.disabled = true;
-            const zoneTemp = document.createElement('div');
-            zoneTemp.style.position = 'fixed'; zoneTemp.style.left = '-9999px'; zoneTemp.style.top = '0'; zoneTemp.style.width = '800px'; zoneTemp.style.background = 'white'; zoneTemp.style.padding = '20px';
-            const bulletinOriginal = document.getElementById('bulletin-pdf');
-            const bulletinClone = bulletinOriginal.cloneNode(true); bulletinClone.style.width = '100%';
-            zoneTemp.appendChild(bulletinClone); document.body.appendChild(zoneTemp);
+            const btn = document.getElementById('btn-pdf');
+            const msg = document.getElementById('message-pdf');
+            btn.innerText = "Generation...";
+            btn.disabled = true;
+            msg.innerText = '';
+            let iframe = null;
+
             try {
                 const eleveId = document.getElementById('select-enfant-bulletin').value;
                 const enfant = listeEnfants.find(e => e.id == eleveId);
+                const htmlInterne = document.getElementById('bulletin-pdf').outerHTML;
                 const nomFichier = 'Bulletin_T' + trimestreActuel + '_' + enfant.prenom + '_' + enfant.nom + '.pdf';
-                const options = { margin: 10, filename: nomFichier, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', width: 800, windowWidth: 800, scrollX: 0, scrollY: 0 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-                const pdfBlob = await html2pdf().set(options).from(bulletinClone).outputPdf('blob');
+
+                iframe = document.createElement('iframe');
+                iframe.style.cssText = 'position:fixed;top:0;left:0;width:800px;height:1100px;opacity:0;pointer-events:none;z-index:-1;border:none;';
+                document.body.appendChild(iframe);
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                doc.open();
+                doc.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{margin:0;padding:20px;background:#ffffff;font-family:Arial,sans-serif;}</style></head><body>' + htmlInterne + '</body></html>');
+                doc.close();
+                await new Promise(r => setTimeout(r, 400));
+
+                const options = {
+                    margin: 10,
+                    filename: nomFichier,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', width: 800, windowWidth: 800, scrollX: 0, scrollY: 0 },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+                const pdfBlob = await html2pdf().set(options).from(doc.body).outputPdf('blob');
                 const fichier = new File([pdfBlob], nomFichier, { type: 'application/pdf' });
-                document.body.removeChild(zoneTemp);
-                const url = URL.createObjectURL(pdfBlob); const a = document.createElement('a'); a.href = url; a.download = nomFichier; a.style.display = 'none'; document.body.appendChild(a); a.click(); setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
-                btn.innerText = "📥 Telecharger le bulletin T" + trimestreActuel + " en PDF"; btn.disabled = false;
+                document.body.removeChild(iframe); iframe = null;
+
+                if (navigator.canShare && navigator.canShare({ files: [fichier] })) {
+                    await navigator.share({ files: [fichier], title: 'Bulletin scolaire' });
+                    msg.innerText = "Bulletin partage !"; msg.style.color = "green";
+                } else {
+                    const url = URL.createObjectURL(pdfBlob);
+                    window.open(url, '_blank');
+                    msg.innerText = "PDF ouvert !"; msg.style.color = "green";
+                }
             } catch (err) {
-                if (document.body.contains(zoneTemp)) document.body.removeChild(zoneTemp);
+                if (iframe && document.body.contains(iframe)) document.body.removeChild(iframe);
                 if (err.name === 'AbortError') { msg.innerText = "Annule."; msg.style.color = "gray"; }
-                else { msg.innerText = "Erreur"; msg.style.color = "red"; }
-                btn.innerText = "📥 Telecharger le bulletin T" + trimestreActuel + " en PDF"; btn.disabled = false;
+                else { msg.innerText = "Erreur : " + err.message; msg.style.color = "red"; }
+            } finally {
+                btn.innerText = "📥 Telecharger le bulletin T" + trimestreActuel + " en PDF";
+                btn.disabled = false;
             }
         }
 
