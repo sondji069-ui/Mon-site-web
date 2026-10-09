@@ -149,7 +149,7 @@
                         </div>
                         <span id="badge-devoirs" class="hidden bg-white text-edu-orange text-xs font-bold rounded-full w-7 h-7 flex items-center justify-center">0</span>
                     </button>
-<button onclick="testRessources()" class="bouton-action w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
+                    <button onclick="testRessources()" class="bouton-action w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
                         <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">📚</div>
                         <div class="flex-1 text-left">
                             <p class="text-sm font-bold">Mes ressources</p>
@@ -238,7 +238,8 @@
                     <button onclick="afficherAnnonces()" class="text-2xl mb-3">⬅️</button>
                     <div id="contenu-affiche"></div>
                 </div>
-<div id="view-ressources-eleve" class="hidden fade-in">
+
+                <div id="view-ressources-eleve" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-2">📚 Mes ressources</h1>
                     <p class="text-xs text-gray-500 mb-3">Programmes, lecons et exercices de tes professeurs.</p>
@@ -254,10 +255,12 @@
                         <p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>
                     </div>
                 </div>
-<div id="view-ressource-detail-eleve" class="hidden fade-in">
+
+                <div id="view-ressource-detail-eleve" class="hidden fade-in">
                     <button onclick="retourRessourcesEleve()" class="text-2xl mb-3">⬅️</button>
                     <div id="reselv-detail-contenu"></div>
                 </div>
+
                 <div id="view-notifications" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-3">🔔 Mes notifications</h1>
@@ -270,8 +273,7 @@
             </div>
         </div>
     </div>
-
-    <script src="badges.js"></script>
+<script src="badges.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         function initTheme() {
@@ -307,6 +309,11 @@
         let tousDevoirs = [], mesDevoirsFaits = [], filtreDevoirs = 'tout';
         let tousLesCours = [];
         let signatureEcole = null;
+
+        // ⬇️ UNIFORMISÉE : utilise querySelectorAll pour tout attraper automatiquement
+        function hideAllViews() {
+            document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
+        }
 
         function afficherAvatarHeader() {
             const btn = document.getElementById('avatar-header');
@@ -349,7 +356,7 @@
         }
 
         async function afficherMesBadges() {
-            document.getElementById('view-accueil').classList.add('hidden');
+            hideAllViews();
             document.getElementById('view-badges').classList.remove('hidden');
             document.getElementById('liste-badges').innerHTML = '<p class="text-gray-500 text-center py-6">Chargement...</p>';
             badgesActuels = await calculerBadgesEleve(supabaseClient, monEleveId, monClasseId, trimestreBadges);
@@ -440,7 +447,7 @@
         }
 
         async function afficherDevoirs() {
-            document.getElementById('view-accueil').classList.add('hidden');
+            hideAllViews();
             document.getElementById('view-devoirs').classList.remove('hidden');
             if (!monClasseId || !monEleveId) { document.getElementById('liste-devoirs-eleve').innerHTML = '<p class="text-gray-500 text-center py-4">Aucune classe associée.</p>'; return; }
             const { data: devoirs } = await supabaseClient.from('devoirs').select('*').eq('classe_id', monClasseId).order('date_creation', { ascending: false });
@@ -546,7 +553,7 @@
         }
 
         async function afficherBulletin() {
-            document.getElementById('view-accueil').classList.add('hidden');
+            hideAllViews();
             document.getElementById('view-bulletin').classList.remove('hidden');
             trimestreActuel = 1; await chargerBulletin();
         }
@@ -657,58 +664,58 @@
         }
 
         async function telechargerPDF() {
-    const btn = document.getElementById('btn-pdf');
-    const msg = document.getElementById('message-pdf');
-    btn.innerText = "Generation...";
-    btn.disabled = true;
-    msg.innerText = '';
-    let iframe = null;
+            const btn = document.getElementById('btn-pdf');
+            const msg = document.getElementById('message-pdf');
+            btn.innerText = "Generation...";
+            btn.disabled = true;
+            msg.innerText = '';
+            let iframe = null;
 
-    try {
-        const bulletinOriginal = document.getElementById('bulletin-pdf');
-        const htmlInterne = bulletinOriginal.outerHTML;
-        const nomFichier = 'Bulletin_T' + trimestreActuel + '_' + currentUser.prenom + '_' + currentUser.nom + '.pdf';
+            try {
+                const bulletinOriginal = document.getElementById('bulletin-pdf');
+                const htmlInterne = bulletinOriginal.outerHTML;
+                const nomFichier = 'Bulletin_T' + trimestreActuel + '_' + currentUser.prenom + '_' + currentUser.nom + '.pdf';
 
-        iframe = document.createElement('iframe');
-        iframe.style.cssText = 'position:fixed;top:0;left:0;width:800px;height:1100px;opacity:0;pointer-events:none;z-index:-1;border:none;';
-        document.body.appendChild(iframe);
-        const doc = iframe.contentDocument || iframe.contentWindow.document;
-        doc.open();
-        doc.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{margin:0;padding:20px;background:#ffffff;font-family:Arial,sans-serif;}</style></head><body>' + htmlInterne + '</body></html>');
-        doc.close();
-        await new Promise(r => setTimeout(r, 400));
+                iframe = document.createElement('iframe');
+                iframe.style.cssText = 'position:fixed;top:0;left:0;width:800px;height:1100px;opacity:0;pointer-events:none;z-index:-1;border:none;';
+                document.body.appendChild(iframe);
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                doc.open();
+                doc.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{margin:0;padding:20px;background:#ffffff;font-family:Arial,sans-serif;}</style></head><body>' + htmlInterne + '</body></html>');
+                doc.close();
+                await new Promise(r => setTimeout(r, 400));
 
-        const options = {
-            margin: 10,
-            filename: nomFichier,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', width: 800, windowWidth: 800, scrollX: 0, scrollY: 0 },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-        const pdfBlob = await html2pdf().set(options).from(doc.body).outputPdf('blob');
-        const fichier = new File([pdfBlob], nomFichier, { type: 'application/pdf' });
-        document.body.removeChild(iframe); iframe = null;
+                const options = {
+                    margin: 10,
+                    filename: nomFichier,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', width: 800, windowWidth: 800, scrollX: 0, scrollY: 0 },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+                const pdfBlob = await html2pdf().set(options).from(doc.body).outputPdf('blob');
+                const fichier = new File([pdfBlob], nomFichier, { type: 'application/pdf' });
+                document.body.removeChild(iframe); iframe = null;
 
-        if (navigator.canShare && navigator.canShare({ files: [fichier] })) {
-            await navigator.share({ files: [fichier], title: 'Bulletin scolaire' });
-            msg.innerText = "Bulletin partage !"; msg.style.color = "green";
-        } else {
-            const url = URL.createObjectURL(pdfBlob);
-            window.open(url, '_blank');
-            msg.innerText = "PDF ouvert !"; msg.style.color = "green";
+                if (navigator.canShare && navigator.canShare({ files: [fichier] })) {
+                    await navigator.share({ files: [fichier], title: 'Bulletin scolaire' });
+                    msg.innerText = "Bulletin partage !"; msg.style.color = "green";
+                } else {
+                    const url = URL.createObjectURL(pdfBlob);
+                    window.open(url, '_blank');
+                    msg.innerText = "PDF ouvert !"; msg.style.color = "green";
+                }
+            } catch (err) {
+                if (iframe && document.body.contains(iframe)) document.body.removeChild(iframe);
+                if (err.name === 'AbortError') { msg.innerText = "Annule."; msg.style.color = "gray"; }
+                else { msg.innerText = "Erreur"; msg.style.color = "red"; }
+            } finally {
+                btn.innerText = "📥 Telecharger le bulletin T" + trimestreActuel + " en PDF";
+                btn.disabled = false;
+            }
         }
-    } catch (err) {
-        if (iframe && document.body.contains(iframe)) document.body.removeChild(iframe);
-        if (err.name === 'AbortError') { msg.innerText = "Annule."; msg.style.color = "gray"; }
-        else { msg.innerText = "Erreur"; msg.style.color = "red"; }
-    } finally {
-        btn.innerText = "📥 Telecharger le bulletin T" + trimestreActuel + " en PDF";
-        btn.disabled = false;
-    }
-}
 
         async function afficherAbsences() {
-            document.getElementById('view-accueil').classList.add('hidden');
+            hideAllViews();
             document.getElementById('view-absences').classList.remove('hidden');
             const { data: absences } = await supabaseClient.from('absences').select('*').eq('eleve_id', monEleveId).order('date_absence', { ascending: false });
             toutesAbsences = absences || []; filtreAbsences = 'tout';
@@ -741,7 +748,7 @@
         }
 
         async function afficherEmploi() {
-            document.getElementById('view-accueil').classList.add('hidden');
+            hideAllViews();
             document.getElementById('view-emploi').classList.remove('hidden');
             const { data: cours } = await supabaseClient.from('emploi_du_temps').select('*').eq('classe_id', monClasseId).order('heure_debut');
             tousLesCours = cours || []; afficherEncadreAujourdhui(); afficherTableauEmploi(tousLesCours, 'tableau-emploi-eleve'); window.scrollTo(0, 0);
@@ -817,9 +824,8 @@
         }
 
         async function afficherAnnonces() {
-            document.getElementById('view-accueil').classList.add('hidden');
+            hideAllViews();
             document.getElementById('view-annonces').classList.remove('hidden');
-            document.getElementById('view-affiche').classList.add('hidden');
             const { data: annonces } = await supabaseClient.from('annonces').select('*').eq('ecole_id', monEcoleId).or('cible.eq.tous,cible.eq.eleves').order('date_publication', { ascending: false });
             let html = '';
             if (annonces && annonces.length > 0) {
@@ -832,18 +838,18 @@
         }
 
         async function voirAffiche(id) {
-            document.getElementById('view-annonces').classList.add('hidden');
+            hideAllViews();
             document.getElementById('view-affiche').classList.remove('hidden');
             const { data: a } = await supabaseClient.from('annonces').select('*').eq('id', id).single();
             document.getElementById('contenu-affiche').innerHTML = construireAffiche(a, document.getElementById('ecole-nom-affiche').innerText.replace('🏫 ', ''));
         }
 
         function construireAffiche(a, ecoleNom) {
-    return construireAfficheSecurisee(a, ecoleNom, signatureEcole);
-}
+            return construireAfficheSecurisee(a, ecoleNom, signatureEcole);
+        }
 
         async function afficherNotifications() {
-            document.getElementById('view-accueil').classList.add('hidden');
+            hideAllViews();
             document.getElementById('view-notifications').classList.remove('hidden');
             const { data: notifs } = await supabaseClient.from('notifications').select('*').eq('utilisateur_id', currentUser.id).order('date_creation', { ascending: false });
             toutesNotifs = notifs || [];
@@ -882,29 +888,96 @@
         }
 
         async function lireNotif(id) { await supabaseClient.from('notifications').update({ lu: true }).eq('id', id); await afficherNotifications(); chargerBadgeNotifs(); }
-function hideAllViews() {
-            ['view-accueil', 'view-devoirs', 'view-badges', 'view-bulletin', 'view-absences', 'view-emploi', 'view-annonces', 'view-affiche', 'view-notifications', 'view-ressources-eleve', 'view-ressource-detail-eleve'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.classList.add('hidden');
-            });
-        }
-
-        function retourRessourcesEleve() {
-            document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
-            document.getElementById('view-ressources-eleve').classList.remove('hidden');
-            window.scrollTo(0, 0);
-        }
-
-        function retourAccueil() {
-            document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
-            document.getElementById('view-accueil').classList.remove('hidden');
-            chargerBadgeDevoirs();
-            chargerProchainCours();
-            chargerBadges();
-        }
-let resElvListe = [];
+// ============ RESSOURCES ============
+        let resElvListe = [];
         let resElvFiltreType = 'tous';
-function resElvVoir(id) {
+
+        async function testRessources() {
+            // ✅ UNIFORMISÉ
+            hideAllViews();
+            document.getElementById('view-ressources-eleve').classList.remove('hidden');
+            document.getElementById('reselv-liste').innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
+            window.scrollTo(0, 0);
+
+            if (!monClasseId) {
+                document.getElementById('reselv-liste').innerHTML = '<div class="bg-white p-6 rounded-2xl shadow-sm text-center"><p class="text-gray-500 text-sm">Aucune classe associee.</p></div>';
+                return;
+            }
+
+            const { data, error } = await supabaseClient
+                .from('ressources')
+                .select('*')
+                .eq('classe_id', monClasseId)
+                .order('date_creation', { ascending: false });
+
+            if (error) {
+                document.getElementById('reselv-liste').innerHTML = '<div class="bg-red-50 p-4 rounded-2xl border border-red-200"><p class="text-xs font-bold text-edu-red mb-1">Erreur :</p><p class="text-[11px] text-gray-700">' + error.message + '</p></div>';
+                return;
+            }
+
+            resElvListe = data || [];
+            resElvFiltrerType(resElvFiltreType);
+        }
+
+        function resElvFiltrerType(type) {
+            resElvFiltreType = type;
+            ['tous', 'programme', 'lecon', 'exercice'].forEach(t => {
+                const tab = document.getElementById('reselv-tab-' + t);
+                if (!tab) return;
+                tab.className = t === type
+                    ? 'py-2 rounded-xl font-bold text-[10px] bg-edu-blue text-white'
+                    : 'py-2 rounded-xl font-bold text-[10px] bg-gray-100 text-gray-600';
+            });
+            resElvFiltrer();
+        }
+
+        function resElvFiltrer() {
+            const matiereSel = document.getElementById('reselv-filtre-matiere');
+            const matiere = matiereSel ? matiereSel.value : '';
+            let liste = resElvListe;
+            if (resElvFiltreType !== 'tous') liste = liste.filter(r => r.type === resElvFiltreType);
+            if (matiere) liste = liste.filter(r => r.matiere === matiere);
+            resElvAfficherListe(liste);
+        }
+
+        function resElvAfficherListe(liste) {
+            const conteneur = document.getElementById('reselv-liste');
+            if (liste.length === 0) {
+                conteneur.innerHTML = '<div class="bg-white p-8 rounded-2xl shadow-sm text-center"><div class="text-5xl mb-2">📚</div><p class="text-gray-500 text-sm">Aucune ressource pour le moment.</p></div>';
+                return;
+            }
+
+            let html = '';
+            html += '<div class="bg-blue-50 border border-blue-100 rounded-xl p-3 mb-3">';
+            html += '<p class="text-xs font-bold text-edu-blue">' + liste.length + ' ressource(s) affichee(s)</p>';
+            html += '</div>';
+
+            liste.forEach(r => {
+                let emoji = '📄';
+                let label = 'Lecon';
+                let couleur = 'bg-blue-100 text-edu-blue';
+                if (r.type === 'programme') { emoji = '📋'; label = 'Programme'; couleur = 'bg-purple-100 text-edu-purple'; }
+                else if (r.type === 'exercice') { emoji = '✏️'; label = 'Exercice'; couleur = 'bg-orange-100 text-edu-orange'; }
+
+                const dateStr = new Date(r.date_creation).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+
+                html += '<div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100">';
+                html += '<div class="flex items-start gap-3 mb-2">';
+                html += '<div class="text-2xl flex-shrink-0">' + emoji + '</div>';
+                html += '<div class="flex-1 min-w-0">';
+                html += '<div class="flex items-center gap-2 mb-1">';
+                html += '<p class="text-xs font-bold text-gray-800 truncate flex-1">' + r.titre + '</p>';
+                html += '<span class="' + couleur + ' text-[9px] font-bold px-2 py-0.5 rounded">' + label + '</span>';
+                html += '</div>';
+                html += '<p class="text-[10px] text-gray-500">' + r.matiere + ' - ' + dateStr + '</p>';
+                html += '</div></div>';
+                html += '<button onclick="resElvVoir(' + r.id + ')" class="w-full bg-blue-50 text-edu-blue text-xs font-bold py-2 rounded-lg">Voir</button>';
+                html += '</div>';
+            });
+            conteneur.innerHTML = html;
+        }
+
+        function resElvVoir(id) {
             const r = resElvListe.find(x => x.id === id);
             if (!r) return;
 
@@ -991,94 +1064,20 @@ function resElvVoir(id) {
             }
         }
 
-        async function testRessources() {
-            // Cacher TOUTES les vues (robuste)
-            document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
-            // Afficher uniquement celle-ci
+        // ============ NAVIGATION ============
+        function retourRessourcesEleve() {
+            hideAllViews();
             document.getElementById('view-ressources-eleve').classList.remove('hidden');
-            document.getElementById('reselv-liste').innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
             window.scrollTo(0, 0);
-
-            if (!monClasseId) {
-                document.getElementById('reselv-liste').innerHTML = '<div class="bg-white p-6 rounded-2xl shadow-sm text-center"><p class="text-gray-500 text-sm">Aucune classe associee.</p></div>';
-                return;
-            }
-
-            const { data, error } = await supabaseClient
-                .from('ressources')
-                .select('*')
-                .eq('classe_id', monClasseId)
-                .order('date_creation', { ascending: false });
-
-            if (error) {
-                document.getElementById('reselv-liste').innerHTML = '<div class="bg-red-50 p-4 rounded-2xl border border-red-200"><p class="text-xs font-bold text-edu-red mb-1">Erreur :</p><p class="text-[11px] text-gray-700">' + error.message + '</p></div>';
-                return;
-            }
-
-            resElvListe = data || [];
-            resElvFiltrerType(resElvFiltreType);
         }
 
-        function resElvFiltrerType(type) {
-            resElvFiltreType = type;
-            ['tous', 'programme', 'lecon', 'exercice'].forEach(t => {
-                const tab = document.getElementById('reselv-tab-' + t);
-                if (!tab) return;
-                tab.className = t === type
-                    ? 'py-2 rounded-xl font-bold text-[10px] bg-edu-blue text-white'
-                    : 'py-2 rounded-xl font-bold text-[10px] bg-gray-100 text-gray-600';
-            });
-            resElvFiltrer();
+        function retourAccueil() {
+            hideAllViews();
+            document.getElementById('view-accueil').classList.remove('hidden');
+            chargerBadgeDevoirs();
+            chargerProchainCours();
+            chargerBadges();
         }
-
-        function resElvFiltrer() {
-            const matiereSel = document.getElementById('reselv-filtre-matiere');
-            const matiere = matiereSel ? matiereSel.value : '';
-            let liste = resElvListe;
-            if (resElvFiltreType !== 'tous') liste = liste.filter(r => r.type === resElvFiltreType);
-            if (matiere) liste = liste.filter(r => r.matiere === matiere);
-            resElvAfficherListe(liste);
-        }
-
-        function resElvAfficherListe(liste) {
-            const conteneur = document.getElementById('reselv-liste');
-            if (liste.length === 0) {
-                conteneur.innerHTML = '<div class="bg-white p-8 rounded-2xl shadow-sm text-center"><div class="text-5xl mb-2">📚</div><p class="text-gray-500 text-sm">Aucune ressource pour le moment.</p></div>';
-                return;
-            }
-
-            let html = '';
-            html += '<div class="bg-blue-50 border border-blue-100 rounded-xl p-3 mb-3">';
-            html += '<p class="text-xs font-bold text-edu-blue">' + liste.length + ' ressource(s) affichee(s)</p>';
-            html += '</div>';
-
-            liste.forEach(r => {
-                let emoji = '📄';
-                let label = 'Lecon';
-                let couleur = 'bg-blue-100 text-edu-blue';
-                if (r.type === 'programme') { emoji = '📋'; label = 'Programme'; couleur = 'bg-purple-100 text-edu-purple'; }
-                else if (r.type === 'exercice') { emoji = '✏️'; label = 'Exercice'; couleur = 'bg-orange-100 text-edu-orange'; }
-
-                const dateStr = new Date(r.date_creation).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
-
-                html += '<div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100">';
-                html += '<div class="flex items-start gap-3 mb-2">';
-                html += '<div class="text-2xl flex-shrink-0">' + emoji + '</div>';
-                html += '<div class="flex-1 min-w-0">';
-                html += '<div class="flex items-center gap-2 mb-1">';
-                html += '<p class="text-xs font-bold text-gray-800 truncate flex-1">' + r.titre + '</p>';
-                html += '<span class="' + couleur + ' text-[9px] font-bold px-2 py-0.5 rounded">' + label + '</span>';
-                html += '</div>';
-                html += '<p class="text-[10px] text-gray-500">' + r.matiere + ' - ' + dateStr + '</p>';
-                html += '</div></div>';
-                html += '<button onclick="resElvVoir(' + r.id + ')" class="w-full bg-blue-50 text-edu-blue text-xs font-bold py-2 rounded-lg">Voir</button>';
-                html += '</div>';
-            });
-            conteneur.innerHTML = html;
-        }
-
-
-
 
         function seDeconnecter() { sessionStorage.removeItem('eduLinkUser'); window.location.href = 'index.html'; }
     </script>

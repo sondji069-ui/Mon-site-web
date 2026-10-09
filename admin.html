@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EDU-LINK - 
-
-Administration</title>
+    <title>EDU-LINK - Administration</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -44,7 +42,7 @@ Administration</title>
         body.dark-mode .bg-pink-50 { background-color: #831843; }
         body.dark-mode .bg-cyan-50 { background-color: #164e63; }
         body.dark-mode .bg-indigo-50 { background-color: #312e81; }
-[id^="view-"].hidden {
+        [id^="view-"].hidden {
             display: none !important;
             height: 0 !important;
             overflow: hidden !important;
@@ -78,7 +76,7 @@ Administration</title>
             <div class="flex-1 overflow-y-auto -mt-4 pt-6 px-4 pb-6">
                 <!-- ACCUEIL -->
                 <div id="view-accueil" class="hidden fade-in">
-<div class="mb-3">
+                    <div class="mb-3">
                         <h2 class="text-sm font-bold text-gray-700 mb-2 px-1">⚡ Acces rapide</h2>
                         <div class="grid grid-cols-3 gap-2">
                             <button onclick="afficherRapportAbsencesAdmin()" class="bouton-action bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-1 hover:shadow-md">
@@ -97,10 +95,11 @@ Administration</title>
                                 <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-xl">📄</div>
                                 <span class="text-[10px] font-bold text-gray-800 text-center leading-tight">Bulletins</span>
                             </button>
- <button onclick="afficherHeuresProfs()" class="bouton-action bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-1 hover:shadow-md">
+                            <button onclick="afficherHeuresProfs()" class="bouton-action bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-1 hover:shadow-md">
                                 <div class="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center text-xl">🕐</div>
                                 <span class="text-[10px] font-bold text-gray-800 text-center leading-tight">Heures profs</span>
-                            </button>                           <button onclick="afficherPaiementsV2()" class="bouton-action bg-white p-3 rounded-2xl shadow-sm border-2 border-edu-green flex flex-col items-center gap-1 hover:shadow-md">
+                            </button>
+                            <button onclick="afficherPaiementsV2()" class="bouton-action bg-white p-3 rounded-2xl shadow-sm border-2 border-edu-green flex flex-col items-center gap-1 hover:shadow-md">
                                 <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-xl">💰</div>
                                 <span class="text-[10px] font-bold text-edu-green text-center leading-tight">Paiements</span>
                             </button>
@@ -111,7 +110,7 @@ Administration</title>
                             </button>
                         </div>
                     </div>
-<div id="dashboard-jour" class="mb-3">
+                    <div id="dashboard-jour" class="mb-3">
                         <div class="bg-gradient-to-br from-indigo-600 to-purple-700 text-white rounded-2xl shadow-lg p-4">
                             <div class="flex items-center justify-between mb-3">
                                 <div>
@@ -208,7 +207,7 @@ Administration</title>
                             <button onclick="afficherGestionEleves()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md"><div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-2xl">🎓</div><span class="text-xs font-bold text-gray-800">Élèves</span><span class="text-[9px] text-gray-400">Gérer les inscriptions</span></button>
                             <button onclick="afficherGestionEnseignants()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md"><div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-2xl">👨🏾‍🏫</div><span class="text-xs font-bold text-gray-800">Enseignants</span><span class="text-[9px] text-gray-400">Gérer l'équipe</span></button>
                             <button onclick="afficherGestionClasses()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md"><div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-2xl">🏫</div><span class="text-xs font-bold text-gray-800">Classes</span><span class="text-[9px] text-gray-400">Organiser</span></button>
-<button onclick="afficherRapportAbsencesAdmin()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md">
+                            <button onclick="afficherRapportAbsencesAdmin()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md">
                                 <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center text-2xl">📊</div>
                                 <span class="text-xs font-bold text-gray-800">Rapport absences</span><span class="text-[9px] text-gray-400">Par classe</span>
                             </button>
@@ -216,15 +215,16 @@ Administration</title>
                                 <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-2xl">📈</div>
                                 <span class="text-xs font-bold text-gray-800">Stats ecole</span><span class="text-[9px] text-gray-400">Toutes classes</span>
                             </button>
-<button onclick="afficherBulletinsClasse()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md">
+                            <button onclick="afficherBulletinsClasse()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md">
                                 <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center text-2xl">📄</div>
                                 <span class="text-xs font-bold text-gray-800">Bulletins</span><span class="text-[9px] text-gray-400">Par classe</span>
                             </button>
-<button onclick="afficherAlertesEleves()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md">
+                            <button onclick="afficherAlertesEleves()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md">
                                 <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center text-2xl">⚠️</div>
                                 <span class="text-xs font-bold text-gray-800">Alertes</span><span class="text-[9px] text-gray-400">Eleves en difficulte</span>
-                            </button>                            <button onclick="afficherPaiementsV2()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border-2 border-edu-green flex flex-col items-center gap-2 hover:shadow-md"><div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-2xl">💰</div><span class="text-xs font-bold text-edu-green">Paiements V2</span><span class="text-[9px] text-gray-400">Vue globale 400+</span></button>
-<button onclick="afficherLiensParents()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md">
+                            </button>
+                            <button onclick="afficherPaiementsV2()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border-2 border-edu-green flex flex-col items-center gap-2 hover:shadow-md"><div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-2xl">💰</div><span class="text-xs font-bold text-edu-green">Paiements V2</span><span class="text-[9px] text-gray-400">Vue globale 400+</span></button>
+                            <button onclick="afficherLiensParents()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md">
                                 <div class="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center text-2xl">🔗</div>
                                 <span class="text-xs font-bold text-gray-800">Liens parents</span><span class="text-[9px] text-gray-400">Voir les liens</span>
                             </button>
@@ -232,10 +232,11 @@ Administration</title>
                         <p class="text-[10px] text-gray-400 uppercase font-bold mb-2 px-1">Organisation</p>
                         <div class="grid grid-cols-2 gap-3 mb-4">
                             <button onclick="afficherGestionEmploi()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md"><div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-2xl">📅</div><span class="text-xs font-bold text-gray-800">Emploi du temps</span><span class="text-[9px] text-gray-400">Planifier les cours</span></button>
- <button onclick="afficherEmploiEnseignants()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md">
+                            <button onclick="afficherEmploiEnseignants()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md">
                                 <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center text-2xl">🗓️</div>
                                 <span class="text-xs font-bold text-gray-800">Emploi profs</span><span class="text-[9px] text-gray-400">Par enseignant</span>
-                            </button>                           <button onclick="afficherNouvelleAnnonce()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border-2 border-edu-blue flex flex-col items-center gap-2 hover:shadow-md"><div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-2xl">📢</div><span class="text-xs font-bold text-edu-blue">Annonces</span><span class="text-[9px] text-gray-400">Communiquer</span></button>
+                            </button>
+                            <button onclick="afficherNouvelleAnnonce()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border-2 border-edu-blue flex flex-col items-center gap-2 hover:shadow-md"><div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-2xl">📢</div><span class="text-xs font-bold text-edu-blue">Annonces</span><span class="text-[9px] text-gray-400">Communiquer</span></button>
                             <button onclick="afficherAnnonces()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md"><div class="w-12 h-12 bg-cyan-100 rounded-full flex items-center justify-center text-2xl">📋</div><span class="text-xs font-bold text-gray-800">Mes annonces</span><span class="text-[9px] text-gray-400">Historique</span></button>
                             <button onclick="window.location.href='messagerie.html'" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md"><div class="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center text-2xl">💬</div><span class="text-xs font-bold text-gray-800">Messagerie</span><span class="text-[9px] text-gray-400">Discuter</span></button>
                         </div>
@@ -286,8 +287,7 @@ Administration</title>
                     <p class="text-xs text-gray-500 mb-4">Générez un mot de passe temporaire pour les utilisateurs qui ont oublié le leur.</p>
                     <div id="liste-demandes-mdp" class="space-y-3"></div>
                 </div>
-
-                <!-- CODE ACCES -->
+<!-- CODE ACCES -->
                 <div id="view-code" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-4">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-2">🎫 Code d'acces de l'ecole</h1>
@@ -427,15 +427,14 @@ Administration</title>
                         </div>
                         <input type="text" id="cours-matiere" placeholder="Matiere" oninput="coursAutoDetecterProf()" class="w-full px-4 py-3 rounded-xl border border-gray-300">
                         <input type="text" id="cours-salle" placeholder="Salle" class="w-full px-4 py-3 rounded-xl border border-gray-300">
-<div>
+                        <div>
                             <label class="block text-xs font-semibold text-gray-700 mb-1">Enseignant</label>
                             <select id="cours-enseignant" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white">
                                 <option value="">Auto (depuis affectation)</option>
                             </select>
                         </div>
                         <button onclick="sauvegarderCours()" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl">Enregistrer</button>
-<button onclick="supprimerCoursDepuisForm()" id="btn-supprimer-cours" class="hidden w-full bg-red-50 text-edu-red font-bold py-3 rounded-xl border border-red-200">🗑️ Supprimer ce cours</button>
-<button onclick="supprimerCoursDepuisForm()" id="btn-supprimer-cours" class="hidden w-full bg-red-50 text-edu-red font-bold py-3 rounded-xl border border-red-200">🗑️ Supprimer ce cours</button>
+                        <button onclick="supprimerCoursDepuisForm()" id="btn-supprimer-cours" class="hidden w-full bg-red-50 text-edu-red font-bold py-3 rounded-xl border border-red-200">🗑️ Supprimer ce cours</button>
                         <div id="message-cours" class="text-center text-sm font-semibold"></div>
                     </div>
                 </div>
@@ -501,10 +500,6 @@ Administration</title>
                             <option value="free_money">Free Money</option><option value="virement">Virement</option>
                         </select>
                         <select id="paiement-statut" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white"><option value="paye">Paye</option><option value="en_attente">En attente</option></select>
-<button onclick="afficherLiensParents()" class="bouton-action bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-2 hover:shadow-md">
-                                <div class="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center text-2xl">🔗</div>
-                                <span class="text-xs font-bold text-gray-800">Liens parents</span><span class="text-[9px] text-gray-400">Voir les liens</span>
-                            </button>
                         <button onclick="sauvegarderPaiement()" class="w-full bg-edu-green text-white font-bold py-3 rounded-xl">Encaisser</button>
                         <div id="message-paiement" class="text-center text-sm font-semibold"></div>
                     </div>
@@ -576,8 +571,6 @@ Administration</title>
                         <div id="message-ens" class="text-center text-sm font-semibold"></div>
                     </div>
                 </div>
-                    </div>
-                </div>
 
                 <!-- ELEVES -->
                 <div id="view-liste-eleves" class="hidden fade-in">
@@ -585,29 +578,29 @@ Administration</title>
                         <button onclick="retourAccueil()" class="text-2xl">⬅️</button>
                         <h1 class="text-lg font-bold text-gray-800 flex-1">Eleves</h1>
                         <button onclick="afficherFormEleve()" class="bg-edu-blue text-white text-xs font-bold px-3 py-2 rounded-lg">+ Ajouter</button>
-<button onclick="afficherImportEleves()" class="bg-edu-green text-white text-xs font-bold px-3 py-2 rounded-lg ml-2">Importer</button>
-<button onclick="afficherTransfertEleves()" class="bg-edu-orange text-white text-xs font-bold px-3 py-2 rounded-lg ml-2">Transferer</button>
+                        <button onclick="afficherImportEleves()" class="bg-edu-green text-white text-xs font-bold px-3 py-2 rounded-lg ml-2">Importer</button>
+                        <button onclick="afficherTransfertEleves()" class="bg-edu-orange text-white text-xs font-bold px-3 py-2 rounded-lg ml-2">Transferer</button>
                     </div>
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 mb-3 space-y-2">
-    <input type="text" id="recherche-eleves" oninput="elvFiltrer()" placeholder="Rechercher un eleve (nom, matricule, email)" class="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs">
-    <div class="grid grid-cols-2 gap-2">
-        <select id="elv-filtre-classe" onchange="elvFiltrer()" class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white text-xs">
-            <option value="">Toutes les classes</option>
-        </select>
-        <select id="elv-filtre-statut" onchange="elvFiltrer()" class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white text-xs">
-            <option value="">Tous statuts</option>
-            <option value="actif">Actif</option>
-            <option value="en_attente">En attente</option>
-        </select>
-    </div>
-    <div class="flex justify-between items-center text-[10px] text-gray-500 px-1">
-        <span><span id="elv-nb-resultats">0</span> eleve(s) affiche(s)</span>
-        <div class="flex gap-2">
-            <button onclick="elvReset()" class="text-edu-blue font-bold">Reinitialiser</button>
-            <button onclick="elvExporterCSV()" class="text-edu-green font-bold">Export CSV</button>
-        </div>
-    </div>
-</div>
+                        <input type="text" id="recherche-eleves" oninput="elvFiltrer()" placeholder="Rechercher un eleve (nom, matricule, email)" class="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs">
+                        <div class="grid grid-cols-2 gap-2">
+                            <select id="elv-filtre-classe" onchange="elvFiltrer()" class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white text-xs">
+                                <option value="">Toutes les classes</option>
+                            </select>
+                            <select id="elv-filtre-statut" onchange="elvFiltrer()" class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white text-xs">
+                                <option value="">Tous statuts</option>
+                                <option value="actif">Actif</option>
+                                <option value="en_attente">En attente</option>
+                            </select>
+                        </div>
+                        <div class="flex justify-between items-center text-[10px] text-gray-500 px-1">
+                            <span><span id="elv-nb-resultats">0</span> eleve(s) affiche(s)</span>
+                            <div class="flex gap-2">
+                                <button onclick="elvReset()" class="text-edu-blue font-bold">Reinitialiser</button>
+                                <button onclick="elvExporterCSV()" class="text-edu-green font-bold">Export CSV</button>
+                            </div>
+                        </div>
+                    </div>
                     <div id="liste-eleves-admin" class="space-y-3"></div>
                 </div>
 
@@ -631,8 +624,7 @@ Administration</title>
                     </div>
                 </div>
 
-                <!-- NOTIFICATIONS -->
-<!-- VUE IMPORT ELEVES -->
+                <!-- VUE IMPORT ELEVES -->
                 <div id="view-import-eleves" class="hidden fade-in">
                     <button onclick="afficherGestionEleves()" class="text-2xl mb-3">Retour</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-2">Importer des eleves</h1>
@@ -696,7 +688,8 @@ Administration</title>
                     <button onclick="afficherGestionEleves()" class="text-2xl mb-3">Retour</button>
                     <div id="fiche-eleve-contenu"></div>
                 </div>
-<!-- VUE EMPLOI ENSEIGNANTS (LISTE) -->
+
+                <!-- VUE EMPLOI ENSEIGNANTS (LISTE) -->
                 <div id="view-emploi-enseignants" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">Retour</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-2">Emploi du temps par enseignant</h1>
@@ -710,7 +703,8 @@ Administration</title>
                     <button onclick="afficherEmploiEnseignants()" class="text-2xl mb-3">Retour</button>
                     <div id="emp-ens-detail-contenu"></div>
                 </div>
-<!-- VUE LIENS PARENTS-ENFANTS -->
+
+                <!-- VUE LIENS PARENTS-ENFANTS -->
                 <div id="view-liens-parents" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-2">🔗 Liens parents-enfants</h1>
@@ -722,7 +716,8 @@ Administration</title>
 
                     <div id="liens-liste" class="space-y-2"></div>
                 </div>
-<div id="view-rapport-absences-admin" class="hidden fade-in">
+
+                <div id="view-rapport-absences-admin" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-2">📊 Rapport d'absences</h1>
                     <p class="text-xs text-gray-500 mb-3">Toute l'ecole ou par classe.</p>
@@ -757,7 +752,8 @@ Administration</title>
 
                     <div id="stats-globales-contenu"></div>
                 </div>
-<div id="view-alertes-eleves" class="hidden fade-in">
+
+                <div id="view-alertes-eleves" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-2">⚠️ Alertes eleves</h1>
                     <p class="text-xs text-gray-500 mb-3">Eleves en difficulte scolaire ou d'assiduite.</p>
@@ -779,7 +775,8 @@ Administration</title>
                     <div id="alertes-stats" class="mb-3"></div>
                     <div id="alertes-liste" class="space-y-2"></div>
                 </div>
-<div id="view-groupes" class="hidden fade-in">
+
+                <div id="view-groupes" class="hidden fade-in">
                     <div class="flex items-center gap-3 mb-3">
                         <button onclick="retourAccueil()" class="text-2xl">⬅️</button>
                         <h1 class="text-lg font-bold text-gray-800 flex-1">👥 Groupes de discussion</h1>
@@ -789,7 +786,7 @@ Administration</title>
                     <div id="groupes-liste" class="space-y-3"></div>
                 </div>
 
-<div id="view-bulletins-classe" class="hidden fade-in">
+                <div id="view-bulletins-classe" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-2">📄 Bulletins de classe</h1>
                     <p class="text-xs text-gray-500 mb-3">Générez un PDF avec tous les bulletins d'une classe.</p>
@@ -808,7 +805,8 @@ Administration</title>
 
                     <div id="bc-apercu" class="space-y-2"></div>
                 </div>
-<div id="view-heures-profs" class="hidden fade-in">
+
+                <div id="view-heures-profs" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-2">🕐 Heures d'enseignement</h1>
                     <p class="text-xs text-gray-500 mb-3">Suivi des cours dispenses par vos enseignants.</p>
@@ -831,7 +829,8 @@ Administration</title>
                     </div>
 
                     <div id="hp-contenu"></div>
-                </div>                
+                </div>
+
                 <div id="view-notifications" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-4">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-4">Notifications</h1>
@@ -843,10 +842,13 @@ Administration</title>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+    <!-- ==================================================== -->
+    <!-- PARTIE 3/4 : Scripts AUTH + XSS + début script principal -->
+    <!-- ==================================================== -->
 <!-- ==================================================== -->
-<!-- FIN PARTIE 1/2 — Colle la PARTIE 2/2 juste EN DESSOUS -->
-<!-- ==================================================== -->
-<script>
+    <!-- SCRIPT 1 : AUTH PBKDF2 + Protection XSS               -->
+    <!-- ==================================================== -->
+    <script>
         // ============ AUTH PBKDF2 ============
         const AUTH_SALT = 'EDU-LINK::v1::S3n3g4l::2024';
         const AUTH_ITERATIONS = 100000;
@@ -902,6 +904,9 @@ Administration</title>
         }
     </script>
 
+    <!-- ==================================================== -->
+    <!-- SCRIPT 2 : Script principal (initTheme, chargement)   -->
+    <!-- ==================================================== -->
     <script>
         // ============ SCRIPT PRINCIPAL ============
         function initTheme() {
@@ -929,8 +934,8 @@ Administration</title>
         const sessionUser = sessionStorage.getItem('eduLinkUser');
         if (!sessionUser) { window.location.href = 'index.html'; }
         const parsedUser = JSON.parse(sessionUser);
-        let currentUser = null, monEcoleId = null, 
-listeElevesGlobal = [], classeEnCours = null, logoBase64 = null, signatureBase64 = null;
+        let currentUser = null, monEcoleId = null,
+            listeElevesGlobal = [], classeEnCours = null, logoBase64 = null, signatureBase64 = null;
         let monCodeAcces = null, monEcoleNom = null;
 
         const LABELS_SOUS_ROLE = {
@@ -964,7 +969,6 @@ listeElevesGlobal = [], classeEnCours = null, logoBase64 = null, signatureBase64
                     if (ecole.signature_url) signatureBase64 = ecole.signature_url;
                 }
             }
-chargerDashboardJour();
             document.getElementById('view-accueil').classList.remove('hidden');
             chargerDashboardJour();
             chargerStats();
@@ -998,7 +1002,7 @@ chargerDashboardJour();
         async function chargerBadgeDemandes() {
             const { count } = await supabaseClient.from('utilisateurs').select('*', { count: 'exact', head: true }).eq('ecole_id', monEcoleId).eq('statut', 'en_attente');
             const badge = document.getElementById('badge-demandes');
-const badgeRapide = document.getElementById('badge-demandes-rapide');
+            const badgeRapide = document.getElementById('badge-demandes-rapide');
             if (badgeRapide) {
                 if (count > 0) { badgeRapide.innerText = count; badgeRapide.classList.remove('hidden'); }
                 else badgeRapide.classList.add('hidden');
@@ -1022,211 +1026,8 @@ const badgeRapide = document.getElementById('badge-demandes-rapide');
             document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
         }
 
-        async function pv2ChargerDonnees() {
-            const { data: classes } = await supabaseClient.from('classes').select('id, nom, frais_scolarite').eq('ecole_id', monEcoleId).order('nom');
-            pv2ToutesClasses = classes || [];
-
-            const { data: eleves } = await supabaseClient.from('eleves').select('id, matricule, classe_id, utilisateur_id, utilisateurs!utilisateur_id(prenom, nom), classes(nom, frais_scolarite)').eq('ecole_id', monEcoleId);
-            pv2TousEleves = eleves || [];
-
-            const { data: paiements } = await supabaseClient.from('paiements').select('id, eleve_id, montant, type_paiement, statut, methode, date_paiement').eq('ecole_id', monEcoleId).order('date_paiement', { ascending: false });
-            pv2TousPaiements = paiements || [];
-
-            pv2CalculerSoldes();
-        }
-
-        function pv2CalculerSoldes() {
-            const payesParEleve = {};
-            const tousParEleve = {};
-            pv2TousPaiements.forEach(p => {
-                if (!tousParEleve[p.eleve_id]) tousParEleve[p.eleve_id] = [];
-                tousParEleve[p.eleve_id].push(p);
-                if (p.statut === 'paye') {
-                    payesParEleve[p.eleve_id] = (payesParEleve[p.eleve_id] || 0) + parseFloat(p.montant);
-                }
-            });
-            pv2TousEleves.forEach(e => {
-                const frais = e.classes && e.classes.frais_scolarite ? parseFloat(e.classes.frais_scolarite) : 0;
-                const paye = payesParEleve[e.id] || 0;
-                e._frais = frais;
-                e._paye = paye;
-                e._solde = frais - paye;
-                e._paiements = tousParEleve[e.id] || [];
-                if (frais === 0) e._statut = 'ajour';
-                else if (paye >= frais) e._statut = 'ajour';
-                else if (paye > 0) e._statut = 'partiel';
-                else e._statut = 'retard';
-            });
-        }
-
-        function pv2RemplirSelectClasses() {
-            const sel = document.getElementById('pv2-classe');
-            sel.innerHTML = '<option value="">Toutes les classes</option>';
-            pv2ToutesClasses.forEach(c => {
-                sel.innerHTML += '<option value="' + c.id + '">' + c.nom + '</option>';
-            });
-        }
-
-        function pv2AfficherStats() {
-            const conteneur = document.getElementById('pv2-stats');
-            const totalAttendu = pv2TousEleves.reduce((s, e) => s + (e._frais || 0), 0);
-            const totalEncaisse = pv2TousEleves.reduce((s, e) => s + (e._paye || 0), 0);
-            const totalRestant = totalAttendu - totalEncaisse;
-            const pct = totalAttendu > 0 ? Math.round((totalEncaisse / totalAttendu) * 100) : 0;
-            let html = '<div class="bg-gradient-to-br from-edu-green to-emerald-700 text-white rounded-2xl shadow-lg p-4 mb-2">';
-            html += '<p class="text-[10px] opacity-90 uppercase font-bold mb-1">Taux de recouvrement</p>';
-            html += '<p class="text-3xl font-extrabold">' + pct + '%</p>';
-            html += '<div class="w-full bg-white bg-opacity-20 rounded-full h-2 mt-3"><div class="h-2 rounded-full bg-white" style="width:' + pct + '%"></div></div></div>';
-            html += '<div class="grid grid-cols-2 gap-2 mb-3">';
-            html += '<div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 text-center"><p class="text-[10px] text-gray-500 font-semibold">Attendu</p><p class="text-sm font-extrabold text-edu-blue mt-1">' + totalAttendu.toLocaleString('fr-FR') + '</p><p class="text-[9px] text-gray-400">FCFA</p></div>';
-            html += '<div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 text-center"><p class="text-[10px] text-gray-500 font-semibold">Encaisse</p><p class="text-sm font-extrabold text-edu-green mt-1">' + totalEncaisse.toLocaleString('fr-FR') + '</p><p class="text-[9px] text-gray-400">FCFA</p></div>';
-            html += '<div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 text-center"><p class="text-[10px] text-gray-500 font-semibold">Restant</p><p class="text-sm font-extrabold text-edu-red mt-1">' + totalRestant.toLocaleString('fr-FR') + '</p><p class="text-[9px] text-gray-400">FCFA</p></div>';
-            html += '<div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 text-center"><p class="text-[10px] text-gray-500 font-semibold">Eleves</p><p class="text-sm font-extrabold text-edu-purple mt-1">' + pv2TousEleves.length + '</p><p class="text-[9px] text-gray-400">au total</p></div></div>';
-            conteneur.innerHTML = html;
-        }
-
-        function pv2Filtrer() {
-            const terme = document.getElementById('pv2-recherche').value.toLowerCase().trim();
-            const classeId = document.getElementById('pv2-classe').value;
-            const statut = document.getElementById('pv2-statut').value;
-            let liste = pv2TousEleves.slice();
-            if (classeId) liste = liste.filter(e => e.classe_id == classeId);
-            if (statut) liste = liste.filter(e => e._statut === statut);
-            if (terme) {
-                liste = liste.filter(e => {
-                    const nom = (e.utilisateurs ? (e.utilisateurs.prenom + ' ' + e.utilisateurs.nom) : '').toLowerCase();
-                    const mat = (e.matricule || '').toLowerCase();
-                    return nom.indexOf(terme) !== -1 || mat.indexOf(terme) !== -1;
-                });
-            }
-            liste.sort((a, b) => {
-                const ordre = { retard: 0, partiel: 1, ajour: 2 };
-                if (ordre[a._statut] !== ordre[b._statut]) return ordre[a._statut] - ordre[b._statut];
-                return b._solde - a._solde;
-            });
-            document.getElementById('pv2-nb-resultats').innerText = liste.length;
-            pv2AfficherStats();
-            pv2AfficherListe(liste);
-        }
-
-        function pv2AfficherListe(liste) {
-            const conteneur = document.getElementById('pv2-liste');
-            if (liste.length === 0) {
-                conteneur.innerHTML = '<div class="bg-white p-8 rounded-2xl shadow-sm text-center"><p class="text-gray-500 text-sm">Aucun eleve trouve.</p></div>';
-                return;
-            }
-            const limite = liste.slice(0, 100);
-            let html = '';
-            limite.forEach(e => {
-                const prenom = e.utilisateurs ? e.utilisateurs.prenom : '?';
-                const nom = e.utilisateurs ? e.utilisateurs.nom : '?';
-                const classeNom = e.classes ? e.classes.nom : 'Sans classe';
-                const initiale = prenom.charAt(0).toUpperCase();
-                let badgeStatut = '', couleurBadge = '', couleurBar = '';
-                if (e._statut === 'ajour') { badgeStatut = 'A JOUR'; couleurBadge = 'bg-green-100 text-edu-green'; couleurBar = '#2EAD5E'; }
-                else if (e._statut === 'partiel') { badgeStatut = 'PARTIEL'; couleurBadge = 'bg-orange-100 text-edu-orange'; couleurBar = '#F59E0B'; }
-                else { badgeStatut = 'IMPAYE'; couleurBadge = 'bg-red-100 text-edu-red'; couleurBar = '#EF4444'; }
-                const pct = e._frais > 0 ? Math.min(100, Math.round((e._paye / e._frais) * 100)) : 100;
-                const soldeTxt = e._solde > 0 ? e._solde.toLocaleString('fr-FR') + ' F' : 'Solde';
-                const soldeCouleur = e._solde > 0 ? 'text-edu-red' : 'text-edu-green';
-                html += '<div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100">';
-                html += '<div class="flex items-center gap-3 mb-2">';
-                html += '<div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0" style="background:linear-gradient(135deg,#004AAD,#2EAD5E);">' + initiale + '</div>';
-                html += '<div class="flex-1 min-w-0"><p class="text-xs font-bold text-gray-800 truncate">' + prenom + ' ' + nom + '</p>';
-                html += '<p class="text-[10px] text-gray-500">' + (e.matricule || '') + ' - ' + classeNom + '</p></div>';
-                html += '<span class="' + couleurBadge + ' text-[9px] font-bold px-2 py-1 rounded">' + badgeStatut + '</span></div>';
-                html += '<div class="flex items-center gap-2 mb-2">';
-                html += '<div class="flex-1 bg-gray-100 rounded-full h-1.5 overflow-hidden"><div class="h-1.5 rounded-full" style="width:' + pct + '%;background:' + couleurBar + '"></div></div>';
-                html += '<span class="text-[10px] font-bold text-gray-700">' + pct + '%</span></div>';
-                html += '<div class="flex justify-between items-center text-[10px] mb-2">';
-                html += '<span class="text-gray-500">Paye : <b>' + e._paye.toLocaleString('fr-FR') + ' F</b></span>';
-                html += '<span class="' + soldeCouleur + ' font-bold">' + soldeTxt + '</span></div>';
-                html += '<button onclick="pv2OuvrirEleve(' + e.id + ')" class="w-full bg-blue-50 text-edu-blue font-bold py-2 rounded-lg text-xs">Voir la fiche</button>';
-                html += '</div>';
-            });
-            if (liste.length > 100) {
-                html += '<p class="text-center text-[10px] text-gray-400 py-2">' + (liste.length - 100) + ' autres resultats - Affinez la recherche</p>';
-            }
-            conteneur.innerHTML = html;
-        }
-
-        function pv2Reset() {
-            document.getElementById('pv2-recherche').value = '';
-            document.getElementById('pv2-classe').value = '';
-            document.getElementById('pv2-statut').value = '';
-            pv2Filtrer();
-        }
-
-        async function pv2OuvrirEleve(eleveId) {
-            hideAllViews();
-            document.getElementById('view-paiements-eleve').classList.remove('hidden');
-            const e = pv2TousEleves.find(x => x.id === eleveId);
-            if (!e) { document.getElementById('pve-contenu').innerHTML = '<p class="text-red-500">Eleve introuvable.</p>'; return; }
-            const prenom = e.utilisateurs ? e.utilisateurs.prenom : '?';
-            const nom = e.utilisateurs ? e.utilisateurs.nom : '?';
-            const classeNom = e.classes ? e.classes.nom : 'Sans classe';
-            const initiale = prenom.charAt(0).toUpperCase();
-            let couleurBadge = '', badgeStatut = '';
-            if (e._statut === 'ajour') { badgeStatut = 'A JOUR'; couleurBadge = 'bg-green-100 text-edu-green'; }
-            else if (e._statut === 'partiel') { badgeStatut = 'PARTIEL'; couleurBadge = 'bg-orange-100 text-edu-orange'; }
-            else { badgeStatut = 'IMPAYE'; couleurBadge = 'bg-red-100 text-edu-red'; }
-            let html = '';
-            html += '<div class="bg-gradient-to-br from-edu-blue to-blue-700 text-white rounded-2xl shadow-lg p-4 mb-3">';
-            html += '<div class="flex items-center gap-3 mb-3">';
-            html += '<div class="w-14 h-14 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-white font-bold text-xl">' + initiale + '</div>';
-            html += '<div class="flex-1 min-w-0"><p class="text-base font-bold truncate">' + prenom + ' ' + nom + '</p><p class="text-[11px] opacity-90">' + (e.matricule || '') + ' - ' + classeNom + '</p></div>';
-            html += '<span class="' + couleurBadge + ' text-[9px] font-bold px-2 py-1 rounded">' + badgeStatut + '</span></div>';
-            html += '<div class="grid grid-cols-3 gap-2 text-center">';
-            html += '<div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-90">Frais</p><p class="text-xs font-bold mt-0.5">' + e._frais.toLocaleString('fr-FR') + '</p></div>';
-            html += '<div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-90">Paye</p><p class="text-xs font-bold mt-0.5">' + e._paye.toLocaleString('fr-FR') + '</p></div>';
-            html += '<div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-90">Solde</p><p class="text-xs font-bold mt-0.5">' + e._solde.toLocaleString('fr-FR') + '</p></div></div></div>';
-            html += '<button onclick="pv2OuvrirFormPaiement(' + e.id + ')" class="w-full bg-edu-green text-white font-bold py-3 rounded-xl mb-3">+ Ajouter un paiement</button>';
-            html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">';
-            html += '<p class="text-sm font-bold text-gray-800 mb-3">Historique des paiements</p>';
-            if (e._paiements.length === 0) {
-                html += '<p class="text-xs text-gray-400 text-center py-4">Aucun paiement enregistre.</p>';
-            } else {
-                e._paiements.forEach(p => {
-                    const dateStr = p.date_paiement ? new Date(p.date_paiement).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
-                    const statutColor = p.statut === 'paye' ? 'text-edu-green' : (p.statut === 'en_attente' ? 'text-edu-orange' : 'text-edu-red');
-                    const statutTxt = p.statut === 'paye' ? 'Paye' : (p.statut === 'en_attente' ? 'En attente' : 'Echoue');
-                    html += '<div class="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">';
-                    html += '<div><p class="text-xs font-bold text-gray-800">' + p.type_paiement + '</p><p class="text-[10px] text-gray-500">' + dateStr + ' - ' + p.methode + '</p></div>';
-                    html += '<div class="text-right"><p class="text-sm font-extrabold text-gray-800">' + parseFloat(p.montant).toLocaleString('fr-FR') + ' F</p><p class="text-[10px] font-semibold ' + statutColor + '">' + statutTxt + '</p></div>';
-                    html += '</div>';
-                });
-            }
-            html += '</div>';
-            document.getElementById('pve-contenu').innerHTML = html;
-            window.scrollTo(0, 0);
-        }
-
-        function pv2RetourContext() {
-            hideAllViews();
-            document.getElementById('view-paiements-v2').classList.remove('hidden');
-            window.scrollTo(0, 0);
-        }
-
-        async function pv2OuvrirFormPaiement(eleveId) {
-            hideAllViews();
-            document.getElementById('view-form-paiement').classList.remove('hidden');
-            document.getElementById('message-paiement').innerText = '';
-            document.getElementById('info-solde').classList.add('hidden');
-            document.getElementById('paiement-montant').value = '';
-            const { data: eleves } = await supabaseClient.from('eleves').select('id, matricule, classe_id, utilisateurs!utilisateur_id(prenom, nom), classes(nom, frais_scolarite)').eq('ecole_id', monEcoleId).order('id', { ascending: false });
-            listeElevesGlobal = eleves || [];
-            const sel = document.getElementById('paiement-eleve');
-            sel.innerHTML = '<option value="">Selectionnez un eleve</option>';
-            if (eleves) eleves.forEach(e => {
-                const opt = document.createElement('option');
-                opt.value = e.id;
-                opt.text = e.utilisateurs.prenom + ' ' + e.utilisateurs.nom + ' - ' + (e.classes ? e.classes.nom : '');
-                if (e.id === eleveId) opt.selected = true;
-                sel.appendChild(opt);
-            });
-            afficherSoldeEleve();
-            window.scrollTo(0, 0);
-        }
+        // ⬇️ ICI ÉTAIT LE BLOC pv2 DUPLIQUÉ — IL A ÉTÉ SUPPRIMÉ ⬇️
+        // (les fonctions pv2* n'apparaissent qu'une seule fois, dans la PARTIE 4/4)
 
         // ============ DEMANDES MDP ============
         async function afficherDemandesMdp() {
@@ -1362,7 +1163,6 @@ const badgeRapide = document.getElementById('badge-demandes-rapide');
                 const nbPerms = MODULES_STAFF.filter(m => perms[m.id] === true).length;
                 const totalModules = MODULES_STAFF.length;
 
-                // Badge de statut
                 let badgePerm = '';
                 if (nbPerms === 0) badgePerm = '<span class="bg-red-100 text-edu-red text-[9px] font-bold px-2 py-0.5 rounded">AUCUN ACCES</span>';
                 else if (nbPerms === totalModules) badgePerm = '<span class="bg-green-100 text-edu-green text-[9px] font-bold px-2 py-0.5 rounded">TOUS ACCES</span>';
@@ -1380,7 +1180,6 @@ const badgeRapide = document.getElementById('badge-demandes-rapide');
                 html += '<p class="text-[10px] text-gray-500 truncate">' + s.email + '</p>';
                 html += '</div></div>';
 
-                // Liste compacte des modules autorises
                 if (nbPerms > 0 && nbPerms < totalModules) {
                     html += '<div class="flex flex-wrap gap-1 mb-2">';
                     MODULES_STAFF.forEach(m => {
@@ -1400,9 +1199,6 @@ const badgeRapide = document.getElementById('badge-demandes-rapide');
             chargerBadgeEquipe();
             window.scrollTo(0, 0);
         }
-
-        let staffClassesDispo = [];
-        let staffClassesSelectionnees = new Set();
 
         // ============ PERMISSIONS STAFF ============
         const MODULES_STAFF = [
@@ -1668,8 +1464,7 @@ const badgeRapide = document.getElementById('badge-demandes-rapide');
             document.getElementById('view-emploi-classe').classList.remove('hidden');
             document.getElementById('titre-emploi-classe').innerText = classeEnCours.nom;
 
-            // Charger les noms des enseignants
-            // ATTENTION : la table enseignants n'a PAS ecole_id -> on filtre via utilisateurs
+            // Charger les noms des enseignants (via utilisateurs car table enseignants n'a pas ecole_id)
             const { data: users } = await supabaseClient.from('utilisateurs').select('id, prenom, nom').eq('ecole_id', monEcoleId).eq('role', 'enseignant');
             const userIds = (users || []).map(u => u.id);
 
@@ -1735,6 +1530,7 @@ const badgeRapide = document.getElementById('badge-demandes-rapide');
             document.getElementById('cours-jour').value = jour;
             document.getElementById('cours-debut').value = debut;
             document.getElementById('cours-fin').value = fin;
+            document.getElementById('btn-supprimer-cours').classList.add('hidden');
             await chargerEnseignantsPourCours();
         }
 
@@ -1760,6 +1556,7 @@ const badgeRapide = document.getElementById('badge-demandes-rapide');
                 document.getElementById('cours-jour').value = 'Lundi';
                 btnSuppr.classList.add('hidden');
             }
+            await chargerEnseignantsPourCours();
             window.scrollTo(0, 0);
         }
 
@@ -1785,7 +1582,6 @@ const badgeRapide = document.getElementById('badge-demandes-rapide');
                 sel.innerHTML += '<option value="' + e.ensId + '">' + e.prenom + ' ' + e.nom + '</option>';
             });
 
-            // Detecter automatiquement
             coursAutoDetecterProf();
         }
 
@@ -1794,7 +1590,6 @@ const badgeRapide = document.getElementById('badge-demandes-rapide');
             const sel = document.getElementById('cours-enseignant');
             const info = document.getElementById('cours-enseignant-info');
 
-            // Supprimer l'ancien message info
             if (info) info.remove();
 
             if (!matiere || !classeEnCours) return;
@@ -1827,7 +1622,6 @@ const badgeRapide = document.getElementById('badge-demandes-rapide');
             if (!debut || !fin || !matiere) { msg.innerText = "Remplissez jour, heures et matiere."; msg.style.color = "red"; return; }
             if (debut >= fin) { msg.innerText = "Heure de fin doit etre apres l'heure de debut."; msg.style.color = "red"; return; }
 
-            // Si pas de prof selectionne -> chercher via affectations (classe + matiere)
             if (!ensId) {
                 const { data: aff } = await supabaseClient.from('affectations').select('enseignant_id').eq('classe_id', classeEnCours.id).eq('matiere', matiere).maybeSingle();
                 if (aff) ensId = aff.enseignant_id;
@@ -1836,7 +1630,6 @@ const badgeRapide = document.getElementById('badge-demandes-rapide');
             msg.innerText = 'Verification des conflits...';
             msg.style.color = '#F59E0B';
 
-            // Verifier les conflits
             const conflits = await coursVerifierConflits({
                 id: id ? parseInt(id) : null,
                 classe_id: classeEnCours.id,
@@ -1859,7 +1652,6 @@ const badgeRapide = document.getElementById('badge-demandes-rapide');
                 msg.innerHTML = html;
                 msg.style.color = '';
 
-                // Generer les suggestions
                 const suggestions = await coursSuggererCreneaux({
                     classe_id: classeEnCours.id,
                     salle: salle,
@@ -1882,7 +1674,6 @@ const badgeRapide = document.getElementById('badge-demandes-rapide');
                 return;
             }
 
-            // Pas de conflit -> enregistrer
             msg.innerText = 'Enregistrement...';
             msg.style.color = '#F59E0B';
 
@@ -1916,10 +1707,7 @@ const badgeRapide = document.getElementById('badge-demandes-rapide');
         // ============ VERIFICATION DES CONFLITS ============
         async function coursVerifierConflits(cours) {
             const conflits = [];
-
-            // Charger tous les cours existants (hors celui qu'on modifie)
-            let q = supabaseClient.from('emploi_du_temps').select('*').eq('jour', cours.jour).eq('ecole_id', monEcoleId);
-            const { data: tousCours } = await q;
+            const { data: tousCours } = await supabaseClient.from('emploi_du_temps').select('*').eq('jour', cours.jour).eq('ecole_id', monEcoleId);
             const liste = (tousCours || []).filter(c => c.id !== cours.id);
 
             liste.forEach(c => {
@@ -1929,15 +1717,12 @@ const badgeRapide = document.getElementById('badge-demandes-rapide');
                 const chevauche = cours.debut < f1 && d1 < cours.fin;
                 if (!chevauche) return;
 
-                // Conflit de classe
                 if (c.classe_id === cours.classe_id) {
                     conflits.push('Classe deja occupee le ' + cours.jour + ' ' + d1 + '-' + f1 + ' (' + c.matiere + ')');
                 }
-                // Conflit de salle
                 if (cours.salle && c.salle && c.salle.toLowerCase().trim() === cours.salle.toLowerCase().trim()) {
                     conflits.push('Salle "' + cours.salle + '" deja utilisee le ' + cours.jour + ' ' + d1 + '-' + f1 + ' (' + c.matiere + ')');
                 }
-                // Conflit de prof
                 if (cours.enseignant_id && c.enseignant_id === cours.enseignant_id) {
                     conflits.push('Enseignant deja en cours le ' + cours.jour + ' ' + d1 + '-' + f1 + ' (' + c.matiere + ')');
                 }
@@ -1951,7 +1736,6 @@ const badgeRapide = document.getElementById('badge-demandes-rapide');
             const jours = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
             const heures = ['08:00-10:00', '10:15-12:15', '14:00-16:00', '16:15-18:15'];
 
-            // Charger tous les cours de l'ecole
             const { data: tous } = await supabaseClient.from('emploi_du_temps').select('*').eq('ecole_id', monEcoleId);
             const liste = tous || [];
 
@@ -1961,7 +1745,6 @@ const badgeRapide = document.getElementById('badge-demandes-rapide');
                 for (const creneau of heures) {
                     const [debut, fin] = creneau.split('-');
 
-                    // Verifier si libre
                     let libre = true;
                     for (const c of liste) {
                         if (c.jour !== jour) continue;
@@ -1985,7 +1768,9 @@ const badgeRapide = document.getElementById('badge-demandes-rapide');
 
             return suggestions;
         }
-async function supprimerCoursDepuisForm() {
+
+        // ============ SUPPRESSION COURS (une seule déclaration) ============
+        async function supprimerCoursDepuisForm() {
             const id = document.getElementById('cours-id').value;
             if (!id) return;
             if (!confirm('Supprimer definitivement ce cours ?')) return;
@@ -1996,18 +1781,8 @@ async function supprimerCoursDepuisForm() {
             alert('Cours supprime.');
             afficherEmploiClasse(classeEnCours.id);
         }
-async function supprimerCoursDepuisForm() {
-            const id = document.getElementById('cours-id').value;
-            if (!id) return;
-            if (!confirm('Supprimer definitivement ce cours ?')) return;
 
-            const { error } = await supabaseClient.from('emploi_du_temps').delete().eq('id', id);
-            if (error) { alert('Erreur : ' + error.message); return; }
-
-            alert('Cours supprime.');
-            afficherEmploiClasse(classeEnCours.id);
-        }
-function ouvrirActionsCours(coursId) {
+        function ouvrirActionsCours(coursId) {
             afficherFormCours(coursId);
         }
 
@@ -2088,8 +1863,7 @@ function ouvrirActionsCours(coursId) {
             await supabaseClient.from('annonces').delete().eq('id', id);
             afficherAnnonces();
         }
-
-        // ============ PAIEMENTS (ANCIEN) ============
+// ============ PAIEMENTS (ANCIEN) ============
         async function afficherGestionPaiements() {
             hideAllViews();
             document.getElementById('view-liste-paiements').classList.remove('hidden');
@@ -2225,7 +1999,6 @@ function ouvrirActionsCours(coursId) {
                 return;
             }
 
-            // Recuperer TOUS les enseignants + leurs affectations en 2 requetes
             const userIds = users.map(u => u.id);
             const { data: enseignants } = await supabaseClient.from('enseignants').select('id, utilisateur_id, specialite, date_embauche').in('utilisateur_id', userIds);
             const mapEns = {};
@@ -2324,7 +2097,6 @@ function ouvrirActionsCours(coursId) {
             document.getElementById('view-form-enseignant').classList.remove('hidden');
             document.getElementById('message-ens').innerText = '';
 
-            // Charger les classes
             const { data: classes } = await supabaseClient.from('classes').select('id, nom').eq('ecole_id', monEcoleId).order('nom');
             ensClassesDispo = classes || [];
 
@@ -2348,7 +2120,6 @@ function ouvrirActionsCours(coursId) {
                         document.getElementById('ens-embauche').value = e.date_embauche || '';
                     }
 
-                    // Charger TOUTES les affectations existantes
                     const { data: affs } = await supabaseClient.from('affectations').select('id, classe_id, matiere').eq('enseignant_id', ensId);
                     (affs || []).forEach(a => {
                         ensAffectationsTemp.push({ classe_id: a.classe_id, matiere: a.matiere });
@@ -2357,7 +2128,6 @@ function ouvrirActionsCours(coursId) {
             } else {
                 document.getElementById('titre-form-ens').innerText = "Ajouter un enseignant";
                 ['ens-id', 'ens-user-id', 'ens-prenom', 'ens-nom', 'ens-email', 'ens-password', 'ens-specialite', 'ens-embauche'].forEach(id => document.getElementById(id).value = '');
-                // Ajouter 1 ligne vide par defaut
                 ensAffectationsTemp.push({ classe_id: '', matiere: '' });
             }
 
@@ -2414,7 +2184,6 @@ function ouvrirActionsCours(coursId) {
             if (!prenom || !nom || !email) { msg.innerText = "Champs obligatoires."; msg.style.color = "red"; return; }
             if (!userId && !password) { msg.innerText = "Mot de passe obligatoire."; msg.style.color = "red"; return; }
 
-            // Filtrer les affectations valides (classe ET matiere remplies)
             const affsValides = ensAffectationsTemp.filter(a => a.classe_id && a.matiere && a.matiere.trim());
 
             try {
@@ -2432,9 +2201,7 @@ function ouvrirActionsCours(coursId) {
                 }
 
                 if (ensIdFinal) {
-                    // SUPPRIMER les anciennes affectations
                     await supabaseClient.from('affectations').delete().eq('enseignant_id', ensIdFinal);
-                    // INSERER les nouvelles
                     if (affsValides.length > 0) {
                         const lignes = affsValides.map(a => ({
                             enseignant_id: ensIdFinal,
@@ -2473,15 +2240,12 @@ function ouvrirActionsCours(coursId) {
             document.getElementById('view-liste-eleves').classList.remove('hidden');
             document.getElementById('liste-eleves-admin').innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
 
-            // 1 requete pour classes
             const { data: classes } = await supabaseClient.from('classes').select('id, nom').eq('ecole_id', monEcoleId).order('nom');
             elvToutesClasses = classes || [];
 
-            // 1 requete pour eleves (avec jointure utilisateurs + classes)
             const { data: eleves } = await supabaseClient.from('eleves').select('id, matricule, date_naissance, utilisateur_id, classe_id, parent_id, utilisateurs!utilisateur_id(prenom, nom, email, statut), classes(nom)').eq('ecole_id', monEcoleId).order('id', { ascending: false });
             elvTous = eleves || [];
 
-            // Remplir le select classes
             const sel = document.getElementById('elv-filtre-classe');
             sel.innerHTML = '<option value="">Toutes les classes</option>';
             elvToutesClasses.forEach(c => { sel.innerHTML += '<option value="' + c.id + '">' + c.nom + '</option>'; });
@@ -2518,7 +2282,6 @@ function ouvrirActionsCours(coursId) {
                 return;
             }
 
-            // Limite a 200 pour eviter de bloquer
             const limite = liste.slice(0, 200);
             let html = '';
 
@@ -2697,7 +2460,8 @@ function ouvrirActionsCours(coursId) {
             chargerBadgeMdp();
             window.scrollTo(0, 0);
         }
-// ============ IMPORT ELEVES CSV ============
+
+        // ============ IMPORT ELEVES CSV ============
         let impMode = 'fichier';
         let impLignes = [];
 
@@ -2743,12 +2507,10 @@ function ouvrirActionsCours(coursId) {
             const lignesBrutes = texte.split(/\r?\n/).map(l => l.trim()).filter(l => l);
             if (lignesBrutes.length === 0) { conteneur.innerHTML = '<p class="text-red-500 text-center py-4 text-sm">Aucune ligne.</p>'; return; }
 
-            // Detecter si la 1ere ligne est un en-tete
             let debut = 0;
             const premLigne = lignesBrutes[0].toLowerCase();
             if (premLigne.includes('prenom') || premLigne.includes('nom') || premLigne.includes('email')) { debut = 1; }
 
-            // Charger les classes pour matcher par nom
             const { data: classes } = await supabaseClient.from('classes').select('id, nom').eq('ecole_id', monEcoleId);
             const mapClasses = {};
             (classes || []).forEach(c => { mapClasses[c.nom.toLowerCase().trim()] = c.id; });
@@ -2914,8 +2676,6 @@ function ouvrirActionsCours(coursId) {
             if (trfSelection.has(eleveId)) trfSelection.delete(eleveId);
             else trfSelection.add(eleveId);
             document.getElementById('trf-nb-selec').innerText = trfSelection.size;
-            const items = document.querySelectorAll('#trf-liste [onclick^="trfToggle"]');
-            // Re-render simple : on re-coche visuellement les carres
             trfChargerElevesRapide();
         }
 
@@ -2999,11 +2759,9 @@ function ouvrirActionsCours(coursId) {
             const classeNom = eleve.classes ? eleve.classes.nom : 'Sans classe';
             const frais = eleve.classes && eleve.classes.frais_scolarite ? parseFloat(eleve.classes.frais_scolarite) : 0;
 
-            // Calcul stats
             const totalPaye = (paiements || []).filter(p => p.statut === 'paye').reduce((s, p) => s + parseFloat(p.montant), 0);
             const solde = frais - totalPaye;
 
-            // Moyenne generale
             let moyGen = null;
             if (notes && notes.length > 0) {
                 let tp = 0, tc = 0;
@@ -3013,7 +2771,6 @@ function ouvrirActionsCours(coursId) {
 
             let html = '';
 
-            // Header
             html += '<div class="bg-gradient-to-br from-edu-blue to-blue-700 text-white rounded-2xl shadow-lg p-4 mb-3">';
             html += '<div class="flex items-center gap-3 mb-3">';
             html += '<div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl font-bold">' + initiale + '</div>';
@@ -3026,14 +2783,12 @@ function ouvrirActionsCours(coursId) {
             html += '<div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-90">Solde</p><p class="text-sm font-bold mt-0.5">' + solde.toLocaleString('fr-FR') + '</p></div>';
             html += '</div></div>';
 
-            // Boutons actions
             html += '<div class="grid grid-cols-3 gap-2 mb-3">';
             html += '<button onclick="editerEleve(' + eleveId + ')" class="bg-blue-50 text-edu-blue font-bold py-2.5 rounded-xl text-xs">Modifier</button>';
             html += '<button onclick="pv2OuvrirFormPaiement(' + eleveId + ')" class="bg-green-50 text-edu-green font-bold py-2.5 rounded-xl text-xs">Paiement</button>';
             html += '<button onclick="ficheElevePDF()" class="bg-gray-100 text-gray-700 font-bold py-2.5 rounded-xl text-xs">PDF</button>';
             html += '</div>';
 
-            // Infos personnelles
             html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">';
             html += '<p class="text-sm font-bold text-gray-800 mb-2">Informations</p>';
             html += '<div class="text-xs space-y-1">';
@@ -3043,7 +2798,6 @@ function ouvrirActionsCours(coursId) {
             if (parent && parent.telephone) html += '<p><span class="text-gray-500">Tel parent :</span> <b>' + parent.telephone + '</b></p>';
             html += '</div></div>';
 
-            // Paiements
             html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">';
             html += '<p class="text-sm font-bold text-gray-800 mb-2">Paiements (' + (paiements ? paiements.length : 0) + ')</p>';
             if (!paiements || paiements.length === 0) {
@@ -3059,13 +2813,11 @@ function ouvrirActionsCours(coursId) {
             }
             html += '</div>';
 
-            // Notes par matiere/trimestre
             html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">';
             html += '<p class="text-sm font-bold text-gray-800 mb-2">Notes (' + (notes ? notes.length : 0) + ')</p>';
             if (!notes || notes.length === 0) {
                 html += '<p class="text-xs text-gray-400 text-center py-2">Aucune note.</p>';
             } else {
-                // Grouper par matiere
                 const parMatiere = {};
                 notes.forEach(n => {
                     if (!parMatiere[n.matiere]) parMatiere[n.matiere] = [];
@@ -3090,7 +2842,6 @@ function ouvrirActionsCours(coursId) {
             }
             html += '</div>';
 
-            // Absences
             html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">';
             html += '<p class="text-sm font-bold text-gray-800 mb-2">Absences (' + (absences ? absences.length : 0) + ')</p>';
             if (!absences || absences.length === 0) {
@@ -3110,7 +2861,8 @@ function ouvrirActionsCours(coursId) {
             conteneur.innerHTML = html;
             window.scrollTo(0, 0);
         }
-async function ficheElevePDF() {
+
+        async function ficheElevePDF() {
             const conteneur = document.getElementById('fiche-eleve-contenu');
             if (!conteneur) return;
 
@@ -3152,7 +2904,8 @@ async function ficheElevePDF() {
                 alert('Erreur : ' + err.message);
             }
         }
-// ============ EMPLOI DU TEMPS PAR ENSEIGNANT ============
+
+        // ============ EMPLOI DU TEMPS PAR ENSEIGNANT ============
         let empEnsTous = [];
         let empEnsClasses = [];
 
@@ -3162,13 +2915,11 @@ async function ficheElevePDF() {
             document.getElementById('emp-ens-liste').innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
             document.getElementById('emp-ens-conflits-resume').innerHTML = '';
 
-            // 1. Charger les classes pour map
             const { data: classes } = await supabaseClient.from('classes').select('id, nom').eq('ecole_id', monEcoleId);
             empEnsClasses = classes || [];
             const mapClasses = {};
             empEnsClasses.forEach(c => { mapClasses[c.id] = c.nom; });
 
-            // 2. Charger les enseignants
             const { data: users } = await supabaseClient.from('utilisateurs').select('id, prenom, nom, email').eq('ecole_id', monEcoleId).eq('role', 'enseignant').order('nom');
 
             if (!users || users.length === 0) {
@@ -3188,7 +2939,6 @@ async function ficheElevePDF() {
                 toutesAffs = affs || [];
             }
 
-            // 3. Charger tous les cours de toutes les classes de ces profs
             const classeIds = [...new Set(toutesAffs.map(a => a.classe_id))];
             let tousCours = [];
             if (classeIds.length > 0) {
@@ -3196,14 +2946,12 @@ async function ficheElevePDF() {
                 tousCours = cours || [];
             }
 
-            // 4. Pour chaque enseignant, calculer ses creneaux
             empEnsTous = users.map(u => {
                 const ens = mapEns[u.id];
                 const affsUser = ens ? toutesAffs.filter(a => a.enseignant_id === ens.id) : [];
                 const classeIdsUser = affsUser.map(a => a.classe_id);
                 const coursUser = tousCours.filter(c => classeIdsUser.includes(c.classe_id));
 
-                // Convertir chaque cours en creneau
                 const creneaux = coursUser.map(c => ({
                     jour: c.jour,
                     debut: c.heure_debut ? c.heure_debut.substring(0, 5) : '',
@@ -3214,7 +2962,6 @@ async function ficheElevePDF() {
                     classeNom: mapClasses[c.classe_id] || '?'
                 })).filter(c => c.jour && c.debut && c.fin);
 
-                // Detecter conflits
                 const conflits = detecterConflitsEmploi(creneaux);
 
                 return {
@@ -3242,7 +2989,6 @@ async function ficheElevePDF() {
                     const a = creneaux[i];
                     const b = creneaux[j];
                     if (a.jour !== b.jour) continue;
-                    // Chevauchement ?
                     if (a.debut < b.fin && b.debut < a.fin) {
                         conflits.push({ a: a, b: b });
                     }
@@ -3320,7 +3066,6 @@ async function ficheElevePDF() {
             html += '<div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-90">Conflits</p><p class="text-xs font-bold mt-0.5">' + e.conflits.length + '</p></div>';
             html += '</div></div>';
 
-            // Liste des affectations
             html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 mb-3">';
             html += '<p class="text-sm font-bold text-gray-800 mb-2">Classes / Matieres</p>';
             if (e.affectations.length === 0) {
@@ -3335,7 +3080,6 @@ async function ficheElevePDF() {
             }
             html += '</div>';
 
-            // Conflits
             if (e.conflits.length > 0) {
                 html += '<div class="bg-red-50 border border-red-200 rounded-2xl p-3 mb-3">';
                 html += '<p class="text-sm font-bold text-edu-red mb-2">Conflits detectes (' + e.conflits.length + ')</p>';
@@ -3348,7 +3092,6 @@ async function ficheElevePDF() {
                 html += '</div>';
             }
 
-            // Tableau emploi du temps
             html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 mb-3">';
             html += '<p class="text-sm font-bold text-gray-800 mb-2">Emploi du temps</p>';
             html += empEnsConstruireTableau(e.creneaux);
@@ -3395,7 +3138,6 @@ async function ficheElevePDF() {
                         if (c.salle) html += '<p style="font-size:8px;color:#6b7280;margin:1px 0 0 0;">' + c.salle + '</p>';
                         html += '</div></td>';
                     } else {
-                        // CONFLIT : plusieurs cours au meme moment
                         html += '<td style="padding:4px;border:2px solid #EF4444;background:#fef2f2;vertical-align:top;">';
                         html += '<p style="font-size:9px;font-weight:bold;color:#EF4444;margin:0 0 2px 0;">CONFLIT</p>';
                         coursIci.forEach(c => {
@@ -3413,7 +3155,8 @@ async function ficheElevePDF() {
             html += '</tbody></table></div>';
             return html;
         }
-// ============ LIENS PARENTS-ENFANTS (ADMIN) ============
+
+        // ============ LIENS PARENTS-ENFANTS (ADMIN) ============
         let liensTous = [];
 
         async function afficherLiensParents() {
@@ -3422,7 +3165,6 @@ async function ficheElevePDF() {
             document.getElementById('liens-liste').innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
             document.getElementById('liens-stats').innerHTML = '';
 
-            // 1. Charger tous les eleves avec parent
             const { data: eleves } = await supabaseClient
                 .from('eleves')
                 .select('id, matricule, parent_id, utilisateurs!utilisateur_id(prenom, nom), classes(nom)')
@@ -3435,7 +3177,6 @@ async function ficheElevePDF() {
                 return;
             }
 
-            // 2. Charger les parents concernes
             const parentIds = [...new Set(eleves.map(e => e.parent_id))];
             const { data: parents } = await supabaseClient
                 .from('utilisateurs')
@@ -3445,7 +3186,6 @@ async function ficheElevePDF() {
             const mapParents = {};
             (parents || []).forEach(p => { mapParents[p.id] = p; });
 
-            // 3. Fusionner
             liensTous = eleves.map(e => {
                 const parent = mapParents[e.parent_id] || {};
                 return {
@@ -3534,7 +3274,8 @@ async function ficheElevePDF() {
             alert('✅ ' + nomEleve + ' a ete delie.');
             afficherLiensParents();
         }
-// ============ RAPPORT ABSENCES ADMIN ============
+
+        // ============ RAPPORT ABSENCES ADMIN ============
         let absAdmClasses = [];
 
         async function afficherRapportAbsencesAdmin() {
@@ -3691,7 +3432,8 @@ async function ficheElevePDF() {
                 btn.disabled = false; btn.innerText = '📥 Telecharger le PDF';
             }
         }
-// ============ STATISTIQUES GLOBALES ============
+
+        // ============ STATISTIQUES GLOBALES ============
         async function afficherStatsGlobales() {
             hideAllViews();
             document.getElementById('view-stats-globales').classList.remove('hidden');
@@ -3705,7 +3447,6 @@ async function ficheElevePDF() {
 
             const semestre = parseInt(document.getElementById('stats-trimestre').value);
 
-            // Charger les classes + eleves
             const { data: classes } = await supabaseClient.from('classes').select('id, nom').eq('ecole_id', monEcoleId).order('nom');
             const { data: eleves } = await supabaseClient.from('eleves').select('id, classe_id').eq('ecole_id', monEcoleId);
 
@@ -3812,7 +3553,8 @@ async function ficheElevePDF() {
 
             conteneur.innerHTML = html;
         }
-// ============ ALERTES ELEVES EN DIFFICULTE ============
+
+        // ============ ALERTES ELEVES EN DIFFICULTE ============
         let alertesClasses = [];
 
         async function afficherAlertesEleves() {
@@ -3966,9 +3708,9 @@ async function ficheElevePDF() {
             if (error) { alert('Erreur : ' + error.message); return; }
             alert('✅ Notification envoyee au parent.');
         }
-// ============ DASHBOARD JOUR ============
+
+        // ============ DASHBOARD JOUR ============
         async function chargerDashboardJour() {
-            // Date immediate
             const maintenant = new Date();
             const dateAffichee = maintenant.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
             const dateEl = document.getElementById('dash-date');
@@ -3977,7 +3719,6 @@ async function ficheElevePDF() {
             const aujourdHui = maintenant.toISOString().split('T')[0];
             const trimestreActuel = maintenant.getMonth() >= 8 ? 1 : (maintenant.getMonth() <= 2 ? 2 : 3);
 
-            // TOUTES LES REQUETES EN PARALLELE
             const [
                 resAbsents,
                 resPaiements,
@@ -3994,7 +3735,6 @@ async function ficheElevePDF() {
                 supabaseClient.from('classes').select('*', { count: 'exact', head: true }).eq('ecole_id', monEcoleId)
             ]);
 
-            // Remplir les 4 KPIs du jour
             const elAbs = document.getElementById('dash-absents');
             const elEnc = document.getElementById('dash-encaisses');
             const elIns = document.getElementById('dash-inscriptions');
@@ -4002,7 +3742,6 @@ async function ficheElevePDF() {
             if (elEnc) elEnc.innerText = (resPaiements.data || []).reduce((s, p) => s + parseFloat(p.montant), 0).toLocaleString('fr-FR');
             if (elIns) elIns.innerText = resAttente.count || 0;
 
-            // Remplir les 3 KPIs ecole
             const eleveIds = (resEleves.data || []).map(e => e.id);
             const elTotalElv = document.getElementById('dash-total-eleves');
             const elTotalProfs = document.getElementById('dash-total-profs');
@@ -4011,7 +3750,6 @@ async function ficheElevePDF() {
             if (elTotalProfs) elTotalProfs.innerText = resTotalProfs.count || 0;
             if (elTotalClasses) elTotalClasses.innerText = resTotalClasses.count || 0;
 
-            // Alertes
             let nbAlertes = 0;
             if (eleveIds.length > 0) {
                 const { data: notes } = await supabaseClient.from('notes').select('eleve_id, note, coefficient').in('eleve_id', eleveIds).eq('trimestre', trimestreActuel);
@@ -4028,7 +3766,8 @@ async function ficheElevePDF() {
             const elAlertes = document.getElementById('dash-alertes');
             if (elAlertes) elAlertes.innerText = nbAlertes;
         }
-// ============ BULLETINS DE CLASSE (ADMIN) ============
+
+        // ============ BULLETINS DE CLASSE (ADMIN) ============
         let bcClassesListe = [];
         let bcClasseActiveId = null;
         let bcDonneesActuelles = null;
@@ -4067,19 +3806,14 @@ async function ficheElevePDF() {
                 const classe = bcClassesListe.find(c => c.id == classeId);
                 const ecoleNom = document.getElementById('ecole-nom-affiche').innerText.replace('🏫 ', '');
 
-                // 1. Charger les eleves
                 const { data: eleves } = await supabaseClient.from('eleves').select('id, matricule, utilisateurs!utilisateur_id(prenom, nom)').eq('classe_id', classeId).eq('ecole_id', monEcoleId).order('id');
                 if (!eleves || eleves.length === 0) { msg.innerText = 'Aucun eleve dans cette classe.'; msg.style.color = '#EF4444'; btn.disabled = false; btn.innerText = '📥 Generer les bulletins'; return; }
 
                 const eleveIds = eleves.map(e => e.id);
 
-                // 2. Charger toutes les notes de la classe (1 requete)
                 const { data: notes } = await supabaseClient.from('notes').select('eleve_id, matiere, note, coefficient, type_evaluation').in('eleve_id', eleveIds).eq('semestre', semestre);
-
-                // 3. Charger toutes les absences (1 requete)
                 const { data: absences } = await supabaseClient.from('absences').select('eleve_id, justifiee').in('eleve_id', eleveIds);
 
-                // 4. Regrouper les notes par eleve
                 const notesParEleve = {};
                 (notes || []).forEach(n => {
                     if (!notesParEleve[n.eleve_id]) notesParEleve[n.eleve_id] = {};
@@ -4087,7 +3821,6 @@ async function ficheElevePDF() {
                     notesParEleve[n.eleve_id][n.matiere][n.type_evaluation || 'composition'] = { note: parseFloat(n.note), coef: n.coefficient };
                 });
 
-                // 5. Regrouper les absences par eleve
                 const absParEleve = {};
                 (absences || []).forEach(a => {
                     if (!absParEleve[a.eleve_id]) absParEleve[a.eleve_id] = { total: 0, nonJust: 0 };
@@ -4095,7 +3828,6 @@ async function ficheElevePDF() {
                     if (!a.justifiee) absParEleve[a.eleve_id].nonJust++;
                 });
 
-                // 6. Calculer les moyennes et le classement
                 const statsParEleve = {};
                 eleves.forEach(e => {
                     const matieres = notesParEleve[e.id] || {};
@@ -4112,20 +3844,17 @@ async function ficheElevePDF() {
                     };
                 });
 
-                // 7. Classement (uniquement eleves avec moyenne)
                 const avecMoy = eleves.filter(e => statsParEleve[e.id].moyenne !== null);
                 avecMoy.sort((a, b) => statsParEleve[b.id].moyenne - statsParEleve[a.id].moyenne);
                 const rangParEleve = {};
                 avecMoy.forEach((e, idx) => { rangParEleve[e.id] = idx + 1; });
 
-                // 8. Classement alphabétique pour l'affichage
                 const elevesTries = [...eleves].sort((a, b) => {
                     const nomA = (a.utilisateurs.nom + ' ' + a.utilisateurs.prenom).toLowerCase();
                     const nomB = (b.utilisateurs.nom + ' ' + b.utilisateurs.prenom).toLowerCase();
                     return nomA.localeCompare(nomB);
                 });
 
-                // 9. Aperçu visuel
                 const moyClasse = avecMoy.length > 0 ? avecMoy.reduce((s, e) => s + statsParEleve[e.id].moyenne, 0) / avecMoy.length : 0;
                 let apercuHtml = '<div class="bg-blue-50 border border-blue-100 rounded-xl p-3 mb-3">';
                 apercuHtml += '<p class="text-xs font-bold text-edu-blue">' + eleves.length + ' eleve(s) - ' + avecMoy.length + ' avec notes</p>';
@@ -4133,17 +3862,13 @@ async function ficheElevePDF() {
                 apercuHtml += '</div>';
                 apercu.innerHTML = apercuHtml;
 
-                // 10. Construire le HTML du PDF
                 msg.innerText = 'Generation du PDF...';
                 const dateJour = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
                 const dateAffichee = new Date().toLocaleDateString('fr-FR');
 
-                // Signature
-                const signatureEcole = document.getElementById('ecole-nom-affiche').innerText ? null : null;
                 const { data: ecoleData } = await supabaseClient.from('ecoles').select('signature_url').eq('id', monEcoleId).single();
                 const sigUrl = ecoleData && ecoleData.signature_url ? ecoleData.signature_url : null;
 
-                // Page de garde
                 let htmlInterne = '';
                 htmlInterne += '<div style="padding: 40px; text-align: center; font-family: Arial, sans-serif; page-break-after: always; height: 90%; display: flex; flex-direction: column; justify-content: center; align-items: center;">';
                 htmlInterne += '<div style="font-size: 60px; margin-bottom: 20px;">📖</div>';
@@ -4158,7 +3883,6 @@ async function ficheElevePDF() {
                 htmlInterne += '<p style="font-size: 12px; color: #9ca3af; margin: 5px 0;">Genere le ' + dateJour + '</p>';
                 htmlInterne += '</div>';
 
-                // Une page par eleve
                 elevesTries.forEach((eleve, idxEleve) => {
                     const matieres = notesParEleve[eleve.id] || {};
                     const stats = statsParEleve[eleve.id];
@@ -4178,7 +3902,6 @@ async function ficheElevePDF() {
                     htmlInterne += '<p style="font-size: 9px; color: #6b7280; margin: 2px 0;">' + (eleve.matricule || '') + ' - ' + classe.nom + '</p>';
                     htmlInterne += '</div>';
 
-                    // Tableau des notes
                     const ordreMatieres = Object.keys(matieres).sort();
                     if (ordreMatieres.length === 0) {
                         htmlInterne += '<p style="text-align: center; color: #6b7280; font-size: 11px; padding: 20px;">Aucune note ce semestre</p>';
@@ -4214,7 +3937,6 @@ async function ficheElevePDF() {
                         htmlInterne += '</tbody></table>';
                     }
 
-                    // Moyenne générale + Rang + Absences
                     htmlInterne += '<table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">';
                     htmlInterne += '<tr>';
                     htmlInterne += '<td style="border: 2px solid #004AAD; padding: 8px; text-align: center; background: #f0f7ff; width: 40%;"><p style="font-size: 8px; color: #004AAD; margin: 0;">MOYENNE</p><p style="font-size: 18px; font-weight: bold; color: ' + mentionColor + '; margin: 2px 0 0 0;">' + moyStr + '/20</p></td>';
@@ -4223,7 +3945,6 @@ async function ficheElevePDF() {
                     htmlInterne += '<td style="border: 2px solid #004AAD; padding: 8px; text-align: center; background: #f0f7ff; width: 20%;"><p style="font-size: 8px; color: #004AAD; margin: 0;">MENTION</p><p style="font-size: 10px; font-weight: bold; color: ' + mentionColor + '; margin: 2px 0 0 0;">' + mention + '</p></td>';
                     htmlInterne += '</tr></table>';
 
-                    // Signature
                     htmlInterne += '<table style="width: 100%; margin-top: 30px;">';
                     htmlInterne += '<tr>';
                     htmlInterne += '<td style="width: 50%; text-align: left;"><p style="font-size: 9px; color: #6b7280; margin: 0;">Fait le ' + dateAffichee + '</p></td>';
@@ -4235,7 +3956,6 @@ async function ficheElevePDF() {
                     htmlInterne += '</div>';
                 });
 
-                // 11. Générer le PDF
                 let iframe = document.createElement('iframe');
                 iframe.style.cssText = 'position:fixed;top:0;left:0;width:800px;height:1100px;opacity:0;pointer-events:none;z-index:-1;border:none;';
                 document.body.appendChild(iframe);
@@ -4276,7 +3996,8 @@ async function ficheElevePDF() {
                 btn.innerText = '📥 Generer les bulletins';
             }
         }
-// ============ PAIEMENTS V2 ============
+
+        // ============ PAIEMENTS V2 ============
         let pv2TousEleves = [];
         let pv2TousPaiements = [];
         let pv2ToutesClasses = [];
@@ -4498,7 +4219,8 @@ async function ficheElevePDF() {
             afficherSoldeEleve();
             window.scrollTo(0, 0);
         }
-// ============ HEURES PROFS (ADMIN) ============
+
+        // ============ HEURES PROFS (ADMIN) ============
         let hpPeriode = 'semaine';
         let hpTousProfs = [];
 
@@ -4506,7 +4228,6 @@ async function ficheElevePDF() {
             hideAllViews();
             document.getElementById('view-heures-profs').classList.remove('hidden');
 
-            // Charger la liste des profs (1 seule fois)
             if (hpTousProfs.length === 0) {
                 const { data: users } = await supabaseClient.from('utilisateurs').select('id, prenom, nom').eq('ecole_id', monEcoleId).eq('role', 'enseignant').order('nom');
                 const { data: ens } = await supabaseClient.from('enseignants').select('id, utilisateur_id');
@@ -4535,6 +4256,25 @@ async function ficheElevePDF() {
             document.getElementById('hp-date-debut').value = d.debut;
             document.getElementById('hp-date-fin').value = d.fin;
             chargerHeuresProfs();
+        }
+
+        function calculerDatesHeures(periode) {
+            const now = new Date();
+            const y = now.getFullYear(), m = now.getMonth(), d = now.getDate();
+            const pad = n => String(n).padStart(2, '0');
+            const fmt = dt => dt.getFullYear() + '-' + pad(dt.getMonth() + 1) + '-' + pad(dt.getDate());
+            let debut, fin;
+            if (periode === 'jour') { debut = fin = fmt(now); }
+            else if (periode === 'semaine') {
+                const day = now.getDay() || 7;
+                const lundi = new Date(now); lundi.setDate(d - day + 1);
+                const dim = new Date(lundi); dim.setDate(lundi.getDate() + 6);
+                debut = fmt(lundi); fin = fmt(dim);
+            } else {
+                debut = fmt(new Date(y, m, 1));
+                fin = fmt(new Date(y, m + 1, 0));
+            }
+            return { debut, fin };
         }
 
         async function chargerHeuresProfs() {
@@ -4580,7 +4320,6 @@ async function ficheElevePDF() {
                 return;
             }
 
-            // Grouper par prof
             const parProf = {};
             liste.forEach(p => {
                 const id = p.enseignant_id;
@@ -4610,7 +4349,6 @@ async function ficheElevePDF() {
             });
             html += '</div>';
 
-            // Detail par jour
             const parDate = {};
             liste.forEach(p => {
                 if (!parDate[p.date_pointage]) parDate[p.date_pointage] = [];
@@ -4703,11 +4441,9 @@ async function ficheElevePDF() {
                 const fichier = new File([pdfBlob], nomFichier, { type: 'application/pdf' });
                 document.body.removeChild(iframe); iframe = null;
 
-                // Methode 1 : partage natif (mobile)
                 if (navigator.canShare && navigator.canShare({ files: [fichier] })) {
                     await navigator.share({ files: [fichier], title: 'Heures enseignement' });
                 } else {
-                    // Methode 2 : nouvel onglet (l'utilisateur peut sauvegarder)
                     const url = URL.createObjectURL(pdfBlob);
                     window.open(url, '_blank');
                     setTimeout(() => URL.revokeObjectURL(url), 60000);
@@ -4724,6 +4460,5 @@ async function ficheElevePDF() {
 
         function seDeconnecter() { sessionStorage.removeItem('eduLinkUser'); window.location.href = 'index.html'; }
     </script>
-</body>
 </body>
 </html>

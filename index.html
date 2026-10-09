@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EDU-LINK -
-<link rel="manifest" href="manifest.json">
+    <title>EDU-LINK - Connexion</title>
+    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#004AAD">
     <link rel="apple-touch-icon" href="icons/icon.svg">
     <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
-Connexion</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
@@ -42,16 +41,6 @@ Connexion</title>
         .lien-ecole:hover { color: #e6f4ea; }
     </style>
 </head>
-<script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('sw.js').catch(function(err) {
-                    console.log('Service Worker non enregistre :', err);
-                });
-            });
-        }
-    </script>
-</body>
 <body class="flex flex-col items-center justify-center p-3">
 
     <div class="fond-image"></div>
@@ -158,7 +147,8 @@ Connexion</title>
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFid2d1aXhjbG14dHp2bHNtYmJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4OTg1OTMsImV4cCI6MjEwNjQ3NDU5M30.8MiG5YdoMIY69KYfBdlXHIB9Zisd5miX3slaCoqVcjM';
         const supabaseUrl = 'https://abwguixclmxtzvlsmbby.supabase.co';
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
-const AUTH_SALT = 'EDU-LINK::v1::S3n3g4l::2024';
+
+        const AUTH_SALT = 'EDU-LINK::v1::S3n3g4l::2024';
         const AUTH_ITERATIONS = 100000;
         const AUTH_PREFIX = 'pbkdf2$';
 
@@ -265,7 +255,6 @@ const AUTH_SALT = 'EDU-LINK::v1::S3n3g4l::2024';
 
                 const user = users[0];
 
-                // Verification hybride (PBKDF2 ou clair)
                 const verification = await verifyPassword(password, user.mot_de_passe);
                 if (!verification.ok) {
                     afficherMessage('Email ou mot de passe incorrect.', 'rouge');
@@ -273,7 +262,6 @@ const AUTH_SALT = 'EDU-LINK::v1::S3n3g4l::2024';
                     return;
                 }
 
-                // Migration auto en PBKDF2 si ancien mdp en clair
                 if (verification.needsRehash) {
                     try {
                         const newHash = await hashPassword(password);
@@ -294,7 +282,6 @@ const AUTH_SALT = 'EDU-LINK::v1::S3n3g4l::2024';
                     return;
                 }
 
-                // Verification ecole active
                 if (user.ecole_id && user.role !== 'super_admin') {
                     const { data: ecole } = await supabaseClient.from('ecoles').select('actif, nom, date_expiration').eq('id', user.ecole_id).single();
                     if (ecole) {
@@ -348,5 +335,17 @@ const AUTH_SALT = 'EDU-LINK::v1::S3n3g4l::2024';
             if (e.key === 'Enter') document.getElementById('btnLogin').click();
         });
     </script>
+
+    <!-- ============ SERVICE WORKER (PWA) ============ -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('sw.js').catch(function(err) {
+                    console.log('Service Worker non enregistre :', err);
+                });
+            });
+        }
+    </script>
+
 </body>
 </html>

@@ -1,18 +1,18 @@
 // ==========================================
-// EDU-LINK — Système de badges
+// EDU-LINK - Systeme de badges (ASCII-safe)
 // ==========================================
 
 const BADGES_DEFINITIONS = [
-    { id: 'premier', emoji: '🥇', label: 'Premier de la classe', desc: 'Meilleure moyenne de la classe', couleur: '#F59E0B' },
-    { id: 'deuxieme', emoji: '🥈', label: 'Deuxième', desc: '2ème meilleure moyenne', couleur: '#94A3B8' },
-    { id: 'troisieme', emoji: '🥉', label: 'Troisième', desc: '3ème meilleure moyenne', couleur: '#B45309' },
-    { id: 'excellence', emoji: '💯', label: 'Excellence', desc: 'Moyenne ≥ 16/20', couleur: '#004AAD' },
-    { id: 'tres_serieux', emoji: '🎯', label: 'Très sérieux', desc: 'Moyenne ≥ 14/20', couleur: '#2EAD5E' },
-    { id: 'assidu', emoji: '⭐', label: 'Assidu(e)', desc: 'Aucune absence non justifiée', couleur: '#F59E0B' },
-    { id: 'regulier', emoji: '🔥', label: 'Régulier(ère)', desc: 'Au moins 8 notes ce trimestre', couleur: '#EF4444' },
-    { id: 'devoirs_a_jour', emoji: '📚', label: 'Devoirs à jour', desc: 'Tous les devoirs faits', couleur: '#8B5CF6' },
-    { id: 'progression', emoji: '📈', label: 'En progression', desc: 'Moyenne en hausse vs trimestre précédent', couleur: '#0D9488' },
-    { id: 'super_eleve', emoji: '🌟', label: 'Super élève', desc: '3 badges ou plus', couleur: '#EC4899' }
+    { id: 'premier', emoji: '\uD83E\uDD47', label: 'Premier de la classe', desc: 'Meilleure moyenne de la classe', couleur: '#F59E0B' },
+    { id: 'deuxieme', emoji: '\uD83E\uDD48', label: 'Deuxi\u00E8me', desc: '2\u00E8me meilleure moyenne', couleur: '#94A3B8' },
+    { id: 'troisieme', emoji: '\uD83E\uDD49', label: 'Troisi\u00E8me', desc: '3\u00E8me meilleure moyenne', couleur: '#B45309' },
+    { id: 'excellence', emoji: '\uD83D\uDCAF', label: 'Excellence', desc: 'Moyenne \u2265 16/20', couleur: '#004AAD' },
+    { id: 'tres_serieux', emoji: '\uD83C\uDFAF', label: 'Tr\u00E8s s\u00E9rieux', desc: 'Moyenne \u2265 14/20', couleur: '#2EAD5E' },
+    { id: 'assidu', emoji: '\u2B50', label: 'Assidu(e)', desc: 'Aucune absence non justifi\u00E9e', couleur: '#F59E0B' },
+    { id: 'regulier', emoji: '\uD83D\uDD25', label: 'R\u00E9gulier(\u00E8re)', desc: 'Au moins 8 notes ce semestre', couleur: '#EF4444' },
+    { id: 'devoirs_a_jour', emoji: '\uD83D\uDCDA', label: 'Devoirs \u00E0 jour', desc: 'Tous les devoirs faits', couleur: '#8B5CF6' },
+    { id: 'progression', emoji: '\uD83D\uDCC8', label: 'En progression', desc: 'Moyenne en hausse vs semestre pr\u00E9c\u00E9dent', couleur: '#0D9488' },
+    { id: 'super_eleve', emoji: '\uD83C\uDF1F', label: 'Super \u00E9l\u00E8ve', desc: '3 badges ou plus', couleur: '#EC4899' }
 ];
 
 function echapperHtml(texte) {
@@ -27,7 +27,7 @@ function echapperHtml(texte) {
 
 async function calculerBadgesEleve(supabaseClient, eleveId, classeId, trimestre) {
     const badges = {};
-    const { data: notes } = await supabaseClient.from('notes').select('note, coefficient').eq('eleve_id', eleveId).eq('trimestre', trimestre);
+    const { data: notes } = await supabaseClient.from('notes').select('note, coefficient').eq('eleve_id', eleveId).eq('semestre', trimestre);
     let totalPoints = 0, totalCoef = 0, nbNotes = 0;
     (notes || []).forEach(n => { totalPoints += parseFloat(n.note) * n.coefficient; totalCoef += n.coefficient; nbNotes++; });
     const maMoyenne = totalCoef > 0 ? totalPoints / totalCoef : 0;
@@ -35,7 +35,7 @@ async function calculerBadgesEleve(supabaseClient, eleveId, classeId, trimestre)
     if (nbNotes > 0 && classeId) {
         const { data: eleves } = await supabaseClient.from('eleves').select('id').eq('classe_id', classeId);
         const ids = (eleves || []).map(e => e.id);
-        const { data: toutesNotes } = await supabaseClient.from('notes').select('eleve_id, note, coefficient').in('eleve_id', ids).eq('trimestre', trimestre);
+        const { data: toutesNotes } = await supabaseClient.from('notes').select('eleve_id, note, coefficient').in('eleve_id', ids).eq('semestre', trimestre);
         const moyennes = {};
         (toutesNotes || []).forEach(n => {
             if (!moyennes[n.eleve_id]) moyennes[n.eleve_id] = { p: 0, c: 0 };
@@ -60,7 +60,7 @@ async function calculerBadgesEleve(supabaseClient, eleveId, classeId, trimestre)
     }
     let progression = false;
     if (trimestre > 1) {
-        const { data: notesPrec } = await supabaseClient.from('notes').select('note, coefficient').eq('eleve_id', eleveId).eq('trimestre', trimestre - 1);
+        const { data: notesPrec } = await supabaseClient.from('notes').select('note, coefficient').eq('eleve_id', eleveId).eq('semestre', trimestre - 1);
         let tp = 0, tc = 0;
         (notesPrec || []).forEach(n => { tp += parseFloat(n.note) * n.coefficient; tc += n.coefficient; });
         const moyPrec = tc > 0 ? tp / tc : 0;
@@ -82,10 +82,10 @@ async function calculerBadgesEleve(supabaseClient, eleveId, classeId, trimestre)
 async function calculerBadgesClasse(supabaseClient, eleveIds, classeId, trimestre) {
     const resultats = {};
     if (!eleveIds || eleveIds.length === 0) return resultats;
-    const { data: notesTrim } = await supabaseClient.from('notes').select('eleve_id, note, coefficient').in('eleve_id', eleveIds).eq('trimestre', trimestre);
+    const { data: notesTrim } = await supabaseClient.from('notes').select('eleve_id, note, coefficient').in('eleve_id', eleveIds).eq('semestre', trimestre);
     let notesPrec = [];
     if (trimestre > 1) {
-        const { data } = await supabaseClient.from('notes').select('eleve_id, note, coefficient').in('eleve_id', eleveIds).eq('trimestre', trimestre - 1);
+        const { data } = await supabaseClient.from('notes').select('eleve_id, note, coefficient').in('eleve_id', eleveIds).eq('semestre', trimestre - 1);
         notesPrec = data || [];
     }
     const { data: absences } = await supabaseClient.from('absences').select('eleve_id, justifiee').in('eleve_id', eleveIds);
@@ -169,7 +169,7 @@ function afficherCarteBadgesAccueil(containerId, badges) {
     const compteur = document.getElementById('badges-compteur');
     if (compteur) compteur.innerText = obtenus.length + ' badge' + (obtenus.length > 1 ? 's' : '') + ' obtenu' + (obtenus.length > 1 ? 's' : '');
     const top3 = obtenus.slice(0, 3);
-    const htmlBadges = top3.map(b => `<div class="bg-white bg-opacity-25 rounded-xl p-2 flex flex-col items-center flex-1"><span class="text-2xl">${b.emoji}</span><span class="text-[8px] font-bold text-center leading-tight mt-1">${b.label}</span></div>`).join('');
+    const htmlBadges = top3.map(b => '<div class="bg-white bg-opacity-25 rounded-xl p-2 flex flex-col items-center flex-1"><span class="text-2xl">' + b.emoji + '</span><span class="text-[8px] font-bold text-center leading-tight mt-1">' + b.label + '</span></div>').join('');
     const el = document.getElementById('badges-top3');
     if (el) el.innerHTML = htmlBadges;
 }
@@ -182,8 +182,8 @@ function afficherVueBadges(containerId, badges, trimestre) {
         const bgColor = obtenu ? 'background: linear-gradient(135deg, ' + b.couleur + '20, ' + b.couleur + '10);' : '';
         const borderColor = obtenu ? 'border-color: ' + b.couleur + ';' : '';
         const opacity = obtenu ? '' : 'opacity: 0.5;';
-        const statutIcon = obtenu ? '✅' : '🔒';
-        return `<div class="rounded-2xl p-4 border-2 shadow-sm" style="${bgColor}${borderColor}${opacity}background-color: ${obtenu ? 'transparent' : '#f9fafb'};"><div class="flex items-center gap-3"><div class="text-4xl">${b.emoji}</div><div class="flex-1 min-w-0"><div class="flex items-center gap-2"><p class="text-sm font-bold text-gray-800">${b.label}</p><span class="text-xs">${statutIcon}</span></div><p class="text-[11px] text-gray-600">${b.desc}</p></div></div></div>`;
+        const statutIcon = obtenu ? '\u2705' : '\uD83D\uDD12';
+        return '<div class="rounded-2xl p-4 border-2 shadow-sm" style="' + bgColor + borderColor + opacity + 'background-color: ' + (obtenu ? 'transparent' : '#f9fafb') + ';"><div class="flex items-center gap-3"><div class="text-4xl">' + b.emoji + '</div><div class="flex-1 min-w-0"><div class="flex items-center gap-2"><p class="text-sm font-bold text-gray-800">' + b.label + '</p><span class="text-xs">' + statutIcon + '</span></div><p class="text-[11px] text-gray-600">' + b.desc + '</p></div></div></div>';
     }).join('');
     container.innerHTML = html;
 }
@@ -194,30 +194,33 @@ function construireAfficheSecurisee(a, ecoleNom, signatureEcole) {
     const signatureTxt = a.signature ? echapperHtml(a.signature) : '';
     const ecoleNomSec = echapperHtml(ecoleNom || '');
     const datePub = new Date(a.date_publication).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-    const logoUrl = (typeof a.logo_annonce === 'string' && (a.logo_annonce.startsWith('data:image/') || a.logo_annonce.startsWith('https://'))) ? a.logo_annonce : null;
-    const sigUrl = (typeof signatureEcole === 'string' && (signatureEcole.startsWith('data:image/') || signatureEcole.startsWith('https://'))) ? signatureEcole : null;
-    return `<div style="background: white; border: 3px solid #004AAD; border-radius: 15px; overflow: hidden; font-family: Arial, sans-serif;">
-        <div style="background: linear-gradient(135deg, #004AAD 0%, #0066CC 100%); padding: 20px 15px; text-align: center;">
-            ${logoUrl ? `<img src="${logoUrl}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 50%; border: 3px solid white; margin-bottom: 8px;">` : '<div style="font-size: 40px; margin-bottom: 5px;">📖</div>'}
-            <h1 style="color: white; font-size: 20px; font-weight: bold; margin: 5px 0; letter-spacing: 1px;">EDU-LINK</h1>
-            <p style="color: rgba(255,255,255,0.9); font-size: 12px; margin: 0;">${ecoleNomSec}</p>
-        </div>
-        <div style="padding: 20px;">
-            <div style="text-align: center; background: #f0f7ff; padding: 12px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #004AAD;">
-                <p style="font-size: 11px; color: #004AAD; font-weight: bold; margin: 0 0 5px 0; letter-spacing: 2px;">📢 COMMUNICATION OFFICIELLE</p>
-                <h2 style="font-size: 18px; font-weight: bold; color: #004AAD; margin: 0;">${titre}</h2>
-            </div>
-            <div style="background: #f9fafb; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-                <p style="font-size: 13px; color: #1f2937; line-height: 1.8; margin: 0; white-space: pre-wrap; text-align: justify;">${contenu}</p>
-            </div>
-            <div style="text-align: right; margin-top: 25px; padding-top: 15px; border-top: 1px solid #e5e7eb;">
-                <p style="font-size: 11px; color: #6b7280; margin: 0;">Publiee le ${datePub}</p>
-                ${sigUrl ? `<img src="${sigUrl}" style="max-height: 55px; max-width: 180px; margin-top: 8px; display: block; margin-left: auto;">` : ''}
-                ${signatureTxt ? `<p style="font-size: 13px; font-weight: bold; color: #004AAD; margin: 5px 0 0 0;">${signatureTxt}</p>` : ''}
-            </div>
-        </div>
-        <div style="background: #004AAD; padding: 8px; text-align: center;">
-            <p style="color: white; font-size: 9px; margin: 0;">Document officiel - EDU-LINK</p>
-        </div>
-    </div>`;
+    const logoUrl = (typeof a.logo_annonce === 'string' && (a.logo_annonce.indexOf('data:image/') === 0 || a.logo_annonce.indexOf('https://') === 0)) ? a.logo_annonce : null;
+    const sigUrl = (typeof signatureEcole === 'string' && (signatureEcole.indexOf('data:image/') === 0 || signatureEcole.indexOf('https://') === 0)) ? signatureEcole : null;
+    var blocLogo = logoUrl ? '<img src="' + logoUrl + '" style="width: 70px; height: 70px; object-fit: cover; border-radius: 50%; border: 3px solid white; margin-bottom: 8px;">' : '<div style="font-size: 40px; margin-bottom: 5px;">\uD83D\uDCD6</div>';
+    var blocSignatureImg = sigUrl ? '<img src="' + sigUrl + '" style="max-height: 55px; max-width: 180px; margin-top: 8px; display: block; margin-left: auto;">' : '';
+    var blocSignatureTxt = signatureTxt ? '<p style="font-size: 13px; font-weight: bold; color: #004AAD; margin: 5px 0 0 0;">' + signatureTxt + '</p>' : '';
+    return '<div style="background: white; border: 3px solid #004AAD; border-radius: 15px; overflow: hidden; font-family: Arial, sans-serif;">'
+        + '<div style="background: linear-gradient(135deg, #004AAD 0%, #0066CC 100%); padding: 20px 15px; text-align: center;">'
+        + blocLogo
+        + '<h1 style="color: white; font-size: 20px; font-weight: bold; margin: 5px 0; letter-spacing: 1px;">EDU-LINK</h1>'
+        + '<p style="color: rgba(255,255,255,0.9); font-size: 12px; margin: 0;">' + ecoleNomSec + '</p>'
+        + '</div>'
+        + '<div style="padding: 20px;">'
+        + '<div style="text-align: center; background: #f0f7ff; padding: 12px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #004AAD;">'
+        + '<p style="font-size: 11px; color: #004AAD; font-weight: bold; margin: 0 0 5px 0; letter-spacing: 2px;">\uD83D\uDCE2 COMMUNICATION OFFICIELLE</p>'
+        + '<h2 style="font-size: 18px; font-weight: bold; color: #004AAD; margin: 0;">' + titre + '</h2>'
+        + '</div>'
+        + '<div style="background: #f9fafb; padding: 15px; border-radius: 10px; margin-bottom: 20px;">'
+        + '<p style="font-size: 13px; color: #1f2937; line-height: 1.8; margin: 0; white-space: pre-wrap; text-align: justify;">' + contenu + '</p>'
+        + '</div>'
+        + '<div style="text-align: right; margin-top: 25px; padding-top: 15px; border-top: 1px solid #e5e7eb;">'
+        + '<p style="font-size: 11px; color: #6b7280; margin: 0;">Publiee le ' + datePub + '</p>'
+        + blocSignatureImg
+        + blocSignatureTxt
+        + '</div>'
+        + '</div>'
+        + '<div style="background: #004AAD; padding: 8px; text-align: center;">'
+        + '<p style="color: white; font-size: 9px; margin: 0;">Document officiel - EDU-LINK</p>'
+        + '</div>'
+        + '</div>';
 }
