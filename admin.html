@@ -97,7 +97,10 @@ Administration</title>
                                 <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-xl">📄</div>
                                 <span class="text-[10px] font-bold text-gray-800 text-center leading-tight">Bulletins</span>
                             </button>
-                            <button onclick="afficherPaiementsV2()" class="bouton-action bg-white p-3 rounded-2xl shadow-sm border-2 border-edu-green flex flex-col items-center gap-1 hover:shadow-md">
+ <button onclick="afficherHeuresProfs()" class="bouton-action bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-1 hover:shadow-md">
+                                <div class="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center text-xl">🕐</div>
+                                <span class="text-[10px] font-bold text-gray-800 text-center leading-tight">Heures profs</span>
+                            </button>                           <button onclick="afficherPaiementsV2()" class="bouton-action bg-white p-3 rounded-2xl shadow-sm border-2 border-edu-green flex flex-col items-center gap-1 hover:shadow-md">
                                 <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-xl">💰</div>
                                 <span class="text-[10px] font-bold text-edu-green text-center leading-tight">Paiements</span>
                             </button>
@@ -804,6 +807,30 @@ Administration</title>
                     </div>
 
                     <div id="bc-apercu" class="space-y-2"></div>
+                </div>
+<div id="view-heures-profs" class="hidden fade-in">
+                    <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
+                    <h1 class="text-lg font-bold text-gray-800 mb-2">🕐 Heures d'enseignement</h1>
+                    <p class="text-xs text-gray-500 mb-3">Suivi des cours dispenses par vos enseignants.</p>
+
+                    <div class="grid grid-cols-3 gap-2 mb-3">
+                        <button id="hp-periode-jour" onclick="setPeriodeHeuresAdmin('jour')" class="py-2 rounded-xl font-bold text-[10px] bg-gray-100 text-gray-600">Aujourd'hui</button>
+                        <button id="hp-periode-semaine" onclick="setPeriodeHeuresAdmin('semaine')" class="py-2 rounded-xl font-bold text-[10px] bg-edu-blue text-white">Semaine</button>
+                        <button id="hp-periode-mois" onclick="setPeriodeHeuresAdmin('mois')" class="py-2 rounded-xl font-bold text-[10px] bg-gray-100 text-gray-600">Mois</button>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 mb-3 space-y-2">
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="date" id="hp-date-debut" class="px-3 py-2 rounded-xl border border-gray-300 text-xs">
+                            <input type="date" id="hp-date-fin" class="px-3 py-2 rounded-xl border border-gray-300 text-xs">
+                        </div>
+                        <select id="hp-filtre-prof" onchange="chargerHeuresProfs()" class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white text-xs">
+                            <option value="">Tous les enseignants</option>
+                        </select>
+                        <button onclick="chargerHeuresProfs()" class="w-full bg-edu-blue text-white font-bold py-2.5 rounded-xl text-xs">Actualiser</button>
+                    </div>
+
+                    <div id="hp-contenu"></div>
                 </div>                
                 <div id="view-notifications" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-4">⬅️</button>
@@ -1384,7 +1411,8 @@ const badgeRapide = document.getElementById('badge-demandes-rapide');
             { id: 'absences', label: 'Absences', emoji: '⚠️' },
             { id: 'annonces', label: 'Annonces', emoji: '📢' },
             { id: 'paiements', label: 'Paiements', emoji: '💰' },
-            { id: 'notes', label: 'Notes et moyennes', emoji: '📝' }
+            { id: 'notes', label: 'Notes et moyennes', emoji: '📝' },
+            { id: 'heures', label: 'Heures d\'enseignement', emoji: '🕐' }
         ];
         let staffPermissionsTemp = {};
 
@@ -4246,6 +4274,451 @@ async function ficheElevePDF() {
             } finally {
                 btn.disabled = false;
                 btn.innerText = '📥 Generer les bulletins';
+            }
+        }
+// ============ PAIEMENTS V2 ============
+        let pv2TousEleves = [];
+        let pv2TousPaiements = [];
+        let pv2ToutesClasses = [];
+
+        async function afficherPaiementsV2() {
+            hideAllViews();
+            document.getElementById('view-paiements-v2').classList.remove('hidden');
+            document.getElementById('pv2-liste').innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
+            document.getElementById('pv2-stats').innerHTML = '';
+            await pv2ChargerDonnees();
+            pv2RemplirSelectClasses();
+            pv2Filtrer();
+            window.scrollTo(0, 0);
+        }
+
+        async function pv2ChargerDonnees() {
+            const { data: classes } = await supabaseClient.from('classes').select('id, nom, frais_scolarite').eq('ecole_id', monEcoleId).order('nom');
+            pv2ToutesClasses = classes || [];
+
+            const { data: eleves } = await supabaseClient.from('eleves').select('id, matricule, classe_id, utilisateur_id, utilisateurs!utilisateur_id(prenom, nom), classes(nom, frais_scolarite)').eq('ecole_id', monEcoleId);
+            pv2TousEleves = eleves || [];
+
+            const { data: paiements } = await supabaseClient.from('paiements').select('id, eleve_id, montant, type_paiement, statut, methode, date_paiement').eq('ecole_id', monEcoleId).order('date_paiement', { ascending: false });
+            pv2TousPaiements = paiements || [];
+
+            pv2CalculerSoldes();
+        }
+
+        function pv2CalculerSoldes() {
+            const payesParEleve = {};
+            const tousParEleve = {};
+            pv2TousPaiements.forEach(p => {
+                if (!tousParEleve[p.eleve_id]) tousParEleve[p.eleve_id] = [];
+                tousParEleve[p.eleve_id].push(p);
+                if (p.statut === 'paye') {
+                    payesParEleve[p.eleve_id] = (payesParEleve[p.eleve_id] || 0) + parseFloat(p.montant);
+                }
+            });
+            pv2TousEleves.forEach(e => {
+                const frais = e.classes && e.classes.frais_scolarite ? parseFloat(e.classes.frais_scolarite) : 0;
+                const paye = payesParEleve[e.id] || 0;
+                e._frais = frais;
+                e._paye = paye;
+                e._solde = frais - paye;
+                e._paiements = tousParEleve[e.id] || [];
+                if (frais === 0) e._statut = 'ajour';
+                else if (paye >= frais) e._statut = 'ajour';
+                else if (paye > 0) e._statut = 'partiel';
+                else e._statut = 'retard';
+            });
+        }
+
+        function pv2RemplirSelectClasses() {
+            const sel = document.getElementById('pv2-classe');
+            sel.innerHTML = '<option value="">Toutes les classes</option>';
+            pv2ToutesClasses.forEach(c => {
+                sel.innerHTML += '<option value="' + c.id + '">' + c.nom + '</option>';
+            });
+        }
+
+        function pv2AfficherStats() {
+            const conteneur = document.getElementById('pv2-stats');
+            const totalAttendu = pv2TousEleves.reduce((s, e) => s + (e._frais || 0), 0);
+            const totalEncaisse = pv2TousEleves.reduce((s, e) => s + (e._paye || 0), 0);
+            const totalRestant = totalAttendu - totalEncaisse;
+            const pct = totalAttendu > 0 ? Math.round((totalEncaisse / totalAttendu) * 100) : 0;
+            let html = '<div class="bg-gradient-to-br from-edu-green to-emerald-700 text-white rounded-2xl shadow-lg p-4 mb-2">';
+            html += '<p class="text-[10px] opacity-90 uppercase font-bold mb-1">Taux de recouvrement</p>';
+            html += '<p class="text-3xl font-extrabold">' + pct + '%</p>';
+            html += '<div class="w-full bg-white bg-opacity-20 rounded-full h-2 mt-3"><div class="h-2 rounded-full bg-white" style="width:' + pct + '%"></div></div></div>';
+            html += '<div class="grid grid-cols-2 gap-2 mb-3">';
+            html += '<div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 text-center"><p class="text-[10px] text-gray-500 font-semibold">Attendu</p><p class="text-sm font-extrabold text-edu-blue mt-1">' + totalAttendu.toLocaleString('fr-FR') + '</p><p class="text-[9px] text-gray-400">FCFA</p></div>';
+            html += '<div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 text-center"><p class="text-[10px] text-gray-500 font-semibold">Encaisse</p><p class="text-sm font-extrabold text-edu-green mt-1">' + totalEncaisse.toLocaleString('fr-FR') + '</p><p class="text-[9px] text-gray-400">FCFA</p></div>';
+            html += '<div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 text-center"><p class="text-[10px] text-gray-500 font-semibold">Restant</p><p class="text-sm font-extrabold text-edu-red mt-1">' + totalRestant.toLocaleString('fr-FR') + '</p><p class="text-[9px] text-gray-400">FCFA</p></div>';
+            html += '<div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 text-center"><p class="text-[10px] text-gray-500 font-semibold">Eleves</p><p class="text-sm font-extrabold text-edu-purple mt-1">' + pv2TousEleves.length + '</p><p class="text-[9px] text-gray-400">au total</p></div></div>';
+            conteneur.innerHTML = html;
+        }
+
+        function pv2Filtrer() {
+            const terme = document.getElementById('pv2-recherche').value.toLowerCase().trim();
+            const classeId = document.getElementById('pv2-classe').value;
+            const statut = document.getElementById('pv2-statut').value;
+            let liste = pv2TousEleves.slice();
+            if (classeId) liste = liste.filter(e => e.classe_id == classeId);
+            if (statut) liste = liste.filter(e => e._statut === statut);
+            if (terme) {
+                liste = liste.filter(e => {
+                    const nom = (e.utilisateurs ? (e.utilisateurs.prenom + ' ' + e.utilisateurs.nom) : '').toLowerCase();
+                    const mat = (e.matricule || '').toLowerCase();
+                    return nom.indexOf(terme) !== -1 || mat.indexOf(terme) !== -1;
+                });
+            }
+            liste.sort((a, b) => {
+                const ordre = { retard: 0, partiel: 1, ajour: 2 };
+                if (ordre[a._statut] !== ordre[b._statut]) return ordre[a._statut] - ordre[b._statut];
+                return b._solde - a._solde;
+            });
+            document.getElementById('pv2-nb-resultats').innerText = liste.length;
+            pv2AfficherStats();
+            pv2AfficherListe(liste);
+        }
+
+        function pv2AfficherListe(liste) {
+            const conteneur = document.getElementById('pv2-liste');
+            if (liste.length === 0) {
+                conteneur.innerHTML = '<div class="bg-white p-8 rounded-2xl shadow-sm text-center"><p class="text-gray-500 text-sm">Aucun eleve trouve.</p></div>';
+                return;
+            }
+            const limite = liste.slice(0, 100);
+            let html = '';
+            limite.forEach(e => {
+                const prenom = e.utilisateurs ? e.utilisateurs.prenom : '?';
+                const nom = e.utilisateurs ? e.utilisateurs.nom : '?';
+                const classeNom = e.classes ? e.classes.nom : 'Sans classe';
+                const initiale = prenom.charAt(0).toUpperCase();
+                let badgeStatut = '', couleurBadge = '', couleurBar = '';
+                if (e._statut === 'ajour') { badgeStatut = 'A JOUR'; couleurBadge = 'bg-green-100 text-edu-green'; couleurBar = '#2EAD5E'; }
+                else if (e._statut === 'partiel') { badgeStatut = 'PARTIEL'; couleurBadge = 'bg-orange-100 text-edu-orange'; couleurBar = '#F59E0B'; }
+                else { badgeStatut = 'IMPAYE'; couleurBadge = 'bg-red-100 text-edu-red'; couleurBar = '#EF4444'; }
+                const pct = e._frais > 0 ? Math.min(100, Math.round((e._paye / e._frais) * 100)) : 100;
+                const soldeTxt = e._solde > 0 ? e._solde.toLocaleString('fr-FR') + ' F' : 'Solde';
+                const soldeCouleur = e._solde > 0 ? 'text-edu-red' : 'text-edu-green';
+                html += '<div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100">';
+                html += '<div class="flex items-center gap-3 mb-2">';
+                html += '<div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0" style="background:linear-gradient(135deg,#004AAD,#2EAD5E);">' + initiale + '</div>';
+                html += '<div class="flex-1 min-w-0"><p class="text-xs font-bold text-gray-800 truncate">' + prenom + ' ' + nom + '</p>';
+                html += '<p class="text-[10px] text-gray-500">' + (e.matricule || '') + ' - ' + classeNom + '</p></div>';
+                html += '<span class="' + couleurBadge + ' text-[9px] font-bold px-2 py-1 rounded">' + badgeStatut + '</span></div>';
+                html += '<div class="flex items-center gap-2 mb-2">';
+                html += '<div class="flex-1 bg-gray-100 rounded-full h-1.5 overflow-hidden"><div class="h-1.5 rounded-full" style="width:' + pct + '%;background:' + couleurBar + '"></div></div>';
+                html += '<span class="text-[10px] font-bold text-gray-700">' + pct + '%</span></div>';
+                html += '<div class="flex justify-between items-center text-[10px] mb-2">';
+                html += '<span class="text-gray-500">Paye : <b>' + e._paye.toLocaleString('fr-FR') + ' F</b></span>';
+                html += '<span class="' + soldeCouleur + ' font-bold">' + soldeTxt + '</span></div>';
+                html += '<button onclick="pv2OuvrirEleve(' + e.id + ')" class="w-full bg-blue-50 text-edu-blue font-bold py-2 rounded-lg text-xs">Voir la fiche</button>';
+                html += '</div>';
+            });
+            if (liste.length > 100) {
+                html += '<p class="text-center text-[10px] text-gray-400 py-2">' + (liste.length - 100) + ' autres resultats - Affinez la recherche</p>';
+            }
+            conteneur.innerHTML = html;
+        }
+
+        function pv2Reset() {
+            document.getElementById('pv2-recherche').value = '';
+            document.getElementById('pv2-classe').value = '';
+            document.getElementById('pv2-statut').value = '';
+            pv2Filtrer();
+        }
+
+        async function pv2OuvrirEleve(eleveId) {
+            hideAllViews();
+            document.getElementById('view-paiements-eleve').classList.remove('hidden');
+            const e = pv2TousEleves.find(x => x.id === eleveId);
+            if (!e) { document.getElementById('pve-contenu').innerHTML = '<p class="text-red-500">Eleve introuvable.</p>'; return; }
+            const prenom = e.utilisateurs ? e.utilisateurs.prenom : '?';
+            const nom = e.utilisateurs ? e.utilisateurs.nom : '?';
+            const classeNom = e.classes ? e.classes.nom : 'Sans classe';
+            const initiale = prenom.charAt(0).toUpperCase();
+            let couleurBadge = '', badgeStatut = '';
+            if (e._statut === 'ajour') { badgeStatut = 'A JOUR'; couleurBadge = 'bg-green-100 text-edu-green'; }
+            else if (e._statut === 'partiel') { badgeStatut = 'PARTIEL'; couleurBadge = 'bg-orange-100 text-edu-orange'; }
+            else { badgeStatut = 'IMPAYE'; couleurBadge = 'bg-red-100 text-edu-red'; }
+            let html = '';
+            html += '<div class="bg-gradient-to-br from-edu-blue to-blue-700 text-white rounded-2xl shadow-lg p-4 mb-3">';
+            html += '<div class="flex items-center gap-3 mb-3">';
+            html += '<div class="w-14 h-14 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-white font-bold text-xl">' + initiale + '</div>';
+            html += '<div class="flex-1 min-w-0"><p class="text-base font-bold truncate">' + prenom + ' ' + nom + '</p><p class="text-[11px] opacity-90">' + (e.matricule || '') + ' - ' + classeNom + '</p></div>';
+            html += '<span class="' + couleurBadge + ' text-[9px] font-bold px-2 py-1 rounded">' + badgeStatut + '</span></div>';
+            html += '<div class="grid grid-cols-3 gap-2 text-center">';
+            html += '<div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-90">Frais</p><p class="text-xs font-bold mt-0.5">' + e._frais.toLocaleString('fr-FR') + '</p></div>';
+            html += '<div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-90">Paye</p><p class="text-xs font-bold mt-0.5">' + e._paye.toLocaleString('fr-FR') + '</p></div>';
+            html += '<div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-90">Solde</p><p class="text-xs font-bold mt-0.5">' + e._solde.toLocaleString('fr-FR') + '</p></div>';
+            html += '</div></div>';
+            html += '<button onclick="pv2OuvrirFormPaiement(' + e.id + ')" class="w-full bg-edu-green text-white font-bold py-3 rounded-xl mb-3">+ Ajouter un paiement</button>';
+            html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">';
+            html += '<p class="text-sm font-bold text-gray-800 mb-3">Historique des paiements</p>';
+            if (e._paiements.length === 0) {
+                html += '<p class="text-xs text-gray-400 text-center py-4">Aucun paiement enregistre.</p>';
+            } else {
+                e._paiements.forEach(p => {
+                    const dateStr = p.date_paiement ? new Date(p.date_paiement).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+                    const statutColor = p.statut === 'paye' ? 'text-edu-green' : (p.statut === 'en_attente' ? 'text-edu-orange' : 'text-edu-red');
+                    const statutTxt = p.statut === 'paye' ? 'Paye' : (p.statut === 'en_attente' ? 'En attente' : 'Echoue');
+                    html += '<div class="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">';
+                    html += '<div><p class="text-xs font-bold text-gray-800">' + p.type_paiement + '</p><p class="text-[10px] text-gray-500">' + dateStr + ' - ' + p.methode + '</p></div>';
+                    html += '<div class="text-right"><p class="text-sm font-extrabold text-gray-800">' + parseFloat(p.montant).toLocaleString('fr-FR') + ' F</p><p class="text-[10px] font-semibold ' + statutColor + '">' + statutTxt + '</p></div>';
+                    html += '</div>';
+                });
+            }
+            html += '</div>';
+            document.getElementById('pve-contenu').innerHTML = html;
+            window.scrollTo(0, 0);
+        }
+
+        function pv2RetourContext() {
+            hideAllViews();
+            document.getElementById('view-paiements-v2').classList.remove('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        async function pv2OuvrirFormPaiement(eleveId) {
+            hideAllViews();
+            document.getElementById('view-form-paiement').classList.remove('hidden');
+            document.getElementById('message-paiement').innerText = '';
+            document.getElementById('info-solde').classList.add('hidden');
+            document.getElementById('paiement-montant').value = '';
+            const { data: eleves } = await supabaseClient.from('eleves').select('id, matricule, classe_id, utilisateurs!utilisateur_id(prenom, nom), classes(nom, frais_scolarite)').eq('ecole_id', monEcoleId).order('id', { ascending: false });
+            listeElevesGlobal = eleves || [];
+            const sel = document.getElementById('paiement-eleve');
+            sel.innerHTML = '<option value="">Selectionnez un eleve</option>';
+            if (eleves) eleves.forEach(e => {
+                const opt = document.createElement('option');
+                opt.value = e.id;
+                opt.text = e.utilisateurs.prenom + ' ' + e.utilisateurs.nom + ' - ' + (e.classes ? e.classes.nom : '');
+                if (e.id === eleveId) opt.selected = true;
+                sel.appendChild(opt);
+            });
+            afficherSoldeEleve();
+            window.scrollTo(0, 0);
+        }
+// ============ HEURES PROFS (ADMIN) ============
+        let hpPeriode = 'semaine';
+        let hpTousProfs = [];
+
+        async function afficherHeuresProfs() {
+            hideAllViews();
+            document.getElementById('view-heures-profs').classList.remove('hidden');
+
+            // Charger la liste des profs (1 seule fois)
+            if (hpTousProfs.length === 0) {
+                const { data: users } = await supabaseClient.from('utilisateurs').select('id, prenom, nom').eq('ecole_id', monEcoleId).eq('role', 'enseignant').order('nom');
+                const { data: ens } = await supabaseClient.from('enseignants').select('id, utilisateur_id');
+                const userIds = (users || []).map(u => u.id);
+                const ensFiltres = (ens || []).filter(e => userIds.includes(e.utilisateur_id));
+                const mapUser = {};
+                (users || []).forEach(u => { mapUser[u.id] = u.prenom + ' ' + u.nom; });
+                hpTousProfs = ensFiltres.map(e => ({ ensId: e.id, nom: mapUser[e.utilisateur_id] || '?' }));
+                const sel = document.getElementById('hp-filtre-prof');
+                hpTousProfs.forEach(p => { sel.innerHTML += '<option value="' + p.ensId + '">' + p.nom + '</option>'; });
+            }
+
+            setPeriodeHeuresAdmin('semaine');
+            window.scrollTo(0, 0);
+        }
+
+        function setPeriodeHeuresAdmin(p) {
+            hpPeriode = p;
+            ['jour', 'semaine', 'mois'].forEach(x => {
+                const btn = document.getElementById('hp-periode-' + x);
+                if (btn) btn.className = x === p
+                    ? 'py-2 rounded-xl font-bold text-[10px] bg-edu-blue text-white'
+                    : 'py-2 rounded-xl font-bold text-[10px] bg-gray-100 text-gray-600';
+            });
+            const d = calculerDatesHeures(p);
+            document.getElementById('hp-date-debut').value = d.debut;
+            document.getElementById('hp-date-fin').value = d.fin;
+            chargerHeuresProfs();
+        }
+
+        async function chargerHeuresProfs() {
+            const conteneur = document.getElementById('hp-contenu');
+            conteneur.innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
+
+            const debut = document.getElementById('hp-date-debut').value;
+            const fin = document.getElementById('hp-date-fin').value;
+            const profFiltre = document.getElementById('hp-filtre-prof').value;
+
+            if (!debut || !fin) { conteneur.innerHTML = '<p class="text-orange-500 text-center py-4 text-sm">Selectionnez une periode.</p>'; return; }
+
+            let q = supabaseClient.from('pointages')
+                .select('*, classes(nom), enseignants(utilisateurs!utilisateur_id(prenom, nom))')
+                .eq('ecole_id', monEcoleId)
+                .gte('date_pointage', debut)
+                .lte('date_pointage', fin)
+                .order('date_pointage', { ascending: false });
+
+            if (profFiltre) q = q.eq('enseignant_id', parseInt(profFiltre));
+
+            const { data } = await q;
+            const liste = data || [];
+
+            const totalMin = liste.reduce((s, p) => s + (p.duree_minutes || 0), 0);
+            const totalHeures = (totalMin / 60).toFixed(1);
+            const nbCours = liste.length;
+            const nbProfsActifs = new Set(liste.map(p => p.enseignant_id)).size;
+
+            let html = '';
+            html += '<div class="bg-gradient-to-br from-teal-500 to-cyan-600 text-white rounded-2xl shadow-lg p-4 mb-3">';
+            html += '<p class="text-[10px] opacity-90 uppercase font-bold">Total heures ecole</p>';
+            html += '<p class="text-4xl font-extrabold mt-1">' + totalHeures + 'h</p>';
+            html += '<div class="grid grid-cols-3 gap-2 mt-3 text-center">';
+            html += '<div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-90">Cours</p><p class="text-base font-bold">' + nbCours + '</p></div>';
+            html += '<div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-90">Profs actifs</p><p class="text-base font-bold">' + nbProfsActifs + '</p></div>';
+            html += '<div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-90">Moy/prof</p><p class="text-base font-bold">' + (nbProfsActifs > 0 ? (totalMin / 60 / nbProfsActifs).toFixed(1) : '0') + 'h</p></div>';
+            html += '</div></div>';
+
+            if (liste.length === 0) {
+                html += '<div class="bg-white p-8 rounded-2xl shadow-sm text-center"><div class="text-5xl mb-2">📭</div><p class="text-gray-500 text-sm">Aucun cours pointe sur cette periode.</p></div>';
+                conteneur.innerHTML = html;
+                return;
+            }
+
+            // Grouper par prof
+            const parProf = {};
+            liste.forEach(p => {
+                const id = p.enseignant_id;
+                if (!parProf[id]) parProf[id] = { total: 0, nb: 0, nom: '?' };
+                const u = p.enseignants && p.enseignants.utilisateurs;
+                parProf[id].nom = u ? u.prenom + ' ' + u.nom : 'Prof #' + id;
+                parProf[id].total += p.duree_minutes;
+                parProf[id].nb++;
+            });
+
+            const profsTries = Object.values(parProf).sort((a, b) => b.total - a.total);
+            const maxTotal = Math.max(...profsTries.map(p => p.total), 1);
+
+            html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">';
+            html += '<div class="flex justify-between items-center mb-3"><p class="text-sm font-bold text-gray-800">Classement des profs</p>';
+            html += '<button onclick="exportHeuresProfsPDF(this)" class="bg-edu-blue text-white text-[10px] font-bold px-3 py-1.5 rounded-lg">📥 PDF</button></div>';
+
+            profsTries.forEach((p, idx) => {
+                const pct = Math.round((p.total / maxTotal) * 100);
+                const couleur = idx === 0 ? '#004AAD' : (idx < 3 ? '#2EAD5E' : '#6b7280');
+                html += '<div class="mb-3 last:mb-0">';
+                html += '<div class="flex justify-between items-center mb-1"><span class="text-xs font-bold text-gray-800">' + (idx + 1) + '. ' + p.nom + '</span>';
+                html += '<span class="text-xs font-bold" style="color:' + couleur + '">' + (p.total / 60).toFixed(1) + 'h</span></div>';
+                html += '<div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden"><div class="h-2 rounded-full" style="width:' + pct + '%;background:' + couleur + '"></div></div>';
+                html += '<p class="text-[10px] text-gray-500 mt-0.5">' + p.nb + ' cours</p>';
+                html += '</div>';
+            });
+            html += '</div>';
+
+            // Detail par jour
+            const parDate = {};
+            liste.forEach(p => {
+                if (!parDate[p.date_pointage]) parDate[p.date_pointage] = [];
+                parDate[p.date_pointage].push(p);
+            });
+            const datesTriees = Object.keys(parDate).sort().reverse();
+
+            html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">';
+            html += '<p class="text-sm font-bold text-gray-800 mb-3">Detail par jour</p>';
+
+            datesTriees.slice(0, 15).forEach(date => {
+                const points = parDate[date];
+                const dateMin = points.reduce((s, p) => s + p.duree_minutes, 0);
+                const dateStr = new Date(date + 'T00:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+
+                html += '<div class="border-b border-gray-100 last:border-b-0 pb-2 mb-2 last:pb-0 last:mb-0">';
+                html += '<div class="flex justify-between items-center mb-1">';
+                html += '<p class="text-xs font-bold text-gray-700 capitalize">' + dateStr + '</p>';
+                html += '<p class="text-xs font-bold text-edu-teal">' + (dateMin / 60).toFixed(1) + 'h</p>';
+                html += '</div>';
+                points.forEach(p => {
+                    const u = p.enseignants && p.enseignants.utilisateurs;
+                    const profNom = u ? u.prenom + ' ' + u.nom : '?';
+                    const classeNom = p.classes ? p.classes.nom : 'Sans classe';
+                    const hDebut = p.heure_debut ? p.heure_debut.substring(0, 5) : '';
+                    const hFin = p.heure_fin ? p.heure_fin.substring(0, 5) : '';
+                    html += '<div class="flex items-center gap-2 py-0.5 text-[10px] text-gray-600">';
+                    html += '<span class="font-semibold bg-gray-100 px-1.5 py-0.5 rounded">' + hDebut + '</span>';
+                    html += '<span class="flex-1 truncate"><b>' + profNom + '</b> - ' + p.matiere + ' - ' + classeNom + '</span>';
+                    html += '<span class="font-bold">' + (p.duree_minutes / 60).toFixed(1) + 'h</span>';
+                    html += '</div>';
+                });
+                html += '</div>';
+            });
+
+            if (datesTriees.length > 15) html += '<p class="text-[10px] text-gray-400 text-center mt-2">... et ' + (datesTriees.length - 15) + ' autres jours</p>';
+            html += '</div>';
+
+            conteneur.innerHTML = html;
+            window._hpDonneesActuelles = { liste, totalMin, nbCours, nbProfsActifs, profsTries, debut, fin };
+        }
+
+        async function exportHeuresProfsPDF(btn) {
+            const d = window._hpDonneesActuelles;
+            if (!d) { alert('Aucune donnee a exporter.'); return; }
+
+            const spanOrig = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '⏳';
+
+            let iframe = null;
+            try {
+                const ecoleNom = document.getElementById('ecole-nom-affiche').innerText.replace('🏫 ', '');
+                const dateJour = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+                let lignes = '';
+                d.profsTries.forEach((p, idx) => {
+                    lignes += '<tr><td style="padding:6px;border:1px solid #d1d5db;font-size:11px;text-align:center;color:#6b7280;">' + (idx + 1) + '</td><td style="padding:6px;border:1px solid #d1d5db;font-size:11px;font-weight:600;">' + p.nom + '</td><td style="padding:6px;border:1px solid #d1d5db;font-size:11px;text-align:center;">' + p.nb + '</td><td style="padding:6px;border:1px solid #d1d5db;font-size:12px;text-align:center;font-weight:700;color:#0D9488;">' + (p.total / 60).toFixed(1) + 'h</td></tr>';
+                });
+
+                const htmlInterne = '<div style="background:white;padding:20px;border:2px solid #004AAD;border-radius:12px;font-family:Arial,sans-serif;">'
+                    + '<div style="text-align:center;border-bottom:2px solid #004AAD;padding-bottom:10px;margin-bottom:14px;"><h1 style="font-size:18px;color:#004AAD;margin:4px 0;">EDU-LINK</h1>'
+                    + '<p style="font-size:10px;color:#6b7280;margin:0;">' + ecoleNom + '</p>'
+                    + '<p style="font-size:14px;font-weight:bold;margin-top:6px;">RAPPORT HEURES D ENSEIGNEMENT</p>'
+                    + '<p style="font-size:11px;margin:2px 0;">Du <b>' + d.debut + '</b> au <b>' + d.fin + '</b></p></div>'
+                    + '<table style="width:100%;border-collapse:collapse;margin-bottom:12px;"><tr>'
+                    + '<td style="text-align:center;padding:8px;background:#f0fdfa;border:1px solid #d1d5db;"><p style="font-size:9px;margin:0;">Total heures</p><p style="font-size:18px;font-weight:bold;color:#0D9488;margin:2px 0 0 0;">' + (d.totalMin / 60).toFixed(1) + 'h</p></td>'
+                    + '<td style="text-align:center;padding:8px;background:#f0fdfa;border:1px solid #d1d5db;"><p style="font-size:9px;margin:0;">Cours donnes</p><p style="font-size:18px;font-weight:bold;color:#0D9488;margin:2px 0 0 0;">' + d.nbCours + '</p></td>'
+                    + '<td style="text-align:center;padding:8px;background:#f0fdfa;border:1px solid #d1d5db;"><p style="font-size:9px;margin:0;">Profs actifs</p><p style="font-size:18px;font-weight:bold;color:#0D9488;margin:2px 0 0 0;">' + d.nbProfsActifs + '</p></td></tr></table>'
+                    + '<table style="width:100%;border-collapse:collapse;"><thead><tr style="background:#004AAD;">'
+                    + '<th style="border:1px solid #004AAD;padding:6px;font-size:10px;color:white;width:40px;">#</th>'
+                    + '<th style="border:1px solid #004AAD;padding:6px;font-size:10px;color:white;text-align:left;">Enseignant</th>'
+                    + '<th style="border:1px solid #004AAD;padding:6px;font-size:10px;color:white;width:70px;">Cours</th>'
+                    + '<th style="border:1px solid #004AAD;padding:6px;font-size:10px;color:white;width:80px;">Total</th>'
+                    + '</tr></thead><tbody>' + lignes + '</tbody></table>'
+                    + '<p style="text-align:center;font-size:8px;color:#9ca3af;margin-top:14px;">Genere par EDU-LINK - ' + dateJour + '</p></div>';
+
+                iframe = document.createElement('iframe');
+                iframe.style.cssText = 'position:fixed;top:0;left:0;width:800px;height:1100px;opacity:0;pointer-events:none;z-index:-1;border:none;';
+                document.body.appendChild(iframe);
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                doc.open();
+                doc.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{margin:0;padding:20px;background:#fff;font-family:Arial,sans-serif;}</style></head><body>' + htmlInterne + '</body></html>');
+                doc.close();
+                await new Promise(r => setTimeout(r, 500));
+
+                const nomFichier = 'Heures_Enseignement_' + d.debut + '_' + d.fin + '.pdf';
+                const options = { margin: 10, filename: nomFichier, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', width: 800, windowWidth: 800, scrollX: 0, scrollY: 0 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+                const pdfBlob = await html2pdf().set(options).from(doc.body).outputPdf('blob');
+                const fichier = new File([pdfBlob], nomFichier, { type: 'application/pdf' });
+                document.body.removeChild(iframe); iframe = null;
+
+                // Methode 1 : partage natif (mobile)
+                if (navigator.canShare && navigator.canShare({ files: [fichier] })) {
+                    await navigator.share({ files: [fichier], title: 'Heures enseignement' });
+                } else {
+                    // Methode 2 : nouvel onglet (l'utilisateur peut sauvegarder)
+                    const url = URL.createObjectURL(pdfBlob);
+                    window.open(url, '_blank');
+                    setTimeout(() => URL.revokeObjectURL(url), 60000);
+                }
+            } catch (err) {
+                if (iframe && document.body.contains(iframe)) document.body.removeChild(iframe);
+                if (err.name === 'AbortError') return;
+                alert('Erreur : ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = spanOrig;
             }
         }
 

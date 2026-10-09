@@ -126,7 +126,13 @@
                         <div class="flex-1 text-left"><p class="text-sm font-bold">Notes saisies</p><p class="text-[10px] opacity-90">Modifier ou supprimer une note</p></div>
                         <span class="text-xl">→</span>
                     </button>
-<button onclick="afficherMesRessources()" class="bouton-action w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
+<button onclick="afficherMesHeures()" class="bouton-action w-full bg-gradient-to-r from-teal-500 to-cyan-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
+                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">🕐</div>
+                        <div class="flex-1 text-left"><p class="text-sm font-bold">Mes heures</p><p class="text-[10px] opacity-90">Suivi des cours dispenses</p></div>
+                        <span class="text-xl">→</span>
+                    </button>
+<button
+onclick="afficherMesRessources()" class="bouton-action w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
                         <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">📚</div>
                         <div class="flex-1 text-left"><p class="text-sm font-bold">Mes ressources pedagogiques</p><p class="text-[10px] opacity-90">Programmes, lecons, exercices</p></div>
                         <span class="text-xl">→</span>
@@ -433,6 +439,28 @@
                     </div>
 
                     <div id="ns-liste" class="space-y-2"></div>
+                </div>
+<div id="view-mes-heures" class="hidden fade-in">
+                    <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
+                    <h1 class="text-lg font-bold text-gray-800 mb-2">🕐 Mes heures d'enseignement</h1>
+                    <p class="text-xs text-gray-500 mb-3">Suivi des cours que vous avez dispenses.</p>
+
+                    <div class="grid grid-cols-3 gap-2 mb-3">
+                        <button id="mh-periode-jour" onclick="setPeriodeHeures('jour')" class="py-2 rounded-xl font-bold text-[10px] bg-edu-blue text-white">Aujourd'hui</button>
+                        <button id="mh-periode-semaine" onclick="setPeriodeHeures('semaine')" class="py-2 rounded-xl font-bold text-[10px] bg-gray-100 text-gray-600">Semaine</button>
+                        <button id="mh-periode-mois" onclick="setPeriodeHeures('mois')" class="py-2 rounded-xl font-bold text-[10px] bg-gray-100 text-gray-600">Mois</button>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 mb-3">
+                        <p class="text-[10px] font-bold text-gray-700 mb-2">Periode personnalisee</p>
+                        <div class="grid grid-cols-2 gap-2 mb-2">
+                            <input type="date" id="mh-date-debut" class="px-3 py-2 rounded-xl border border-gray-300 text-xs">
+                            <input type="date" id="mh-date-fin" class="px-3 py-2 rounded-xl border border-gray-300 text-xs">
+                        </div>
+                        <button onclick="chargerMesHeures()" class="w-full bg-edu-blue text-white font-bold py-2.5 rounded-xl text-xs">Actualiser</button>
+                    </div>
+
+                    <div id="mh-contenu"></div>
                 </div>
                 <div id="view-notifications" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
@@ -1511,7 +1539,7 @@ async function afficherBadgesClasse() {
             conteneur.innerHTML = html;
         }
 
-        function afficherTableauEmploi(cours) {
+        async function afficherTableauEmploi(cours) {
             const jours = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
             const creneaux = [];
             if (cours && cours.length > 0) {
@@ -1520,6 +1548,21 @@ async function afficherBadgesClasse() {
                 creneaux.sort((a, b) => a.debut.localeCompare(b.debut));
             }
             if (creneaux.length === 0) { creneaux.push({ debut: '08:00', fin: '10:00' }); creneaux.push({ debut: '10:15', fin: '12:15' }); creneaux.push({ debut: '14:00', fin: '16:00' }); creneaux.push({ debut: '16:15', fin: '18:15' }); }
+
+            // Charger les pointages du jour pour cette classe
+            const today = new Date().toISOString().split('T')[0];
+            const { data: pointagesJour } = await supabaseClient
+                .from('pointages')
+                .select('emploi_du_temps_id')
+                .eq('enseignant_id', enseignantId)
+                .eq('date_pointage', today);
+
+            const dejaPointes = {};
+            (pointagesJour || []).forEach(p => { dejaPointes[p.emploi_du_temps_id] = true; });
+
+            const joursSemaine = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+            const jourActuel = joursSemaine[new Date().getDay()];
+
             let html = '<table style="width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">';
             html += '<thead><tr style="background: #2EAD5E;">';
             html += '<th style="padding: 10px 8px; color: white; font-size: 11px; font-weight: bold; border: 1px solid #2EAD5E; min-width: 70px;">Heure</th>';
@@ -1536,13 +1579,26 @@ async function afficherBadgesClasse() {
                         const bgColor = estMaMatiere ? '#dcfce7' : '#dbeafe';
                         const borderColor = estMaMatiere ? '#2EAD5E' : '#004AAD';
                         const textColor = estMaMatiere ? '#166534' : '#004AAD';
-                        html += '<td style="padding: 6px; border: 1px solid #e5e7eb; vertical-align: top;"><div style="background: ' + bgColor + '; border-left: 3px solid ' + borderColor + '; padding: 6px; border-radius: 5px; min-height: 50px;"><p style="font-size: 10px; font-weight: bold; color: ' + textColor + '; margin: 0; line-height: 1.2;">' + c.matiere + '</p>' + (c.salle ? '<p style="font-size: 8px; color: #6b7280; margin: 2px 0 0 0;">📍 ' + c.salle + '</p>' : '') + '</div></td>';
+
+                        const estAujourdhui = jour === jourActuel;
+                        const estPointe = dejaPointes[c.id];
+
+                        let bouton = '';
+                        if (estMaMatiere && estAujourdhui) {
+                            if (estPointe) {
+                                bouton = '<div style="margin-top: 4px; background: #10b981; color: white; padding: 3px 6px; border-radius: 4px; font-size: 8px; font-weight: bold; text-align: center;">✅ Pointe</div>';
+                            } else {
+                                bouton = '<button onclick="pointerCours(' + c.id + ', this)" style="margin-top: 4px; background: #2EAD5E; color: white; border: none; padding: 3px 6px; border-radius: 4px; font-size: 8px; font-weight: bold; cursor: pointer; width: 100%;">Marquer fait</button>';
+                            }
+                        }
+
+                        html += '<td style="padding: 6px; border: 1px solid #e5e7eb; vertical-align: top;"><div style="background: ' + bgColor + '; border-left: 3px solid ' + borderColor + '; padding: 6px; border-radius: 5px; min-height: 50px;"><p style="font-size: 10px; font-weight: bold; color: ' + textColor + '; margin: 0; line-height: 1.2;">' + c.matiere + '</p>' + (c.salle ? '<p style="font-size: 8px; color: #6b7280; margin: 2px 0 0 0;">📍 ' + c.salle + '</p>' : '') + bouton + '</div></td>';
                     } else html += '<td style="padding: 6px; border: 1px solid #e5e7eb; vertical-align: top;"><div style="min-height: 50px;"></div></td>';
                 });
                 html += '</tr>';
             });
             html += '</tbody></table>';
-            html += '<div class="mt-3 bg-blue-50 border border-blue-100 p-3 rounded-xl"><p class="text-[10px] text-gray-600"><b style="color: #2EAD5E;">Vert</b> = Vos cours (matiere : ' + maMatiere + ')</p></div>';
+            html += '<div class="mt-3 bg-blue-50 border border-blue-100 p-3 rounded-xl"><p class="text-[10px] text-gray-600">💡 <b style="color: #2EAD5E;">Vert</b> = Vos cours - Cliquez sur <b>"Marquer fait"</b> sur le cours du jour pour le pointer.</p></div>';
             document.getElementById('tableau-emploi-enseignant').innerHTML = html;
         }
 
@@ -1998,6 +2054,167 @@ async function afficherSaisieMasse() {
             const { error } = await supabaseClient.from('notes').delete().eq('id', noteId);
             if (error) { alert('Erreur : ' + error.message); return; }
             chargerNotesSaisies();
+        }
+// ============ MES HEURES D'ENSEIGNEMENT ============
+        let mhPeriode = 'semaine';
+
+        async function afficherMesHeures() {
+            hideAllViews();
+            document.getElementById('view-mes-heures').classList.remove('hidden');
+            setPeriodeHeures('semaine');
+            window.scrollTo(0, 0);
+        }
+
+        function setPeriodeHeures(p) {
+            mhPeriode = p;
+            ['jour', 'semaine', 'mois'].forEach(x => {
+                const btn = document.getElementById('mh-periode-' + x);
+                if (btn) btn.className = x === p
+                    ? 'py-2 rounded-xl font-bold text-[10px] bg-edu-blue text-white'
+                    : 'py-2 rounded-xl font-bold text-[10px] bg-gray-100 text-gray-600';
+            });
+            const d = calculerDatesHeures(p);
+            document.getElementById('mh-date-debut').value = d.debut;
+            document.getElementById('mh-date-fin').value = d.fin;
+            chargerMesHeures();
+        }
+
+        function calculerDatesHeures(periode) {
+            const now = new Date();
+            const y = now.getFullYear(), m = now.getMonth(), d = now.getDate();
+            const pad = n => String(n).padStart(2, '0');
+            const fmt = dt => dt.getFullYear() + '-' + pad(dt.getMonth() + 1) + '-' + pad(dt.getDate());
+            let debut, fin;
+            if (periode === 'jour') { debut = fin = fmt(now); }
+            else if (periode === 'semaine') {
+                const day = now.getDay() || 7;
+                const lundi = new Date(now); lundi.setDate(d - day + 1);
+                const dim = new Date(lundi); dim.setDate(lundi.getDate() + 6);
+                debut = fmt(lundi); fin = fmt(dim);
+            } else {
+                debut = fmt(new Date(y, m, 1));
+                fin = fmt(new Date(y, m + 1, 0));
+            }
+            return { debut, fin };
+        }
+
+        async function chargerMesHeures() {
+            const conteneur = document.getElementById('mh-contenu');
+            conteneur.innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
+
+            const debut = document.getElementById('mh-date-debut').value;
+            const fin = document.getElementById('mh-date-fin').value;
+            if (!debut || !fin) { conteneur.innerHTML = '<p class="text-orange-500 text-center py-4 text-sm">Selectionnez une periode.</p>'; return; }
+
+            const { data: pointages } = await supabaseClient
+                .from('pointages')
+                .select('*, classes(nom)')
+                .eq('enseignant_id', enseignantId)
+                .gte('date_pointage', debut)
+                .lte('date_pointage', fin)
+                .order('date_pointage', { ascending: false });
+
+            const liste = pointages || [];
+
+            const totalMin = liste.reduce((s, p) => s + (p.duree_minutes || 0), 0);
+            const totalHeures = (totalMin / 60).toFixed(1);
+            const nbCours = liste.length;
+            const nbJours = new Set(liste.map(p => p.date_pointage)).size;
+
+            let html = '';
+            html += '<div class="bg-gradient-to-br from-teal-500 to-cyan-600 text-white rounded-2xl shadow-lg p-4 mb-3">';
+            html += '<p class="text-[10px] opacity-90 uppercase font-bold">Total heures</p>';
+            html += '<p class="text-4xl font-extrabold mt-1">' + totalHeures + 'h</p>';
+            html += '<div class="grid grid-cols-2 gap-2 mt-3 text-center">';
+            html += '<div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-90">Cours donnes</p><p class="text-lg font-bold">' + nbCours + '</p></div>';
+            html += '<div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-90">Jours actifs</p><p class="text-lg font-bold">' + nbJours + '</p></div>';
+            html += '</div></div>';
+
+            if (liste.length === 0) {
+                html += '<div class="bg-white p-8 rounded-2xl shadow-sm text-center"><div class="text-5xl mb-2">📭</div><p class="text-gray-500 text-sm">Aucun cours pointe sur cette periode.</p><p class="text-[10px] text-gray-400 mt-1">Utilisez le bouton "Cours fait" dans votre emploi du temps.</p></div>';
+                conteneur.innerHTML = html;
+                return;
+            }
+
+            // Grouper par date
+            const parDate = {};
+            liste.forEach(p => {
+                if (!parDate[p.date_pointage]) parDate[p.date_pointage] = [];
+                parDate[p.date_pointage].push(p);
+            });
+
+            const datesTriees = Object.keys(parDate).sort().reverse();
+            html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">';
+            html += '<p class="text-sm font-bold text-gray-800 mb-3">Detail par jour</p>';
+
+            datesTriees.forEach(date => {
+                const points = parDate[date];
+                const dateMin = points.reduce((s, p) => s + p.duree_minutes, 0);
+                const dateStr = new Date(date + 'T00:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+
+                html += '<div class="border-b border-gray-100 last:border-b-0 pb-2 mb-2 last:pb-0 last:mb-0">';
+                html += '<div class="flex justify-between items-center mb-1">';
+                html += '<p class="text-xs font-bold text-gray-700 capitalize">' + dateStr + '</p>';
+                html += '<p class="text-xs font-bold text-edu-teal">' + (dateMin / 60).toFixed(1) + 'h</p>';
+                html += '</div>';
+
+                points.forEach(p => {
+                    const hDebut = p.heure_debut ? p.heure_debut.substring(0, 5) : '';
+                    const hFin = p.heure_fin ? p.heure_fin.substring(0, 5) : '';
+                    const classeNom = p.classes ? p.classes.nom : 'Sans classe';
+                    html += '<div class="flex items-center gap-2 py-1 text-[11px] text-gray-600">';
+                    html += '<span class="text-[10px] font-semibold bg-gray-100 px-2 py-0.5 rounded">' + hDebut + '-' + hFin + '</span>';
+                    html += '<span class="flex-1 truncate">' + p.matiere + ' - ' + classeNom + '</span>';
+                    html += '<span class="font-bold">' + (p.duree_minutes / 60).toFixed(1) + 'h</span>';
+                    html += '</div>';
+                });
+
+                html += '</div>';
+            });
+
+            html += '</div>';
+            conteneur.innerHTML = html;
+        }
+
+        async function pointerCours(emploiId, btn) {
+            const cours = tousLesCoursEns.find(c => c.id === emploiId);
+            if (!cours) return;
+
+            const today = new Date().toISOString().split('T')[0];
+            btn.disabled = true;
+            btn.innerText = '⏳';
+
+            const [hD, mD] = cours.heure_debut.split(':').map(Number);
+            const [hF, mF] = cours.heure_fin.split(':').map(Number);
+            const dureeMin = (hF * 60 + mF) - (hD * 60 + mD);
+
+            try {
+                const { error } = await supabaseClient.from('pointages').insert([{
+                    ecole_id: monEcoleId,
+                    enseignant_id: enseignantId,
+                    classe_id: classeId,
+                    matiere: cours.matiere,
+                    date_pointage: today,
+                    heure_debut: cours.heure_debut,
+                    heure_fin: cours.heure_fin,
+                    duree_minutes: dureeMin,
+                    emploi_du_temps_id: emploiId
+                }]);
+
+                if (error) {
+                    if (error.code === '23505') { alert('Ce cours a deja ete pointe aujourd\'hui.'); }
+                    else throw error;
+                } else {
+                    btn.className = 'bg-green-500 text-white px-3 py-1 rounded-lg text-xs font-bold';
+                    btn.innerText = '✅ Pointe';
+                    btn.disabled = true;
+                    return;
+                }
+            } catch (err) {
+                alert('Erreur : ' + err.message);
+            }
+            btn.disabled = false;
+            btn.innerText = 'Marquer fait';
         }
 
         function seDeconnecter() { sessionStorage.removeItem('eduLinkUser'); window.location.href = 'index.html'; }

@@ -115,7 +115,11 @@
                         <div class="flex-1 text-left"><p class="text-sm font-bold text-gray-800">Annonces de l'ecole</p><p class="text-[10px] text-gray-400">Communications officielles</p></div>
                         <span class="text-xl text-gray-300">→</span>
                     </button>
-
+<button id="btn-nav-heures" onclick="afficherHeuresStaff()" class="bouton-action w-full bg-gradient-to-r from-teal-500 to-cyan-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
+                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">🕐</div>
+                        <div class="flex-1 text-left"><p class="text-sm font-bold">Heures d'enseignement</p><p class="text-[10px] opacity-90">Suivi des cours dispenses</p></div>
+                        <span class="text-xl">→</span>
+                    </button>
                     <button onclick="window.location.href='messagerie.html'" class="bouton-action w-full bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3">
                         <div class="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center text-2xl">💬</div>
                         <div class="flex-1 text-left"><p class="text-sm font-bold text-gray-800">Messagerie</p><p class="text-[10px] text-gray-400">Discuter avec l'equipe</p></div>
@@ -164,7 +168,31 @@
                     <button onclick="afficherAnnonces()" class="text-2xl mb-3">⬅️</button>
                     <div id="contenu-affiche"></div>
                 </div>
+<div id="view-heures-staff" class="hidden fade-in">
+                    <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
+                    <h1 class="text-lg font-bold text-gray-800 mb-2">🕐 Heures d'enseignement</h1>
+                    <p class="text-xs text-gray-500 mb-3">Suivi des cours dispenses par les enseignants.</p>
 
+                    <div class="grid grid-cols-3 gap-2 mb-3">
+                        <button id="hs-periode-jour" onclick="setPeriodeHeuresStaff('jour')" class="py-2 rounded-xl font-bold text-[10px] bg-gray-100 text-gray-600">Aujourd'hui</button>
+                        <button id="hs-periode-semaine" onclick="setPeriodeHeuresStaff('semaine')" class="py-2 rounded-xl font-bold text-[10px] bg-edu-teal text-white">Semaine</button>
+                        <button id="hs-periode-mois" onclick="setPeriodeHeuresStaff('mois')" class="py-2 rounded-xl font-bold text-[10px] bg-gray-100 text-gray-600">Mois</button>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 mb-3 space-y-2">
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="date" id="hs-date-debut" class="px-3 py-2 rounded-xl border border-gray-300 text-xs">
+                            <input type="date" id="hs-date-fin" class="px-3 py-2 rounded-xl border border-gray-300 text-xs">
+                        </div>
+                        <button onclick="chargerHeuresStaff()" class="w-full bg-edu-teal text-white font-bold py-2.5 rounded-xl text-xs">Actualiser</button>
+                    </div>
+
+                    <div class="flex justify-end mb-2">
+                        
+                    </div>
+
+                    <div id="hs-contenu"></div>
+                </div>
                 <div id="view-notifications" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-3">🔔 Mes notifications</h1>
@@ -357,7 +385,7 @@ let mesClassesStaff = [];       // ids de classes
         }
 
         function hideAllViews() {
-            ['view-accueil', 'view-eleves', 'view-emploi-classes', 'view-emploi-classe', 'view-absences', 'view-annonces', 'view-affiche', 'view-notifications'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
         }
 
         // ============ ELEVES ============
@@ -626,12 +654,12 @@ if (!aPermission('annonces')) { alert('Acces refuse.'); return; }
         }
 
         function appliquerPermissions() {
-            // Cache ou affiche les boutons selon les permissions
             const modules = {
                 'eleves': 'btn-nav-eleves',
                 'emploi': 'btn-nav-emploi',
                 'absences': 'btn-nav-absences',
-                'annonces': 'btn-nav-annonces'
+                'annonces': 'btn-nav-annonces',
+                'heures': 'btn-nav-heures'
             };
 
             Object.keys(modules).forEach(mod => {
@@ -641,24 +669,148 @@ if (!aPermission('annonces')) { alert('Acces refuse.'); return; }
                 else btn.classList.add('hidden');
             });
 
+            // IMPORTANT : cacher les VUES non autorisees mais JAMAIS view-accueil
+            document.querySelectorAll('[id^="view-"]').forEach(el => {
+                if (el.id === 'view-accueil') return;
+                el.classList.add('hidden');
+            });
+
+            // Toujours afficher view-accueil
+            const accueil = document.getElementById('view-accueil');
+            if (accueil) accueil.classList.remove('hidden');
+
             // Si aucun module, afficher un message
             const nb = Object.keys(modules).filter(m => aPermission(m)).length;
             if (nb === 0) {
-                const accueil = document.getElementById('view-accueil');
-                if (accueil) {
-                    const existant = document.getElementById('msg-aucun-acces');
-                    if (!existant) {
-                        const msg = document.createElement('div');
-                        msg.id = 'msg-aucun-acces';
-                        msg.className = 'bg-orange-50 border border-orange-200 rounded-2xl p-4 mb-3 text-center';
-                        msg.innerHTML = '<div class="text-3xl mb-2">🔒</div><p class="text-sm font-bold text-edu-orange mb-1">Acces limite</p><p class="text-[11px] text-gray-600">Vous n\'avez acces a aucun module. Contactez l\'administration.</p>';
-                        accueil.appendChild(msg);
-                    }
+                const existant = document.getElementById('msg-aucun-acces');
+                if (!existant && accueil) {
+                    const msg = document.createElement('div');
+                    msg.id = 'msg-aucun-acces';
+                    msg.className = 'bg-orange-50 border border-orange-200 rounded-2xl p-4 mb-3 text-center';
+                    msg.innerHTML = '<div class="text-3xl mb-2">🔒</div><p class="text-sm font-bold text-edu-orange mb-1">Acces limite</p><p class="text-[11px] text-gray-600">Vous n\'avez acces a aucun module. Contactez l\'administration.</p>';
+                    accueil.appendChild(msg);
                 }
             }
+        }
+// ============ HEURES D'ENSEIGNEMENT (STAFF) ============
+        let hsPeriode = 'semaine';
+
+        async function afficherHeuresStaff() {
+            hideAllViews();
+            document.getElementById('view-heures-staff').classList.remove('hidden');
+            setPeriodeHeuresStaff('semaine');
+            window.scrollTo(0, 0);
+        }
+
+        function setPeriodeHeuresStaff(p) {
+            hsPeriode = p;
+            ['jour', 'semaine', 'mois'].forEach(x => {
+                const btn = document.getElementById('hs-periode-' + x);
+                if (btn) btn.className = x === p
+                    ? 'py-2 rounded-xl font-bold text-[10px] bg-edu-teal text-white'
+                    : 'py-2 rounded-xl font-bold text-[10px] bg-gray-100 text-gray-600';
+            });
+            const now = new Date();
+            const y = now.getFullYear(), m = now.getMonth(), d = now.getDate();
+            const pad = n => String(n).padStart(2, '0');
+            const fmt = dt => dt.getFullYear() + '-' + pad(dt.getMonth() + 1) + '-' + pad(dt.getDate());
+            let debut, fin;
+            if (p === 'jour') { debut = fin = fmt(now); }
+            else if (p === 'semaine') {
+                const day = now.getDay() || 7;
+                const lundi = new Date(now); lundi.setDate(d - day + 1);
+                const dim = new Date(lundi); dim.setDate(lundi.getDate() + 6);
+                debut = fmt(lundi); fin = fmt(dim);
+            } else {
+                debut = fmt(new Date(y, m, 1));
+                fin = fmt(new Date(y, m + 1, 0));
+            }
+            document.getElementById('hs-date-debut').value = debut;
+            document.getElementById('hs-date-fin').value = fin;
+            chargerHeuresStaff();
+        }
+
+        async function chargerHeuresStaff() {
+            const conteneur = document.getElementById('hs-contenu');
+            conteneur.innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
+
+            const debut = document.getElementById('hs-date-debut').value;
+            const fin = document.getElementById('hs-date-fin').value;
+            if (!debut || !fin) { conteneur.innerHTML = '<p class="text-orange-500 text-center py-4 text-sm">Selectionnez une periode.</p>'; return; }
+
+            let q = supabaseClient.from('pointages')
+                .select('*, classes(nom), enseignants(utilisateurs!utilisateur_id(prenom, nom))')
+                .eq('ecole_id', monEcoleId)
+                .gte('date_pointage', debut)
+                .lte('date_pointage', fin)
+                .order('date_pointage', { ascending: false });
+
+            // Filtre selon les classes autorisees
+            if (mesClassesStaff.length > 0) {
+                q = q.in('classe_id', mesClassesStaff);
+            }
+
+            const { data } = await q;
+            const liste = data || [];
+
+            const totalMin = liste.reduce((s, p) => s + (p.duree_minutes || 0), 0);
+            const totalHeures = (totalMin / 60).toFixed(1);
+            const nbCours = liste.length;
+            const nbProfsActifs = new Set(liste.map(p => p.enseignant_id)).size;
+
+            let html = '';
+            html += '<div class="bg-gradient-to-br from-teal-500 to-cyan-600 text-white rounded-2xl shadow-lg p-4 mb-3">';
+            html += '<p class="text-[10px] opacity-90 uppercase font-bold">Total heures</p>';
+            html += '<p class="text-4xl font-extrabold mt-1">' + totalHeures + 'h</p>';
+            html += '<div class="grid grid-cols-2 gap-2 mt-3 text-center">';
+            html += '<div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-90">Cours</p><p class="text-base font-bold">' + nbCours + '</p></div>';
+            html += '<div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-90">Profs actifs</p><p class="text-base font-bold">' + nbProfsActifs + '</p></div>';
+            html += '</div></div>';
+
+            if (mesClassesStaff.length > 0) {
+                html += '<div class="bg-teal-50 border border-teal-100 p-3 rounded-xl mb-3"><p class="text-[10px] text-teal-700 font-bold">Vos classes uniquement</p></div>';
+            }
+
+            if (liste.length === 0) {
+                html += '<div class="bg-white p-8 rounded-2xl shadow-sm text-center"><div class="text-5xl mb-2">📭</div><p class="text-gray-500 text-sm">Aucun cours pointe sur cette periode.</p></div>';
+                conteneur.innerHTML = html;
+                return;
+            }
+
+            // Grouper par prof
+            const parProf = {};
+            liste.forEach(p => {
+                const id = p.enseignant_id;
+                if (!parProf[id]) parProf[id] = { total: 0, nb: 0, nom: '?' };
+                const u = p.enseignants && p.enseignants.utilisateurs;
+                parProf[id].nom = u ? u.prenom + ' ' + u.nom : 'Prof #' + id;
+                parProf[id].total += p.duree_minutes;
+                parProf[id].nb++;
+            });
+
+            const profsTries = Object.values(parProf).sort((a, b) => b.total - a.total);
+            const maxTotal = Math.max(...profsTries.map(p => p.total), 1);
+
+            html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">';
+            html += '<p class="text-sm font-bold text-gray-800 mb-3">Classement des profs</p>';
+
+            profsTries.forEach((p, idx) => {
+                const pct = Math.round((p.total / maxTotal) * 100);
+                const couleur = idx === 0 ? '#004AAD' : (idx < 3 ? '#2EAD5E' : '#6b7280');
+                html += '<div class="mb-3 last:mb-0">';
+                html += '<div class="flex justify-between items-center mb-1"><span class="text-xs font-bold text-gray-800">' + (idx + 1) + '. ' + p.nom + '</span>';
+                html += '<span class="text-xs font-bold" style="color:' + couleur + '">' + (p.total / 60).toFixed(1) + 'h</span></div>';
+                html += '<div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden"><div class="h-2 rounded-full" style="width:' + pct + '%;background:' + couleur + '"></div></div>';
+                html += '<p class="text-[10px] text-gray-500 mt-0.5">' + p.nb + ' cours</p>';
+                html += '</div>';
+            });
+            html += '</div>';
+
+            conteneur.innerHTML = html;
         }
 
         function seDeconnecter() { sessionStorage.removeItem('eduLinkUser'); window.location.href = 'index.html'; }
     </script>
+</body>
 </body>
 </html>
