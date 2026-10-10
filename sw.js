@@ -69,3 +69,43 @@ self.addEventListener('fetch', (event) => {
             })
     );
 });
+// ==========================================
+// WEB PUSH — Affichage des notifications
+// ==========================================
+
+self.addEventListener('push', function(event) {
+    let data = {};
+    try {
+        data = event.data ? event.data.json() : {};
+    } catch (e) {
+        data = { title: 'EDU-LINK', body: event.data ? event.data.text() : '' };
+    }
+
+    const title = data.title || 'EDU-LINK';
+    const options = {
+        body: data.body || 'Nouvelle notification',
+        icon: './icons/icon.png',
+        badge: './icons/icon.png',
+        tag: data.tag || 'edu-link-notif',
+        renotify: true,
+        data: { url: data.url || './index.html' }
+    };
+
+    event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('notificationclick', function(event) {
+    event.notification.close();
+    const url = (event.notification.data && event.notification.data.url) || './index.html';
+    event.waitUntil(
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
+            for (let i = 0; i < clientList.length; i++) {
+                const client = clientList[i];
+                if (client.url.includes(self.location.origin) && 'focus' in client) {
+                    return client.focus();
+                }
+            }
+            if (clients.openWindow) return clients.openWindow(url);
+        })
+    );
+});

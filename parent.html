@@ -43,6 +43,7 @@
         .btn-theme-toggle:hover { background: rgba(255,255,255,0.35); }
         .btn-theme-toggle:active { transform: scale(0.92); }
     </style>
+<script src="push.js"></script>
 </head>
 <body class="min-h-screen flex justify-center items-start pt-4 p-3">
     <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col h-auto min-h-[600px]">
@@ -67,6 +68,11 @@
 
             <div class="flex-1 overflow-y-auto -mt-4 pt-6 px-4 pb-6">
                 <div id="view-accueil" class="hidden fade-in">
+<button onclick="activerNotificationsPush(supabaseClient, currentUser)" id="btn-push" class="bouton-action w-full bg-gradient-to-r from-yellow-500 to-orange-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
+                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">🔔</div>
+                        <div class="flex-1 text-left"><p class="text-sm font-bold">Activer les notifications</p><p class="text-[10px] opacity-90">Recevez des alertes sur votre telephone</p></div>
+                        <span class="text-xl">→</span>
+                    </button>
                     <div class="bg-white rounded-2xl shadow-lg p-4 mb-3">
                         <div class="flex items-center justify-between mb-3">
                             <div class="flex items-center gap-2">
