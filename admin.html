@@ -993,12 +993,87 @@
 
                     <div id="gen-actions" class="hidden">
                         <button onclick="genLancerGeneration()" id="gen-btn-lancer" class="w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold py-3 rounded-xl mb-3">🚀 Générer l'emploi du temps</button>
+                        <button onclick="genOuvrirAjoutManuel()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold py-3 rounded-xl mb-3">➕ Ajouter un cours manuellement</button>
                         <button onclick="genOuvrirIA()" class="w-full bg-gradient-to-r from-amber-500 to-orange-600 text-white font-bold py-3 rounded-xl mb-3">✨ Demander une optimisation à l'IA</button>
                     </div>
 
                     <div id="gen-resultat"></div>
                 </div>
+<!-- ═══════════════ 🆕 AJOUT MANUEL DE COURS ═══════════════ -->
+                <div id="view-ajout-manuel" class="hidden fade-in">
+                    <div class="section-header anim-up">
+                        <button onclick="afficherGenerateurEmploi()" class="back-btn">⬅️</button>
+                        <div>
+                            <h1 class="section-title">Ajouter un cours</h1>
+                            <p id="ajout-manuel-classe-label" class="section-sub">...</p>
+                        </div>
+                    </div>
 
+                    <div class="card-pro anim-up delay-1" style="margin-bottom: 14px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+                            <div>
+                                <label style="display: block; font-size: 10px; font-weight: 700; color: #6b7280; margin-bottom: 4px; text-transform: uppercase;">Jour *</label>
+                                <select id="am-jour" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #d1d5db; background: white; font-size: 12px;">
+                                    <option value="Lundi">Lundi</option>
+                                    <option value="Mardi">Mardi</option>
+                                    <option value="Mercredi">Mercredi</option>
+                                    <option value="Jeudi">Jeudi</option>
+                                    <option value="Vendredi">Vendredi</option>
+                                    <option value="Samedi">Samedi</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 10px; font-weight: 700; color: #6b7280; margin-bottom: 4px; text-transform: uppercase;">Créneau *</label>
+                                <select id="am-creneau" onchange="amRemplirHeures()" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #d1d5db; background: white; font-size: 12px;">
+                                    <option value="08:00-10:00">08h00 - 10h00</option>
+                                    <option value="10:15-12:15">10h15 - 12h15</option>
+                                    <option value="14:00-16:00">14h00 - 16h00</option>
+                                    <option value="16:15-18:15">16h15 - 18h15</option>
+                                    <option value="custom">⏱️ Personnalisé</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="am-heures-custom" style="display: none; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+                            <div>
+                                <label style="display: block; font-size: 10px; font-weight: 700; color: #6b7280; margin-bottom: 4px;">Début</label>
+                                <input type="time" id="am-heure-debut" value="08:00" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #d1d5db; font-size: 12px;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 10px; font-weight: 700; color: #6b7280; margin-bottom: 4px;">Fin</label>
+                                <input type="time" id="am-heure-fin" value="10:00" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #d1d5db; font-size: 12px;">
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 12px;">
+                            <label style="display: block; font-size: 10px; font-weight: 700; color: #6b7280; margin-bottom: 4px; text-transform: uppercase;">Matière *</label>
+                            <input type="text" id="am-matiere" placeholder="Ex: Mathématiques" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #d1d5db; font-size: 12px;">
+                        </div>
+
+                        <div style="margin-bottom: 12px;">
+                            <label style="display: block; font-size: 10px; font-weight: 700; color: #6b7280; margin-bottom: 4px; text-transform: uppercase;">Enseignant</label>
+                            <select id="am-enseignant" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #d1d5db; background: white; font-size: 12px;">
+                                <option value="">-- Aucun --</option>
+                            </select>
+                        </div>
+
+                        <div style="margin-bottom: 12px;">
+                            <label style="display: block; font-size: 10px; font-weight: 700; color: #6b7280; margin-bottom: 4px; text-transform: uppercase;">Salle</label>
+                            <select id="am-salle" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #d1d5db; background: white; font-size: 12px;">
+                                <option value="">-- Aucune --</option>
+                            </select>
+                        </div>
+
+                        <button onclick="amSauvegarder()" style="width: 100%; padding: 14px; border-radius: 12px; border: none; background: linear-gradient(135deg, #10B981, #047857); color: white; font-weight: 800; font-size: 13px; cursor: pointer; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);">
+                            💾 Enregistrer le cours
+                        </button>
+                        <div id="am-message" class="text-center text-sm font-semibold mt-3"></div>
+                    </div>
+
+                    <div class="divider anim-up delay-2">Cours déjà dans cette classe</div>
+
+                    <div id="am-liste-cours" class="space-y-2 anim-up delay-3"></div>
+                </div>
                 <!-- ═══════════════ 🆕 ASSISTANT IA ═══════════════ -->
                 <div id="view-ia-optim" class="hidden fade-in">
                     <div class="flex items-center gap-3 mb-3">
@@ -5203,7 +5278,7 @@ let creneaux = eviterAprem ? CRENEAUX_LOCAL.slice(0, 3) : CRENEAUX_LOCAL;
         }
 
         function genConstruireTableauApercu(place) {
-            const jours = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'].filter(j => j !== 'Samedi');
+            const jours = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
             let html = '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;min-width:600px;">';
             html += '<thead><tr style="background:#004AAD;">';
             html += '<th style="padding:6px;color:white;font-size:10px;border:1px solid #004AAD;">Heure</th>';
@@ -5286,6 +5361,217 @@ CRENEAUX_APERCU.forEach((cr, idx) => {
 
         // ─────── ASSISTANT IA ───────
         const OPENROUTER_KEY = ''; // ← Collez votre clé ici (ou laissez vide)
+// ═════════════════════════════════════════════════════════════
+        //  AJOUT MANUEL DE COURS (depuis le générateur)
+        // ═════════════════════════════════════════════════════════════
+
+        let amClasseId = null;
+
+        async function genOuvrirAjoutManuel() {
+            var classeId = document.getElementById('gen-classe').value;
+            if (!classeId) {
+                toast.warning("Choisissez d'abord une classe");
+                return;
+            }
+            amClasseId = parseInt(classeId);
+            var classeInfo = genClassesListe.find(function(c) { return c.id === amClasseId; });
+            var classeNom = classeInfo ? classeInfo.nom : '';
+
+            hideAllViews();
+            document.getElementById('view-ajout-manuel').classList.remove('hidden');
+            document.getElementById('ajout-manuel-classe-label').innerText = classeNom;
+            document.getElementById('am-message').innerText = '';
+
+            // Reset form
+            document.getElementById('am-jour').value = 'Lundi';
+            document.getElementById('am-creneau').value = '08:00-10:00';
+            document.getElementById('am-heure-debut').value = '08:00';
+            document.getElementById('am-heure-fin').value = '10:00';
+            document.getElementById('am-matiere').value = '';
+            document.getElementById('am-enseignant').value = '';
+            document.getElementById('am-salle').value = '';
+            document.getElementById('am-heures-custom').style.display = 'none';
+            document.getElementById('am-heures-custom').style.gridTemplateColumns = '1fr 1fr';
+
+            // Charger enseignants
+            var selEns = document.getElementById('am-enseignant');
+            selEns.innerHTML = '<option value="">-- Aucun --</option>';
+            genEnseignantsListe.forEach(function(e) {
+                selEns.innerHTML += '<option value="' + e.ensId + '">' + e.nom + '</option>';
+            });
+
+            // Charger salles
+            var selSalle = document.getElementById('am-salle');
+            selSalle.innerHTML = '<option value="">-- Aucune --</option>';
+            genSallesListe.forEach(function(s) {
+                selSalle.innerHTML += '<option value="' + s.id + '">' + s.nom + '</option>';
+            });
+
+            // Charger la liste des cours existants
+            await amChargerCours();
+            window.scrollTo(0, 0);
+        }
+
+        function amRemplirHeures() {
+            var creneau = document.getElementById('am-creneau').value;
+            var customDiv = document.getElementById('am-heures-custom');
+            if (creneau === 'custom') {
+                customDiv.style.display = 'grid';
+            } else {
+                customDiv.style.display = 'none';
+                var parts = creneau.split('-');
+                document.getElementById('am-heure-debut').value = parts[0];
+                document.getElementById('am-heure-fin').value = parts[1];
+            }
+        }
+
+        async function amChargerCours() {
+            if (!amClasseId) return;
+            var conteneur = document.getElementById('am-liste-cours');
+            conteneur.innerHTML = '<p class="text-gray-500 text-center py-4 text-xs">Chargement...</p>';
+
+            var res = await supabaseClient.from('emploi_du_temps').select('*').eq('classe_id', amClasseId).order('jour').order('heure_debut');
+            var cours = res.data || [];
+
+            if (cours.length === 0) {
+                conteneur.innerHTML = '<div class="empty-state"><div class="empty-icon">📅</div><div class="empty-title">Aucun cours</div><div class="empty-desc">Cette classe n\'a encore aucun cours</div></div>';
+                return;
+            }
+
+            var html = '';
+            cours.forEach(function(c) {
+                var couleur = getCouleurMatiere(c.matiere);
+                html += '<div class="list-row" style="--accent: ' + couleur.border + ';">';
+                html += '<div class="list-avatar" style="background: ' + couleur.bg + '; color: ' + couleur.text + ';">📚</div>';
+                html += '<div class="list-content">';
+                html += '<div class="list-title">' + c.matiere + '</div>';
+                html += '<div class="list-subtitle"><span>' + c.jour + '</span><span>•</span><span>' + c.heure_debut.substring(0,5) + '-' + c.heure_fin.substring(0,5) + '</span>' + (c.salle ? '<span>•</span><span>📍 ' + c.salle + '</span>' : '') + '</div>';
+                html += '</div>';
+                html += '<div class="list-actions">';
+                html += '<button onclick="amSupprimerCours(' + c.id + ')" class="list-btn delete">🗑️</button>';
+                html += '</div>';
+                html += '</div>';
+            });
+            conteneur.innerHTML = html;
+        }
+
+        async function amSauvegarder() {
+            var msg = document.getElementById('am-message');
+            var jour = document.getElementById('am-jour').value;
+            var debut, fin;
+
+            var creneau = document.getElementById('am-creneau').value;
+            if (creneau === 'custom') {
+                debut = document.getElementById('am-heure-debut').value;
+                fin = document.getElementById('am-heure-fin').value;
+            } else {
+                var parts = creneau.split('-');
+                debut = parts[0];
+                fin = parts[1];
+            }
+
+            var matiere = document.getElementById('am-matiere').value.trim();
+            var ensId = document.getElementById('am-enseignant').value;
+            var salleId = document.getElementById('am-salle').value;
+
+            if (!matiere) { toast.warning('Saisissez une matière'); return; }
+            if (!debut || !fin) { toast.warning('Sélectionnez un créneau'); return; }
+            if (debut >= fin) { toast.error('Heure de fin doit être après début'); return; }
+
+            msg.innerText = '⏳ Vérification des conflits...';
+            msg.style.color = '#F59E0B';
+
+            // Vérifier les conflits
+            var conflits = await coursVerifierConflits({
+                id: null,
+                classe_id: amClasseId,
+                jour: jour,
+                debut: debut,
+                fin: fin,
+                salle: '',
+                enseignant_id: ensId ? parseInt(ensId) : null
+            });
+
+            if (conflits.length > 0) {
+                msg.innerText = '⚠️ Conflit(s) : ' + conflits.join(' | ');
+                msg.style.color = '#EF4444';
+                return;
+            }
+
+            // Récupérer le nom de la salle
+            var salleNom = null;
+            if (salleId) {
+                var salleInfo = genSallesListe.find(function(s) { return s.id === parseInt(salleId); });
+                if (salleInfo) salleNom = salleInfo.nom;
+            }
+
+            msg.innerText = '💾 Enregistrement...';
+            msg.style.color = '#F59E0B';
+
+            var data = {
+                ecole_id: monEcoleId,
+                classe_id: amClasseId,
+                jour: jour,
+                heure_debut: debut,
+                heure_fin: fin,
+                matiere: matiere,
+                salle: salleNom,
+                salle_id: salleId ? parseInt(salleId) : null,
+                enseignant_id: ensId ? parseInt(ensId) : null
+            };
+
+            var res = await supabaseClient.from('emploi_du_temps').insert([data]);
+            if (res.error) {
+                msg.innerText = 'Erreur : ' + res.error.message;
+                msg.style.color = '#EF4444';
+                return;
+            }
+
+            msg.innerText = '✅ Cours enregistré !';
+            msg.style.color = '#2EAD5E';
+            toast.success('Cours ajouté à l\'emploi du temps');
+
+            // Reset matière
+            document.getElementById('am-matiere').value = '';
+
+            // Recharger la liste
+            await amChargerCours();
+        }
+
+        async function amSupprimerCours(id) {
+            if (!await amConfirmer('Supprimer ce cours ?')) return;
+            var res = await supabaseClient.from('emploi_du_temps').delete().eq('id', id);
+            if (res.error) { toast.error(res.error.message); return; }
+            toast.success('Cours supprimé');
+            await amChargerCours();
+        }
+
+        function amConfirmer(msg) {
+            return new Promise(function(resolve) {
+                // Utiliser le confirm moderne si disponible
+                var overlay = document.createElement('div');
+                overlay.className = 'confirm-overlay visible';
+                overlay.innerHTML = '<div class="confirm-box">' +
+                    '<div class="confirm-icon">❓</div>' +
+                    '<div class="confirm-title">Confirmation</div>' +
+                    '<div class="confirm-message">' + msg + '</div>' +
+                    '<div class="confirm-actions">' +
+                        '<button class="confirm-btn confirm-btn-non" id="am-conf-non">Annuler</button>' +
+                        '<button class="confirm-btn confirm-btn-oui" id="am-conf-oui">Confirmer</button>' +
+                    '</div>' +
+                '</div>';
+                document.body.appendChild(overlay);
+
+                document.getElementById('am-conf-oui').onclick = function() {
+                    overlay.remove();
+                    resolve(true);
+                };
+                document.getElementById('am-conf-non').onclick = function() {
+                    overlay.remove();
+                    resolve(false);
+                };
+            });
+        }
 
         function genOuvrirIA() {
             hideAllViews();
