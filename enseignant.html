@@ -49,7 +49,9 @@
         .btn-theme-toggle:hover { background: rgba(255,255,255,0.35); }
         .btn-theme-toggle:active { transform: scale(0.92); }
     </style>
-<script src="push.js"></script>
+<link rel="stylesheet" href="dashboard.css"> 
+    <script src="push.js"></script>
+<link rel="stylesheet" href="dashboard.css">
 </head>
 <body class="min-h-screen flex justify-center items-start pt-4 p-3">
     <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col h-auto min-h-[600px]">
@@ -60,10 +62,10 @@
                         <p class="text-xs opacity-80 mb-1">Bonjour,</p>
                         <h1 id="welcome-message" class="text-xl font-bold">Chargement...</h1>
                         <p id="ecole-nom-affiche" class="text-xs opacity-90 mt-1">...</p>
-<p id="selecteur-classe-ens" class="hidden text-[10px] mt-1">
-    <select id="ens-classe-select" onchange="ensChangerClasse()" class="bg-white bg-opacity-20 text-white text-[11px] font-semibold px-2 py-1 rounded-lg border border-white border-opacity-30 w-full mt-1">
-    </select>
-</p>
+                        <p id="selecteur-classe-ens" class="hidden text-[10px] mt-1">
+                            <select id="ens-classe-select" onchange="ensChangerClasse()" class="bg-white bg-opacity-20 text-white text-[11px] font-semibold px-2 py-1 rounded-lg border border-white border-opacity-30 w-full mt-1">
+                            </select>
+                        </p>
                     </div>
                     <div class="flex items-center gap-2">
                         <button onclick="window.location.href='profil.html'" id="avatar-header" class="w-9 h-9 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-lg hover:bg-opacity-30 transition overflow-hidden">👤</button>
@@ -77,114 +79,153 @@
             </div>
 
             <div class="flex-1 overflow-y-auto -mt-4 pt-6 px-4 pb-6">
-                <!-- ============ VUE ACCUEIL ============ -->
-                <div id="view-accueil" class="hidden fade-in">
-<button onclick="activerNotificationsPush(supabaseClient, currentUser)" id="btn-push" class="bouton-action w-full bg-gradient-to-r from-yellow-500 to-orange-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
-                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">🔔</div>
-                        <div class="flex-1 text-left"><p class="text-sm font-bold">Activer les notifications</p><p class="text-[10px] opacity-90">Recevez des alertes sur votre telephone</p></div>
-                        <span class="text-xl">→</span>
-                    </button>
-                    <div class="bg-gradient-to-br from-edu-green to-emerald-700 text-white rounded-2xl shadow-lg p-5 mb-3">
-                        <div class="flex items-center justify-between mb-3">
-                            <div><p class="text-xs opacity-80 mb-1">Ma classe</p><h2 id="classe-enseignant" class="text-2xl font-extrabold">...</h2></div>
-                            <div class="w-14 h-14 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-3xl">📚</div>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span id="matiere-enseignant" class="text-sm font-semibold">...</span>
-                            <span id="nb-eleves" class="text-xs font-bold bg-white bg-opacity-20 px-3 py-1 rounded-full">...</span>
-                        </div>
-                    </div>
 
-                    <div id="carte-prochain-cours-ens" class="hidden bg-white rounded-2xl shadow-lg p-4 mb-3">
-                        <div class="flex items-center gap-3">
-                            <div id="prochain-cours-icon-ens" class="w-12 h-12 bg-edu-green bg-opacity-10 rounded-full flex items-center justify-center text-2xl">📅</div>
-                            <div class="flex-1 min-w-0">
-                                <p id="prochain-cours-label-ens" class="text-[10px] font-bold text-edu-green uppercase">Prochain cours</p>
-                                <p id="prochain-cours-matiere-ens" class="text-sm font-bold text-gray-800 truncate">...</p>
-                                <p id="prochain-cours-horaire-ens" class="text-[10px] text-gray-500">...</p>
-                            </div>
-                            <div id="prochain-cours-badge-ens" class="hidden bg-orange-100 text-edu-orange text-[10px] font-bold px-2 py-1 rounded">EN COURS</div>
-                        </div>
-                    </div>
+                <!-- ═══════════════ ACCUEIL ═══════════════ -->
+                <!-- ═══════════════ ACCUEIL ENSEIGNANT — VERSION PRO ═══════════════ -->
+<div id="view-accueil" class="hidden">
+    <button onclick="activerNotificationsPush(supabaseClient, currentUser)" id="btn-push" class="btn-float anim-up" style="background: linear-gradient(135deg, #F59E0B, #EA580C); margin-bottom: 14px;">
+        <div class="btn-icon">🔔</div>
+        <div class="btn-content">
+            <div class="btn-title">Activer les notifications</div>
+            <div class="btn-desc">Alertes sur votre téléphone</div>
+        </div>
+        <div class="btn-arrow">→</div>
+    </button>
 
-                    <div class="bg-white rounded-2xl shadow-lg p-4 mb-3 grid grid-cols-2 gap-3">
-                        <button onclick="afficherAppel()" class="carte-stat bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-xl border border-green-200 flex flex-col items-center gap-2">
-                            <span class="text-3xl">✅</span><span class="text-xs font-bold text-edu-green">Faire l'appel</span><span class="text-[9px] text-gray-500">Classe du jour</span>
-                        </button>
-                        <button onclick="afficherSaisieNotes()" class="carte-stat bg-gradient-to-br from-orange-50 to-orange-100 p-4 rounded-xl border border-orange-200 flex flex-col items-center gap-2">
-                            <span class="text-3xl">📝</span><span class="text-xs font-bold text-edu-orange">Saisir les notes</span><span class="text-[9px] text-gray-500">Dernière évaluation</span>
-                        </button>
-                    </div>
+    <!-- HERO CLASSE -->
+    <div class="hero-stat anim-up delay-1" style="--from: #059669; --to: #047857; margin-bottom: 14px;">
+        <div class="hero-stat-icon">📚</div>
+        <div class="hero-stat-label">Ma classe</div>
+        <div class="flex items-center justify-between mt-2" style="position: relative; z-index: 2;">
+            <h2 id="classe-enseignant" style="font-size: 26px; font-weight: 900; letter-spacing: -0.5px;">...</h2>
+        </div>
+        <div class="flex items-center gap-2 mt-3" style="position: relative; z-index: 2;">
+            <span id="matiere-enseignant" class="chip" style="background: rgba(255,255,255,0.2); color: white;">...</span>
+            <span id="nb-eleves" class="chip" style="background: rgba(255,255,255,0.2); color: white;">...</span>
+        </div>
+    </div>
 
-                    <button onclick="afficherRapportAbsences()" class="bouton-action w-full bg-gradient-to-r from-red-500 to-orange-500 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
-                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">📊</div>
-                        <div class="flex-1 text-left"><p class="text-sm font-bold">Rapport d'absences</p><p class="text-[10px] opacity-90">Jour, semaine, mois, trimestre, année</p></div>
-                        <span class="text-xl">→</span>
-                    </button>
+    <!-- PROCHAIN COURS -->
+    <div id="carte-prochain-cours-ens" class="hidden card-pro anim-up delay-2" style="margin-bottom: 14px; background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%); border-left: 4px solid #2EAD5E;">
+        <div class="flex items-center gap-3">
+            <div id="prochain-cours-icon-ens" style="width: 48px; height: 48px; background: linear-gradient(135deg, #dcfce7, #bbf7d0); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">📅</div>
+            <div class="flex-1 min-w-0">
+                <p id="prochain-cours-label-ens" style="font-size: 10px; font-weight: 800; color: #059669; text-transform: uppercase; letter-spacing: 0.5px;">PROCHAIN COURS</p>
+                <p id="prochain-cours-matiere-ens" style="font-size: 14px; font-weight: 800; color: #1f2937; margin-top: 3px;">...</p>
+                <p id="prochain-cours-horaire-ens" style="font-size: 10px; color: #6b7280; margin-top: 2px;">...</p>
+            </div>
+            <div id="prochain-cours-badge-ens" class="hidden chip chip-success">
+                <span class="chip-dot"></span>
+                <span>EN COURS</span>
+            </div>
+        </div>
+    </div>
 
-                    <button onclick="afficherSaisieMasse()" class="bouton-action w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
-                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">📋</div>
-                        <div class="flex-1 text-left"><p class="text-sm font-bold">Saisie en masse des notes</p><p class="text-[10px] opacity-90">Noter toute la classe en une seule fois</p></div>
-                        <span class="text-xl">→</span>
-                    </button>
-<button onclick="afficherNotesSaisies()" class="bouton-action w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
-                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">📝</div>
-                        <div class="flex-1 text-left"><p class="text-sm font-bold">Notes saisies</p><p class="text-[10px] opacity-90">Modifier ou supprimer une note</p></div>
-                        <span class="text-xl">→</span>
-                    </button>
-<button onclick="afficherMesHeures()" class="bouton-action w-full bg-gradient-to-r from-teal-500 to-cyan-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
-                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">🕐</div>
-                        <div class="flex-1 text-left"><p class="text-sm font-bold">Mes heures</p><p class="text-[10px] opacity-90">Suivi des cours dispenses</p></div>
-                        <span class="text-xl">→</span>
-                    </button>
-<button
-onclick="afficherMesRessources()" class="bouton-action w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
-                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">📚</div>
-                        <div class="flex-1 text-left"><p class="text-sm font-bold">Mes ressources pedagogiques</p><p class="text-[10px] opacity-90">Programmes, lecons, exercices</p></div>
-                        <span class="text-xl">→</span>
-                    </button>
-                    <button onclick="afficherDevoirs()" class="bouton-action w-full bg-gradient-to-r from-amber-500 to-orange-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
-                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">📚</div>
-                        <div class="flex-1 text-left"><p class="text-sm font-bold">Mes devoirs</p><p class="text-[10px] opacity-90">Créer et gérer les devoirs</p></div>
-                        <span class="text-xl">→</span>
-                    </button>
+    <!-- ACTIONS EXPRESS -->
+    <div class="grid grid-cols-2 gap-3 mb-4">
+        <div class="action-tile anim-up delay-3" onclick="afficherAppel()">
+            <div class="tile-icon" style="background: linear-gradient(135deg, #dcfce7, #bbf7d0); color: #059669;">✅</div>
+            <div class="tile-label">Faire l'appel</div>
+            <div class="tile-sub">Classe du jour</div>
+        </div>
+        <div class="action-tile anim-up delay-3" onclick="afficherSaisieNotes()">
+            <div class="tile-icon" style="background: linear-gradient(135deg, #fef3c7, #fde68a); color: #D97706;">📝</div>
+            <div class="tile-label">Saisir notes</div>
+            <div class="tile-sub">Dernière éval.</div>
+        </div>
+    </div>
 
-                    <button onclick="afficherStatistiques()" class="bouton-action w-full bg-gradient-to-r from-blue-500 to-cyan-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
-                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">📊</div>
-                        <div class="flex-1 text-left"><p class="text-sm font-bold">Statistiques de la classe</p><p class="text-[10px] opacity-90">Moyennes, réussite, top élèves</p></div>
-                        <span class="text-xl">→</span>
-                    </button>
+    <div class="divider anim-up delay-4">Ma disponibilité</div>
 
-                    <button onclick="afficherBadgesClasse()" class="bouton-action w-full bg-gradient-to-r from-pink-500 to-rose-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
-                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">🏆</div>
-                        <div class="flex-1 text-left"><p class="text-sm font-bold">Badges de la classe</p><p class="text-[10px] opacity-90">Récompenses des élèves</p></div>
-                        <span class="text-xl">→</span>
-                    </button>
+    <!-- DISPONIBILITÉS (mis en avant) -->
+    <button onclick="afficherMesDispos()" class="btn-float anim-up delay-4" style="background: linear-gradient(135deg, #6366F1, #8B5CF6); margin-bottom: 14px;">
+        <div class="btn-icon">📅</div>
+        <div class="btn-content">
+            <div class="btn-title">Mes disponibilités</div>
+            <div class="btn-desc">Indiquer quand vous n'êtes pas libre</div>
+        </div>
+        <div class="btn-arrow">→</div>
+    </button>
 
-                    <div class="bg-white rounded-2xl shadow-lg p-4 mb-3">
-                        <div class="flex items-center justify-between mb-3">
-                            <div class="flex items-center gap-2">
-                                <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-xl">📅</div>
-                                <div><p class="text-sm font-bold text-gray-800">Mon emploi du temps</p><p class="text-[10px] text-gray-500">Voir la semaine complete</p></div>
-                            </div>
-                            <button onclick="afficherEmploi()" class="text-edu-blue text-xs font-bold">Voir →</button>
-                        </div>
-                    </div>
+    <div class="divider anim-up delay-5">Gestion pédagogique</div>
 
-                    <button onclick="afficherAnnonces()" class="bouton-action w-full bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3 mb-3">
-                        <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center text-2xl">📢</div>
-                        <div class="flex-1 text-left"><p class="text-sm font-bold text-gray-800">Annonces de l'ecole</p><p class="text-[10px] text-gray-400">Communications officielles</p></div>
-                        <span class="text-xl text-gray-300">→</span>
-                    </button>
+    <!-- GRILLE ACTIONS PRINCIPALES -->
+    <div class="action-grid mb-4">
+        <div class="action-tile anim-up delay-5" onclick="afficherSaisieMasse()">
+            <div class="tile-icon" style="background: linear-gradient(135deg, #ede9fe, #ddd6fe); color: #7C3AED;">📋</div>
+            <div class="tile-label">Saisie en masse</div>
+            <div class="tile-sub">Toute la classe</div>
+        </div>
+        <div class="action-tile anim-up delay-5" onclick="afficherNotesSaisies()">
+            <div class="tile-icon" style="background: linear-gradient(135deg, #cffafe, #a5f3fc); color: #0891B2;">📝</div>
+            <div class="tile-label">Notes saisies</div>
+            <div class="tile-sub">Modifier</div>
+        </div>
+        <div class="action-tile anim-up delay-5" onclick="afficherDevoirs()">
+            <div class="tile-icon" style="background: linear-gradient(135deg, #fef3c7, #fde68a); color: #D97706;">📚</div>
+            <div class="tile-label">Mes devoirs</div>
+            <div class="tile-sub">Créer</div>
+        </div>
+        <div class="action-tile anim-up delay-5" onclick="afficherMesRessources()">
+            <div class="tile-icon" style="background: linear-gradient(135deg, #e0e7ff, #c7d2fe); color: #4338CA;">📚</div>
+            <div class="tile-label">Ressources</div>
+            <div class="tile-sub">Publier</div>
+        </div>
+        <div class="action-tile anim-up delay-5" onclick="afficherStatistiques()">
+            <div class="tile-icon" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #2563EB;">📊</div>
+            <div class="tile-label">Statistiques</div>
+            <div class="tile-sub">Classe</div>
+        </div>
+        <div class="action-tile anim-up delay-5" onclick="afficherBadgesClasse()">
+            <div class="tile-icon" style="background: linear-gradient(135deg, #fce7f3, #fbcfe8); color: #DB2777;">🏆</div>
+            <div class="tile-label">Badges</div>
+            <div class="tile-sub">Élèves</div>
+        </div>
+        <div class="action-tile anim-up delay-5" onclick="afficherRapportAbsences()">
+            <div class="tile-icon" style="background: linear-gradient(135deg, #fee2e2, #fecaca); color: #DC2626;">📊</div>
+            <div class="tile-label">Rapport absences</div>
+            <div class="tile-sub">Périodes</div>
+        </div>
+        <div class="action-tile anim-up delay-5" onclick="afficherMesHeures()">
+            <div class="tile-icon" style="background: linear-gradient(135deg, #ccfbf1, #99f6e4); color: #0D9488;">🕐</div>
+            <div class="tile-label">Mes heures</div>
+            <div class="tile-sub">Suivi</div>
+        </div>
+        <div class="action-tile anim-up delay-5" onclick="afficherEmploi()">
+            <div class="tile-icon" style="background: linear-gradient(135deg, #e0e7ff, #c7d2fe); color: #4338CA;">📅</div>
+            <div class="tile-label">Emploi du temps</div>
+            <div class="tile-sub">Semaine</div>
+        </div>
+        <div class="action-tile anim-up delay-5" onclick="afficherAnnonces()">
+            <div class="tile-icon" style="background: linear-gradient(135deg, #fef3c7, #fde68a); color: #D97706;">📢</div>
+            <div class="tile-label">Annonces</div>
+            <div class="tile-sub">École</div>
+        </div>
+    </div>
 
-                    <button onclick="window.location.href='messagerie.html'" class="bouton-action w-full bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3">
-                        <div class="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center text-2xl">💬</div>
-                        <div class="flex-1 text-left"><p class="text-sm font-bold text-gray-800">Messagerie</p><p class="text-[10px] text-gray-400">Discuter avec parents et eleves</p></div>
-                        <span class="text-xl text-gray-300">→</span>
-                    </button>
+    <div class="divider anim-up delay-6">Communication</div>
+
+    <button onclick="window.location.href='messagerie.html'" class="btn-float anim-up delay-6" style="background: linear-gradient(135deg, #EC4899, #DB2777);">
+        <div class="btn-icon">💬</div>
+        <div class="btn-content">
+            <div class="btn-title">Messagerie</div>
+            <div class="btn-desc">Discuter avec parents et élèves</div>
+        </div>
+        <div class="btn-arrow">→</div>
+    </button>
+</div>
+
+                <!-- ═══════════════ 🆕 MES DISPONIBILITÉS ═══════════════ -->
+                <div id="view-mes-dispos" class="hidden fade-in">
+                    <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
+                    <h1 class="text-lg font-bold text-gray-800 mb-2">📅 Mes disponibilités</h1>
+                    <p class="text-xs text-gray-500 mb-3">Cochez les créneaux où vous n'êtes <b>PAS disponible</b>. Le générateur les évitera.</p>
+                    <div id="dispos-grille" class="mb-3"></div>
+                    <button onclick="sauvegarderMesDispos()" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl">💾 Enregistrer</button>
+                    <div id="dispos-message" class="text-center text-sm font-semibold mt-3"></div>
                 </div>
 
-                <!-- ============ VUE BADGES CLASSE ============ -->
+                <!-- ═══════════════ BADGES CLASSE ═══════════════ -->
                 <div id="view-badges-classe" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-2">🏆 Badges de la classe</h1>
@@ -196,14 +237,14 @@ onclick="afficherMesRessources()" class="bouton-action w-full bg-gradient-to-r f
                     <div id="liste-badges-classe" class="space-y-3"></div>
                 </div>
 
-                <!-- ============ VUE APPEL ============ -->
+                <!-- ═══════════════ APPEL ═══════════════ -->
                 <div id="view-appel" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-3">✅ Faire l'appel</h1>
                     <div id="liste-appel" class="space-y-3"></div>
                 </div>
 
-                <!-- ============ VUE RAPPORT ABSENCES ============ -->
+                <!-- ═══════════════ RAPPORT ABSENCES ═══════════════ -->
                 <div id="view-rapport-absences-ens" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-2">📊 Rapport d'absences</h1>
@@ -230,7 +271,7 @@ onclick="afficherMesRessources()" class="bouton-action w-full bg-gradient-to-r f
                     <div id="contenu-rapport-absences" class="space-y-3"></div>
                 </div>
 
-                <!-- ============ VUE NOTES ============ -->
+                <!-- ═══════════════ NOTES ═══════════════ -->
                 <div id="view-notes" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-3">📝 Saisir les notes</h1>
@@ -238,7 +279,7 @@ onclick="afficherMesRessources()" class="bouton-action w-full bg-gradient-to-r f
                         <select id="select-eleve" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white"><option value="">Chargement...</option></select>
                         <input type="text" id="matiere-note" readonly class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-100 text-gray-500">
                         <input type="number" id="valeur-note" min="0" max="20" step="0.25" placeholder="Note sur 20" class="w-full px-4 py-3 rounded-xl border border-gray-300">
-<div>
+                        <div>
                             <label class="block text-xs font-bold text-gray-700 mb-1">Type d'evaluation</label>
                             <select id="type-evaluation" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white">
                                 <option value="devoir1">Devoir 1</option>
@@ -248,13 +289,13 @@ onclick="afficherMesRessources()" class="bouton-action w-full bg-gradient-to-r f
                             </select>
                         </div>
                         <select id="coefficient-note" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white">
-    <option value="1">Coefficient 1</option>
-    <option value="2" selected>Coefficient 2</option>
-    <option value="3">Coefficient 3</option>
-    <option value="4">Coefficient 4</option>
-    <option value="5">Coefficient 5</option>
-    <option value="6">Coefficient 6</option>
-</select>
+                            <option value="1">Coefficient 1</option>
+                            <option value="2" selected>Coefficient 2</option>
+                            <option value="3">Coefficient 3</option>
+                            <option value="4">Coefficient 4</option>
+                            <option value="5">Coefficient 5</option>
+                            <option value="6">Coefficient 6</option>
+                        </select>
                         <select id="trimestre-note" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white">
                             <option value="1">Semestre 1</option>
                             <option value="2">Semestre 2</option>
@@ -264,7 +305,7 @@ onclick="afficherMesRessources()" class="bouton-action w-full bg-gradient-to-r f
                     </div>
                 </div>
 
-                <!-- ============ VUE NOTES MASSE ============ -->
+                <!-- ═══════════════ NOTES MASSE ═══════════════ -->
                 <div id="view-notes-masse" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-2">📋 Saisie en masse</h1>
@@ -280,14 +321,15 @@ onclick="afficherMesRessources()" class="bouton-action w-full bg-gradient-to-r f
                             </div>
                             <div><label class="block text-xs font-bold text-gray-700 mb-1">Coefficient</label>
                                 <select id="masse-coefficient" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-sm">
-    <option value="1">Coef 1</option>
-    <option value="2" selected>Coef 2</option>
-    <option value="3">Coef 3</option>
-    <option value="4">Coef 4</option>
-    <option value="5">Coef 5</option>
-    <option value="6">Coef 6</option>
-</select>
-<div class="col-span-2">
+                                    <option value="1">Coef 1</option>
+                                    <option value="2" selected>Coef 2</option>
+                                    <option value="3">Coef 3</option>
+                                    <option value="4">Coef 4</option>
+                                    <option value="5">Coef 5</option>
+                                    <option value="6">Coef 6</option>
+                                </select>
+                            </div>
+                            <div class="col-span-2">
                                 <label class="block text-xs font-bold text-gray-700 mb-1">Type d'evaluation</label>
                                 <select id="masse-type-evaluation" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-sm">
                                     <option value="devoir1">Devoir 1</option>
@@ -296,7 +338,6 @@ onclick="afficherMesRessources()" class="bouton-action w-full bg-gradient-to-r f
                                     <option value="composition">Composition</option>
                                 </select>
                             </div>
-                            </div>
                         </div>
                     </div>
                     <div id="liste-saisie-masse" class="space-y-2 mb-3"></div>
@@ -304,7 +345,7 @@ onclick="afficherMesRessources()" class="bouton-action w-full bg-gradient-to-r f
                     <div id="message-masse" class="text-center text-sm font-semibold mt-3"></div>
                 </div>
 
-                <!-- ============ VUE DEVOIRS ============ -->
+                <!-- ═══════════════ DEVOIRS ═══════════════ -->
                 <div id="view-devoirs" class="hidden fade-in">
                     <div class="flex items-center gap-3 mb-3">
                         <button onclick="retourAccueil()" class="text-2xl">⬅️</button>
@@ -314,7 +355,6 @@ onclick="afficherMesRessources()" class="bouton-action w-full bg-gradient-to-r f
                     <div id="liste-devoirs-ens" class="space-y-3"></div>
                 </div>
 
-                <!-- ============ VUE FORM DEVOIR ============ -->
                 <div id="view-form-devoir" class="hidden fade-in">
                     <div class="flex items-center gap-3 mb-4">
                         <button onclick="afficherDevoirs()" class="text-2xl">⬅️</button>
@@ -330,7 +370,7 @@ onclick="afficherMesRessources()" class="bouton-action w-full bg-gradient-to-r f
                     </div>
                 </div>
 
-                <!-- ============ VUE STATISTIQUES ============ -->
+                <!-- ═══════════════ STATISTIQUES ═══════════════ -->
                 <div id="view-statistiques" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-2">📊 Statistiques de la classe</h1>
@@ -344,16 +384,19 @@ onclick="afficherMesRessources()" class="bouton-action w-full bg-gradient-to-r f
                     <div id="contenu-statistiques" class="space-y-3"></div>
                 </div>
 
-                <!-- ============ VUE EMPLOI ============ -->
+                <!-- ═══════════════ EMPLOI ═══════════════ -->
                 <div id="view-emploi" class="hidden fade-in">
-                    <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
-                    <h1 class="text-lg font-bold text-gray-800 mb-3">📅 Mon emploi du temps</h1>
+                    <div class="flex items-center gap-3 mb-3">
+                        <button onclick="retourAccueil()" class="text-2xl">⬅️</button>
+                        <h1 class="text-lg font-bold text-gray-800 flex-1">📅 Mon emploi du temps</h1>
+                        <button onclick="exporterEmploiEnsPDF(event)" class="bg-edu-green text-white text-xs font-bold px-3 py-2 rounded-lg">📥 PDF</button>
+                    </div>
                     <div id="encadre-aujourdhui-ens" class="mb-4"></div>
                     <p class="text-[10px] text-gray-400 italic mb-2">💡 Glissez horizontalement pour la semaine complète</p>
                     <div class="overflow-x-auto pb-2"><div id="tableau-emploi-enseignant" class="min-w-[700px]"></div></div>
                 </div>
 
-                <!-- ============ VUE ANNONCES ============ -->
+                <!-- ═══════════════ ANNONCES ═══════════════ -->
                 <div id="view-annonces" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-3">📢 Annonces de l'ecole</h1>
@@ -365,8 +408,7 @@ onclick="afficherMesRessources()" class="bouton-action w-full bg-gradient-to-r f
                     <div id="contenu-affiche"></div>
                 </div>
 
-                <!-- ============ VUE NOTIFICATIONS ============ -->
-<!-- VUE RESSOURCES ENSEIGNANT -->
+                <!-- ═══════════════ RESSOURCES ═══════════════ -->
                 <div id="view-ressources-ens" class="hidden fade-in">
                     <div class="flex items-center gap-3 mb-3">
                         <button onclick="retourAccueil()" class="text-2xl">⬅️</button>
@@ -386,7 +428,6 @@ onclick="afficherMesRessources()" class="bouton-action w-full bg-gradient-to-r f
                     <div id="res-liste" class="space-y-2"></div>
                 </div>
 
-                <!-- VUE FORMULAIRE RESSOURCE -->
                 <div id="view-form-ressource" class="hidden fade-in">
                     <div class="flex items-center gap-3 mb-4">
                         <button onclick="afficherMesRessources()" class="text-2xl">⬅️</button>
@@ -422,31 +463,39 @@ onclick="afficherMesRessources()" class="bouton-action w-full bg-gradient-to-r f
                         <div id="message-ressource" class="text-center text-sm font-semibold"></div>
                     </div>
                 </div>
-<div id="view-notes-saisies" class="hidden fade-in">
-                    <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
-                    <h1 class="text-lg font-bold text-gray-800 mb-2">📝 Notes saisies</h1>
-                    <p class="text-xs text-gray-500 mb-3">Modifiez ou supprimez vos notes.</p>
 
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 mb-3 space-y-2">
-                        <div class="grid grid-cols-2 gap-2">
-                            <select id="ns-semestre" onchange="chargerNotesSaisies()" class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white text-xs">
-                                <option value="1">Semestre 1</option>
-                                <option value="2">Semestre 2</option>
-                            </select>
-                            <select id="ns-type" onchange="chargerNotesSaisies()" class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white text-xs">
-                                <option value="">Tous les types</option>
-                                <option value="devoir1">Devoir 1</option>
-                                <option value="devoir2">Devoir 2</option>
-                                <option value="devoir3">Devoir 3</option>
-                                <option value="composition">Composition</option>
-                            </select>
-                        </div>
-                        <input type="text" id="ns-recherche" oninput="filtrerNotesSaisies()" placeholder="Rechercher un eleve" class="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs">
-                    </div>
+                <!-- ═══════════════ NOTES SAISIES ═══════════════ -->
+                <div id="view-notes-saisies" class="hidden">
+    <div class="section-header anim-up">
+        <button onclick="retourAccueil()" class="back-btn">⬅️</button>
+        <div>
+            <h1 class="section-title">Notes saisies</h1>
+            <p class="section-sub">Modifier ou supprimer</p>
+        </div>
+    </div>
 
-                    <div id="ns-liste" class="space-y-2"></div>
-                </div>
-<div id="view-mes-heures" class="hidden fade-in">
+    <div class="card-pro anim-up delay-1" style="margin-bottom: 14px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+            <select id="ns-semestre" onchange="chargerNotesSaisies()" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #d1d5db; background: white; font-size: 12px;">
+                <option value="1">Semestre 1</option>
+                <option value="2">Semestre 2</option>
+            </select>
+            <select id="ns-type" onchange="chargerNotesSaisies()" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #d1d5db; background: white; font-size: 12px;">
+                <option value="">Tous les types</option>
+                <option value="devoir1">Devoir 1</option>
+                <option value="devoir2">Devoir 2</option>
+                <option value="devoir3">Devoir 3</option>
+                <option value="composition">Composition</option>
+            </select>
+        </div>
+        <input type="text" id="ns-recherche" oninput="filtrerNotesSaisies()" placeholder="🔍 Rechercher un élève" style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #d1d5db; font-size: 12px;">
+    </div>
+
+    <div id="ns-liste" class="space-y-2"></div>
+</div>
+
+                <!-- ═══════════════ MES HEURES ═══════════════ -->
+                <div id="view-mes-heures" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-2">🕐 Mes heures d'enseignement</h1>
                     <p class="text-xs text-gray-500 mb-3">Suivi des cours que vous avez dispenses.</p>
@@ -468,6 +517,8 @@ onclick="afficherMesRessources()" class="bouton-action w-full bg-gradient-to-r f
 
                     <div id="mh-contenu"></div>
                 </div>
+
+                <!-- ═══════════════ NOTIFICATIONS ═══════════════ -->
                 <div id="view-notifications" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-3">🔔 Mes notifications</h1>
@@ -476,10 +527,68 @@ onclick="afficherMesRessources()" class="bouton-action w-full bg-gradient-to-r f
             </div>
         </div>
     </div>
-
-    <script src="badges.js" charset="UTF-8"></script>
+<script src="badges.js" charset="UTF-8"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- ═══════════════ AUTH PBKDF2 ═══════════════ -->
     <script>
+        const AUTH_SALT = 'EDU-LINK::v1::S3n3g4l::2024';
+        const AUTH_ITERATIONS = 100000;
+        const AUTH_PREFIX = 'pbkdf2$';
+
+        async function hashPassword(plainPassword) {
+            const enc = new TextEncoder();
+            const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(plainPassword), { name: 'PBKDF2' }, false, ['deriveBits']);
+            const hashBuffer = await crypto.subtle.deriveBits(
+                { name: 'PBKDF2', salt: enc.encode(AUTH_SALT), iterations: AUTH_ITERATIONS, hash: 'SHA-256' },
+                keyMaterial, 256
+            );
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return AUTH_PREFIX + AUTH_ITERATIONS + '$' + hex;
+        }
+
+        function echapperHtml(texte) {
+            if (texte === null || texte === undefined) return '';
+            return String(texte).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+    </script>
+
+    <!-- ═══════════════ SCRIPT PRINCIPAL ═══════════════ -->
+    <script>
+        // ════════════ CONSTANTES EDT — PLACÉES TÔT (avant toute utilisation) ════════════
+        window.JOURS_EDT = window.JOURS_EDT || ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+        window.CRENEAUX_EDT = window.CRENEAUX_EDT || [
+            { debut: '08:00', fin: '10:00' },
+            { debut: '10:15', fin: '12:15' },
+            { debut: '14:00', fin: '16:00' },
+            { debut: '16:15', fin: '18:15' }
+        ];
+        window.PALETTE_MATIERES = window.PALETTE_MATIERES || [
+            { bg: '#dbeafe', border: '#004AAD', text: '#004AAD' },
+            { bg: '#dcfce7', border: '#2EAD5E', text: '#166534' },
+            { bg: '#fef3c7', border: '#F59E0B', text: '#92400e' },
+            { bg: '#fce7f3', border: '#EC4899', text: '#9d174d' },
+            { bg: '#ede9fe', border: '#8B5CF6', text: '#5b21b6' },
+            { bg: '#cffafe', border: '#06B6D4', text: '#155e75' },
+            { bg: '#fee2e2', border: '#EF4444', text: '#991b1b' },
+            { bg: '#fef9c3', border: '#EAB308', text: '#854d0e' }
+        ];
+
+        let _cacheCouleursMatieres = {};
+        function getCouleurMatiere(m) {
+            if (!m) return window.PALETTE_MATIERES[0];
+            if (_cacheCouleursMatieres[m]) return _cacheCouleursMatieres[m];
+            let hash = 0; for (let i = 0; i < m.length; i++) hash = m.charCodeAt(i) + ((hash << 5) - hash);
+            const c = window.PALETTE_MATIERES[Math.abs(hash) % window.PALETTE_MATIERES.length];
+            _cacheCouleursMatieres[m] = c; return c;
+        }
+        function getJourActuelEDT() {
+            const j = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+            return j[new Date().getDay()];
+        }
+
+        // ════════════ THEME ════════════
         function initTheme() {
             if (localStorage.getItem('eduLinkTheme') === 'dark') { document.body.classList.add('dark-mode'); }
             var avatar = document.getElementById('avatar-header');
@@ -501,6 +610,7 @@ onclick="afficherMesRessources()" class="bouton-action w-full bg-gradient-to-r f
             if (btn) btn.innerHTML = estDark ? '☀️' : '🌙';
         }
 
+        // ════════════ SUPABASE ════════════
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFid2d1aXhjbG14dHp2bHNtYmJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4OTg1OTMsImV4cCI6MjEwNjQ3NDU5M30.8MiG5YdoMIY69KYfBdlXHIB9Zisd5miX3slaCoqVcjM';
         const supabaseUrl = 'https://abwguixclmxtzvlsmbby.supabase.co';
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
@@ -516,12 +626,14 @@ onclick="afficherMesRessources()" class="bouton-action w-full bg-gradient-to-r f
         let trimestreBadgesEns = 1;
         let periodeRapport = 'mois';
         let rapportAbsencesActuel = null;
+        let mesAffectations = [];
+        let affectationActiveId = null;
 
         function afficherAvatarHeader() {
             const btn = document.getElementById('avatar-header');
             if (!btn) return;
             if (currentUser && currentUser.photo_url) {
-                btn.innerHTML = '<img src="' + currentUser.photo_url + '" style="width:100%; height:100%; object-fit:cover;">';
+                btn.innerHTML = '<img src="' + currentUser.photo_url + '" style="width:100%;height:100%;object-fit:cover;">';
             }
         }
 
@@ -545,9 +657,6 @@ onclick="afficherMesRessources()" class="bouton-action w-full bg-gradient-to-r f
             chargerProchainCoursEnseignant();
             setInterval(() => { chargerBadgeNotifs(); }, 30000);
         });
-
-        let mesAffectations = [];
-        let affectationActiveId = null;
 
         async function chargerInfosEnseignant() {
             const { data: ens } = await supabaseClient.from('enseignants').select('id').eq('utilisateur_id', currentUser.id).single();
@@ -578,7 +687,6 @@ onclick="afficherMesRessources()" class="bouton-action w-full bg-gradient-to-r f
                 document.getElementById('selecteur-classe-ens').classList.remove('hidden');
             }
 
-            // Charger la 1ere affectation par defaut
             ensChargerAffectation(mesAffectations[0].id);
         }
 
@@ -599,15 +707,104 @@ onclick="afficherMesRessources()" class="bouton-action w-full bg-gradient-to-r f
             document.getElementById('stat-matiere-label').innerText = aff.matiere;
             if (aff.classes) document.getElementById('classe-enseignant').innerText = aff.classes.nom;
 
-            // Recharger les eleves de cette classe
             const { data: eleves } = await supabaseClient.from('eleves').select('id, utilisateur_id, utilisateurs!utilisateur_id(prenom, nom)').eq('classe_id', classeId);
             listeEleves = eleves || [];
             document.getElementById('nb-eleves').innerText = listeEleves.length + " eleves";
 
-            // Recharger le prochain cours
             chargerProchainCoursEnseignant();
         }
 
+        // ════════════ DISPONIBILITÉS ENSEIGNANT ════════════
+        let disposEnseignantTemp = {};
+
+        async function afficherMesDispos() {
+            hideAllViews();
+            document.getElementById('view-mes-dispos').classList.remove('hidden');
+            document.getElementById('dispos-message').innerText = '';
+            document.getElementById('dispos-grille').innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
+
+            if (!enseignantId) {
+                document.getElementById('dispos-grille').innerHTML = '<div class="bg-orange-50 border border-orange-200 p-3 rounded-xl"><p class="text-xs text-orange-700">Aucune fiche enseignant liée à votre compte.</p></div>';
+                return;
+            }
+
+            const { data: dispos } = await supabaseClient.from('disponibilites_enseignants')
+                .select('*').eq('enseignant_id', enseignantId).eq('ecole_id', monEcoleId);
+
+            disposEnseignantTemp = {};
+            (dispos || []).forEach(d => {
+                if (d.type === 'indisponible') disposEnseignantTemp[d.jour + '|' + d.heure_debut + '|' + d.heure_fin] = true;
+            });
+
+            disposAfficherGrille();
+            window.scrollTo(0, 0);
+        }
+
+        function disposAfficherGrille() {
+            const jours = window.JOURS_EDT;
+            const creneaux = window.CRENEAUX_EDT;
+
+            let html = '<div class="overflow-x-auto"><table style="width:100%;border-collapse:collapse;min-width:500px;">';
+            html += '<thead><tr style="background:#004AAD;">';
+            html += '<th style="padding:8px;color:white;font-size:10px;border:1px solid #004AAD;">Heure</th>';
+            jours.forEach(j => { html += '<th style="padding:8px;color:white;font-size:10px;border:1px solid #004AAD;text-align:center;">' + j.substring(0,3) + '</th>'; });
+            html += '</tr></thead><tbody>';
+
+            creneaux.forEach(cr => {
+                html += '<tr><td style="padding:6px;border:1px solid #e5e7eb;font-size:9px;font-weight:bold;text-align:center;background:#f3f4f6;">' + cr.debut + '<br>' + cr.fin + '</td>';
+                jours.forEach(jour => {
+                    const key = jour + '|' + cr.debut + '|' + cr.fin;
+                    const indispo = disposEnseignantTemp[key];
+                    html += '<td style="padding:4px;border:1px solid #e5e7eb;text-align:center;">';
+                    html += '<div onclick="disposToggle(\'' + key + '\')" style="cursor:pointer;padding:8px;border-radius:6px;font-size:14px;' + (indispo ? 'background:#fee2e2;' : 'background:#dcfce7;') + '">' + (indispo ? '❌' : '✅') + '</div>';
+                    html += '</td>';
+                });
+                html += '</tr>';
+            });
+            html += '</tbody></table></div>';
+            html += '<p class="text-[10px] text-gray-500 mt-2">✅ Disponible — ❌ Indisponible (cliquez pour basculer)</p>';
+            document.getElementById('dispos-grille').innerHTML = html;
+        }
+
+        function disposToggle(key) {
+            if (disposEnseignantTemp[key]) delete disposEnseignantTemp[key];
+            else disposEnseignantTemp[key] = true;
+            disposAfficherGrille();
+        }
+
+        async function sauvegarderMesDispos() {
+            const msg = document.getElementById('dispos-message');
+            msg.innerText = '⏳ Enregistrement...'; msg.style.color = '#F59E0B';
+
+            try {
+                await supabaseClient.from('disponibilites_enseignants').delete().eq('enseignant_id', enseignantId).eq('ecole_id', monEcoleId);
+
+                const lignes = Object.keys(disposEnseignantTemp).map(k => {
+                    const [jour, debut, fin] = k.split('|');
+                    return {
+                        ecole_id: monEcoleId,
+                        enseignant_id: enseignantId,
+                        jour: jour,
+                        heure_debut: debut,
+                        heure_fin: fin,
+                        type: 'indisponible'
+                    };
+                });
+
+                if (lignes.length > 0) {
+                    const { error } = await supabaseClient.from('disponibilites_enseignants').insert(lignes);
+                    if (error) throw error;
+                }
+
+                msg.innerText = '✅ ' + lignes.length + ' créneau(x) enregistré(s) !';
+                msg.style.color = '#2EAD5E';
+            } catch (err) {
+                msg.innerText = 'Erreur : ' + err.message;
+                msg.style.color = '#EF4444';
+            }
+        }
+
+        // ════════════ BADGES CLASSE ════════════
         async function changerTrimestreBadgesEns(t) {
             trimestreBadgesEns = t;
             majTabsBadgesEns();
@@ -622,8 +819,9 @@ onclick="afficherMesRessources()" class="bouton-action w-full bg-gradient-to-r f
                 else tab.className = 'py-2 rounded-xl font-bold text-xs bg-gray-100 text-gray-600';
             });
         }
-async function afficherBadgesClasse() {
-            document.getElementById('view-accueil').classList.add('hidden');
+
+        async function afficherBadgesClasse() {
+            hideAllViews();
             document.getElementById('view-badges-classe').classList.remove('hidden');
             majTabsBadgesEns();
             await chargerBadgesClasse();
@@ -732,59 +930,74 @@ async function afficherBadgesClasse() {
             if (count > 0) { badge.innerText = count; badge.classList.remove('hidden'); } else { badge.classList.add('hidden'); }
         }
 
-        // ============ APPEL AVEC TOGGLE ============
+        // ════════════ APPEL AVEC TOGGLE ════════════
         async function afficherAppel() {
-            document.getElementById('view-accueil').classList.add('hidden');
-            document.getElementById('view-appel').classList.remove('hidden');
-            document.getElementById('liste-appel').innerHTML = '<p class="text-gray-500 text-center py-6">Chargement...</p>';
+    document.getElementById('view-accueil').classList.add('hidden');
+    document.getElementById('view-appel').classList.remove('hidden');
+    var conteneur = document.getElementById('liste-appel');
+    conteneur.innerHTML = '<div class="skeleton" style="height: 80px; margin-bottom: 10px;"></div><div class="skeleton" style="height: 80px; margin-bottom: 10px;"></div><div class="skeleton" style="height: 80px;"></div>';
 
-            const today = new Date().toISOString().split('T')[0];
+    var today = new Date().toISOString().split('T')[0];
 
-            const { data: absences } = await supabaseClient
-                .from('absences')
-                .select('id, eleve_id')
-                .eq('ecole_id', monEcoleId)
-                .eq('matiere', maMatiere)
-                .eq('date_absence', today);
+    var resAbs = await supabaseClient
+        .from('absences')
+        .select('id, eleve_id')
+        .eq('ecole_id', monEcoleId)
+        .eq('matiere', maMatiere)
+        .eq('date_absence', today);
 
-            const absentsMap = {};
-            (absences || []).forEach(a => { absentsMap[a.eleve_id] = a.id; });
+    var absentsMap = {};
+    (resAbs.data || []).forEach(function(a) { absentsMap[a.eleve_id] = a.id; });
 
-            const dateAffichee = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
-            let html = '';
+    var dateAffichee = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+    var nbAbsents = Object.keys(absentsMap).length;
+    var nbPresents = listeEleves.length - nbAbsents;
 
-            if (listeEleves.length === 0) {
-                html = '<p class="text-gray-500 text-center py-4">Aucun élève.</p>';
-            } else {
-                html += '<div class="bg-gradient-to-br from-edu-green to-emerald-700 text-white rounded-2xl p-4 mb-3">'
-                    + '<p class="text-[10px] opacity-80 uppercase font-bold">Appel du jour</p>'
-                    + '<p class="text-sm font-bold capitalize">' + dateAffichee + '</p>'
-                    + '<div class="flex justify-between items-center mt-2">'
-                    + '<span class="text-[11px] opacity-90">Matière : <b>' + maMatiere + '</b></span>'
-                    + '<span class="text-[11px] font-bold bg-white bg-opacity-20 px-2 py-1 rounded-full"><span id="compteur-absents">0</span> absent(s)</span>'
-                    + '</div></div>';
+    var html = '';
 
-                listeEleves.forEach(e => {
-                    const estAbsent = !!absentsMap[e.id];
-                    const initiale = e.utilisateurs.prenom.charAt(0).toUpperCase();
-                    const bgBtn = estAbsent ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-700';
-                    const label = estAbsent ? '❌ Absent' : '✅ Présent';
-                    const colorBar = estAbsent ? '#EF4444' : '#2EAD5E';
-                    const colorBar2 = estAbsent ? '#DC2626' : '#059669';
+    if (listeEleves.length === 0) {
+        conteneur.innerHTML = '<div class="empty-state anim-up"><div class="empty-icon">👥</div><div class="empty-title">Aucun élève</div><div class="empty-desc">Cette classe n\'a pas d\'élèves inscrits</div></div>';
+        return;
+    }
 
-                    html += '<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center">'
-                        + '<div class="flex items-center gap-3">'
-                        + '<div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white" style="background: linear-gradient(135deg, ' + colorBar + ', ' + colorBar2 + ');">' + initiale + '</div>'
-                        + '<div><p class="font-semibold text-gray-800 text-sm">' + e.utilisateurs.prenom + ' ' + e.utilisateurs.nom + '</p>'
-                        + '<p class="badge-statut-eleve text-[10px] ' + (estAbsent ? 'text-red-500 font-bold' : 'text-gray-400') + '">' + (estAbsent ? 'Marqué absent' : 'Présent') + '</p></div></div>'
-                        + '<button onclick="toggleAbsence(' + e.id + ', this)" data-absent="' + (estAbsent ? '1' : '0') + '" class="' + bgBtn + ' px-4 py-2 rounded-lg text-xs font-bold transition">' + label + '</button>'
-                        + '</div>';
-                });
-            }
+    // En-tête
+    html += '<div class="hero-stat anim-up" style="--from: #059669; --to: #047857; margin-bottom: 14px;">';
+    html += '<div class="hero-stat-icon">✅</div>';
+    html += '<div class="hero-stat-label">Appel du jour</div>';
+    html += '<p style="font-size: 16px; font-weight: 800; margin-top: 6px; text-transform: capitalize; position: relative; z-index: 2;">' + dateAffichee + '</p>';
+    html += '<div class="stat-inline" style="margin-top: 12px; position: relative; z-index: 2;">';
+    html += '<div class="stat-mini" style="background: rgba(255,255,255,0.2);"><div class="label" style="color: white; opacity: 0.85;">Présents</div><div class="value" style="color: white;">' + nbPresents + '</div></div>';
+    html += '<div class="stat-mini" style="background: rgba(255,255,255,0.2);"><div class="label" style="color: white; opacity: 0.85;">Absents</div><div class="value" style="color: white;"><span id="compteur-absents">' + nbAbsents + '</span></div></div>';
+    html += '</div>';
+    html += '</div>';
 
-            document.getElementById('liste-appel').innerHTML = html;
-            majCompteurAbsents();
-        }
+    html += '<div class="space-y-2">';
+
+    var delaiIndex = 1;
+    listeEleves.forEach(function(e) {
+        var estAbsent = !!absentsMap[e.id];
+        var initiale = e.utilisateurs.prenom.charAt(0).toUpperCase();
+        var bgClass = estAbsent ? 'red' : 'green';
+        var statutTexte = estAbsent ? 'Absent' : 'Présent';
+        var statutColor = estAbsent ? '#EF4444' : '#059669';
+        var boutonTexte = estAbsent ? '❌ Absent' : '✅ Présent';
+        var boutonBg = estAbsent ? 'linear-gradient(135deg, #EF4444, #B91C1C)' : 'linear-gradient(135deg, #10B981, #047857)';
+
+        html += '<div class="list-row anim-up delay-' + Math.min(delaiIndex, 8) + '" data-eleve-row="' + e.id + '" style="--accent: ' + statutColor + ';">';
+        html += '<div class="list-avatar ' + bgClass + '">' + initiale + '</div>';
+        html += '<div class="list-content">';
+        html += '<div class="list-title">' + e.utilisateurs.prenom + ' ' + e.utilisateurs.nom + '</div>';
+        html += '<div class="list-subtitle badge-statut-eleve" style="color: ' + statutColor + '; font-weight: 700;">' + statutTexte + '</div>';
+        html += '</div>';
+        html += '<button onclick="toggleAbsence(' + e.id + ', this)" data-absent="' + (estAbsent ? '1' : '0') + '" style="background: ' + boutonBg + '; color: white; border: none; padding: 10px 14px; border-radius: 12px; font-size: 11px; font-weight: 800; cursor: pointer; transition: all 0.2s; box-shadow: 0 3px 10px rgba(0,0,0,0.15);">' + boutonTexte + '</button>';
+        html += '</div>';
+        delaiIndex++;
+    });
+
+    html += '</div>';
+
+    conteneur.innerHTML = html;
+}
 
         async function toggleAbsence(eleveId, btn) {
             const estAbsent = btn.getAttribute('data-absent') === '1';
@@ -805,7 +1018,7 @@ async function afficherBadgesClasse() {
                     if (error) throw error;
                     btn.setAttribute('data-absent', '0');
                     btn.innerText = '✅ Présent';
-                    btn.className = 'bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-xs font-bold transition';
+                    btn.style.background = 'linear-gradient(135deg, #10B981, #047857)';
                     const badge = btn.closest('.bg-white').querySelector('.badge-statut-eleve');
                     if (badge) { badge.className = 'badge-statut-eleve text-[10px] text-gray-400'; badge.innerText = 'Présent'; }
                 } else {
@@ -816,7 +1029,7 @@ async function afficherBadgesClasse() {
                     if (error) throw error;
                     btn.setAttribute('data-absent', '1');
                     btn.innerText = '❌ Absent';
-                    btn.className = 'bg-red-500 text-white px-4 py-2 rounded-lg text-xs font-bold transition';
+                    btn.style.background = 'linear-gradient(135deg, #EF4444, #B91C1C)';
                     const badge = btn.closest('.bg-white').querySelector('.badge-statut-eleve');
                     if (badge) { badge.className = 'badge-statut-eleve text-[10px] text-red-500 font-bold'; badge.innerText = 'Marqué absent'; }
 
@@ -844,7 +1057,7 @@ async function afficherBadgesClasse() {
             compteur.innerText = document.querySelectorAll('#liste-appel button[data-absent="1"]').length;
         }
 
-        // ============ RAPPORTS D'ABSENCES ============
+        // ════════════ RAPPORTS D'ABSENCES ════════════
         function formatDateFR(dateStr) {
             if (!dateStr) return '';
             const d = new Date(dateStr + 'T00:00:00');
@@ -858,12 +1071,10 @@ async function afficherBadgesClasse() {
             const d = now.getDate();
             const pad = n => String(n).padStart(2, '0');
             const fmt = dt => dt.getFullYear() + '-' + pad(dt.getMonth() + 1) + '-' + pad(dt.getDate());
-
             let debut, fin;
 
-            if (periode === 'jour') {
-                debut = fin = fmt(now);
-            } else if (periode === 'semaine') {
+            if (periode === 'jour') { debut = fin = fmt(now); }
+            else if (periode === 'semaine') {
                 const day = now.getDay() || 7;
                 const lundi = new Date(now); lundi.setDate(d - day + 1);
                 const dimanche = new Date(lundi); dimanche.setDate(lundi.getDate() + 6);
@@ -984,82 +1195,82 @@ async function afficherBadgesClasse() {
         }
 
         async function telechargerRapportAbsencesPDF() {
-    if (!rapportAbsencesActuel) { alert('Aucun rapport.'); return; }
-    const btn = document.getElementById('btn-pdf-absences');
-    const msg = document.getElementById('message-pdf-absences');
-    btn.disabled = true;
-    const spanOrig = btn.innerHTML;
-    btn.innerHTML = 'Generation...';
-    let iframe = null;
+            if (!rapportAbsencesActuel) { alert('Aucun rapport.'); return; }
+            const btn = document.getElementById('btn-pdf-absences');
+            const msg = document.getElementById('message-pdf-absences');
+            btn.disabled = true;
+            const spanOrig = btn.innerHTML;
+            btn.innerHTML = 'Generation...';
+            let iframe = null;
 
-    try {
-        const r = rapportAbsencesActuel;
-        const ecoleNom = document.getElementById('ecole-nom-affiche').innerText.replace('Ecole ', '');
-        const classeNom = document.getElementById('classe-enseignant').innerText;
-        const dateJour = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+            try {
+                const r = rapportAbsencesActuel;
+                const ecoleNom = document.getElementById('ecole-nom-affiche').innerText.replace('🏫 ', '');
+                const classeNom = document.getElementById('classe-enseignant').innerText;
+                const dateJour = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
 
-        let lignes = '';
-        r.elevesTries.forEach(item => {
-            const s = item.stats;
-            const couleur = s.total === 0 ? '#2EAD5E' : (s.total > 5 ? '#EF4444' : '#F59E0B');
-            lignes += '<tr><td style="padding:8px;border:1px solid #d1d5db;font-size:11px;font-weight:600;">' + item.eleve.utilisateurs.prenom + ' ' + item.eleve.utilisateurs.nom + '</td><td style="padding:8px;border:1px solid #d1d5db;font-size:11px;text-align:center;color:#2EAD5E;font-weight:600;">' + s.just + '</td><td style="padding:8px;border:1px solid #d1d5db;font-size:11px;text-align:center;color:#EF4444;font-weight:600;">' + s.nonJust + '</td><td style="padding:8px;border:1px solid #d1d5db;font-size:12px;text-align:center;font-weight:700;color:' + couleur + ';">' + s.total + '</td></tr>';
-        });
+                let lignes = '';
+                r.elevesTries.forEach(item => {
+                    const s = item.stats;
+                    const couleur = s.total === 0 ? '#2EAD5E' : (s.total > 5 ? '#EF4444' : '#F59E0B');
+                    lignes += '<tr><td style="padding:8px;border:1px solid #d1d5db;font-size:11px;font-weight:600;">' + item.eleve.utilisateurs.prenom + ' ' + item.eleve.utilisateurs.nom + '</td><td style="padding:8px;border:1px solid #d1d5db;font-size:11px;text-align:center;color:#2EAD5E;font-weight:600;">' + s.just + '</td><td style="padding:8px;border:1px solid #d1d5db;font-size:11px;text-align:center;color:#EF4444;font-weight:600;">' + s.nonJust + '</td><td style="padding:8px;border:1px solid #d1d5db;font-size:12px;text-align:center;font-weight:700;color:' + couleur + ';">' + s.total + '</td></tr>';
+                });
 
-        const htmlInterne = '<div style="background:white;padding:20px;border:2px solid #004AAD;border-radius:12px;font-family:Arial,sans-serif;">'
-            + '<div style="text-align:center;border-bottom:2px solid #004AAD;padding-bottom:12px;margin-bottom:16px;">'
-            + '<h1 style="font-size:18px;font-weight:bold;color:#004AAD;margin:4px 0;">EDU-LINK</h1>'
-            + '<p style="font-size:10px;color:#6b7280;margin:0;">' + ecoleNom + '</p>'
-            + '<p style="font-size:14px;font-weight:bold;color:#1f2937;margin-top:8px;">RAPPORT D ABSENCES - ' + classeNom + '</p>'
-            + '<p style="font-size:11px;color:#1f2937;margin:2px 0;">Du <b>' + formatDateFR(r.debut) + '</b> au <b>' + formatDateFR(r.fin) + '</b></p>'
-            + '</div>'
-            + '<table style="width:100%;border-collapse:collapse;margin-bottom:14px;"><tr>'
-            + '<td style="width:25%;text-align:center;padding:8px;background:#fef2f2;border:1px solid #d1d5db;"><p style="font-size:9px;color:#6b7280;margin:0;">Total</p><p style="font-size:18px;font-weight:bold;color:#EF4444;margin:2px 0 0 0;">' + r.total + '</p></td>'
-            + '<td style="width:25%;text-align:center;padding:8px;background:#f0fdf4;border:1px solid #d1d5db;"><p style="font-size:9px;color:#6b7280;margin:0;">Justifiees</p><p style="font-size:18px;font-weight:bold;color:#2EAD5E;margin:2px 0 0 0;">' + r.justifiees + '</p></td>'
-            + '<td style="width:25%;text-align:center;padding:8px;background:#fef2f2;border:1px solid #d1d5db;"><p style="font-size:9px;color:#6b7280;margin:0;">Non just.</p><p style="font-size:18px;font-weight:bold;color:#EF4444;margin:2px 0 0 0;">' + r.nonJust + '</p></td>'
-            + '<td style="width:25%;text-align:center;padding:8px;background:#f0f7ff;border:1px solid #d1d5db;"><p style="font-size:9px;color:#6b7280;margin:0;">Eleves</p><p style="font-size:18px;font-weight:bold;color:#004AAD;margin:2px 0 0 0;">' + r.elevesConcernes + '</p></td>'
-            + '</tr></table>'
-            + '<table style="width:100%;border-collapse:collapse;"><thead><tr style="background:#004AAD;">'
-            + '<th style="border:1px solid #004AAD;padding:8px;font-size:10px;color:white;text-align:left;">Eleve</th>'
-            + '<th style="border:1px solid #004AAD;padding:8px;font-size:10px;color:white;text-align:center;width:70px;">Just.</th>'
-            + '<th style="border:1px solid #004AAD;padding:8px;font-size:10px;color:white;text-align:center;width:80px;">Non just.</th>'
-            + '<th style="border:1px solid #004AAD;padding:8px;font-size:10px;color:white;text-align:center;width:70px;">Total</th>'
-            + '</tr></thead><tbody>' + lignes + '</tbody></table>'
-            + '<p style="text-align:center;font-size:8px;color:#9ca3af;margin-top:14px;">Document genere par EDU-LINK - ' + dateJour + '</p>'
-            + '</div>';
+                const htmlInterne = '<div style="background:white;padding:20px;border:2px solid #004AAD;border-radius:12px;font-family:Arial,sans-serif;">'
+                    + '<div style="text-align:center;border-bottom:2px solid #004AAD;padding-bottom:12px;margin-bottom:16px;">'
+                    + '<h1 style="font-size:18px;font-weight:bold;color:#004AAD;margin:4px 0;">EDU-LINK</h1>'
+                    + '<p style="font-size:10px;color:#6b7280;margin:0;">' + ecoleNom + '</p>'
+                    + '<p style="font-size:14px;font-weight:bold;color:#1f2937;margin-top:8px;">RAPPORT D ABSENCES - ' + classeNom + '</p>'
+                    + '<p style="font-size:11px;color:#1f2937;margin:2px 0;">Du <b>' + formatDateFR(r.debut) + '</b> au <b>' + formatDateFR(r.fin) + '</b></p>'
+                    + '</div>'
+                    + '<table style="width:100%;border-collapse:collapse;margin-bottom:14px;"><tr>'
+                    + '<td style="width:25%;text-align:center;padding:8px;background:#fef2f2;border:1px solid #d1d5db;"><p style="font-size:9px;color:#6b7280;margin:0;">Total</p><p style="font-size:18px;font-weight:bold;color:#EF4444;margin:2px 0 0 0;">' + r.total + '</p></td>'
+                    + '<td style="width:25%;text-align:center;padding:8px;background:#f0fdf4;border:1px solid #d1d5db;"><p style="font-size:9px;color:#6b7280;margin:0;">Justifiees</p><p style="font-size:18px;font-weight:bold;color:#2EAD5E;margin:2px 0 0 0;">' + r.justifiees + '</p></td>'
+                    + '<td style="width:25%;text-align:center;padding:8px;background:#fef2f2;border:1px solid #d1d5db;"><p style="font-size:9px;color:#6b7280;margin:0;">Non just.</p><p style="font-size:18px;font-weight:bold;color:#EF4444;margin:2px 0 0 0;">' + r.nonJust + '</p></td>'
+                    + '<td style="width:25%;text-align:center;padding:8px;background:#f0f7ff;border:1px solid #d1d5db;"><p style="font-size:9px;color:#6b7280;margin:0;">Eleves</p><p style="font-size:18px;font-weight:bold;color:#004AAD;margin:2px 0 0 0;">' + r.elevesConcernes + '</p></td>'
+                    + '</tr></table>'
+                    + '<table style="width:100%;border-collapse:collapse;"><thead><tr style="background:#004AAD;">'
+                    + '<th style="border:1px solid #004AAD;padding:8px;font-size:10px;color:white;text-align:left;">Eleve</th>'
+                    + '<th style="border:1px solid #004AAD;padding:8px;font-size:10px;color:white;text-align:center;width:70px;">Just.</th>'
+                    + '<th style="border:1px solid #004AAD;padding:8px;font-size:10px;color:white;text-align:center;width:80px;">Non just.</th>'
+                    + '<th style="border:1px solid #004AAD;padding:8px;font-size:10px;color:white;text-align:center;width:70px;">Total</th>'
+                    + '</tr></thead><tbody>' + lignes + '</tbody></table>'
+                    + '<p style="text-align:center;font-size:8px;color:#9ca3af;margin-top:14px;">Document genere par EDU-LINK - ' + dateJour + '</p>'
+                    + '</div>';
 
-        iframe = document.createElement('iframe');
-        iframe.style.cssText = 'position:fixed;top:0;left:0;width:800px;height:1100px;opacity:0;pointer-events:none;z-index:-1;border:none;';
-        document.body.appendChild(iframe);
-        const doc = iframe.contentDocument || iframe.contentWindow.document;
-        doc.open();
-        doc.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{margin:0;padding:20px;background:#ffffff;font-family:Arial,sans-serif;}</style></head><body>' + htmlInterne + '</body></html>');
-        doc.close();
-        await new Promise(r => setTimeout(r, 400));
+                iframe = document.createElement('iframe');
+                iframe.style.cssText = 'position:fixed;top:0;left:0;width:800px;height:1100px;opacity:0;pointer-events:none;z-index:-1;border:none;';
+                document.body.appendChild(iframe);
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                doc.open();
+                doc.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{margin:0;padding:20px;background:#ffffff;font-family:Arial,sans-serif;}</style></head><body>' + htmlInterne + '</body></html>');
+                doc.close();
+                await new Promise(r => setTimeout(r, 400));
 
-        const nomFichier = 'Rapport_Absences_' + classeNom.replace(/\s+/g, '_') + '_' + r.debut + '_' + r.fin + '.pdf';
-        const options = { margin: 10, filename: nomFichier, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', width: 800, windowWidth: 800, scrollX: 0, scrollY: 0 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-        const pdfBlob = await html2pdf().set(options).from(doc.body).outputPdf('blob');
-        const fichier = new File([pdfBlob], nomFichier, { type: 'application/pdf' });
-        document.body.removeChild(iframe); iframe = null;
+                const nomFichier = 'Rapport_Absences_' + classeNom.replace(/\s+/g, '_') + '_' + r.debut + '_' + r.fin + '.pdf';
+                const options = { margin: 10, filename: nomFichier, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', width: 800, windowWidth: 800, scrollX: 0, scrollY: 0 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+                const pdfBlob = await html2pdf().set(options).from(doc.body).outputPdf('blob');
+                const fichier = new File([pdfBlob], nomFichier, { type: 'application/pdf' });
+                document.body.removeChild(iframe); iframe = null;
 
-        if (navigator.canShare && navigator.canShare({ files: [fichier] })) {
-            await navigator.share({ files: [fichier], title: 'Rapport absences' });
-            msg.innerText = 'Rapport partage !'; msg.style.color = '#2EAD5E';
-        } else {
-            const url = URL.createObjectURL(pdfBlob);
-            window.open(url, '_blank');
-            msg.innerText = 'PDF ouvert !'; msg.style.color = '#2EAD5E';
+                if (navigator.canShare && navigator.canShare({ files: [fichier] })) {
+                    await navigator.share({ files: [fichier], title: 'Rapport absences' });
+                    msg.innerText = 'Rapport partage !'; msg.style.color = '#2EAD5E';
+                } else {
+                    const url = URL.createObjectURL(pdfBlob);
+                    window.open(url, '_blank');
+                    msg.innerText = 'PDF ouvert !'; msg.style.color = '#2EAD5E';
+                }
+            } catch (err) {
+                if (iframe && document.body.contains(iframe)) document.body.removeChild(iframe);
+                if (err.name === 'AbortError') { msg.innerText = 'Annule.'; msg.style.color = '#6b7280'; }
+                else { msg.innerText = 'Erreur : ' + err.message; msg.style.color = '#EF4444'; }
+            } finally {
+                btn.disabled = false; btn.innerHTML = spanOrig;
+            }
         }
-    } catch (err) {
-        if (iframe && document.body.contains(iframe)) document.body.removeChild(iframe);
-        if (err.name === 'AbortError') { msg.innerText = 'Annule.'; msg.style.color = '#6b7280'; }
-        else { msg.innerText = 'Erreur : ' + err.message; msg.style.color = '#EF4444'; }
-    } finally {
-        btn.disabled = false; btn.innerHTML = spanOrig;
-    }
-}
 
-        // ============ NOTES ============
+        // ════════════ NOTES ════════════
         async function afficherSaisieNotes() {
             document.getElementById('view-accueil').classList.add('hidden');
             document.getElementById('view-notes').classList.remove('hidden');
@@ -1083,7 +1294,6 @@ async function afficherBadgesClasse() {
 
             msg.innerText = "Verification..."; msg.style.color = "orange";
 
-            // Verifier si une note du meme type existe deja
             const { data: existante } = await supabaseClient.from('notes')
                 .select('id')
                 .eq('eleve_id', parseInt(eleveId))
@@ -1125,7 +1335,6 @@ async function afficherBadgesClasse() {
             }]);
             if (error) { msg.innerText = "Erreur : " + error.message; msg.style.color = "red"; return; }
 
-            // Notifier
             const { data: eleve } = await supabaseClient.from('eleves').select('parent_id, utilisateur_id, utilisateurs!utilisateur_id(prenom)').eq('id', eleveId).single();
             const typeLabels = { devoir1: 'Devoir 1', devoir2: 'Devoir 2', devoir3: 'Devoir 3', composition: 'Composition' };
             const typeLabel = typeLabels[typeEval] || 'Note';
@@ -1169,7 +1378,6 @@ async function afficherBadgesClasse() {
                 const dateJour = new Date().toISOString().split('T')[0];
                 const eleveIds = notesAEnregistrer.map(n => n.eleve_id);
 
-                // Verifier les notes existantes du meme type
                 const { data: existantes } = await supabaseClient.from('notes')
                     .select('id, eleve_id')
                     .in('eleve_id', eleveIds)
@@ -1187,7 +1395,6 @@ async function afficherBadgesClasse() {
                     await supabaseClient.from('notes').delete().in('id', idsASupprimer);
                 }
 
-                // Inserer
                 const lignes = notesAEnregistrer.map(n => ({
                     eleve_id: n.eleve_id,
                     matiere: maMatiere,
@@ -1204,7 +1411,6 @@ async function afficherBadgesClasse() {
                 const { error } = await supabaseClient.from('notes').insert(lignes);
                 if (error) throw error;
 
-                // Notifier
                 const typeLabels = { devoir1: 'Devoir 1', devoir2: 'Devoir 2', devoir3: 'Devoir 3', composition: 'Composition' };
                 const typeLabel = typeLabels[typeEval] || 'Note';
 
@@ -1226,7 +1432,7 @@ async function afficherBadgesClasse() {
             }
         }
 
-        // ============ DEVOIRS ============
+        // ════════════ DEVOIRS ════════════
         async function afficherDevoirs() {
             document.getElementById('view-accueil').classList.add('hidden');
             document.getElementById('view-devoirs').classList.remove('hidden');
@@ -1303,7 +1509,7 @@ async function afficherBadgesClasse() {
             afficherDevoirs();
         }
 
-        // ============ STATISTIQUES ============
+        // ════════════ STATISTIQUES ════════════
         function afficherStatistiques() {
             document.getElementById('view-accueil').classList.add('hidden');
             document.getElementById('view-statistiques').classList.remove('hidden');
@@ -1401,100 +1607,100 @@ async function afficherBadgesClasse() {
         }
 
         async function telechargerBulletinClasse() {
-    const btn = document.getElementById('btn-bulletin-classe');
-    const msg = document.getElementById('message-bulletin-classe');
-    if (!mesStatsActuelles || mesStatsActuelles.moyenneClasse === null) { msg.innerText = "Aucune donnee."; msg.style.color = "#EF4444"; return; }
-    btn.disabled = true;
-    const spanOrig = btn.innerHTML;
-    btn.innerHTML = 'Generation...';
-    msg.innerText = '';
-    let iframe = null;
+            const btn = document.getElementById('btn-bulletin-classe');
+            const msg = document.getElementById('message-bulletin-classe');
+            if (!mesStatsActuelles || mesStatsActuelles.moyenneClasse === null) { msg.innerText = "Aucune donnee."; msg.style.color = "#EF4444"; return; }
+            btn.disabled = true;
+            const spanOrig = btn.innerHTML;
+            btn.innerHTML = 'Generation...';
+            msg.innerText = '';
+            let iframe = null;
 
-    try {
-        const ecoleNom = document.getElementById('ecole-nom-affiche').innerText.replace('Ecole ', '');
-        const classeNom = document.getElementById('classe-enseignant').innerText;
-        const dateJour = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-        const t = mesStatsActuelles;
-        const tousTries = [...t.elevesAvecMoyenne].sort((a, b) => { if (a.moyenne === null && b.moyenne === null) return 0; if (a.moyenne === null) return 1; if (b.moyenne === null) return -1; return b.moyenne - a.moyenne; });
+            try {
+                const ecoleNom = document.getElementById('ecole-nom-affiche').innerText.replace('🏫 ', '');
+                const classeNom = document.getElementById('classe-enseignant').innerText;
+                const dateJour = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+                const t = mesStatsActuelles;
+                const tousTries = [...t.elevesAvecMoyenne].sort((a, b) => { if (a.moyenne === null && b.moyenne === null) return 0; if (a.moyenne === null) return 1; if (b.moyenne === null) return -1; return b.moyenne - a.moyenne; });
 
-        let lignes = '';
-        tousTries.forEach((e, idx) => {
-            const moyStr = e.moyenne !== null ? e.moyenne.toFixed(2) : '--';
-            const moyAff = e.moyenne !== null ? moyStr + '/20' : 'Non note';
-            let couleur = '#6b7280';
-            if (e.moyenne !== null) { if (e.moyenne >= 14) couleur = '#004AAD'; else if (e.moyenne >= 10) couleur = '#2EAD5E'; else couleur = '#EF4444'; }
-            let mention = '--';
-            if (e.moyenne !== null) { if (e.moyenne >= 16) mention = 'Excellent'; else if (e.moyenne >= 14) mention = 'Tres bien'; else if (e.moyenne >= 12) mention = 'Bien'; else if (e.moyenne >= 10) mention = 'Passable'; else mention = 'Insuffisant'; }
-            const bg = (idx % 2 === 0) ? '#ffffff' : '#f9fafb';
-            const rang = e.moyenne !== null ? (t.avecNotes.indexOf(e) + 1) : '-';
-            lignes += '<tr style="background:' + bg + ';"><td style="padding:8px;border:1px solid #d1d5db;font-size:11px;text-align:center;color:#6b7280;">' + rang + '</td><td style="padding:8px;border:1px solid #d1d5db;font-size:11px;font-weight:600;color:#1f2937;">' + e.utilisateurs.prenom + ' ' + e.utilisateurs.nom + '</td><td style="padding:8px;border:1px solid #d1d5db;font-size:11px;text-align:center;color:#6b7280;">' + e.nbNotes + '</td><td style="padding:8px;border:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;color:' + couleur + ';">' + moyAff + '</td><td style="padding:8px;border:1px solid #d1d5db;font-size:10px;text-align:center;color:' + couleur + ';font-weight:600;">' + mention + '</td></tr>';
-        });
+                let lignes = '';
+                tousTries.forEach((e, idx) => {
+                    const moyStr = e.moyenne !== null ? e.moyenne.toFixed(2) : '--';
+                    const moyAff = e.moyenne !== null ? moyStr + '/20' : 'Non note';
+                    let couleur = '#6b7280';
+                    if (e.moyenne !== null) { if (e.moyenne >= 14) couleur = '#004AAD'; else if (e.moyenne >= 10) couleur = '#2EAD5E'; else couleur = '#EF4444'; }
+                    let mention = '--';
+                    if (e.moyenne !== null) { if (e.moyenne >= 16) mention = 'Excellent'; else if (e.moyenne >= 14) mention = 'Tres bien'; else if (e.moyenne >= 12) mention = 'Bien'; else if (e.moyenne >= 10) mention = 'Passable'; else mention = 'Insuffisant'; }
+                    const bg = (idx % 2 === 0) ? '#ffffff' : '#f9fafb';
+                    const rang = e.moyenne !== null ? (t.avecNotes.indexOf(e) + 1) : '-';
+                    lignes += '<tr style="background:' + bg + ';"><td style="padding:8px;border:1px solid #d1d5db;font-size:11px;text-align:center;color:#6b7280;">' + rang + '</td><td style="padding:8px;border:1px solid #d1d5db;font-size:11px;font-weight:600;color:#1f2937;">' + e.utilisateurs.prenom + ' ' + e.utilisateurs.nom + '</td><td style="padding:8px;border:1px solid #d1d5db;font-size:11px;text-align:center;color:#6b7280;">' + e.nbNotes + '</td><td style="padding:8px;border:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;color:' + couleur + ';">' + moyAff + '</td><td style="padding:8px;border:1px solid #d1d5db;font-size:10px;text-align:center;color:' + couleur + ';font-weight:600;">' + mention + '</td></tr>';
+                });
 
-        let blocSignature = '';
-        if (signatureEcole) {
-            blocSignature = '<table style="width:100%;margin-top:20px;"><tr><td style="width:50%;text-align:left;padding:8px;"><p style="font-size:9px;color:#6b7280;margin:0;">Fait le ' + dateJour + '</p><p style="font-size:9px;color:#6b7280;margin:2px 0 0 0;">Enseignant : ' + currentUser.prenom + ' ' + currentUser.nom + '</p></td><td style="width:50%;text-align:right;padding:8px;"><p style="font-size:9px;color:#6b7280;margin:0;">Le Directeur</p><img src="' + signatureEcole + '" style="max-height:50px;max-width:160px;margin-top:4px;"></td></tr></table>';
-        } else {
-            blocSignature = '<table style="width:100%;margin-top:20px;"><tr><td style="width:50%;text-align:left;padding:8px;"><p style="font-size:9px;color:#6b7280;margin:0;">Fait le ' + dateJour + '</p><p style="font-size:9px;color:#6b7280;margin:2px 0 0 0;">Enseignant : ' + currentUser.prenom + ' ' + currentUser.nom + '</p></td><td style="width:50%;text-align:right;padding:8px;"><p style="font-size:9px;color:#6b7280;margin:0;">Le Directeur</p></td></tr></table>';
+                let blocSignature = '';
+                if (signatureEcole) {
+                    blocSignature = '<table style="width:100%;margin-top:20px;"><tr><td style="width:50%;text-align:left;padding:8px;"><p style="font-size:9px;color:#6b7280;margin:0;">Fait le ' + dateJour + '</p><p style="font-size:9px;color:#6b7280;margin:2px 0 0 0;">Enseignant : ' + currentUser.prenom + ' ' + currentUser.nom + '</p></td><td style="width:50%;text-align:right;padding:8px;"><p style="font-size:9px;color:#6b7280;margin:0;">Le Directeur</p><img src="' + signatureEcole + '" style="max-height:50px;max-width:160px;margin-top:4px;"></td></tr></table>';
+                } else {
+                    blocSignature = '<table style="width:100%;margin-top:20px;"><tr><td style="width:50%;text-align:left;padding:8px;"><p style="font-size:9px;color:#6b7280;margin:0;">Fait le ' + dateJour + '</p><p style="font-size:9px;color:#6b7280;margin:2px 0 0 0;">Enseignant : ' + currentUser.prenom + ' ' + currentUser.nom + '</p></td><td style="width:50%;text-align:right;padding:8px;"><p style="font-size:9px;color:#6b7280;margin:0;">Le Directeur</p></td></tr></table>';
+                }
+
+                const htmlInterne = '<div style="background:white;padding:20px;border:2px solid #004AAD;border-radius:12px;font-family:Arial,sans-serif;">'
+                    + '<div style="text-align:center;border-bottom:2px solid #004AAD;padding-bottom:12px;margin-bottom:16px;">'
+                    + '<h1 style="font-size:18px;font-weight:bold;color:#004AAD;margin:4px 0;">EDU-LINK</h1>'
+                    + '<p style="font-size:10px;color:#6b7280;margin:0;">' + ecoleNom + '</p>'
+                    + '<p style="font-size:14px;font-weight:bold;color:#1f2937;margin-top:8px;">BULLETIN DE CLASSE - ' + classeNom + '</p>'
+                    + '<p style="font-size:11px;color:#1f2937;margin:2px 0;">Matiere : <b>' + maMatiere + '</b> - Trimestre ' + t.trimestre + '</p>'
+                    + '</div>'
+                    + '<table style="width:100%;border-collapse:collapse;margin-bottom:14px;"><tr>'
+                    + '<td style="width:25%;text-align:center;padding:8px;background:#f0f7ff;border:1px solid #d1d5db;"><p style="font-size:9px;color:#6b7280;margin:0;">Moyenne classe</p><p style="font-size:16px;font-weight:bold;color:#004AAD;margin:2px 0 0 0;">' + t.moyenneClasse.toFixed(2) + '/20</p></td>'
+                    + '<td style="width:25%;text-align:center;padding:8px;background:#f0f7ff;border:1px solid #d1d5db;"><p style="font-size:9px;color:#6b7280;margin:0;">Taux reussite</p><p style="font-size:16px;font-weight:bold;color:#2EAD5E;margin:2px 0 0 0;">' + t.tauxReussite + '%</p></td>'
+                    + '<td style="width:25%;text-align:center;padding:8px;background:#f0f7ff;border:1px solid #d1d5db;"><p style="font-size:9px;color:#6b7280;margin:0;">Minimum</p><p style="font-size:16px;font-weight:bold;color:#EF4444;margin:2px 0 0 0;">' + t.noteMin.toFixed(2) + '/20</p></td>'
+                    + '<td style="width:25%;text-align:center;padding:8px;background:#f0f7ff;border:1px solid #d1d5db;"><p style="font-size:9px;color:#6b7280;margin:0;">Maximum</p><p style="font-size:16px;font-weight:bold;color:#2EAD5E;margin:2px 0 0 0;">' + t.noteMax.toFixed(2) + '/20</p></td>'
+                    + '</tr></table>'
+                    + '<table style="width:100%;border-collapse:collapse;"><thead><tr style="background:#004AAD;">'
+                    + '<th style="border:1px solid #004AAD;padding:8px;font-size:10px;color:white;text-align:center;width:40px;">Rang</th>'
+                    + '<th style="border:1px solid #004AAD;padding:8px;font-size:10px;color:white;text-align:left;">Eleve</th>'
+                    + '<th style="border:1px solid #004AAD;padding:8px;font-size:10px;color:white;text-align:center;width:60px;">Notes</th>'
+                    + '<th style="border:1px solid #004AAD;padding:8px;font-size:10px;color:white;text-align:center;width:80px;">Moyenne</th>'
+                    + '<th style="border:1px solid #004AAD;padding:8px;font-size:10px;color:white;text-align:center;width:90px;">Mention</th>'
+                    + '</tr></thead><tbody>' + lignes + '</tbody></table>'
+                    + '<div style="margin-top:12px;padding:8px;background:#f0f7ff;border-left:4px solid #004AAD;border-radius:4px;"><p style="font-size:9px;color:#1f2937;margin:0;"><b>Eleves notes :</b> ' + t.nbAvecNotes + '/' + t.nbTotal + ' - <b>Eleves >= 10 :</b> ' + t.nbReussite + '/' + t.nbAvecNotes + '</p></div>'
+                    + blocSignature
+                    + '<p style="text-align:center;font-size:8px;color:#9ca3af;margin-top:14px;">Document genere par EDU-LINK - ' + dateJour + '</p>'
+                    + '</div>';
+
+                iframe = document.createElement('iframe');
+                iframe.style.cssText = 'position:fixed;top:0;left:0;width:800px;height:1100px;opacity:0;pointer-events:none;z-index:-1;border:none;';
+                document.body.appendChild(iframe);
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                doc.open();
+                doc.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{margin:0;padding:20px;background:#ffffff;font-family:Arial,sans-serif;}</style></head><body>' + htmlInterne + '</body></html>');
+                doc.close();
+                await new Promise(r => setTimeout(r, 400));
+
+                const nomFichier = 'Bulletin_Classe_' + classeNom.replace(/\s+/g, '_') + '_T' + t.trimestre + '.pdf';
+                const options = { margin: 10, filename: nomFichier, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', width: 800, windowWidth: 800, scrollX: 0, scrollY: 0 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+                const pdfBlob = await html2pdf().set(options).from(doc.body).outputPdf('blob');
+                const fichier = new File([pdfBlob], nomFichier, { type: 'application/pdf' });
+                document.body.removeChild(iframe); iframe = null;
+
+                if (navigator.canShare && navigator.canShare({ files: [fichier] })) {
+                    await navigator.share({ files: [fichier], title: 'Bulletin de classe' });
+                    msg.innerText = "Bulletin partage !"; msg.style.color = "#2EAD5E";
+                } else {
+                    const url = URL.createObjectURL(pdfBlob);
+                    window.open(url, '_blank');
+                    msg.innerText = "PDF ouvert !"; msg.style.color = "#2EAD5E";
+                }
+            } catch (err) {
+                if (iframe && document.body.contains(iframe)) document.body.removeChild(iframe);
+                if (err.name === 'AbortError') { msg.innerText = "Annule."; msg.style.color = "#6b7280"; }
+                else { msg.innerText = "Erreur : " + err.message; msg.style.color = "#EF4444"; }
+            } finally {
+                btn.disabled = false; btn.classList.remove('opacity-70'); btn.innerHTML = spanOrig;
+            }
         }
 
-        const htmlInterne = '<div style="background:white;padding:20px;border:2px solid #004AAD;border-radius:12px;font-family:Arial,sans-serif;">'
-            + '<div style="text-align:center;border-bottom:2px solid #004AAD;padding-bottom:12px;margin-bottom:16px;">'
-            + '<h1 style="font-size:18px;font-weight:bold;color:#004AAD;margin:4px 0;">EDU-LINK</h1>'
-            + '<p style="font-size:10px;color:#6b7280;margin:0;">' + ecoleNom + '</p>'
-            + '<p style="font-size:14px;font-weight:bold;color:#1f2937;margin-top:8px;">BULLETIN DE CLASSE - ' + classeNom + '</p>'
-            + '<p style="font-size:11px;color:#1f2937;margin:2px 0;">Matiere : <b>' + maMatiere + '</b> - Trimestre ' + t.trimestre + '</p>'
-            + '</div>'
-            + '<table style="width:100%;border-collapse:collapse;margin-bottom:14px;"><tr>'
-            + '<td style="width:25%;text-align:center;padding:8px;background:#f0f7ff;border:1px solid #d1d5db;"><p style="font-size:9px;color:#6b7280;margin:0;">Moyenne classe</p><p style="font-size:16px;font-weight:bold;color:#004AAD;margin:2px 0 0 0;">' + t.moyenneClasse.toFixed(2) + '/20</p></td>'
-            + '<td style="width:25%;text-align:center;padding:8px;background:#f0f7ff;border:1px solid #d1d5db;"><p style="font-size:9px;color:#6b7280;margin:0;">Taux reussite</p><p style="font-size:16px;font-weight:bold;color:#2EAD5E;margin:2px 0 0 0;">' + t.tauxReussite + '%</p></td>'
-            + '<td style="width:25%;text-align:center;padding:8px;background:#f0f7ff;border:1px solid #d1d5db;"><p style="font-size:9px;color:#6b7280;margin:0;">Minimum</p><p style="font-size:16px;font-weight:bold;color:#EF4444;margin:2px 0 0 0;">' + t.noteMin.toFixed(2) + '/20</p></td>'
-            + '<td style="width:25%;text-align:center;padding:8px;background:#f0f7ff;border:1px solid #d1d5db;"><p style="font-size:9px;color:#6b7280;margin:0;">Maximum</p><p style="font-size:16px;font-weight:bold;color:#2EAD5E;margin:2px 0 0 0;">' + t.noteMax.toFixed(2) + '/20</p></td>'
-            + '</tr></table>'
-            + '<table style="width:100%;border-collapse:collapse;"><thead><tr style="background:#004AAD;">'
-            + '<th style="border:1px solid #004AAD;padding:8px;font-size:10px;color:white;text-align:center;width:40px;">Rang</th>'
-            + '<th style="border:1px solid #004AAD;padding:8px;font-size:10px;color:white;text-align:left;">Eleve</th>'
-            + '<th style="border:1px solid #004AAD;padding:8px;font-size:10px;color:white;text-align:center;width:60px;">Notes</th>'
-            + '<th style="border:1px solid #004AAD;padding:8px;font-size:10px;color:white;text-align:center;width:80px;">Moyenne</th>'
-            + '<th style="border:1px solid #004AAD;padding:8px;font-size:10px;color:white;text-align:center;width:90px;">Mention</th>'
-            + '</tr></thead><tbody>' + lignes + '</tbody></table>'
-            + '<div style="margin-top:12px;padding:8px;background:#f0f7ff;border-left:4px solid #004AAD;border-radius:4px;"><p style="font-size:9px;color:#1f2937;margin:0;"><b>Eleves notes :</b> ' + t.nbAvecNotes + '/' + t.nbTotal + ' - <b>Eleves >= 10 :</b> ' + t.nbReussite + '/' + t.nbAvecNotes + '</p></div>'
-            + blocSignature
-            + '<p style="text-align:center;font-size:8px;color:#9ca3af;margin-top:14px;">Document genere par EDU-LINK - ' + dateJour + '</p>'
-            + '</div>';
-
-        iframe = document.createElement('iframe');
-        iframe.style.cssText = 'position:fixed;top:0;left:0;width:800px;height:1100px;opacity:0;pointer-events:none;z-index:-1;border:none;';
-        document.body.appendChild(iframe);
-        const doc = iframe.contentDocument || iframe.contentWindow.document;
-        doc.open();
-        doc.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{margin:0;padding:20px;background:#ffffff;font-family:Arial,sans-serif;}</style></head><body>' + htmlInterne + '</body></html>');
-        doc.close();
-        await new Promise(r => setTimeout(r, 400));
-
-        const nomFichier = 'Bulletin_Classe_' + classeNom.replace(/\s+/g, '_') + '_T' + t.trimestre + '.pdf';
-        const options = { margin: 10, filename: nomFichier, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', width: 800, windowWidth: 800, scrollX: 0, scrollY: 0 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-        const pdfBlob = await html2pdf().set(options).from(doc.body).outputPdf('blob');
-        const fichier = new File([pdfBlob], nomFichier, { type: 'application/pdf' });
-        document.body.removeChild(iframe); iframe = null;
-
-        if (navigator.canShare && navigator.canShare({ files: [fichier] })) {
-            await navigator.share({ files: [fichier], title: 'Bulletin de classe' });
-            msg.innerText = "Bulletin partage !"; msg.style.color = "#2EAD5E";
-        } else {
-            const url = URL.createObjectURL(pdfBlob);
-            window.open(url, '_blank');
-            msg.innerText = "PDF ouvert !"; msg.style.color = "#2EAD5E";
-        }
-    } catch (err) {
-        if (iframe && document.body.contains(iframe)) document.body.removeChild(iframe);
-        if (err.name === 'AbortError') { msg.innerText = "Annule."; msg.style.color = "#6b7280"; }
-        else { msg.innerText = "Erreur : " + err.message; msg.style.color = "#EF4444"; }
-    } finally {
-        btn.disabled = false; btn.classList.remove('opacity-70'); btn.innerHTML = spanOrig;
-    }
-}
-
-        // ============ EMPLOI DU TEMPS ============
+        // ════════════ EMPLOI DU TEMPS (avec créneaux standards + couleurs + jour actuel) ════════════
         async function afficherEmploi() {
             document.getElementById('view-accueil').classList.add('hidden');
             document.getElementById('view-emploi').classList.remove('hidden');
@@ -1546,16 +1752,19 @@ async function afficherBadgesClasse() {
         }
 
         async function afficherTableauEmploi(cours) {
-            const jours = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
-            const creneaux = [];
-            if (cours && cours.length > 0) {
-                const setCreneaux = new Set();
-                cours.forEach(c => { const hd = c.heure_debut ? c.heure_debut.substring(0,5) : ''; const hf = c.heure_fin ? c.heure_fin.substring(0,5) : ''; const key = hd + '-' + hf; if (!setCreneaux.has(key)) { setCreneaux.add(key); creneaux.push({ debut: hd, fin: hf }); } });
-                creneaux.sort((a, b) => a.debut.localeCompare(b.debut));
-            }
-            if (creneaux.length === 0) { creneaux.push({ debut: '08:00', fin: '10:00' }); creneaux.push({ debut: '10:15', fin: '12:15' }); creneaux.push({ debut: '14:00', fin: '16:00' }); creneaux.push({ debut: '16:15', fin: '18:15' }); }
+            const jours = window.JOURS_EDT;
+            const jourActuel = getJourActuelEDT();
+            const creneauxSet = new Set(window.CRENEAUX_EDT.map(c => c.debut + '-' + c.fin));
+            const creneaux = [...window.CRENEAUX_EDT];
+            (cours || []).forEach(c => {
+                if (!c.heure_debut || !c.heure_fin) return;
+                const hd = c.heure_debut.substring(0, 5);
+                const hf = c.heure_fin.substring(0, 5);
+                const key = hd + '-' + hf;
+                if (!creneauxSet.has(key)) { creneauxSet.add(key); creneaux.push({ debut: hd, fin: hf }); }
+            });
+            creneaux.sort((a, b) => a.debut.localeCompare(b.debut));
 
-            // Charger les pointages du jour pour cette classe
             const today = new Date().toISOString().split('T')[0];
             const { data: pointagesJour } = await supabaseClient
                 .from('pointages')
@@ -1566,49 +1775,122 @@ async function afficherBadgesClasse() {
             const dejaPointes = {};
             (pointagesJour || []).forEach(p => { dejaPointes[p.emploi_du_temps_id] = true; });
 
-            const joursSemaine = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
-            const jourActuel = joursSemaine[new Date().getDay()];
-
-            let html = '<table style="width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">';
-            html += '<thead><tr style="background: #2EAD5E;">';
-            html += '<th style="padding: 10px 8px; color: white; font-size: 11px; font-weight: bold; border: 1px solid #2EAD5E; min-width: 70px;">Heure</th>';
-            jours.forEach(j => { html += '<th style="padding: 10px 8px; color: white; font-size: 11px; font-weight: bold; border: 1px solid #2EAD5E; min-width: 95px; text-align: center;">' + j.substring(0,3) + '</th>'; });
+            let html = '<table style="width:100%;border-collapse:collapse;background:white;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.1);">';
+            html += '<thead><tr>';
+            html += '<th style="padding:10px 8px;color:white;font-size:11px;font-weight:bold;border:1px solid #2EAD5E;min-width:70px;background:#2EAD5E;">Heure</th>';
+            jours.forEach(j => {
+                const estAujourdhui = j === jourActuel;
+                const bg = estAujourdhui ? '#F59E0B' : '#2EAD5E';
+                html += '<th style="padding:10px 8px;color:white;font-size:11px;font-weight:bold;border:1px solid #2EAD5E;min-width:95px;text-align:center;background:' + bg + ';">';
+                html += j.substring(0, 3);
+                if (estAujourdhui) html += '<br><span style="font-size:7px;background:white;color:#92400e;padding:1px 4px;border-radius:4px;font-weight:bold;">AUJOURD\'HUI</span>';
+                html += '</th>';
+            });
             html += '</tr></thead><tbody>';
+
             creneaux.forEach((creneau, idx) => {
                 const bgLigne = idx % 2 === 0 ? '#ffffff' : '#f9fafb';
-                html += '<tr style="background: ' + bgLigne + ';">';
-                html += '<td style="padding: 8px 6px; border: 1px solid #e5e7eb; font-size: 10px; font-weight: bold; color: #1f2937; text-align: center; background: #f3f4f6;">' + creneau.debut + '<br><span style="font-size: 8px; color: #6b7280;">' + creneau.fin + '</span></td>';
+                html += '<tr style="background:' + bgLigne + ';">';
+                html += '<td style="padding:8px 6px;border:1px solid #e5e7eb;font-size:10px;font-weight:bold;color:#1f2937;text-align:center;background:#f3f4f6;">' + creneau.debut + '<br><span style="font-size:8px;color:#6b7280;">' + creneau.fin + '</span></td>';
                 jours.forEach(jour => {
-                    const c = cours ? cours.find(x => x.jour === jour && x.heure_debut && x.heure_fin && x.heure_debut.substring(0,5) === creneau.debut && x.heure_fin.substring(0,5) === creneau.fin) : null;
+                    const c = cours ? cours.find(x => x.jour === jour && x.heure_debut && x.heure_fin && x.heure_debut.substring(0, 5) === creneau.debut && x.heure_fin.substring(0, 5) === creneau.fin) : null;
+                    const estAujourdhui = jour === jourActuel;
+                    const borderStyle = estAujourdhui
+                        ? 'border-top:1px solid #F59E0B;border-bottom:1px solid #F59E0B;border-left:2px solid #F59E0B;border-right:2px solid #F59E0B;'
+                        : 'border:1px solid #e5e7eb;';
+
                     if (c) {
                         const estMaMatiere = c.matiere === maMatiere;
-                        const bgColor = estMaMatiere ? '#dcfce7' : '#dbeafe';
-                        const borderColor = estMaMatiere ? '#2EAD5E' : '#004AAD';
-                        const textColor = estMaMatiere ? '#166534' : '#004AAD';
-
-                        const estAujourdhui = jour === jourActuel;
+                        const couleur = getCouleurMatiere(c.matiere);
                         const estPointe = dejaPointes[c.id];
 
                         let bouton = '';
                         if (estMaMatiere && estAujourdhui) {
                             if (estPointe) {
-                                bouton = '<div style="margin-top: 4px; background: #10b981; color: white; padding: 3px 6px; border-radius: 4px; font-size: 8px; font-weight: bold; text-align: center;">✅ Pointe</div>';
+                                bouton = '<div style="margin-top:4px;background:#10b981;color:white;padding:3px 6px;border-radius:4px;font-size:8px;font-weight:bold;text-align:center;">✅ Pointe</div>';
                             } else {
-                                bouton = '<button onclick="pointerCours(' + c.id + ', this)" style="margin-top: 4px; background: #2EAD5E; color: white; border: none; padding: 3px 6px; border-radius: 4px; font-size: 8px; font-weight: bold; cursor: pointer; width: 100%;">Marquer fait</button>';
+                                bouton = '<button onclick="pointerCours(' + c.id + ', this)" style="margin-top:4px;background:#2EAD5E;color:white;border:none;padding:3px 6px;border-radius:4px;font-size:8px;font-weight:bold;cursor:pointer;width:100%;">Marquer fait</button>';
                             }
                         }
 
-                        html += '<td style="padding: 6px; border: 1px solid #e5e7eb; vertical-align: top;"><div style="background: ' + bgColor + '; border-left: 3px solid ' + borderColor + '; padding: 6px; border-radius: 5px; min-height: 50px;"><p style="font-size: 10px; font-weight: bold; color: ' + textColor + '; margin: 0; line-height: 1.2;">' + c.matiere + '</p>' + (c.salle ? '<p style="font-size: 8px; color: #6b7280; margin: 2px 0 0 0;">📍 ' + c.salle + '</p>' : '') + bouton + '</div></td>';
-                    } else html += '<td style="padding: 6px; border: 1px solid #e5e7eb; vertical-align: top;"><div style="min-height: 50px;"></div></td>';
+                        html += '<td style="padding:6px;' + borderStyle + 'vertical-align:top;">';
+                        html += '<div style="background:' + couleur.bg + ';border-left:3px solid ' + couleur.border + ';padding:6px;border-radius:5px;min-height:50px;">';
+                        html += '<p style="font-size:10px;font-weight:bold;color:' + couleur.text + ';margin:0;line-height:1.2;">' + (estMaMatiere ? '⭐ ' : '') + c.matiere + '</p>';
+                        if (c.salle) html += '<p style="font-size:8px;color:#6b7280;margin:2px 0 0 0;">📍 ' + c.salle + '</p>';
+                        html += bouton + '</div></td>';
+                    } else {
+                        html += '<td style="padding:6px;' + borderStyle + 'vertical-align:top;"><div style="min-height:50px;"></div></td>';
+                    }
                 });
                 html += '</tr>';
             });
             html += '</tbody></table>';
-            html += '<div class="mt-3 bg-blue-50 border border-blue-100 p-3 rounded-xl"><p class="text-[10px] text-gray-600">💡 <b style="color: #2EAD5E;">Vert</b> = Vos cours - Cliquez sur <b>"Marquer fait"</b> sur le cours du jour pour le pointer.</p></div>';
+            html += '<div class="mt-3 bg-blue-50 border border-blue-100 p-3 rounded-xl"><p class="text-[10px] text-gray-600">💡 Vos matières sont marquées d\'une <b>étoile ⭐</b>. Sur le cours du jour, cliquez sur <b>"Marquer fait"</b> pour le pointer.</p></div>';
             document.getElementById('tableau-emploi-enseignant').innerHTML = html;
         }
 
-        // ============ ANNONCES ============
+        // ════════════ EXPORT PDF EMPLOI ENSEIGNANT ════════════
+        async function exporterEmploiEnsPDF(event) {
+            const conteneur = document.getElementById('tableau-emploi-enseignant');
+            if (!conteneur) return;
+            const btn = event ? event.target : null;
+            if (btn) { btn.disabled = true; btn.innerText = '⏳'; }
+
+            let iframe = null;
+            try {
+                const ecoleNom = document.getElementById('ecole-nom-affiche').innerText.replace('🏫 ', '');
+                const classeNom = document.getElementById('classe-enseignant').innerText;
+                const dateJour = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+                const clone = conteneur.cloneNode(true);
+                clone.querySelectorAll('[onclick]').forEach(el => el.removeAttribute('onclick'));
+                clone.querySelectorAll('button').forEach(el => el.remove());
+
+                const htmlInterne = '<div style="background:white;padding:15px;border:2px solid #2EAD5E;border-radius:12px;font-family:Arial,sans-serif;">'
+                    + '<div style="text-align:center;border-bottom:2px solid #2EAD5E;padding-bottom:8px;margin-bottom:12px;">'
+                    + '<h1 style="font-size:16px;color:#2EAD5E;margin:2px 0;">EDU-LINK</h1>'
+                    + '<p style="font-size:9px;color:#6b7280;margin:0;">' + ecoleNom + '</p>'
+                    + '<p style="font-size:13px;font-weight:bold;margin-top:4px;">EMPLOI DU TEMPS ENSEIGNANT</p>'
+                    + '<p style="font-size:11px;color:#1f2937;margin:2px 0;">' + currentUser.prenom + ' ' + currentUser.nom + ' - ' + maMatiere + ' (' + classeNom + ')</p>'
+                    + '</div>'
+                    + '<div style="font-size:11px;">' + clone.innerHTML + '</div>'
+                    + '<p style="text-align:center;font-size:8px;color:#9ca3af;margin-top:10px;">Genere par EDU-LINK - ' + dateJour + '</p>'
+                    + '</div>';
+
+                iframe = document.createElement('iframe');
+                iframe.style.cssText = 'position:fixed;top:0;left:0;width:1000px;height:800px;opacity:0;pointer-events:none;z-index:-1;border:none;';
+                document.body.appendChild(iframe);
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                doc.open();
+                doc.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{margin:0;padding:15px;background:#fff;font-family:Arial,sans-serif;}</style></head><body>' + htmlInterne + '</body></html>');
+                doc.close();
+                await new Promise(r => setTimeout(r, 400));
+
+                const nomFichier = 'Emploi_Ens_' + currentUser.nom + '_' + maMatiere.replace(/\s+/g, '_') + '.pdf';
+                const options = {
+                    margin: 10, filename: nomFichier,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', width: 1000, windowWidth: 1000, scrollX: 0, scrollY: 0 },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+                };
+                const pdfBlob = await html2pdf().set(options).from(doc.body).outputPdf('blob');
+                const fichier = new File([pdfBlob], nomFichier, { type: 'application/pdf' });
+                document.body.removeChild(iframe); iframe = null;
+
+                if (navigator.canShare && navigator.canShare({ files: [fichier] })) {
+                    await navigator.share({ files: [fichier], title: 'Emploi du temps' });
+                } else {
+                    window.open(URL.createObjectURL(pdfBlob), '_blank');
+                }
+            } catch (err) {
+                if (iframe && document.body.contains(iframe)) document.body.removeChild(iframe);
+                if (err.name !== 'AbortError') alert('Erreur : ' + err.message);
+            } finally {
+                if (btn) { btn.disabled = false; btn.innerText = '📥 PDF'; }
+            }
+        }
+
+        // ════════════ ANNONCES ════════════
         async function afficherAnnonces() {
             document.getElementById('view-accueil').classList.add('hidden');
             document.getElementById('view-annonces').classList.remove('hidden');
@@ -1656,7 +1938,8 @@ async function afficherBadgesClasse() {
             chargerProchainCoursEnseignant();
             window.scrollTo(0, 0);
         }
-// ============ RESSOURCES PEDAGOGIQUES (ENSEIGNANT) ============
+
+        // ════════════ RESSOURCES PEDAGOGIQUES ════════════
         let resListe = [];
         let resFiltreType = 'tous';
         let resFichierBase64 = null;
@@ -1825,7 +2108,6 @@ async function afficherBadgesClasse() {
                 }]);
                 if (error) throw error;
 
-                // Notifier les eleves de la classe
                 if (listeEleves.length > 0) {
                     const typeLabel = type === 'programme' ? 'Programme' : (type === 'lecon' ? 'Lecon' : 'Exercice');
                     const notifs = listeEleves.filter(e => e.utilisateur_id).map(e => ({
@@ -1894,7 +2176,8 @@ async function afficherBadgesClasse() {
             if (error) { alert('Erreur : ' + error.message); return; }
             afficherMesRessources();
         }
-function telechargerFichierBase64(idRessource) {
+
+        function telechargerFichierBase64(idRessource) {
             try {
                 const r = resListe.find(x => x.id === idRessource);
                 if (!r || !r.fichier_base64) { alert('Fichier introuvable.'); return; }
@@ -1923,7 +2206,8 @@ function telechargerFichierBase64(idRessource) {
                 alert('Erreur telechargement : ' + err.message);
             }
         }
-async function afficherSaisieMasse() {
+
+        async function afficherSaisieMasse() {
             document.getElementById('view-accueil').classList.add('hidden');
             document.getElementById('view-notes-masse').classList.remove('hidden');
             document.getElementById('message-masse').innerText = '';
@@ -1949,7 +2233,8 @@ async function afficherSaisieMasse() {
             document.getElementById('liste-saisie-masse').innerHTML = html;
             window.scrollTo(0, 0);
         }
-// ============ NOTES SAISIES (MODIFIER/SUPPRIMER) ============
+
+        // ════════════ NOTES SAISIES ════════════
         let notesSaisiesListe = [];
 
         async function afficherNotesSaisies() {
@@ -1996,43 +2281,60 @@ async function afficherSaisieMasse() {
         }
 
         function afficherListeNotesSaisies(liste) {
-            const conteneur = document.getElementById('ns-liste');
-            if (liste.length === 0) {
-                conteneur.innerHTML = '<div class="bg-white p-6 rounded-2xl shadow-sm text-center"><p class="text-gray-500 text-sm">Aucune note.</p></div>';
-                return;
-            }
+    var conteneur = document.getElementById('ns-liste');
 
-            const typeLabels = { devoir1: 'Devoir 1', devoir2: 'Devoir 2', devoir3: 'Devoir 3', composition: 'Composition' };
-            let html = '<p class="text-[10px] text-gray-500 mb-2 px-1">' + liste.length + ' note(s)</p>';
+    if (liste.length === 0) {
+        conteneur.innerHTML = '<div class="empty-state anim-up">'
+            + '<div class="empty-icon">📝</div>'
+            + '<div class="empty-title">Aucune note</div>'
+            + '<div class="empty-desc">Aucune note enregistrée pour ces filtres</div>'
+            + '</div>';
+        return;
+    }
 
-            liste.forEach(n => {
-                const u = n.eleves && n.eleves.utilisateurs;
-                const prenom = u ? u.prenom : '?';
-                const nom = u ? u.nom : '?';
-                const initiale = prenom.charAt(0).toUpperCase();
-                const typeLabel = typeLabels[n.type_evaluation] || n.type_evaluation || 'Note';
-                const dateStr = n.date_evaluation ? new Date(n.date_evaluation).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : '';
-                const noteVal = parseFloat(n.note);
-                let couleur = '#EF4444';
-                if (noteVal >= 10) couleur = '#2EAD5E';
-                if (noteVal >= 14) couleur = '#004AAD';
+    var typeLabels = { devoir1: 'Devoir 1', devoir2: 'Devoir 2', devoir3: 'Devoir 3', composition: 'Composition' };
 
-                html += '<div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100">';
-                html += '<div class="flex items-center gap-3 mb-2">';
-                html += '<div class="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-xs flex-shrink-0" style="background:linear-gradient(135deg,#004AAD,#2EAD5E);">' + initiale + '</div>';
-                html += '<div class="flex-1 min-w-0">';
-                html += '<p class="text-xs font-bold text-gray-800 truncate">' + prenom + ' ' + nom + '</p>';
-                html += '<p class="text-[10px] text-gray-500">' + typeLabel + ' - Coef ' + n.coefficient + ' - ' + dateStr + '</p>';
-                html += '</div>';
-                html += '<span class="text-lg font-extrabold" style="color:' + couleur + '">' + noteVal.toFixed(2) + '</span>';
-                html += '</div>';
-                html += '<div class="flex gap-2">';
-                html += '<button onclick="modifierNoteSaisie(' + n.id + ')" class="flex-1 bg-blue-50 text-edu-blue text-[10px] font-bold py-1.5 rounded-lg">Modifier</button>';
-                html += '<button onclick="supprimerNoteSaisie(' + n.id + ', \'' + (prenom + ' ' + nom).replace(/'/g, "\\'") + '\', \'' + typeLabel + '\')" class="flex-1 bg-red-50 text-edu-red text-[10px] font-bold py-1.5 rounded-lg">Supprimer</button>';
-                html += '</div></div>';
-            });
-            conteneur.innerHTML = html;
-        }
+    // Stats résumé
+    var somme = 0;
+    liste.forEach(function(n) { somme += parseFloat(n.note); });
+    var moy = (somme / liste.length).toFixed(2);
+
+    var html = '<div class="stat-inline anim-up" style="margin-bottom: 14px;">';
+    html += '<div class="stat-mini"><div class="label">Notes</div><div class="value">' + liste.length + '</div></div>';
+    html += '<div class="stat-mini"><div class="label">Moyenne</div><div class="value" style="color: ' + (moy >= 10 ? '#059669' : '#DC2626') + ';">' + moy + '</div></div>';
+    html += '</div>';
+
+    var delaiIndex = 1;
+    liste.forEach(function(n) {
+        var u = n.eleves && n.eleves.utilisateurs;
+        var prenom = u ? u.prenom : '?';
+        var nom = u ? u.nom : '?';
+        var initiale = prenom.charAt(0).toUpperCase();
+        var typeLabel = typeLabels[n.type_evaluation] || n.type_evaluation || 'Note';
+        var dateStr = n.date_evaluation ? new Date(n.date_evaluation).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : '';
+        var noteVal = parseFloat(n.note);
+
+        var classeNote = noteVal >= 16 ? 'excellent' : noteVal >= 12 ? 'bien' : noteVal >= 10 ? 'passable' : 'faible';
+        var accent = noteVal >= 14 ? '#004AAD' : (noteVal >= 10 ? '#10B981' : '#EF4444');
+        var bgIcon = noteVal >= 14 ? 'blue' : (noteVal >= 10 ? 'green' : 'red');
+
+        html += '<div class="list-row anim-up delay-' + Math.min(delaiIndex, 8) + '" style="--accent: ' + accent + ';">';
+        html += '<div class="list-avatar ' + bgIcon + '">' + initiale + '</div>';
+        html += '<div class="list-content">';
+        html += '<div class="list-title">' + prenom + ' ' + nom + '</div>';
+        html += '<div class="list-subtitle"><span>' + typeLabel + '</span><span>•</span><span>Coef ' + n.coefficient + '</span>' + (dateStr ? '<span>•</span><span>' + dateStr + '</span>' : '') + '</div>';
+        html += '</div>';
+        html += '<div class="note-cell ' + classeNote + '">' + noteVal.toFixed(2) + '</div>';
+        html += '<div class="list-actions">';
+        html += '<button onclick="event.stopPropagation(); modifierNoteSaisie(' + n.id + ')" class="list-btn edit">✏️</button>';
+        html += '<button onclick="event.stopPropagation(); supprimerNoteSaisie(' + n.id + ', \'' + (prenom + ' ' + nom).replace(/'/g, "\\'") + '\', \'' + typeLabel + '\')" class="list-btn delete">🗑️</button>';
+        html += '</div>';
+        html += '</div>';
+        delaiIndex++;
+    });
+
+    conteneur.innerHTML = html;
+}
 
         async function modifierNoteSaisie(noteId) {
             const n = notesSaisiesListe.find(x => x.id === noteId);
@@ -2061,7 +2363,8 @@ async function afficherSaisieMasse() {
             if (error) { alert('Erreur : ' + error.message); return; }
             chargerNotesSaisies();
         }
-// ============ MES HEURES D'ENSEIGNEMENT ============
+
+        // ════════════ MES HEURES D'ENSEIGNEMENT ════════════
         let mhPeriode = 'semaine';
 
         async function afficherMesHeures() {
@@ -2142,7 +2445,6 @@ async function afficherSaisieMasse() {
                 return;
             }
 
-            // Grouper par date
             const parDate = {};
             liste.forEach(p => {
                 if (!parDate[p.date_pointage]) parDate[p.date_pointage] = [];
@@ -2225,5 +2527,9 @@ async function afficherSaisieMasse() {
 
         function seDeconnecter() { sessionStorage.removeItem('eduLinkUser'); window.location.href = 'index.html'; }
     </script>
+<script src="ripple.js"></script>
+<script src="toast.js"></script>
+<script src="confirm.js"></script>
+</body>
 </body>
 </html>

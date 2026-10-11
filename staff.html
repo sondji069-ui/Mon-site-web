@@ -6,6 +6,7 @@
     <title>EDU-LINK - Staff</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
         tailwind.config = { theme: { extend: { colors: { 'edu-blue': '#004AAD', 'edu-green': '#2EAD5E', 'edu-red': '#EF4444', 'edu-orange': '#F59E0B', 'edu-teal': '#0D9488', 'edu-purple': '#8B5CF6' } } } }
     </script>
@@ -45,7 +46,7 @@
         .btn-theme-toggle:hover { background: rgba(255,255,255,0.35); }
         .btn-theme-toggle:active { transform: scale(0.92); }
     </style>
-<script src="push.js"></script>
+<link rel="stylesheet" href="dashboard.css">
 </head>
 <body class="min-h-screen flex justify-center items-start pt-4 p-3">
     <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col h-auto min-h-[600px]">
@@ -70,68 +71,97 @@
             </div>
 
             <div class="flex-1 overflow-y-auto -mt-4 pt-6 px-4 pb-6">
-                <div id="view-accueil" class="hidden fade-in">
-<button onclick="activerNotificationsPush(supabaseClient, currentUser)" id="btn-push" class="bouton-action w-full bg-gradient-to-r from-yellow-500 to-orange-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
-                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">🔔</div>
-                        <div class="flex-1 text-left"><p class="text-sm font-bold">Activer les notifications</p><p class="text-[10px] opacity-90">Recevez des alertes sur votre telephone</p></div>
-                        <span class="text-xl">→</span>
-                    </button>
-                    <div class="bg-gradient-to-br from-edu-teal to-emerald-700 text-white rounded-2xl shadow-lg p-5 mb-3">
-                        <div class="flex items-center justify-between mb-3">
-                            <div>
-                                <p class="text-xs opacity-80 mb-1">Mon role</p>
-                                <h2 id="role-accueil" class="text-xl font-extrabold">...</h2>
-                            </div>
-                            <div class="w-14 h-14 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-3xl">🎯</div>
-                        </div>
-                        <p id="description-role" class="text-xs opacity-90 leading-relaxed">...</p>
-                    </div>
+                <!-- ═══════════════ ACCUEIL STAFF — VERSION PRO ═══════════════ -->
+<div id="view-accueil" class="hidden">
+    <button onclick="activerNotificationsPush(supabaseClient, currentUser)" id="btn-push" class="btn-float anim-up" style="background: linear-gradient(135deg, #F59E0B, #EA580C); margin-bottom: 14px;">
+        <div class="btn-icon">🔔</div>
+        <div class="btn-content">
+            <div class="btn-title">Activer les notifications</div>
+            <div class="btn-desc">Alertes sur votre téléphone</div>
+        </div>
+        <div class="btn-arrow">→</div>
+    </button>
 
-                    <div class="bg-white rounded-2xl shadow-lg p-4 mb-3 grid grid-cols-2 gap-3">
-                        <div class="carte-stat bg-gradient-to-br from-blue-50 to-blue-100 p-3 rounded-xl border border-blue-200">
-                            <div class="flex items-center justify-between mb-1"><span class="text-2xl">🎓</span><span class="text-[9px] bg-edu-blue text-white px-1.5 py-0.5 rounded-full font-bold">ELEVES</span></div>
-                            <p id="total-eleves" class="text-2xl font-extrabold text-edu-blue">0</p>
-                        </div>
-                        <div class="carte-stat bg-gradient-to-br from-purple-50 to-purple-100 p-3 rounded-xl border border-purple-200">
-                            <div class="flex items-center justify-between mb-1"><span class="text-2xl">🏫</span><span class="text-[9px] bg-edu-purple text-white px-1.5 py-0.5 rounded-full font-bold">CLASSES</span></div>
-                            <p id="total-classes" class="text-2xl font-extrabold text-edu-purple">0</p>
-                        </div>
-                    </div>
+    <!-- HERO STAFF -->
+    <div class="hero-stat anim-up delay-1" style="--from: #0D9488; --to: #059669; margin-bottom: 14px;">
+        <div class="hero-stat-icon">🎯</div>
+        <div class="hero-stat-label">Mon rôle</div>
+        <h2 id="role-accueil" style="font-size: 20px; font-weight: 900; margin-top: 4px; letter-spacing: -0.3px; position: relative; z-index: 2;">...</h2>
+        <p id="description-role" style="font-size: 11px; opacity: 0.9; margin-top: 6px; line-height: 1.4; position: relative; z-index: 2;">...</p>
+    </div>
 
-                    <button id="btn-nav-eleves" onclick="afficherEleves()" class="bouton-action w-full bg-gradient-to-r from-blue-500 to-cyan-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
-                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">🎓</div>
-                        <div class="flex-1 text-left"><p class="text-sm font-bold">Liste des eleves</p><p class="text-[10px] opacity-90">Consulter tous les eleves</p></div>
-                        <span class="text-xl">→</span>
-                    </button>
+    <!-- STATS RAPIDES -->
+    <div class="grid grid-cols-2 gap-3 mb-4">
+        <div class="stat-card blue anim-up delay-2">
+            <div class="stat-icon">🎓</div>
+            <div class="stat-label">Élèves</div>
+            <p id="total-eleves" class="stat-value">0</p>
+        </div>
+        <div class="stat-card purple anim-up delay-2">
+            <div class="stat-icon">🏫</div>
+            <div class="stat-label">Classes</div>
+            <p id="total-classes" class="stat-value">0</p>
+        </div>
+    </div>
 
-                    <button id="btn-nav-emploi" onclick="afficherEmploi()" class="bouton-action w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
-                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">📅</div>
-                        <div class="flex-1 text-left"><p class="text-sm font-bold">Emploi du temps</p><p class="text-[10px] opacity-90">Par classe</p></div>
-                        <span class="text-xl">→</span>
-                    </button>
+    <div class="divider anim-up delay-3">Mes outils</div>
 
-                    <button id="btn-nav-absences" onclick="afficherAbsences()" class="bouton-action w-full bg-gradient-to-r from-orange-500 to-red-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
-                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">⚠️</div>
-                        <div class="flex-1 text-left"><p class="text-sm font-bold">Suivi des absences</p><p class="text-[10px] opacity-90">Eleves absents du jour</p></div>
-                        <span class="text-xl">→</span>
-                    </button>
+    <button id="btn-nav-eleves" onclick="afficherEleves()" class="btn-float anim-up delay-3" style="background: linear-gradient(135deg, #3B82F6, #1D4ED8); margin-bottom: 10px;">
+        <div class="btn-icon">🎓</div>
+        <div class="btn-content">
+            <div class="btn-title">Liste des élèves</div>
+            <div class="btn-desc">Consulter les élèves</div>
+        </div>
+        <div class="btn-arrow">→</div>
+    </button>
 
-                    <button id="btn-nav-annonces" onclick="afficherAnnonces()" class="bouton-action w-full bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3 mb-3">
-                        <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center text-2xl">📢</div>
-                        <div class="flex-1 text-left"><p class="text-sm font-bold text-gray-800">Annonces de l'ecole</p><p class="text-[10px] text-gray-400">Communications officielles</p></div>
-                        <span class="text-xl text-gray-300">→</span>
-                    </button>
-<button id="btn-nav-heures" onclick="afficherHeuresStaff()" class="bouton-action w-full bg-gradient-to-r from-teal-500 to-cyan-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
-                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">🕐</div>
-                        <div class="flex-1 text-left"><p class="text-sm font-bold">Heures d'enseignement</p><p class="text-[10px] opacity-90">Suivi des cours dispenses</p></div>
-                        <span class="text-xl">→</span>
-                    </button>
-                    <button onclick="window.location.href='messagerie.html'" class="bouton-action w-full bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3">
-                        <div class="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center text-2xl">💬</div>
-                        <div class="flex-1 text-left"><p class="text-sm font-bold text-gray-800">Messagerie</p><p class="text-[10px] text-gray-400">Discuter avec l'equipe</p></div>
-                        <span class="text-xl text-gray-300">→</span>
-                    </button>
-                </div>
+    <button id="btn-nav-emploi" onclick="afficherEmploi()" class="btn-float anim-up delay-4" style="background: linear-gradient(135deg, #8B5CF6, #6366F1); margin-bottom: 10px;">
+        <div class="btn-icon">📅</div>
+        <div class="btn-content">
+            <div class="btn-title">Emploi du temps</div>
+            <div class="btn-desc">Par classe</div>
+        </div>
+        <div class="btn-arrow">→</div>
+    </button>
+
+    <button id="btn-nav-absences" onclick="afficherAbsences()" class="btn-float anim-up delay-5" style="background: linear-gradient(135deg, #F97316, #DC2626); margin-bottom: 10px;">
+        <div class="btn-icon">⚠️</div>
+        <div class="btn-content">
+            <div class="btn-title">Suivi des absences</div>
+            <div class="btn-desc">Élèves absents du jour</div>
+        </div>
+        <div class="btn-arrow">→</div>
+    </button>
+
+    <button id="btn-nav-heures" onclick="afficherHeuresStaff()" class="btn-float anim-up delay-6" style="background: linear-gradient(135deg, #0D9488, #059669); margin-bottom: 10px;">
+        <div class="btn-icon">🕐</div>
+        <div class="btn-content">
+            <div class="btn-title">Heures d'enseignement</div>
+            <div class="btn-desc">Suivi des cours dispensés</div>
+        </div>
+        <div class="btn-arrow">→</div>
+    </button>
+
+    <div class="divider anim-up delay-7">Communication</div>
+
+    <button id="btn-nav-annonces" onclick="afficherAnnonces()" class="btn-float anim-up delay-7" style="background: linear-gradient(135deg, #F59E0B, #D97706); margin-bottom: 10px;">
+        <div class="btn-icon">📢</div>
+        <div class="btn-content">
+            <div class="btn-title">Annonces de l'école</div>
+            <div class="btn-desc">Communications officielles</div>
+        </div>
+        <div class="btn-arrow">→</div>
+    </button>
+
+    <button onclick="window.location.href='messagerie.html'" class="btn-float anim-up delay-8" style="background: linear-gradient(135deg, #EC4899, #DB2777);">
+        <div class="btn-icon">💬</div>
+        <div class="btn-content">
+            <div class="btn-title">Messagerie</div>
+            <div class="btn-desc">Discuter avec l'équipe</div>
+        </div>
+        <div class="btn-arrow">→</div>
+    </button>
+</div>
 
                 <div id="view-eleves" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
@@ -152,6 +182,7 @@
                     <div class="flex items-center gap-3 mb-3">
                         <button onclick="afficherEmploi()" class="text-2xl">⬅️</button>
                         <div class="flex-1"><h1 id="titre-emploi-classe" class="text-lg font-bold text-gray-800">...</h1><p class="text-xs text-gray-500">Emploi du temps</p></div>
+                        <button onclick="exporterEmploiStaffPDF(event)" class="bg-edu-teal text-white text-xs font-bold px-3 py-2 rounded-lg">📥 PDF</button>
                     </div>
                     <p class="text-[10px] text-gray-400 italic mb-2">💡 Glissez horizontalement</p>
                     <div class="overflow-x-auto pb-2"><div id="tableau-emploi-staff" class="min-w-[700px]"></div></div>
@@ -174,7 +205,8 @@
                     <button onclick="afficherAnnonces()" class="text-2xl mb-3">⬅️</button>
                     <div id="contenu-affiche"></div>
                 </div>
-<div id="view-heures-staff" class="hidden fade-in">
+
+                <div id="view-heures-staff" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-2">🕐 Heures d'enseignement</h1>
                     <p class="text-xs text-gray-500 mb-3">Suivi des cours dispenses par les enseignants.</p>
@@ -193,12 +225,9 @@
                         <button onclick="chargerHeuresStaff()" class="w-full bg-edu-teal text-white font-bold py-2.5 rounded-xl text-xs">Actualiser</button>
                     </div>
 
-                    <div class="flex justify-end mb-2">
-                        
-                    </div>
-
                     <div id="hs-contenu"></div>
                 </div>
+
                 <div id="view-notifications" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-3">🔔 Mes notifications</h1>
@@ -207,71 +236,73 @@
             </div>
         </div>
     </div>
-
+<link rel="stylesheet" href="dashboard.css"> 
+    <script src="push.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <!-- ============ SÉCURITÉ — Échappement HTML (anti-XSS) ============ -->
     <script>
+        // ════════════ CONSTANTES EDT — EN TOUT PREMIER ════════════
+        var JOURS_EDT = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+        var CRENEAUX_EDT = [
+            { debut: '08:00', fin: '10:00' },
+            { debut: '10:15', fin: '12:15' },
+            { debut: '14:00', fin: '16:00' },
+            { debut: '16:15', fin: '18:15' }
+        ];
+        var PALETTE_MATIERES = [
+            { bg: '#dbeafe', border: '#004AAD', text: '#004AAD' },
+            { bg: '#dcfce7', border: '#2EAD5E', text: '#166534' },
+            { bg: '#fef3c7', border: '#F59E0B', text: '#92400e' },
+            { bg: '#fce7f3', border: '#EC4899', text: '#9d174d' },
+            { bg: '#ede9fe', border: '#8B5CF6', text: '#5b21b6' },
+            { bg: '#cffafe', border: '#06B6D4', text: '#155e75' },
+            { bg: '#fee2e2', border: '#EF4444', text: '#991b1b' },
+            { bg: '#fef9c3', border: '#EAB308', text: '#854d0e' }
+        ];
+        var _cacheCouleursMatieres = {};
+        function getCouleurMatiere(m) {
+            if (!m) return PALETTE_MATIERES[0];
+            if (_cacheCouleursMatieres[m]) return _cacheCouleursMatieres[m];
+            var hash = 0; for (var i = 0; i < m.length; i++) hash = m.charCodeAt(i) + ((hash << 5) - hash);
+            var c = PALETTE_MATIERES[Math.abs(hash) % PALETTE_MATIERES.length];
+            _cacheCouleursMatieres[m] = c; return c;
+        }
+        function getJourActuelEDT() {
+            var j = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+            return j[new Date().getDay()];
+        }
+
+        // ════════════ XSS ════════════
         function echapperHtml(texte) {
             if (texte === null || texte === undefined) return '';
-            return String(texte)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;');
+            return String(texte).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         }
 
         function construireAfficheSecurisee(a, ecoleNom, signatureEcole) {
-            const titre = echapperHtml(a.titre);
-            const contenu = echapperHtml(a.contenu);
-            const signatureTxt = a.signature ? echapperHtml(a.signature) : '';
-            const ecoleNomSec = echapperHtml(ecoleNom || '');
-            const datePub = new Date(a.date_publication).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-            const logoUrl = (typeof a.logo_annonce === 'string' && (a.logo_annonce.indexOf('data:image/') === 0 || a.logo_annonce.indexOf('https://') === 0)) ? a.logo_annonce : null;
-            const sigUrl = (typeof signatureEcole === 'string' && (signatureEcole.indexOf('data:image/') === 0 || signatureEcole.indexOf('https://') === 0)) ? signatureEcole : null;
-
-            var blocLogo = logoUrl
-                ? '<img src="' + logoUrl + '" style="width: 70px; height: 70px; object-fit: cover; border-radius: 50%; border: 3px solid white; margin-bottom: 8px;">'
-                : '<div style="font-size: 40px; margin-bottom: 5px;">📖</div>';
-
-            var blocSignatureImg = sigUrl
-                ? '<img src="' + sigUrl + '" style="max-height: 55px; max-width: 180px; margin-top: 8px; display: block; margin-left: auto;">'
-                : '';
-
-            var blocSignatureTxt = signatureTxt
-                ? '<p style="font-size: 13px; font-weight: bold; color: #004AAD; margin: 5px 0 0 0;">' + signatureTxt + '</p>'
-                : '';
-
-            return '<div style="background: white; border: 3px solid #004AAD; border-radius: 15px; overflow: hidden; font-family: Arial, sans-serif;">'
-                + '<div style="background: linear-gradient(135deg, #004AAD 0%, #0066CC 100%); padding: 20px 15px; text-align: center;">'
-                + blocLogo
-                + '<h1 style="color: white; font-size: 20px; font-weight: bold; margin: 5px 0; letter-spacing: 1px;">EDU-LINK</h1>'
-                + '<p style="color: rgba(255,255,255,0.9); font-size: 12px; margin: 0;">' + ecoleNomSec + '</p>'
-                + '</div>'
-                + '<div style="padding: 20px;">'
-                + '<div style="text-align: center; background: #f0f7ff; padding: 12px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #004AAD;">'
-                + '<p style="font-size: 11px; color: #004AAD; font-weight: bold; margin: 0 0 5px 0; letter-spacing: 2px;">📢 COMMUNICATION OFFICIELLE</p>'
-                + '<h2 style="font-size: 18px; font-weight: bold; color: #004AAD; margin: 0;">' + titre + '</h2>'
-                + '</div>'
-                + '<div style="background: #f9fafb; padding: 15px; border-radius: 10px; margin-bottom: 20px;">'
-                + '<p style="font-size: 13px; color: #1f2937; line-height: 1.8; margin: 0; white-space: pre-wrap; text-align: justify;">' + contenu + '</p>'
-                + '</div>'
-                + '<div style="text-align: right; margin-top: 25px; padding-top: 15px; border-top: 1px solid #e5e7eb;">'
-                + '<p style="font-size: 11px; color: #6b7280; margin: 0;">Publiee le ' + datePub + '</p>'
-                + blocSignatureImg
-                + blocSignatureTxt
-                + '</div>'
-                + '</div>'
-                + '<div style="background: #004AAD; padding: 8px; text-align: center;">'
-                + '<p style="color: white; font-size: 9px; margin: 0;">Document officiel - EDU-LINK</p>'
-                + '</div>'
-                + '</div>';
+            var titre = echapperHtml(a.titre);
+            var contenu = echapperHtml(a.contenu);
+            var signatureTxt = a.signature ? echapperHtml(a.signature) : '';
+            var ecoleNomSec = echapperHtml(ecoleNom || '');
+            var datePub = new Date(a.date_publication).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+            var blocLogo = '<div style="font-size:40px;margin-bottom:5px;">📖</div>';
+            var blocSignatureImg = '';
+            var blocSignatureTxt = signatureTxt ? '<p style="font-size:13px;font-weight:bold;color:#004AAD;margin:5px 0 0 0;">' + signatureTxt + '</p>' : '';
+            return '<div style="background:white;border:3px solid #004AAD;border-radius:15px;overflow:hidden;font-family:Arial,sans-serif;">'
+                + '<div style="background:linear-gradient(135deg,#004AAD 0%,#0066CC 100%);padding:20px 15px;text-align:center;">'
+                + blocLogo + '<h1 style="color:white;font-size:20px;font-weight:bold;margin:5px 0;letter-spacing:1px;">EDU-LINK</h1>'
+                + '<p style="color:rgba(255,255,255,0.9);font-size:12px;margin:0;">' + ecoleNomSec + '</p></div>'
+                + '<div style="padding:20px;"><div style="text-align:center;background:#f0f7ff;padding:12px;border-radius:10px;margin-bottom:20px;border-left:4px solid #004AAD;">'
+                + '<p style="font-size:11px;color:#004AAD;font-weight:bold;margin:0 0 5px 0;letter-spacing:2px;">📢 COMMUNICATION OFFICIELLE</p>'
+                + '<h2 style="font-size:18px;font-weight:bold;color:#004AAD;margin:0;">' + titre + '</h2></div>'
+                + '<div style="background:#f9fafb;padding:15px;border-radius:10px;margin-bottom:20px;">'
+                + '<p style="font-size:13px;color:#1f2937;line-height:1.8;margin:0;white-space:pre-wrap;text-align:justify;">' + contenu + '</p></div>'
+                + '<div style="text-align:right;margin-top:25px;padding-top:15px;border-top:1px solid #e5e7eb;">'
+                + '<p style="font-size:11px;color:#6b7280;margin:0;">Publiee le ' + datePub + '</p>'
+                + blocSignatureImg + blocSignatureTxt + '</div></div>'
+                + '<div style="background:#004AAD;padding:8px;text-align:center;"><p style="color:white;font-size:9px;margin:0;">Document officiel - EDU-LINK</p></div></div>';
         }
-    </script>
 
-    <!-- ============ SCRIPT PRINCIPAL ============ -->
-    <script>
+        // ════════════ THEME ════════════
         function initTheme() {
             if (localStorage.getItem('eduLinkTheme') === 'dark') { document.body.classList.add('dark-mode'); }
             var avatar = document.getElementById('avatar-header');
@@ -293,15 +324,16 @@
             if (btn) btn.innerHTML = estDark ? '☀️' : '🌙';
         }
 
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFid2d1aXhjbG14dHp2bHNtYmJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4OTg1OTMsImV4cCI6MjEwNjQ3NDU5M30.8MiG5YdoMIY69KYfBdlXHIB9Zisd5miX3slaCoqVcjM';
-        const supabaseUrl = 'https://abwguixclmxtzvlsmbby.supabase.co';
-        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
-        const sessionUser = sessionStorage.getItem('eduLinkUser');
+        // ════════════ SUPABASE ════════════
+        var supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFid2d1aXhjbG14dHp2bHNtYmJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4OTg1OTMsImV4cCI6MjEwNjQ3NDU5M30.8MiG5YdoMIY69KYfBdlXHIB9Zisd5miX3slaCoqVcjM';
+        var supabaseUrl = 'https://abwguixclmxtzvlsmbby.supabase.co';
+        var supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+        var sessionUser = sessionStorage.getItem('eduLinkUser');
         if (!sessionUser) { window.location.href = 'index.html'; }
-        const parsedUser = JSON.parse(sessionUser);
-        let currentUser = null, monEcoleId = null;
+        var parsedUser = JSON.parse(sessionUser);
+        var currentUser = null, monEcoleId = null;
 
-        const LABELS_SOUS_ROLE = {
+        var LABELS_SOUS_ROLE = {
             surveillant: { label: '👁️ Surveillant(e)', desc: 'Surveillance des élèves, gestion des absences et du bon ordre dans l\'établissement.' },
             censeur: { label: '📋 Censeur(e)', desc: 'Suivi de la discipline, gestion des absences et relation avec les familles.' },
             intendant: { label: '💼 Intendant(e)', desc: 'Gestion du matériel, des infrastructures et des ressources de l\'école.' },
@@ -314,94 +346,89 @@
         };
 
         function afficherAvatarHeader() {
-            const btn = document.getElementById('avatar-header');
+            var btn = document.getElementById('avatar-header');
             if (!btn) return;
             if (currentUser && currentUser.photo_url) {
-                btn.innerHTML = '<img src="' + currentUser.photo_url + '" style="width:100%; height:100%; object-fit:cover;">';
+                btn.innerHTML = '<img src="' + currentUser.photo_url + '" style="width:100%;height:100%;object-fit:cover;">';
             }
         }
 
-        window.addEventListener('load', async () => {
+        window.addEventListener('load', async function() {
             if (parsedUser.role !== 'staff') { window.location.href = 'index.html'; return; }
             currentUser = parsedUser;
             monEcoleId = currentUser.ecole_id;
             afficherAvatarHeader();
             initTheme();
-await chargerMesClassesStaff();            document.getElementById('welcome-message').innerText = currentUser.prenom + ' ' + currentUser.nom;
+            await chargerMesClassesStaff();
+            document.getElementById('welcome-message').innerText = currentUser.prenom + ' ' + currentUser.nom;
 
-            const infoRole = LABELS_SOUS_ROLE[currentUser.sous_role] || LABELS_SOUS_ROLE.autre;
+            var infoRole = LABELS_SOUS_ROLE[currentUser.sous_role] || LABELS_SOUS_ROLE.autre;
             document.getElementById('role-affiche').innerText = infoRole.label;
             document.getElementById('role-accueil').innerText = infoRole.label;
             document.getElementById('description-role').innerText = infoRole.desc;
 
             if (monEcoleId) {
-                const { data: ecole } = await supabaseClient.from('ecoles').select('nom').eq('id', monEcoleId).single();
-                if (ecole) document.getElementById('ecole-nom-affiche').innerText = "🏫 " + ecole.nom;
+                var resEcole = await supabaseClient.from('ecoles').select('nom').eq('id', monEcoleId).single();
+                if (resEcole.data) document.getElementById('ecole-nom-affiche').innerText = "🏫 " + resEcole.data.nom;
             }
 
-chargerMesPermissions();            document.getElementById('view-accueil').classList.remove('hidden');
+            chargerMesPermissions();
+            document.getElementById('view-accueil').classList.remove('hidden');
             chargerStats();
             chargerBadgeNotifs();
-            setInterval(() => { chargerBadgeNotifs(); }, 30000);
+            setInterval(function() { chargerBadgeNotifs(); }, 30000);
         });
-let mesClassesStaff = [];       // ids de classes
-        let mesClassesStaffNoms = [];   // pour debug
+
+        var mesClassesStaff = [];
+        var mesClassesStaffNoms = [];
 
         async function chargerMesClassesStaff() {
-            const { data } = await supabaseClient.from('staff_classes').select('classe_id, classes(nom)').eq('staff_user_id', currentUser.id).eq('ecole_id', monEcoleId);
+            var res = await supabaseClient.from('staff_classes').select('classe_id, classes(nom)').eq('staff_user_id', currentUser.id).eq('ecole_id', monEcoleId);
+            var data = res.data;
             if (data && data.length > 0) {
-                mesClassesStaff = data.map(d => d.classe_id);
-                mesClassesStaffNoms = data.map(d => d.classes ? d.classes.nom : '?');
+                mesClassesStaff = data.map(function(d) { return d.classe_id; });
+                mesClassesStaffNoms = data.map(function(d) { return d.classes ? d.classes.nom : '?'; });
             } else {
                 mesClassesStaff = [];
                 mesClassesStaffNoms = [];
             }
         }
 
-        function staffFiltrerParClasses(requete) {
-            // Si pas de classes assignees, pas de filtre
-            if (mesClassesStaff.length === 0) return requete;
-            return requete.in('classe_id', mesClassesStaff);
-        }
-
         async function chargerStats() {
-            // Filtre : si staff a des classes assignees, on limite aux siennes
-            const aDesClasses = mesClassesStaff.length > 0;
-
-            let qEleves = supabaseClient.from('eleves').select('*', { count: 'exact', head: true }).eq('ecole_id', monEcoleId);
-            let qClasses;
+            var aDesClasses = mesClassesStaff.length > 0;
+            var qEleves = supabaseClient.from('eleves').select('*', { count: 'exact', head: true }).eq('ecole_id', monEcoleId);
+            var qClasses;
             if (aDesClasses) {
                 qEleves = qEleves.in('classe_id', mesClassesStaff);
                 qClasses = supabaseClient.from('classes').select('*', { count: 'exact', head: true }).in('id', mesClassesStaff);
             } else {
                 qClasses = supabaseClient.from('classes').select('*', { count: 'exact', head: true }).eq('ecole_id', monEcoleId);
             }
-
-            const { count: c1 } = await qEleves;
-            const { count: c2 } = await qClasses;
-
-            document.getElementById('total-eleves').innerText = c1 || 0;
-            document.getElementById('total-classes').innerText = c2 || 0;
+            var res1 = await qEleves;
+            var res2 = await qClasses;
+            document.getElementById('total-eleves').innerText = res1.count || 0;
+            document.getElementById('total-classes').innerText = res2.count || 0;
         }
 
         async function chargerBadgeNotifs() {
-            const { count } = await supabaseClient.from('notifications').select('*', { count: 'exact', head: true }).eq('utilisateur_id', currentUser.id).eq('lu', false);
-            const badge = document.getElementById('badge-notif');
+            var res = await supabaseClient.from('notifications').select('*', { count: 'exact', head: true }).eq('utilisateur_id', currentUser.id).eq('lu', false);
+            var count = res.count;
+            var badge = document.getElementById('badge-notif');
             if (count > 0) { badge.innerText = count; badge.classList.remove('hidden'); } else { badge.classList.add('hidden'); }
         }
 
         function hideAllViews() {
-            document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('[id^="view-"]').forEach(function(el) { el.classList.add('hidden'); });
         }
 
-        // ============ ELEVES ============
+        // ════════════ ELEVES ════════════
         async function afficherEleves() {
             if (!aPermission('eleves')) { alert('Acces refuse.'); return; }
             hideAllViews();
             document.getElementById('view-eleves').classList.remove('hidden');
             document.getElementById('liste-eleves-staff').innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
 
-            let q = supabaseClient.from('eleves')
+            var q = supabaseClient.from('eleves')
                 .select('id, matricule, date_naissance, utilisateurs!utilisateur_id(prenom, nom), classes(nom, id)')
                 .eq('ecole_id', monEcoleId)
                 .order('id', { ascending: false });
@@ -410,11 +437,11 @@ let mesClassesStaff = [];       // ids de classes
                 q = q.in('classe_id', mesClassesStaff);
             }
 
-            const { data: eleves } = await q;
+            var res = await q;
+            var eleves = res.data;
 
-            let html = '';
+            var html = '';
 
-            // Bandeau info si filtre actif
             if (mesClassesStaff.length > 0) {
                 html += '<div class="bg-teal-50 border border-teal-100 p-3 rounded-xl mb-3">';
                 html += '<p class="text-[10px] text-teal-700 font-bold mb-1">Vous voyez uniquement vos classes :</p>';
@@ -423,11 +450,11 @@ let mesClassesStaff = [];       // ids de classes
             }
 
             if (eleves && eleves.length > 0) {
-                eleves.forEach(e => {
-                    const prenom = e.utilisateurs ? e.utilisateurs.prenom : '?';
-                    const nom = e.utilisateurs ? e.utilisateurs.nom : '?';
-                    const classe = e.classes ? e.classes.nom : 'Sans classe';
-                    const initiale = (prenom || '?').charAt(0).toUpperCase();
+                eleves.forEach(function(e) {
+                    var prenom = e.utilisateurs ? e.utilisateurs.prenom : '?';
+                    var nom = e.utilisateurs ? e.utilisateurs.nom : '?';
+                    var classe = e.classes ? e.classes.nom : 'Sans classe';
+                    var initiale = (prenom || '?').charAt(0).toUpperCase();
                     html += '<div data-search="' + prenom + ' ' + nom + ' ' + (e.matricule || '') + ' ' + classe + '" class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100">';
                     html += '<div class="flex items-center gap-3">';
                     html += '<div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm" style="background:linear-gradient(135deg,#0D9488,#004AAD);">' + initiale + '</div>';
@@ -445,28 +472,29 @@ let mesClassesStaff = [];       // ids de classes
         }
 
         function filtrerListe(inputId, containerId) {
-            const terme = document.getElementById(inputId).value.toLowerCase().trim();
-            const container = document.getElementById(containerId);
+            var terme = document.getElementById(inputId).value.toLowerCase().trim();
+            var container = document.getElementById(containerId);
             if (!container) return;
-            const items = container.querySelectorAll('[data-search]');
-            items.forEach(item => {
-                if (!terme || item.getAttribute('data-search').toLowerCase().includes(terme)) item.style.display = '';
+            var items = container.querySelectorAll('[data-search]');
+            items.forEach(function(item) {
+                if (!terme || item.getAttribute('data-search').toLowerCase().indexOf(terme) !== -1) item.style.display = '';
                 else item.style.display = 'none';
             });
         }
 
-        // ============ EMPLOI DU TEMPS ============
+        // ════════════ EMPLOI DU TEMPS ════════════
         async function afficherEmploi() {
-if (!aPermission('emploi')) { alert('Acces refuse.'); return; }
+            if (!aPermission('emploi')) { alert('Acces refuse.'); return; }
             hideAllViews();
             document.getElementById('view-emploi-classes').classList.remove('hidden');
 
-            let q = supabaseClient.from('classes').select('*').eq('ecole_id', monEcoleId).order('nom');
+            var q = supabaseClient.from('classes').select('*').eq('ecole_id', monEcoleId).order('nom');
             if (mesClassesStaff.length > 0) q = q.in('id', mesClassesStaff);
 
-            const { data: classes } = await q;
+            var res = await q;
+            var classes = res.data;
 
-            let html = '';
+            var html = '';
             if (mesClassesStaff.length > 0) {
                 html += '<div class="bg-teal-50 border border-teal-100 p-3 rounded-xl mb-3">';
                 html += '<p class="text-[10px] text-teal-700 font-bold">Vos classes uniquement</p>';
@@ -474,12 +502,13 @@ if (!aPermission('emploi')) { alert('Acces refuse.'); return; }
             }
 
             if (classes && classes.length > 0) {
-                for (const c of classes) {
-                    const { count } = await supabaseClient.from('emploi_du_temps').select('*', { count: 'exact', head: true }).eq('classe_id', c.id);
+                for (var k = 0; k < classes.length; k++) {
+                    var c = classes[k];
+                    var resC = await supabaseClient.from('emploi_du_temps').select('*', { count: 'exact', head: true }).eq('classe_id', c.id);
                     html += '<div onclick="afficherEmploiClasse(' + c.id + ', \'' + c.nom.replace(/'/g, "\\'") + '\')" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3 cursor-pointer hover:shadow-md transition">';
                     html += '<div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-2xl">🏫</div>';
                     html += '<div class="flex-1"><p class="text-sm font-bold text-gray-800">' + c.nom + '</p>';
-                    html += '<p class="text-[10px] text-gray-500">' + (count || 0) + ' cours</p></div>';
+                    html += '<p class="text-[10px] text-gray-500">' + (resC.count || 0) + ' cours</p></div>';
                     html += '<span class="text-xl text-gray-400">→</span></div>';
                 }
             } else html = '<p class="text-gray-500 text-center py-4">Aucune classe.</p>';
@@ -488,73 +517,169 @@ if (!aPermission('emploi')) { alert('Acces refuse.'); return; }
             window.scrollTo(0, 0);
         }
 
+        var classeEnCoursStaff = null;
+
         async function afficherEmploiClasse(classeId, nomClasse) {
             hideAllViews();
             document.getElementById('view-emploi-classe').classList.remove('hidden');
             document.getElementById('titre-emploi-classe').innerText = nomClasse;
-            const { data: cours } = await supabaseClient.from('emploi_du_temps').select('*').eq('classe_id', classeId).order('heure_debut');
-            afficherTableauEmploi(cours, 'tableau-emploi-staff');
+            classeEnCoursStaff = { id: classeId, nom: nomClasse };
+            var res = await supabaseClient.from('emploi_du_temps').select('*').eq('classe_id', classeId).order('heure_debut');
+            afficherTableauEmploi(res.data, 'tableau-emploi-staff');
             window.scrollTo(0, 0);
         }
 
         function afficherTableauEmploi(cours, containerId) {
-            const jours = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
-            const creneaux = [];
-            if (cours && cours.length > 0) {
-                const setCreneaux = new Set();
-                cours.forEach(c => {
-                    const hd = c.heure_debut ? c.heure_debut.substring(0,5) : '';
-                    const hf = c.heure_fin ? c.heure_fin.substring(0,5) : '';
-                    const key = hd + '-' + hf;
-                    if (!setCreneaux.has(key)) { setCreneaux.add(key); creneaux.push({ debut: hd, fin: hf }); }
-                });
-                creneaux.sort((a, b) => a.debut.localeCompare(b.debut));
-            }
-            if (creneaux.length === 0) { creneaux.push({ debut: '08:00', fin: '10:00' }); creneaux.push({ debut: '10:15', fin: '12:15' }); creneaux.push({ debut: '14:00', fin: '16:00' }); creneaux.push({ debut: '16:15', fin: '18:15' }); }
-            let html = '<table style="width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">';
-            html += '<thead><tr style="background: #0D9488;">';
-            html += '<th style="padding: 10px 8px; color: white; font-size: 11px; font-weight: bold; border: 1px solid #0D9488; min-width: 70px;">Heure</th>';
-            jours.forEach(j => { html += `<th style="padding: 10px 8px; color: white; font-size: 11px; font-weight: bold; border: 1px solid #0D9488; min-width: 95px; text-align: center;">${j.substring(0,3)}</th>`; });
+            var jours = JOURS_EDT;
+            var jourActuel = getJourActuelEDT();
+            var creneauxSet = {};
+            CRENEAUX_EDT.forEach(function(c) { creneauxSet[c.debut + '-' + c.fin] = true; });
+            var creneaux = CRENEAUX_EDT.slice();
+            (cours || []).forEach(function(c) {
+                if (!c.heure_debut || !c.heure_fin) return;
+                var hd = c.heure_debut.substring(0, 5);
+                var hf = c.heure_fin.substring(0, 5);
+                var key = hd + '-' + hf;
+                if (!creneauxSet[key]) { creneauxSet[key] = true; creneaux.push({ debut: hd, fin: hf }); }
+            });
+            creneaux.sort(function(a, b) { return a.debut.localeCompare(b.debut); });
+
+            var html = '<table style="width:100%;border-collapse:collapse;background:white;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.1);">';
+            html += '<thead><tr>';
+            html += '<th style="padding:10px 8px;color:white;font-size:11px;font-weight:bold;border:1px solid #0D9488;min-width:70px;background:#0D9488;">Heure</th>';
+            jours.forEach(function(j) {
+                var estAujourdhui = j === jourActuel;
+                var bg = estAujourdhui ? '#F59E0B' : '#0D9488';
+                html += '<th style="padding:10px 8px;color:white;font-size:11px;font-weight:bold;border:1px solid #0D9488;min-width:95px;text-align:center;background:' + bg + ';">';
+                html += j.substring(0, 3);
+                if (estAujourdhui) html += '<br><span style="font-size:7px;background:white;color:#92400e;padding:1px 4px;border-radius:4px;font-weight:bold;">AUJOURD\'HUI</span>';
+                html += '</th>';
+            });
             html += '</tr></thead><tbody>';
-            creneaux.forEach((creneau, idx) => {
-                const bgLigne = idx % 2 === 0 ? '#ffffff' : '#f9fafb';
-                html += `<tr style="background: ${bgLigne};">`;
-                html += `<td style="padding: 8px 6px; border: 1px solid #e5e7eb; font-size: 10px; font-weight: bold; color: #1f2937; text-align: center; background: #f3f4f6;">${creneau.debut}<br><span style="font-size: 8px; color: #6b7280;">${creneau.fin}</span></td>`;
-                jours.forEach(jour => {
-                    const c = cours ? cours.find(x => x.jour === jour && x.heure_debut && x.heure_fin && x.heure_debut.substring(0,5) === creneau.debut && x.heure_fin.substring(0,5) === creneau.fin) : null;
-                    if (c) html += `<td style="padding: 6px; border: 1px solid #e5e7eb; vertical-align: top;"><div style="background: #ccfbf1; border-left: 3px solid #0D9488; padding: 6px; border-radius: 5px; min-height: 50px;"><p style="font-size: 10px; font-weight: bold; color: #134e4a; margin: 0; line-height: 1.2;">${c.matiere}</p>${c.salle ? `<p style="font-size: 8px; color: #6b7280; margin: 2px 0 0 0;">📍 ${c.salle}</p>` : ''}</div></td>`;
-                    else html += '<td style="padding: 6px; border: 1px solid #e5e7eb; vertical-align: top;"><div style="min-height: 50px;"></div></td>';
+
+            creneaux.forEach(function(creneau, idx) {
+                var bgLigne = idx % 2 === 0 ? '#ffffff' : '#f9fafb';
+                html += '<tr style="background:' + bgLigne + ';">';
+                html += '<td style="padding:8px 6px;border:1px solid #e5e7eb;font-size:10px;font-weight:bold;color:#1f2937;text-align:center;background:#f3f4f6;">' + creneau.debut + '<br><span style="font-size:8px;color:#6b7280;">' + creneau.fin + '</span></td>';
+                jours.forEach(function(jour) {
+                    var c = cours ? cours.find(function(x) { return x.jour === jour && x.heure_debut && x.heure_fin && x.heure_debut.substring(0, 5) === creneau.debut && x.heure_fin.substring(0, 5) === creneau.fin; }) : null;
+                    var estAujourdhui = jour === jourActuel;
+                    var borderStyle = estAujourdhui
+                        ? 'border-top:1px solid #F59E0B;border-bottom:1px solid #F59E0B;border-left:2px solid #F59E0B;border-right:2px solid #F59E0B;'
+                        : 'border:1px solid #e5e7eb;';
+                    if (c) {
+                        var couleur = getCouleurMatiere(c.matiere);
+                        html += '<td style="padding:6px;' + borderStyle + 'vertical-align:top;">';
+                        html += '<div style="background:' + couleur.bg + ';border-left:3px solid ' + couleur.border + ';padding:6px;border-radius:5px;min-height:50px;">';
+                        html += '<p style="font-size:10px;font-weight:bold;color:' + couleur.text + ';margin:0;line-height:1.2;">' + c.matiere + '</p>';
+                        if (c.salle) html += '<p style="font-size:8px;color:#6b7280;margin:2px 0 0 0;">📍 ' + c.salle + '</p>';
+                        html += '</div></td>';
+                    } else {
+                        html += '<td style="padding:6px;' + borderStyle + 'vertical-align:top;"><div style="min-height:50px;"></div></td>';
+                    }
                 });
                 html += '</tr>';
             });
             html += '</tbody></table>';
+
+            if (cours && cours.length > 0) {
+                var matieresUniques = [];
+                cours.forEach(function(c) { if (c.matiere && matieresUniques.indexOf(c.matiere) === -1) matieresUniques.push(c.matiere); });
+                if (matieresUniques.length > 0) {
+                    html += '<div style="margin-top:10px;background:#f9fafb;border-radius:10px;padding:10px;">';
+                    html += '<p style="font-size:9px;color:#6b7280;margin:0 0 6px 0;font-weight:bold;letter-spacing:1px;">MATIERES</p>';
+                    html += '<div style="display:flex;flex-wrap:wrap;gap:6px;">';
+                    matieresUniques.forEach(function(m) {
+                        var couleur = getCouleurMatiere(m);
+                        html += '<span style="background:' + couleur.bg + ';color:' + couleur.text + ';font-size:9px;font-weight:600;padding:3px 8px;border-radius:6px;border-left:3px solid ' + couleur.border + ';">' + m + '</span>';
+                    });
+                    html += '</div></div>';
+                }
+            }
+
             document.getElementById(containerId).innerHTML = html;
         }
 
-        // ============ ABSENCES DU JOUR ============
+        async function exporterEmploiStaffPDF(event) {
+            var conteneur = document.getElementById('tableau-emploi-staff');
+            if (!conteneur) return;
+            var btn = event ? event.target : null;
+            if (btn) { btn.disabled = true; btn.innerText = '⏳'; }
+
+            var iframe = null;
+            try {
+                var ecoleNom = document.getElementById('ecole-nom-affiche').innerText.replace('🏫 ', '');
+                var classeNom = classeEnCoursStaff ? classeEnCoursStaff.nom : '';
+                var dateJour = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+                var clone = conteneur.cloneNode(true);
+                clone.querySelectorAll('[onclick]').forEach(function(el) { el.removeAttribute('onclick'); });
+
+                var htmlInterne = '<div style="background:white;padding:15px;border:2px solid #0D9488;border-radius:12px;font-family:Arial,sans-serif;">'
+                    + '<div style="text-align:center;border-bottom:2px solid #0D9488;padding-bottom:8px;margin-bottom:12px;">'
+                    + '<h1 style="font-size:16px;color:#0D9488;margin:2px 0;">EDU-LINK</h1>'
+                    + '<p style="font-size:9px;color:#6b7280;margin:0;">' + ecoleNom + '</p>'
+                    + '<p style="font-size:13px;font-weight:bold;margin-top:4px;">EMPLOI DU TEMPS</p>'
+                    + (classeNom ? '<p style="font-size:11px;color:#1f2937;margin:2px 0;">' + classeNom + '</p>' : '')
+                    + '</div>'
+                    + '<div style="font-size:11px;">' + clone.innerHTML + '</div>'
+                    + '<p style="text-align:center;font-size:8px;color:#9ca3af;margin-top:10px;">Genere par EDU-LINK - ' + dateJour + '</p>'
+                    + '</div>';
+
+                iframe = document.createElement('iframe');
+                iframe.style.cssText = 'position:fixed;top:0;left:0;width:1000px;height:800px;opacity:0;pointer-events:none;z-index:-1;border:none;';
+                document.body.appendChild(iframe);
+                var doc = iframe.contentDocument || iframe.contentWindow.document;
+                doc.open();
+                doc.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{margin:0;padding:15px;background:#fff;font-family:Arial,sans-serif;}</style></head><body>' + htmlInterne + '</body></html>');
+                doc.close();
+                await new Promise(function(r) { setTimeout(r, 400); });
+
+                var nomFichier = 'Emploi_' + (classeNom || 'classe').replace(/\s+/g, '_') + '.pdf';
+                var options = {
+                    margin: 10, filename: nomFichier,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', width: 1000, windowWidth: 1000, scrollX: 0, scrollY: 0 },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+                };
+                var pdfBlob = await html2pdf().set(options).from(doc.body).outputPdf('blob');
+                var fichier = new File([pdfBlob], nomFichier, { type: 'application/pdf' });
+                document.body.removeChild(iframe); iframe = null;
+
+                if (navigator.canShare && navigator.canShare({ files: [fichier] })) {
+                    await navigator.share({ files: [fichier], title: 'Emploi du temps' });
+                } else {
+                    window.open(URL.createObjectURL(pdfBlob), '_blank');
+                }
+            } catch (err) {
+                if (iframe && document.body.contains(iframe)) document.body.removeChild(iframe);
+                if (err.name !== 'AbortError') alert('Erreur : ' + err.message);
+            } finally {
+                if (btn) { btn.disabled = false; btn.innerText = '📥 PDF'; }
+            }
+        }
+
+        // ════════════ ABSENCES DU JOUR ════════════
         async function afficherAbsences() {
-if (!aPermission('absences')) { alert('Acces refuse.'); return; }
+            if (!aPermission('absences')) { alert('Acces refuse.'); return; }
             hideAllViews();
             document.getElementById('view-absences').classList.remove('hidden');
             document.getElementById('liste-absences-staff').innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
 
-            const aujourdHui = new Date().toISOString().split('T')[0];
+            var aujourdHui = new Date().toISOString().split('T')[0];
 
-            let q = supabaseClient.from('absences')
+            var res = await supabaseClient.from('absences')
                 .select('*, eleves(matricule, classe_id, utilisateurs!utilisateur_id(prenom, nom), classes(nom))')
                 .eq('ecole_id', monEcoleId)
                 .eq('date_absence', aujourdHui)
                 .order('id', { ascending: false });
 
-            const { data: absences } = await q;
-
-            // Filtrage en memoire si le staff a des classes assignees
-            let liste = absences || [];
+            var liste = res.data || [];
             if (mesClassesStaff.length > 0) {
-                liste = liste.filter(a => a.eleves && mesClassesStaff.includes(a.eleves.classe_id));
+                liste = liste.filter(function(a) { return a.eleves && mesClassesStaff.indexOf(a.eleves.classe_id) !== -1; });
             }
 
-            let html = '';
+            var html = '';
             if (mesClassesStaff.length > 0) {
                 html += '<div class="bg-teal-50 border border-teal-100 p-3 rounded-xl mb-3">';
                 html += '<p class="text-[10px] text-teal-700 font-bold">Absences de vos classes uniquement</p>';
@@ -562,13 +687,13 @@ if (!aPermission('absences')) { alert('Acces refuse.'); return; }
             }
 
             if (liste.length > 0) {
-                liste.forEach(a => {
-                    const eleve = a.eleves;
-                    const prenom = eleve && eleve.utilisateurs ? eleve.utilisateurs.prenom : '?';
-                    const nom = eleve && eleve.utilisateurs ? eleve.utilisateurs.nom : '?';
-                    const classe = eleve && eleve.classes ? eleve.classes.nom : '';
-                    const matiere = a.matiere || 'Cours';
-                    const justif = a.justifiee
+                liste.forEach(function(a) {
+                    var eleve = a.eleves;
+                    var prenom = eleve && eleve.utilisateurs ? eleve.utilisateurs.prenom : '?';
+                    var nom = eleve && eleve.utilisateurs ? eleve.utilisateurs.nom : '?';
+                    var classe = eleve && eleve.classes ? eleve.classes.nom : '';
+                    var matiere = a.matiere || 'Cours';
+                    var justif = a.justifiee
                         ? '<span class="bg-green-100 text-edu-green text-[10px] font-bold px-2 py-1 rounded">Justifiee</span>'
                         : '<span class="bg-red-100 text-edu-red text-[10px] font-bold px-2 py-1 rounded">Non justifiee</span>';
                     html += '<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">';
@@ -586,25 +711,26 @@ if (!aPermission('absences')) { alert('Acces refuse.'); return; }
             window.scrollTo(0, 0);
         }
 
-        // ============ ANNONCES ============
+        // ════════════ ANNONCES ════════════
         async function afficherAnnonces() {
-if (!aPermission('annonces')) { alert('Acces refuse.'); return; }
+            if (!aPermission('annonces')) { alert('Acces refuse.'); return; }
             hideAllViews();
             document.getElementById('view-annonces').classList.remove('hidden');
             document.getElementById('view-affiche').classList.add('hidden');
-            const { data: annonces } = await supabaseClient.from('annonces').select('*').eq('ecole_id', monEcoleId).or('cible.eq.tous').order('date_publication', { ascending: false });
-            let html = '';
+            var res = await supabaseClient.from('annonces').select('*').eq('ecole_id', monEcoleId).or('cible.eq.tous').order('date_publication', { ascending: false });
+            var annonces = res.data;
+            var html = '';
             if (annonces && annonces.length > 0) {
-                annonces.forEach(a => {
-                    const d = new Date(a.date_publication).toLocaleDateString('fr-FR');
-                    html += `<div onclick="voirAffiche(${a.id})" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition">
-                        <div class="flex justify-between items-start mb-2">
-                            <p class="text-sm font-bold text-gray-800">📢 ${a.titre}</p>
-                            <span class="text-[10px] text-gray-400">${d}</span>
-                        </div>
-                        <p class="text-xs text-gray-600 mb-2">${a.contenu.substring(0, 100)}${a.contenu.length > 100 ? '...' : ''}</p>
-                        <p class="text-[10px] text-edu-teal font-semibold">👆 Cliquez pour voir l'affiche</p>
-                    </div>`;
+                annonces.forEach(function(a) {
+                    var d = new Date(a.date_publication).toLocaleDateString('fr-FR');
+                    html += '<div onclick="voirAffiche(' + a.id + ')" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition">'
+                        + '<div class="flex justify-between items-start mb-2">'
+                        + '<p class="text-sm font-bold text-gray-800">📢 ' + a.titre + '</p>'
+                        + '<span class="text-[10px] text-gray-400">' + d + '</span>'
+                        + '</div>'
+                        + '<p class="text-xs text-gray-600 mb-2">' + a.contenu.substring(0, 100) + (a.contenu.length > 100 ? '...' : '') + '</p>'
+                        + '<p class="text-[10px] text-edu-teal font-semibold">👆 Cliquez pour voir l\'affiche</p>'
+                        + '</div>';
                 });
             } else html = '<p class="text-gray-500 text-center py-4">Aucune annonce.</p>';
             document.getElementById('liste-annonces').innerHTML = html;
@@ -614,25 +740,22 @@ if (!aPermission('annonces')) { alert('Acces refuse.'); return; }
         async function voirAffiche(id) {
             document.getElementById('view-annonces').classList.add('hidden');
             document.getElementById('view-affiche').classList.remove('hidden');
-            const { data: a } = await supabaseClient.from('annonces').select('*').eq('id', id).single();
-            const { data: ecole } = await supabaseClient.from('ecoles').select('nom, signature_url').eq('id', monEcoleId).single();
-            document.getElementById('contenu-affiche').innerHTML = construireAffiche(a, ecole ? ecole.nom : 'Etablissement', ecole ? ecole.signature_url : null);
+            var res = await supabaseClient.from('annonces').select('*').eq('id', id).single();
+            var resE = await supabaseClient.from('ecoles').select('nom, signature_url').eq('id', monEcoleId).single();
+            var ecole = resE.data;
+            document.getElementById('contenu-affiche').innerHTML = construireAfficheSecurisee(res.data, ecole ? ecole.nom : 'Etablissement', ecole ? ecole.signature_url : null);
         }
 
-        // ✅ Wrapper sécurisé
-        function construireAffiche(a, ecoleNom, signatureEcole) {
-            return construireAfficheSecurisee(a, ecoleNom, signatureEcole);
-        }
-
-        // ============ NOTIFICATIONS ============
+        // ════════════ NOTIFICATIONS ════════════
         async function afficherNotifications() {
             hideAllViews();
             document.getElementById('view-notifications').classList.remove('hidden');
-            const { data: notifs } = await supabaseClient.from('notifications').select('*').eq('utilisateur_id', currentUser.id).order('date_creation', { ascending: false });
-            let html = '';
+            var res = await supabaseClient.from('notifications').select('*').eq('utilisateur_id', currentUser.id).order('date_creation', { ascending: false });
+            var notifs = res.data;
+            var html = '';
             if (notifs && notifs.length > 0) {
-                notifs.forEach(n => {
-                    html += `<div class="bg-teal-50 border-l-4 border-edu-teal p-4 rounded-r-2xl mb-2"><p class="text-sm font-bold text-edu-teal">${n.titre}</p><p class="text-xs text-gray-600 mt-1">${n.contenu}</p></div>`;
+                notifs.forEach(function(n) {
+                    html += '<div class="bg-teal-50 border-l-4 border-edu-teal p-4 rounded-r-2xl mb-2"><p class="text-sm font-bold text-edu-teal">' + n.titre + '</p><p class="text-xs text-gray-600 mt-1">' + n.contenu + '</p></div>';
                     supabaseClient.from('notifications').update({ lu: true }).eq('id', n.id);
                 });
                 chargerBadgeNotifs();
@@ -647,8 +770,9 @@ if (!aPermission('annonces')) { alert('Acces refuse.'); return; }
             chargerStats();
             window.scrollTo(0, 0);
         }
-// ============ PERMISSIONS ============
-        let mesPermissions = {};
+
+        // ════════════ PERMISSIONS ════════════
+        var mesPermissions = {};
 
         function chargerMesPermissions() {
             mesPermissions = currentUser.permissions || {};
@@ -660,7 +784,7 @@ if (!aPermission('annonces')) { alert('Acces refuse.'); return; }
         }
 
         function appliquerPermissions() {
-            const modules = {
+            var modules = {
                 'eleves': 'btn-nav-eleves',
                 'emploi': 'btn-nav-emploi',
                 'absences': 'btn-nav-absences',
@@ -668,29 +792,26 @@ if (!aPermission('annonces')) { alert('Acces refuse.'); return; }
                 'heures': 'btn-nav-heures'
             };
 
-            Object.keys(modules).forEach(mod => {
-                const btn = document.getElementById(modules[mod]);
+            Object.keys(modules).forEach(function(mod) {
+                var btn = document.getElementById(modules[mod]);
                 if (!btn) return;
                 if (aPermission(mod)) btn.classList.remove('hidden');
                 else btn.classList.add('hidden');
             });
 
-            // IMPORTANT : cacher les VUES non autorisees mais JAMAIS view-accueil
-            document.querySelectorAll('[id^="view-"]').forEach(el => {
+            document.querySelectorAll('[id^="view-"]').forEach(function(el) {
                 if (el.id === 'view-accueil') return;
                 el.classList.add('hidden');
             });
 
-            // Toujours afficher view-accueil
-            const accueil = document.getElementById('view-accueil');
+            var accueil = document.getElementById('view-accueil');
             if (accueil) accueil.classList.remove('hidden');
 
-            // Si aucun module, afficher un message
-            const nb = Object.keys(modules).filter(m => aPermission(m)).length;
+            var nb = Object.keys(modules).filter(function(m) { return aPermission(m); }).length;
             if (nb === 0) {
-                const existant = document.getElementById('msg-aucun-acces');
+                var existant = document.getElementById('msg-aucun-acces');
                 if (!existant && accueil) {
-                    const msg = document.createElement('div');
+                    var msg = document.createElement('div');
                     msg.id = 'msg-aucun-acces';
                     msg.className = 'bg-orange-50 border border-orange-200 rounded-2xl p-4 mb-3 text-center';
                     msg.innerHTML = '<div class="text-3xl mb-2">🔒</div><p class="text-sm font-bold text-edu-orange mb-1">Acces limite</p><p class="text-[11px] text-gray-600">Vous n\'avez acces a aucun module. Contactez l\'administration.</p>';
@@ -698,8 +819,9 @@ if (!aPermission('annonces')) { alert('Acces refuse.'); return; }
                 }
             }
         }
-// ============ HEURES D'ENSEIGNEMENT (STAFF) ============
-        let hsPeriode = 'semaine';
+
+        // ════════════ HEURES D'ENSEIGNEMENT ════════════
+        var hsPeriode = 'semaine';
 
         async function afficherHeuresStaff() {
             hideAllViews();
@@ -710,22 +832,22 @@ if (!aPermission('annonces')) { alert('Acces refuse.'); return; }
 
         function setPeriodeHeuresStaff(p) {
             hsPeriode = p;
-            ['jour', 'semaine', 'mois'].forEach(x => {
-                const btn = document.getElementById('hs-periode-' + x);
+            ['jour', 'semaine', 'mois'].forEach(function(x) {
+                var btn = document.getElementById('hs-periode-' + x);
                 if (btn) btn.className = x === p
                     ? 'py-2 rounded-xl font-bold text-[10px] bg-edu-teal text-white'
                     : 'py-2 rounded-xl font-bold text-[10px] bg-gray-100 text-gray-600';
             });
-            const now = new Date();
-            const y = now.getFullYear(), m = now.getMonth(), d = now.getDate();
-            const pad = n => String(n).padStart(2, '0');
-            const fmt = dt => dt.getFullYear() + '-' + pad(dt.getMonth() + 1) + '-' + pad(dt.getDate());
-            let debut, fin;
+            var now = new Date();
+            var y = now.getFullYear(), m = now.getMonth(), d = now.getDate();
+            var pad = function(n) { return String(n).padStart(2, '0'); };
+            var fmt = function(dt) { return dt.getFullYear() + '-' + pad(dt.getMonth() + 1) + '-' + pad(dt.getDate()); };
+            var debut, fin;
             if (p === 'jour') { debut = fin = fmt(now); }
             else if (p === 'semaine') {
-                const day = now.getDay() || 7;
-                const lundi = new Date(now); lundi.setDate(d - day + 1);
-                const dim = new Date(lundi); dim.setDate(lundi.getDate() + 6);
+                var day = now.getDay() || 7;
+                var lundi = new Date(now); lundi.setDate(d - day + 1);
+                var dim = new Date(lundi); dim.setDate(lundi.getDate() + 6);
                 debut = fmt(lundi); fin = fmt(dim);
             } else {
                 debut = fmt(new Date(y, m, 1));
@@ -737,34 +859,33 @@ if (!aPermission('annonces')) { alert('Acces refuse.'); return; }
         }
 
         async function chargerHeuresStaff() {
-            const conteneur = document.getElementById('hs-contenu');
+            var conteneur = document.getElementById('hs-contenu');
             conteneur.innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
 
-            const debut = document.getElementById('hs-date-debut').value;
-            const fin = document.getElementById('hs-date-fin').value;
+            var debut = document.getElementById('hs-date-debut').value;
+            var fin = document.getElementById('hs-date-fin').value;
             if (!debut || !fin) { conteneur.innerHTML = '<p class="text-orange-500 text-center py-4 text-sm">Selectionnez une periode.</p>'; return; }
 
-            let q = supabaseClient.from('pointages')
+            var q = supabaseClient.from('pointages')
                 .select('*, classes(nom), enseignants(utilisateurs!utilisateur_id(prenom, nom))')
                 .eq('ecole_id', monEcoleId)
                 .gte('date_pointage', debut)
                 .lte('date_pointage', fin)
                 .order('date_pointage', { ascending: false });
 
-            // Filtre selon les classes autorisees
             if (mesClassesStaff.length > 0) {
                 q = q.in('classe_id', mesClassesStaff);
             }
 
-            const { data } = await q;
-            const liste = data || [];
+            var res = await q;
+            var liste = res.data || [];
 
-            const totalMin = liste.reduce((s, p) => s + (p.duree_minutes || 0), 0);
-            const totalHeures = (totalMin / 60).toFixed(1);
-            const nbCours = liste.length;
-            const nbProfsActifs = new Set(liste.map(p => p.enseignant_id)).size;
+            var totalMin = liste.reduce(function(s, p) { return s + (p.duree_minutes || 0); }, 0);
+            var totalHeures = (totalMin / 60).toFixed(1);
+            var nbCours = liste.length;
+            var nbProfsActifs = new Set(liste.map(function(p) { return p.enseignant_id; })).size;
 
-            let html = '';
+            var html = '';
             html += '<div class="bg-gradient-to-br from-teal-500 to-cyan-600 text-white rounded-2xl shadow-lg p-4 mb-3">';
             html += '<p class="text-[10px] opacity-90 uppercase font-bold">Total heures</p>';
             html += '<p class="text-4xl font-extrabold mt-1">' + totalHeures + 'h</p>';
@@ -783,26 +904,25 @@ if (!aPermission('annonces')) { alert('Acces refuse.'); return; }
                 return;
             }
 
-            // Grouper par prof
-            const parProf = {};
-            liste.forEach(p => {
-                const id = p.enseignant_id;
+            var parProf = {};
+            liste.forEach(function(p) {
+                var id = p.enseignant_id;
                 if (!parProf[id]) parProf[id] = { total: 0, nb: 0, nom: '?' };
-                const u = p.enseignants && p.enseignants.utilisateurs;
+                var u = p.enseignants && p.enseignants.utilisateurs;
                 parProf[id].nom = u ? u.prenom + ' ' + u.nom : 'Prof #' + id;
                 parProf[id].total += p.duree_minutes;
                 parProf[id].nb++;
             });
 
-            const profsTries = Object.values(parProf).sort((a, b) => b.total - a.total);
-            const maxTotal = Math.max(...profsTries.map(p => p.total), 1);
+            var profsTries = Object.values(parProf).sort(function(a, b) { return b.total - a.total; });
+            var maxTotal = Math.max.apply(null, profsTries.map(function(p) { return p.total; }).concat([1]));
 
             html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">';
             html += '<p class="text-sm font-bold text-gray-800 mb-3">Classement des profs</p>';
 
-            profsTries.forEach((p, idx) => {
-                const pct = Math.round((p.total / maxTotal) * 100);
-                const couleur = idx === 0 ? '#004AAD' : (idx < 3 ? '#2EAD5E' : '#6b7280');
+            profsTries.forEach(function(p, idx) {
+                var pct = Math.round((p.total / maxTotal) * 100);
+                var couleur = idx === 0 ? '#004AAD' : (idx < 3 ? '#2EAD5E' : '#6b7280');
                 html += '<div class="mb-3 last:mb-0">';
                 html += '<div class="flex justify-between items-center mb-1"><span class="text-xs font-bold text-gray-800">' + (idx + 1) + '. ' + p.nom + '</span>';
                 html += '<span class="text-xs font-bold" style="color:' + couleur + '">' + (p.total / 60).toFixed(1) + 'h</span></div>';
@@ -815,7 +935,14 @@ if (!aPermission('annonces')) { alert('Acces refuse.'); return; }
             conteneur.innerHTML = html;
         }
 
-        function seDeconnecter() { sessionStorage.removeItem('eduLinkUser'); window.location.href = 'index.html'; }
+        function seDeconnecter() {
+            sessionStorage.removeItem('eduLinkUser');
+            window.location.href = 'index.html';
+        }
     </script>
+<script src="ripple.js"></script>
+<script src="toast.js"></script>
+<script src="confirm.js"></script>
+</body>
 </body>
 </html>

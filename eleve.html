@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link rel="stylesheet" href="dashboard.css">
     <script>
         tailwind.config = { theme: { extend: { colors: { 'edu-blue': '#004AAD', 'edu-green': '#2EAD5E', 'edu-red': '#EF4444', 'edu-orange': '#F59E0B', 'edu-purple': '#8B5CF6' } } } }
     </script>
@@ -35,7 +36,6 @@
         body.dark-mode .border-gray-200 { border-color: #334155; }
         body.dark-mode .border-gray-300 { border-color: #475569; }
         body.dark-mode input, body.dark-mode select, body.dark-mode textarea { background-color: #334155; color: #f1f5f9; border-color: #475569; }
-        body.dark-mode input::placeholder, body.dark-mode textarea::placeholder { color: #94a3b8; }
         body.dark-mode .bg-blue-50 { background-color: #1e3a5f; }
         body.dark-mode .bg-green-50 { background-color: #14532d; }
         body.dark-mode .bg-red-50 { background-color: #7f1d1d; }
@@ -45,7 +45,6 @@
         body.dark-mode .bg-amber-50 { background-color: #78350f; }
         .btn-theme-toggle { width: 36px; height: 36px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; border: none; color: white; transition: all 0.2s ease; flex-shrink: 0; }
         .btn-theme-toggle:hover { background: rgba(255,255,255,0.35); }
-        .btn-theme-toggle:active { transform: scale(0.92); }
     </style>
 </head>
 <body class="min-h-screen flex justify-center items-start pt-4 p-3">
@@ -70,117 +69,137 @@
             </div>
 
             <div class="flex-1 overflow-y-auto -mt-4 pt-6 px-4 pb-6">
-                <div id="view-accueil" class="hidden fade-in">
-<button onclick="activerNotificationsPush(supabaseClient, currentUser)" id="btn-push" class="bouton-action w-full bg-gradient-to-r from-yellow-500 to-orange-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
-                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">🔔</div>
-                        <div class="flex-1 text-left"><p class="text-sm font-bold">Activer les notifications</p><p class="text-[10px] opacity-90">Recevez des alertes sur votre telephone</p></div>
-                        <span class="text-xl">→</span>
+
+                <!-- ═══════════════ ACCUEIL PRO ═══════════════ -->
+                <div id="view-accueil" class="hidden">
+                    <button onclick="activerNotificationsPush(supabaseClient, currentUser)" id="btn-push" class="btn-float anim-up" style="background: linear-gradient(135deg, #F59E0B, #EA580C); margin-bottom: 14px;">
+                        <div class="btn-icon">🔔</div>
+                        <div class="btn-content">
+                            <div class="btn-title">Activer les notifications</div>
+                            <div class="btn-desc">Ne manque aucune note ni devoir</div>
+                        </div>
+                        <div class="btn-arrow">→</div>
                     </button>
-                    <div class="bg-gradient-to-br from-edu-blue to-blue-700 text-white rounded-2xl shadow-lg p-5 mb-3">
-                        <div class="flex items-center justify-between mb-3">
-                            <div>
-                                <p class="text-xs opacity-80 mb-1">Ma moyenne générale</p>
-                                <div class="flex items-end gap-1">
-                                    <span id="moy-generale" class="text-4xl font-extrabold">--</span>
-                                    <span class="text-lg opacity-80 mb-1">/ 20</span>
-                                </div>
-                            </div>
-                            <div class="w-14 h-14 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-3xl">📊</div>
+
+                    <div class="hero-stat anim-up delay-1" style="--from: #004AAD; --to: #1E40AF; margin-bottom: 14px;">
+                        <div class="hero-stat-icon">📊</div>
+                        <div class="hero-stat-label">Ma moyenne générale</div>
+                        <div class="flex items-end gap-2 mt-2" style="position: relative; z-index: 2;">
+                            <span id="moy-generale" class="hero-stat-value">--</span>
+                            <span style="font-size: 18px; opacity: 0.8; margin-bottom: 4px;">/ 20</span>
                         </div>
-                        <div class="barre-progression"><div id="barre-moyenne" class="barre-progression-fill" style="width: 0%;"></div></div>
-                        <p id="mention-eleve" class="text-[11px] opacity-90 mt-2">Mention : --</p>
+                        <div class="progress" style="margin-top: 12px; position: relative; z-index: 2;">
+                            <div id="barre-moyenne" class="progress-fill" style="width: 0%;"></div>
+                        </div>
+                        <p id="mention-eleve" class="hero-stat-sub">Mention : --</p>
                     </div>
 
-                    <div id="carte-badges" class="hidden bg-gradient-to-br from-amber-400 to-orange-500 text-white rounded-2xl shadow-lg p-4 mb-3 cursor-pointer" onclick="afficherMesBadges()">
-                        <div class="flex items-center justify-between mb-3">
+                    <div id="carte-badges" class="hidden card-pro anim-up delay-2" onclick="afficherMesBadges()" style="background: linear-gradient(135deg, #FCD34D 0%, #F59E0B 100%); border: none; cursor: pointer; margin-bottom: 14px; position: relative; overflow: hidden;">
+                        <div style="position: absolute; top: -30px; right: -30px; width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,0.15);"></div>
+                        <div class="flex items-center justify-between mb-3" style="position: relative; z-index: 1;">
                             <div>
-                                <p class="text-xs opacity-90 font-bold">🏆 Mes récompenses</p>
-                                <p id="badges-compteur" class="text-[11px] opacity-90 mt-0.5">...</p>
+                                <p style="font-size: 13px; font-weight: 800; color: white; letter-spacing: 0.3px;">🏆 Mes récompenses</p>
+                                <p id="badges-compteur" style="font-size: 11px; color: rgba(255,255,255,0.9); margin-top: 2px;">...</p>
                             </div>
-                            <div class="text-3xl">🌟</div>
+                            <div style="font-size: 32px;">🌟</div>
                         </div>
-                        <div id="badges-top3" class="flex gap-2"></div>
+                        <div id="badges-top3" class="flex gap-2" style="position: relative; z-index: 1;"></div>
                     </div>
 
-                    <div id="carte-prochain-cours" class="hidden bg-white rounded-2xl shadow-lg p-4 mb-3">
+                    <div id="carte-prochain-cours" class="hidden card-pro anim-up delay-2" style="margin-bottom: 14px; background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%); border-left: 4px solid #2EAD5E;">
                         <div class="flex items-center gap-3">
-                            <div id="prochain-cours-icon" class="w-12 h-12 bg-edu-green bg-opacity-10 rounded-full flex items-center justify-center text-2xl">📅</div>
+                            <div id="prochain-cours-icon" style="width: 48px; height: 48px; background: linear-gradient(135deg, #dcfce7, #bbf7d0); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">📅</div>
                             <div class="flex-1 min-w-0">
-                                <p id="prochain-cours-label" class="text-[10px] font-bold text-edu-green uppercase">Prochain cours</p>
-                                <p id="prochain-cours-matiere" class="text-sm font-bold text-gray-800 truncate">...</p>
-                                <p id="prochain-cours-horaire" class="text-[10px] text-gray-500">...</p>
+                                <p id="prochain-cours-label" style="font-size: 10px; font-weight: 800; color: #059669; text-transform: uppercase; letter-spacing: 0.5px;">PROCHAIN COURS</p>
+                                <p id="prochain-cours-matiere" style="font-size: 14px; font-weight: 800; color: #1f2937; margin-top: 3px;">...</p>
+                                <p id="prochain-cours-horaire" style="font-size: 10px; color: #6b7280; margin-top: 2px;">...</p>
                             </div>
-                            <div id="prochain-cours-badge" class="hidden bg-orange-100 text-edu-orange text-[10px] font-bold px-2 py-1 rounded">EN COURS</div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-2xl shadow-lg p-4 mb-3">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-2xl">📝</div>
-                                <div>
-                                    <p class="text-xs text-gray-500">Dernière note</p>
-                                    <p class="text-sm font-bold text-gray-800">Mathématiques</p>
-                                </div>
+                            <div id="prochain-cours-badge" class="hidden chip chip-success">
+                                <span class="chip-dot"></span>
+                                <span>EN COURS</span>
                             </div>
-                            <p id="note-eleve" class="text-2xl font-extrabold text-edu-green">--</p>
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-2xl shadow-lg p-4 mb-3 grid grid-cols-2 gap-3">
-                        <button onclick="afficherBulletin()" class="carte-stat bg-gradient-to-br from-blue-50 to-blue-100 p-3 rounded-xl border border-blue-200 flex flex-col items-center gap-1">
-                            <span class="text-2xl">📄</span>
-                            <span class="text-xs font-bold text-edu-blue">Mon bulletin</span>
-                        </button>
-                        <button onclick="afficherAbsences()" class="carte-stat bg-gradient-to-br from-red-50 to-red-100 p-3 rounded-xl border border-red-200 flex flex-col items-center gap-1">
-                            <span class="text-2xl">🚫</span>
-                            <span class="text-xs font-bold text-edu-red">Mes absences</span>
-                        </button>
-                        <button onclick="afficherEmploi()" class="carte-stat bg-gradient-to-br from-purple-50 to-purple-100 p-3 rounded-xl border border-purple-200 flex flex-col items-center gap-1">
-                            <span class="text-2xl">📅</span>
-                            <span class="text-xs font-bold text-edu-purple">Emploi du temps</span>
-                        </button>
-                        <button onclick="afficherAnnonces()" class="carte-stat bg-gradient-to-br from-orange-50 to-orange-100 p-3 rounded-xl border border-orange-200 flex flex-col items-center gap-1">
-                            <span class="text-2xl">📢</span>
-                            <span class="text-xs font-bold text-edu-orange">Annonces</span>
-                        </button>
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <div class="stat-card green anim-up delay-3">
+                            <div class="stat-icon">📝</div>
+                            <div class="stat-label">Dernière note</div>
+                            <p id="note-eleve" class="stat-value">--</p>
+                        </div>
+                        <div class="stat-card blue anim-up delay-3" onclick="afficherBulletin()" style="cursor: pointer;">
+                            <div class="stat-icon">📊</div>
+                            <div class="stat-label">Bulletin</div>
+                            <p style="font-size: 14px; font-weight: 800; color: #004AAD; margin-top: 4px;">Voir →</p>
+                        </div>
                     </div>
 
-                    <button onclick="afficherDevoirs()" class="bouton-action w-full bg-gradient-to-r from-amber-500 to-orange-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
-                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">📚</div>
-                        <div class="flex-1 text-left">
-                            <p class="text-sm font-bold">Mes devoirs</p>
-                            <p class="text-[10px] opacity-90" id="devoirs-resume">Voir les devoirs à faire</p>
+                    <div class="divider anim-up delay-4">Mes outils</div>
+
+                    <div class="action-grid mb-4">
+                        <div class="action-tile anim-up delay-4" onclick="afficherBulletin()">
+                            <div class="tile-icon" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #004AAD;">📄</div>
+                            <div class="tile-label">Mon bulletin</div>
+                            <div class="tile-sub">Par semestre</div>
                         </div>
-                        <span id="badge-devoirs" class="hidden bg-white text-edu-orange text-xs font-bold rounded-full w-7 h-7 flex items-center justify-center">0</span>
-                    </button>
-                    <button onclick="testRessources()" class="bouton-action w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
-                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">📚</div>
-                        <div class="flex-1 text-left">
-                            <p class="text-sm font-bold">Mes ressources</p>
-                            <p class="text-[10px] opacity-90">Programmes, lecons, exercices</p>
+                        <div class="action-tile anim-up delay-4" onclick="afficherAbsences()">
+                            <div class="tile-icon" style="background: linear-gradient(135deg, #fee2e2, #fecaca); color: #DC2626;">🚫</div>
+                            <div class="tile-label">Mes absences</div>
+                            <div class="tile-sub">Historique</div>
                         </div>
-                        <span class="text-xl">→</span>
-                    </button>
-                    <button onclick="window.location.href='assistant-ia.html'" class="bouton-action w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
-                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">🤖</div>
-                        <div class="flex-1 text-left">
-                            <p class="text-sm font-bold">Assistant IA</p>
-                            <p class="text-[10px] opacity-90">Pose-moi tes questions de cours</p>
+                        <div class="action-tile anim-up delay-4" onclick="afficherEmploi()">
+                            <div class="tile-icon" style="background: linear-gradient(135deg, #ede9fe, #ddd6fe); color: #7C3AED;">📅</div>
+                            <div class="tile-label">Emploi du temps</div>
+                            <div class="tile-sub">Cette semaine</div>
                         </div>
-                        <span class="text-xl">→</span>
+                        <div class="action-tile anim-up delay-4" onclick="afficherAnnonces()">
+                            <div class="tile-icon" style="background: linear-gradient(135deg, #fef3c7, #fde68a); color: #D97706;">📢</div>
+                            <div class="tile-label">Annonces</div>
+                            <div class="tile-sub">École</div>
+                        </div>
+                    </div>
+
+                    <div class="divider anim-up delay-5">Mes apprentissages</div>
+
+                    <button onclick="afficherDevoirs()" class="btn-float anim-up delay-5" style="background: linear-gradient(135deg, #F59E0B, #EA580C); margin-bottom: 10px; position: relative;">
+                        <div class="btn-icon">📚</div>
+                        <div class="btn-content">
+                            <div class="btn-title">Mes devoirs</div>
+                            <div class="btn-desc" id="devoirs-resume">Voir les devoirs à faire</div>
+                        </div>
+                        <span id="badge-devoirs" class="hidden chip" style="background: white; color: #EA580C; font-weight: 800; min-width: 26px; justify-content: center;">0</span>
+                        <div class="btn-arrow">→</div>
                     </button>
 
-                    <button onclick="window.location.href='messagerie.html'" class="bouton-action w-full bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3">
-                        <div class="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center text-2xl">💬</div>
-                        <div class="flex-1 text-left">
-                            <p class="text-sm font-bold text-gray-800">Messagerie</p>
-                            <p class="text-[10px] text-gray-400">Discuter avec tes professeurs</p>
+                    <button onclick="testRessources()" class="btn-float anim-up delay-6" style="background: linear-gradient(135deg, #6366F1, #8B5CF6); margin-bottom: 10px;">
+                        <div class="btn-icon">📚</div>
+                        <div class="btn-content">
+                            <div class="btn-title">Mes ressources</div>
+                            <div class="btn-desc">Programmes, leçons, exercices</div>
                         </div>
-                        <span class="text-xl text-gray-300">→</span>
+                        <div class="btn-arrow">→</div>
+                    </button>
+
+                    <button onclick="window.location.href='assistant-ia.html'" class="btn-float anim-up delay-7" style="background: linear-gradient(135deg, #8B5CF6, #EC4899); margin-bottom: 10px;">
+                        <div class="btn-icon">🤖</div>
+                        <div class="btn-content">
+                            <div class="btn-title">Assistant IA</div>
+                            <div class="btn-desc">Pose tes questions de cours</div>
+                        </div>
+                        <div class="btn-arrow">→</div>
+                    </button>
+
+                    <button onclick="window.location.href='messagerie.html'" class="btn-float anim-up delay-8" style="background: linear-gradient(135deg, #EC4899, #DB2777);">
+                        <div class="btn-icon">💬</div>
+                        <div class="btn-content">
+                            <div class="btn-title">Messagerie</div>
+                            <div class="btn-desc">Discuter avec tes professeurs</div>
+                        </div>
+                        <div class="btn-arrow">→</div>
                     </button>
                 </div>
 
+                <!-- ═══════════════ DEVOIRS (version originale) ═══════════════ -->
                 <div id="view-devoirs" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-2">📚 Mes devoirs</h1>
@@ -193,6 +212,7 @@
                     <div id="liste-devoirs-eleve" class="space-y-3"></div>
                 </div>
 
+                <!-- ═══════════════ BADGES ═══════════════ -->
                 <div id="view-badges" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-2">🏆 Mes récompenses</h1>
@@ -204,6 +224,7 @@
                     <div id="liste-badges" class="space-y-3"></div>
                 </div>
 
+                <!-- ═══════════════ BULLETIN ═══════════════ -->
                 <div id="view-bulletin" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-3">📄 Mon bulletin</h1>
@@ -214,6 +235,7 @@
                     <div id="contenu-bulletin"></div>
                 </div>
 
+                <!-- ═══════════════ ABSENCES (version originale) ═══════════════ -->
                 <div id="view-absences" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-3">🚫 Mes absences</h1>
@@ -225,14 +247,19 @@
                     <div id="liste-absences" class="space-y-3"></div>
                 </div>
 
+                <!-- ═══════════════ EMPLOI ═══════════════ -->
                 <div id="view-emploi" class="hidden fade-in">
-                    <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
-                    <h1 class="text-lg font-bold text-gray-800 mb-3">📅 Mon emploi du temps</h1>
+                    <div class="flex items-center gap-3 mb-3">
+                        <button onclick="retourAccueil()" class="text-2xl">⬅️</button>
+                        <h1 class="text-lg font-bold text-gray-800 flex-1">📅 Mon emploi du temps</h1>
+                        <button onclick="exporterEmploiElevePDF(event)" class="bg-edu-blue text-white text-xs font-bold px-3 py-2 rounded-lg">📥 PDF</button>
+                    </div>
                     <div id="encadre-aujourdhui" class="mb-4"></div>
                     <p class="text-[10px] text-gray-400 italic mb-2">💡 Glissez horizontalement pour la semaine complète</p>
                     <div class="overflow-x-auto pb-2"><div id="tableau-emploi-eleve" class="min-w-[700px]"></div></div>
                 </div>
 
+                <!-- ═══════════════ ANNONCES ═══════════════ -->
                 <div id="view-annonces" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-3">📢 Annonces de l'ecole</h1>
@@ -244,18 +271,17 @@
                     <div id="contenu-affiche"></div>
                 </div>
 
+                <!-- ═══════════════ RESSOURCES ═══════════════ -->
                 <div id="view-ressources-eleve" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-2">📚 Mes ressources</h1>
                     <p class="text-xs text-gray-500 mb-3">Programmes, lecons et exercices de tes professeurs.</p>
-
                     <div class="grid grid-cols-4 gap-2 mb-3">
                         <button onclick="resElvFiltrerType('tous')" id="reselv-tab-tous" class="py-2 rounded-xl font-bold text-[10px] bg-edu-blue text-white">Tous</button>
                         <button onclick="resElvFiltrerType('programme')" id="reselv-tab-programme" class="py-2 rounded-xl font-bold text-[10px] bg-gray-100 text-gray-600">Prog.</button>
                         <button onclick="resElvFiltrerType('lecon')" id="reselv-tab-lecon" class="py-2 rounded-xl font-bold text-[10px] bg-gray-100 text-gray-600">Lecons</button>
                         <button onclick="resElvFiltrerType('exercice')" id="reselv-tab-exercice" class="py-2 rounded-xl font-bold text-[10px] bg-gray-100 text-gray-600">Exos</button>
                     </div>
-
                     <div id="reselv-liste" class="space-y-2">
                         <p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>
                     </div>
@@ -266,6 +292,7 @@
                     <div id="reselv-detail-contenu"></div>
                 </div>
 
+                <!-- ═══════════════ NOTIFICATIONS ═══════════════ -->
                 <div id="view-notifications" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-3">🔔 Mes notifications</h1>
@@ -278,10 +305,90 @@
             </div>
         </div>
     </div>
-<script src="badges.js"></script>
-<script src="push.js"></script>
+
+    <script src="badges.js"></script>
+    <script src="push.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <script>
+        // ════════════ CONSTANTES EDT ════════════
+        var JOURS_EDT = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+        var CRENEAUX_EDT = [
+            { debut: '08:00', fin: '10:00' },
+            { debut: '10:15', fin: '12:15' },
+            { debut: '14:00', fin: '16:00' },
+            { debut: '16:15', fin: '18:15' }
+        ];
+        var PALETTE_MATIERES = [
+            { bg: '#dbeafe', border: '#004AAD', text: '#004AAD' },
+            { bg: '#dcfce7', border: '#2EAD5E', text: '#166534' },
+            { bg: '#fef3c7', border: '#F59E0B', text: '#92400e' },
+            { bg: '#fce7f3', border: '#EC4899', text: '#9d174d' },
+            { bg: '#ede9fe', border: '#8B5CF6', text: '#5b21b6' },
+            { bg: '#cffafe', border: '#06B6D4', text: '#155e75' },
+            { bg: '#fee2e2', border: '#EF4444', text: '#991b1b' },
+            { bg: '#fef9c3', border: '#EAB308', text: '#854d0e' }
+        ];
+        var _cacheCouleursMatieres = {};
+        function getCouleurMatiere(m) {
+            if (!m) return PALETTE_MATIERES[0];
+            if (_cacheCouleursMatieres[m]) return _cacheCouleursMatieres[m];
+            var hash = 0; for (var i = 0; i < m.length; i++) hash = m.charCodeAt(i) + ((hash << 5) - hash);
+            var c = PALETTE_MATIERES[Math.abs(hash) % PALETTE_MATIERES.length];
+            _cacheCouleursMatieres[m] = c; return c;
+        }
+        function getJourActuelEDT() {
+            var j = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+            return j[new Date().getDay()];
+        }
+
+        // ════════════ AUTH + XSS ════════════
+        var AUTH_SALT = 'EDU-LINK::v1::S3n3g4l::2024';
+        var AUTH_ITERATIONS = 100000;
+        var AUTH_PREFIX = 'pbkdf2$';
+
+        async function hashPassword(plainPassword) {
+            var enc = new TextEncoder();
+            var keyMaterial = await crypto.subtle.importKey('raw', enc.encode(plainPassword), { name: 'PBKDF2' }, false, ['deriveBits']);
+            var hashBuffer = await crypto.subtle.deriveBits(
+                { name: 'PBKDF2', salt: enc.encode(AUTH_SALT), iterations: AUTH_ITERATIONS, hash: 'SHA-256' },
+                keyMaterial, 256
+            );
+            var hashArray = Array.from(new Uint8Array(hashBuffer));
+            var hex = hashArray.map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
+            return AUTH_PREFIX + AUTH_ITERATIONS + '$' + hex;
+        }
+
+        function echapperHtml(texte) {
+            if (texte === null || texte === undefined) return '';
+            return String(texte).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        function construireAfficheSecurisee(a, ecoleNom, signatureEcole) {
+            var titre = echapperHtml(a.titre);
+            var contenu = echapperHtml(a.contenu);
+            var signatureTxt = a.signature ? echapperHtml(a.signature) : '';
+            var ecoleNomSec = echapperHtml(ecoleNom || '');
+            var datePub = new Date(a.date_publication).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+            var blocLogo = '<div style="font-size:40px;margin-bottom:5px;">📖</div>';
+            var blocSignatureImg = '';
+            var blocSignatureTxt = signatureTxt ? '<p style="font-size:13px;font-weight:bold;color:#004AAD;margin:5px 0 0 0;">' + signatureTxt + '</p>' : '';
+            return '<div style="background:white;border:3px solid #004AAD;border-radius:15px;overflow:hidden;font-family:Arial,sans-serif;">'
+                + '<div style="background:linear-gradient(135deg,#004AAD 0%,#0066CC 100%);padding:20px 15px;text-align:center;">'
+                + blocLogo + '<h1 style="color:white;font-size:20px;font-weight:bold;margin:5px 0;letter-spacing:1px;">EDU-LINK</h1>'
+                + '<p style="color:rgba(255,255,255,0.9);font-size:12px;margin:0;">' + ecoleNomSec + '</p></div>'
+                + '<div style="padding:20px;"><div style="text-align:center;background:#f0f7ff;padding:12px;border-radius:10px;margin-bottom:20px;border-left:4px solid #004AAD;">'
+                + '<p style="font-size:11px;color:#004AAD;font-weight:bold;margin:0 0 5px 0;letter-spacing:2px;">📢 COMMUNICATION OFFICIELLE</p>'
+                + '<h2 style="font-size:18px;font-weight:bold;color:#004AAD;margin:0;">' + titre + '</h2></div>'
+                + '<div style="background:#f9fafb;padding:15px;border-radius:10px;margin-bottom:20px;">'
+                + '<p style="font-size:13px;color:#1f2937;line-height:1.8;margin:0;white-space:pre-wrap;text-align:justify;">' + contenu + '</p></div>'
+                + '<div style="text-align:right;margin-top:25px;padding-top:15px;border-top:1px solid #e5e7eb;">'
+                + '<p style="font-size:11px;color:#6b7280;margin:0;">Publiee le ' + datePub + '</p>'
+                + blocSignatureImg + blocSignatureTxt + '</div></div>'
+                + '<div style="background:#004AAD;padding:8px;text-align:center;"><p style="color:white;font-size:9px;margin:0;">Document officiel - EDU-LINK</p></div></div>';
+        }
+
+        // ════════════ THEME ════════════
         function initTheme() {
             if (localStorage.getItem('eduLinkTheme') === 'dark') { document.body.classList.add('dark-mode'); }
             var avatar = document.getElementById('avatar-header');
@@ -303,33 +410,34 @@
             if (btn) btn.innerHTML = estDark ? '☀️' : '🌙';
         }
 
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFid2d1aXhjbG14dHp2bHNtYmJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4OTg1OTMsImV4cCI6MjEwNjQ3NDU5M30.8MiG5YdoMIY69KYfBdlXHIB9Zisd5miX3slaCoqVcjM';
-        const supabaseUrl = 'https://abwguixclmxtzvlsmbby.supabase.co';
-        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
-        const sessionUser = sessionStorage.getItem('eduLinkUser');
-        if (!sessionUser) { window.location.href = 'index.html'; }
-        const parsedUser = JSON.parse(sessionUser);
-        let currentUser = null, monEcoleId = null, monEleveId = null, monClasseId = null;
-        let trimestreActuel = 1, filtreAbsences = 'tout', toutesAbsences = [];
-        let filtreNotifs = 'toutes', toutesNotifs = [];
-        let tousDevoirs = [], mesDevoirsFaits = [], filtreDevoirs = 'tout';
-        let tousLesCours = [];
-        let signatureEcole = null;
+        // ════════════ SUPABASE ════════════
+        var supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFid2d1aXhjbG14dHp2bHNtYmJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4OTg1OTMsImV4cCI6MjEwNjQ3NDU5M30.8MiG5YdoMIY69KYfBdlXHIB9Zisd5miX3slaCoqVcjM';
+        var supabaseUrl = 'https://abwguixclmxtzvlsmbby.supabase.co';
+        var supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-        // ⬇️ UNIFORMISÉE : utilise querySelectorAll pour tout attraper automatiquement
+        var sessionUser = sessionStorage.getItem('eduLinkUser');
+        if (!sessionUser) { window.location.href = 'index.html'; }
+        var parsedUser = JSON.parse(sessionUser);
+        var currentUser = null, monEcoleId = null, monEleveId = null, monClasseId = null;
+        var trimestreActuel = 1, filtreAbsences = 'tout', toutesAbsences = [];
+        var filtreNotifs = 'toutes', toutesNotifs = [];
+        var tousDevoirs = [], mesDevoirsFaits = [], filtreDevoirs = 'tout';
+        var tousLesCours = [];
+        var signatureEcole = null;
+
         function hideAllViews() {
-            document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('[id^="view-"]').forEach(function(el) { el.classList.add('hidden'); });
         }
 
         function afficherAvatarHeader() {
-            const btn = document.getElementById('avatar-header');
+            var btn = document.getElementById('avatar-header');
             if (!btn) return;
             if (currentUser && currentUser.photo_url) {
-                btn.innerHTML = '<img src="' + currentUser.photo_url + '" style="width:100%; height:100%; object-fit:cover;">';
+                btn.innerHTML = '<img src="' + currentUser.photo_url + '" style="width:100%;height:100%;object-fit:cover;">';
             }
         }
 
-        window.addEventListener('load', async () => {
+        window.addEventListener('load', async function() {
             if (parsedUser.role !== 'eleve') { window.location.href = 'index.html'; return; }
             currentUser = parsedUser;
             monEcoleId = currentUser.ecole_id;
@@ -337,23 +445,23 @@
             initTheme();
             document.getElementById('welcome-message').innerText = currentUser.prenom;
             if (monEcoleId) {
-                const { data: ecole } = await supabaseClient.from('ecoles').select('nom, signature_url').eq('id', monEcoleId).single();
-                if (ecole) {
-                    document.getElementById('ecole-nom-affiche').innerText = "🏫 " + ecole.nom;
-                    if (ecole.signature_url) signatureEcole = ecole.signature_url;
+                var resEcole = await supabaseClient.from('ecoles').select('nom, signature_url').eq('id', monEcoleId).single();
+                if (resEcole.data) {
+                    document.getElementById('ecole-nom-affiche').innerText = "🏫 " + resEcole.data.nom;
+                    if (resEcole.data.signature_url) signatureEcole = resEcole.data.signature_url;
                 }
             }
-            const { data: eleve } = await supabaseClient.from('eleves').select('id, classe_id').eq('utilisateur_id', currentUser.id).single();
-            if (eleve) { monEleveId = eleve.id; monClasseId = eleve.classe_id; }
+            var resEleve = await supabaseClient.from('eleves').select('id, classe_id').eq('utilisateur_id', currentUser.id).single();
+            if (resEleve.data) { monEleveId = resEleve.data.id; monClasseId = resEleve.data.classe_id; }
             document.getElementById('view-accueil').classList.remove('hidden');
             chargerNote(); chargerMoyenne(); chargerBadgeNotifs(); chargerBadgeDevoirs(); chargerProchainCours();
             chargerBadges();
-            setInterval(() => { chargerBadgeNotifs(); chargerBadgeDevoirs(); }, 30000);
+            setInterval(function() { chargerBadgeNotifs(); chargerBadgeDevoirs(); }, 30000);
         });
 
-        // ============ BADGES ============
-        let badgesActuels = {};
-        let trimestreBadges = 1;
+        // ════════════ BADGES ════════════
+        var badgesActuels = {};
+        var trimestreBadges = 1;
 
         async function chargerBadges() {
             if (!monEleveId) return;
@@ -380,70 +488,70 @@
         }
 
         function majTabsBadges() {
-            [1, 2].forEach(i => {
-                const tab = document.getElementById('tab-badges-s' + i);
+            [1, 2].forEach(function(i) {
+                var tab = document.getElementById('tab-badges-s' + i);
                 if (!tab) return;
                 if (i === trimestreBadges) tab.className = 'py-2 rounded-xl font-bold text-xs bg-edu-blue text-white';
                 else tab.className = 'py-2 rounded-xl font-bold text-xs bg-gray-100 text-gray-600';
             });
         }
 
+        // ════════════ PROCHAIN COURS ════════════
         async function chargerProchainCours() {
             if (!monClasseId) return;
-            const jours = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
-            const maintenant = new Date();
-            const jourActuel = jours[maintenant.getDay()];
+            var jours = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+            var maintenant = new Date();
+            var jourActuel = jours[maintenant.getDay()];
             if (jourActuel === 'Dimanche') { document.getElementById('carte-prochain-cours').classList.add('hidden'); return; }
-            const { data: cours } = await supabaseClient.from('emploi_du_temps').select('*').eq('classe_id', monClasseId).eq('jour', jourActuel).order('heure_debut');
+            var res = await supabaseClient.from('emploi_du_temps').select('*').eq('classe_id', monClasseId).eq('jour', jourActuel).order('heure_debut');
+            var cours = res.data;
             if (!cours || cours.length === 0) { document.getElementById('carte-prochain-cours').classList.add('hidden'); return; }
-            const heureActuelle = maintenant.getHours() * 60 + maintenant.getMinutes();
-            let coursEnCours = null, prochainCours = null;
-            cours.forEach(c => {
-                const [hD, mD] = c.heure_debut.split(':').map(Number);
-                const [hF, mF] = c.heure_fin.split(':').map(Number);
-                const debut = hD * 60 + mD, fin = hF * 60 + mF;
-                if (heureActuelle >= debut && heureActuelle < fin) coursEnCours = { ...c, debut, fin };
-                else if (heureActuelle < debut && (!prochainCours || debut < prochainCours.debut)) prochainCours = { ...c, debut, fin };
+            var heureActuelle = maintenant.getHours() * 60 + maintenant.getMinutes();
+            var coursEnCours = null, prochainCours = null;
+            cours.forEach(function(c) {
+                var parts1 = c.heure_debut.split(':'); var parts2 = c.heure_fin.split(':');
+                var hD = parseInt(parts1[0]), mD = parseInt(parts1[1]);
+                var hF = parseInt(parts2[0]), mF = parseInt(parts2[1]);
+                var debut = hD * 60 + mD, fin = hF * 60 + mF;
+                if (heureActuelle >= debut && heureActuelle < fin) coursEnCours = Object.assign({}, c, { debut: debut, fin: fin });
+                else if (heureActuelle < debut && (!prochainCours || debut < prochainCours.debut)) prochainCours = Object.assign({}, c, { debut: debut, fin: fin });
             });
-            const cible = coursEnCours || prochainCours;
+            var cible = coursEnCours || prochainCours;
             if (!cible) { document.getElementById('carte-prochain-cours').classList.add('hidden'); return; }
-            const carte = document.getElementById('carte-prochain-cours');
+            var carte = document.getElementById('carte-prochain-cours');
             carte.classList.remove('hidden');
             if (coursEnCours) {
                 document.getElementById('prochain-cours-icon').innerText = '🔴';
-                document.getElementById('prochain-cours-icon').className = 'w-12 h-12 bg-edu-green bg-opacity-10 rounded-full flex items-center justify-center text-2xl cours-en-cours';
-                document.getElementById('prochain-cours-label').innerText = 'En cours';
-                document.getElementById('prochain-cours-label').className = 'text-[10px] font-bold text-edu-green uppercase';
+                document.getElementById('prochain-cours-label').innerText = 'EN COURS';
                 document.getElementById('prochain-cours-badge').classList.remove('hidden');
-                document.getElementById('prochain-cours-badge').innerText = 'EN COURS';
-                document.getElementById('prochain-cours-badge').className = 'bg-green-100 text-edu-green text-[10px] font-bold px-2 py-1 rounded';
             } else {
-                const minutesRestantes = cible.debut - heureActuelle;
-                let texte = minutesRestantes < 60 ? 'Dans ' + minutesRestantes + ' min' : 'À ' + cible.heure_debut.substring(0, 5);
+                var minutesRestantes = cible.debut - heureActuelle;
+                var texte = minutesRestantes < 60 ? 'Dans ' + minutesRestantes + ' min' : 'À ' + cible.heure_debut.substring(0, 5);
                 document.getElementById('prochain-cours-icon').innerText = '📅';
-                document.getElementById('prochain-cours-icon').className = 'w-12 h-12 bg-edu-blue bg-opacity-10 rounded-full flex items-center justify-center text-2xl';
-                document.getElementById('prochain-cours-label').innerText = 'Prochain cours • ' + texte;
-                document.getElementById('prochain-cours-label').className = 'text-[10px] font-bold text-edu-blue uppercase';
+                document.getElementById('prochain-cours-label').innerText = 'PROCHAIN COURS • ' + texte;
                 document.getElementById('prochain-cours-badge').classList.add('hidden');
             }
             document.getElementById('prochain-cours-matiere').innerText = cible.matiere;
             document.getElementById('prochain-cours-horaire').innerText = cible.heure_debut.substring(0, 5) + ' - ' + cible.heure_fin.substring(0, 5) + (cible.salle ? ' • Salle ' + cible.salle : '');
         }
 
+        // ════════════ DEVOIRS ════════════
         async function chargerBadgeDevoirs() {
             if (!monClasseId || !monEleveId) return;
-            const { data: devoirs } = await supabaseClient.from('devoirs').select('id').eq('classe_id', monClasseId);
+            var resD = await supabaseClient.from('devoirs').select('id').eq('classe_id', monClasseId);
+            var devoirs = resD.data;
             if (!devoirs || devoirs.length === 0) {
                 document.getElementById('badge-devoirs').classList.add('hidden');
                 document.getElementById('devoirs-resume').innerText = "Aucun devoir pour le moment";
                 return;
             }
-            const idsDevoirs = devoirs.map(d => d.id);
-            const { data: faits } = await supabaseClient.from('devoirs_faits').select('devoir_id').eq('eleve_id', monEleveId).in('devoir_id', idsDevoirs);
-            const nbFaits = faits ? faits.length : 0;
-            const nbRestants = devoirs.length - nbFaits;
+            var idsDevoirs = devoirs.map(function(d) { return d.id; });
+            var resF = await supabaseClient.from('devoirs_faits').select('devoir_id').eq('eleve_id', monEleveId).in('devoir_id', idsDevoirs);
+            var faits = resF.data;
+            var nbFaits = faits ? faits.length : 0;
+            var nbRestants = devoirs.length - nbFaits;
             if (nbRestants > 0) {
-                const badge = document.getElementById('badge-devoirs');
+                var badge = document.getElementById('badge-devoirs');
                 badge.innerText = nbRestants; badge.classList.remove('hidden');
                 document.getElementById('devoirs-resume').innerText = nbRestants + " devoir(s) à faire";
             } else {
@@ -456,10 +564,10 @@
             hideAllViews();
             document.getElementById('view-devoirs').classList.remove('hidden');
             if (!monClasseId || !monEleveId) { document.getElementById('liste-devoirs-eleve').innerHTML = '<p class="text-gray-500 text-center py-4">Aucune classe associée.</p>'; return; }
-            const { data: devoirs } = await supabaseClient.from('devoirs').select('*').eq('classe_id', monClasseId).order('date_creation', { ascending: false });
-            tousDevoirs = devoirs || [];
-            const { data: faits } = await supabaseClient.from('devoirs_faits').select('devoir_id').eq('eleve_id', monEleveId);
-            mesDevoirsFaits = faits ? faits.map(f => f.devoir_id) : [];
+            var resD = await supabaseClient.from('devoirs').select('*').eq('classe_id', monClasseId).order('date_creation', { ascending: false });
+            tousDevoirs = resD.data || [];
+            var resF = await supabaseClient.from('devoirs_faits').select('devoir_id').eq('eleve_id', monEleveId);
+            mesDevoirsFaits = resF.data ? resF.data.map(function(f) { return f.devoir_id; }) : [];
             filtreDevoirs = 'tout';
             document.getElementById('tab-dev-tout').className = 'py-2 rounded-xl font-bold text-[11px] bg-edu-blue text-white';
             document.getElementById('tab-dev-faire').className = 'py-2 rounded-xl font-bold text-[11px] bg-gray-100 text-gray-600';
@@ -469,9 +577,9 @@
 
         function filtrerDevoirs(filtre) {
             filtreDevoirs = filtre;
-            const tabs = { tout: 'tab-dev-tout', a_faire: 'tab-dev-faire', faits: 'tab-dev-fait' };
-            Object.keys(tabs).forEach(k => {
-                const tab = document.getElementById(tabs[k]);
+            var tabs = { tout: 'tab-dev-tout', a_faire: 'tab-dev-faire', faits: 'tab-dev-fait' };
+            Object.keys(tabs).forEach(function(k) {
+                var tab = document.getElementById(tabs[k]);
                 if (k === filtre) tab.className = 'py-2 rounded-xl font-bold text-[11px] bg-edu-blue text-white';
                 else tab.className = 'py-2 rounded-xl font-bold text-[11px] bg-gray-100 text-gray-600';
             });
@@ -479,85 +587,88 @@
         }
 
         function afficherListeDevoirs() {
-            const aujourdHui = new Date(); aujourdHui.setHours(0, 0, 0, 0);
-            let devoirsFiltres = tousDevoirs;
-            if (filtreDevoirs === 'a_faire') devoirsFiltres = tousDevoirs.filter(d => !mesDevoirsFaits.includes(d.id));
-            else if (filtreDevoirs === 'faits') devoirsFiltres = tousDevoirs.filter(d => mesDevoirsFaits.includes(d.id));
+            var aujourdHui = new Date(); aujourdHui.setHours(0, 0, 0, 0);
+            var devoirsFiltres = tousDevoirs;
+            if (filtreDevoirs === 'a_faire') devoirsFiltres = tousDevoirs.filter(function(d) { return mesDevoirsFaits.indexOf(d.id) === -1; });
+            else if (filtreDevoirs === 'faits') devoirsFiltres = tousDevoirs.filter(function(d) { return mesDevoirsFaits.indexOf(d.id) !== -1; });
             if (devoirsFiltres.length === 0) {
-                const vide = filtreDevoirs === 'faits' ? 'Aucun devoir marqué comme fait.' : filtreDevoirs === 'a_faire' ? 'Aucun devoir à faire. 🎉' : 'Aucun devoir pour le moment.';
-                document.getElementById('liste-devoirs-eleve').innerHTML = `<div class="bg-white p-8 rounded-2xl shadow-sm text-center"><div class="text-5xl mb-2">📚</div><p class="text-gray-500 text-sm">${vide}</p></div>`;
+                var vide = filtreDevoirs === 'faits' ? 'Aucun devoir marqué comme fait.' : filtreDevoirs === 'a_faire' ? 'Aucun devoir à faire. 🎉' : 'Aucun devoir pour le moment.';
+                document.getElementById('liste-devoirs-eleve').innerHTML = '<div class="bg-white p-8 rounded-2xl shadow-sm text-center"><div class="text-5xl mb-2">📚</div><p class="text-gray-500 text-sm">' + vide + '</p></div>';
                 return;
             }
-            let html = '';
-            devoirsFiltres.forEach(d => {
-                const estFait = mesDevoirsFaits.includes(d.id);
-                const dateCreationStr = d.date_creation ? new Date(d.date_creation).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : '';
-                let badgeLimite = '', urgent = false;
+            var html = '';
+            devoirsFiltres.forEach(function(d) {
+                var estFait = mesDevoirsFaits.indexOf(d.id) !== -1;
+                var dateCreationStr = d.date_creation ? new Date(d.date_creation).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : '';
+                var badgeLimite = '', urgent = false;
                 if (d.date_limite) {
-                    const limite = new Date(d.date_limite); limite.setHours(0, 0, 0, 0);
-                    const joursRestants = Math.round((limite - aujourdHui) / (1000 * 60 * 60 * 24));
-                    if (joursRestants < 0) badgeLimite = `<span class="bg-red-100 text-edu-red text-[10px] font-bold px-2 py-1 rounded">⚠️ Expiré</span>`;
-                    else if (joursRestants === 0) { badgeLimite = `<span class="bg-red-100 text-edu-red text-[10px] font-bold px-2 py-1 rounded">⏰ Aujourd'hui !</span>`; urgent = true; }
-                    else if (joursRestants === 1) { badgeLimite = `<span class="bg-orange-100 text-edu-orange text-[10px] font-bold px-2 py-1 rounded">⏰ Demain</span>`; urgent = true; }
-                    else if (joursRestants <= 3) badgeLimite = `<span class="bg-orange-100 text-edu-orange text-[10px] font-bold px-2 py-1 rounded">⏰ ${joursRestants}j</span>`;
-                    else badgeLimite = `<span class="bg-green-100 text-edu-green text-[10px] font-bold px-2 py-1 rounded">${joursRestants}j</span>`;
+                    var limite = new Date(d.date_limite); limite.setHours(0, 0, 0, 0);
+                    var joursRestants = Math.round((limite - aujourdHui) / (1000 * 60 * 60 * 24));
+                    if (joursRestants < 0) badgeLimite = '<span class="bg-red-100 text-edu-red text-[10px] font-bold px-2 py-1 rounded">⚠️ Expiré</span>';
+                    else if (joursRestants === 0) { badgeLimite = '<span class="bg-red-100 text-edu-red text-[10px] font-bold px-2 py-1 rounded">⏰ Aujourd\'hui !</span>'; urgent = true; }
+                    else if (joursRestants === 1) { badgeLimite = '<span class="bg-orange-100 text-edu-orange text-[10px] font-bold px-2 py-1 rounded">⏰ Demain</span>'; urgent = true; }
+                    else if (joursRestants <= 3) badgeLimite = '<span class="bg-orange-100 text-edu-orange text-[10px] font-bold px-2 py-1 rounded">⏰ ' + joursRestants + 'j</span>';
+                    else badgeLimite = '<span class="bg-green-100 text-edu-green text-[10px] font-bold px-2 py-1 rounded">' + joursRestants + 'j</span>';
                 }
-                const bgCard = estFait ? 'bg-green-50 border-green-200' : (urgent ? 'bg-red-50 border-red-200' : 'bg-white border-gray-100');
-                const opacite = estFait ? 'opacity-70' : '';
-                html += `<div class="${bgCard} ${opacite} p-4 rounded-2xl shadow-sm border">
-                    <div class="flex justify-between items-start mb-2"><div class="flex-1 min-w-0"><p class="text-sm font-bold text-gray-800 truncate">${estFait ? '✅ ' : ''}📚 ${d.titre}</p><p class="text-[10px] text-gray-500">${d.matiere} • ${dateCreationStr}</p></div>${badgeLimite}</div>
-                    ${d.description ? `<p class="text-xs text-gray-600 mb-3" style="white-space: pre-wrap;">${d.description}</p>` : ''}
-                    <div class="flex justify-between items-center">
-                        <span class="text-[10px] text-gray-400">Limite : ${d.date_limite ? new Date(d.date_limite).toLocaleDateString('fr-FR') : 'Aucune'}</span>
-                        ${estFait ? `<button onclick="marquerNonFait(${d.id})" class="bg-gray-100 text-gray-500 text-[11px] font-bold px-3 py-1.5 rounded-lg">↩️ Annuler</button>` : `<button onclick="marquerFait(${d.id})" class="bg-edu-green text-white text-[11px] font-bold px-3 py-1.5 rounded-lg">✅ Marquer fait</button>`}
-                    </div>
-                </div>`;
+                var bgCard = estFait ? 'bg-green-50 border-green-200' : (urgent ? 'bg-red-50 border-red-200' : 'bg-white border-gray-100');
+                var opacite = estFait ? 'opacity-70' : '';
+                html += '<div class="' + bgCard + ' ' + opacite + ' p-4 rounded-2xl shadow-sm border">'
+                    + '<div class="flex justify-between items-start mb-2"><div class="flex-1 min-w-0"><p class="text-sm font-bold text-gray-800 truncate">' + (estFait ? '✅ ' : '') + '📚 ' + d.titre + '</p><p class="text-[10px] text-gray-500">' + d.matiere + ' • ' + dateCreationStr + '</p></div>' + badgeLimite + '</div>'
+                    + (d.description ? '<p class="text-xs text-gray-600 mb-3" style="white-space:pre-wrap;">' + d.description + '</p>' : '')
+                    + '<div class="flex justify-between items-center">'
+                    + '<span class="text-[10px] text-gray-400">Limite : ' + (d.date_limite ? new Date(d.date_limite).toLocaleDateString('fr-FR') : 'Aucune') + '</span>'
+                    + (estFait ? '<button onclick="marquerNonFait(' + d.id + ')" class="bg-gray-100 text-gray-500 text-[11px] font-bold px-3 py-1.5 rounded-lg">↩️ Annuler</button>' : '<button onclick="marquerFait(' + d.id + ')" class="bg-edu-green text-white text-[11px] font-bold px-3 py-1.5 rounded-lg">✅ Marquer fait</button>')
+                    + '</div></div>';
             });
             document.getElementById('liste-devoirs-eleve').innerHTML = html;
         }
 
         async function marquerFait(devoirId) {
-            const { error } = await supabaseClient.from('devoirs_faits').insert([{ devoir_id: devoirId, eleve_id: monEleveId }]);
-            if (error) { alert("Erreur : " + error.message); return; }
+            var res = await supabaseClient.from('devoirs_faits').insert([{ devoir_id: devoirId, eleve_id: monEleveId }]);
+            if (res.error) { alert("Erreur : " + res.error.message); return; }
             mesDevoirsFaits.push(devoirId); afficherListeDevoirs(); chargerBadgeDevoirs();
         }
 
         async function marquerNonFait(devoirId) {
-            const { error } = await supabaseClient.from('devoirs_faits').delete().eq('devoir_id', devoirId).eq('eleve_id', monEleveId);
-            if (error) { alert("Erreur : " + error.message); return; }
-            mesDevoirsFaits = mesDevoirsFaits.filter(id => id !== devoirId); afficherListeDevoirs(); chargerBadgeDevoirs();
+            var res = await supabaseClient.from('devoirs_faits').delete().eq('devoir_id', devoirId).eq('eleve_id', monEleveId);
+            if (res.error) { alert("Erreur : " + res.error.message); return; }
+            mesDevoirsFaits = mesDevoirsFaits.filter(function(id) { return id !== devoirId; }); afficherListeDevoirs(); chargerBadgeDevoirs();
         }
 
+        // ════════════ MOYENNE + NOTE ════════════
         async function chargerMoyenne() {
             if (!monEleveId) return;
-            const { data: notes } = await supabaseClient.from('notes').select('note, coefficient').eq('eleve_id', monEleveId);
+            var res = await supabaseClient.from('notes').select('note, coefficient').eq('eleve_id', monEleveId);
+            var notes = res.data;
             if (!notes || notes.length === 0) { document.getElementById('moy-generale').innerText = "--"; return; }
-            let tp = 0, tc = 0;
-            notes.forEach(n => { tp += parseFloat(n.note) * n.coefficient; tc += n.coefficient; });
-            const moyenne = tc > 0 ? (tp / tc) : 0;
+            var tp = 0, tc = 0;
+            notes.forEach(function(n) { tp += parseFloat(n.note) * n.coefficient; tc += n.coefficient; });
+            var moyenne = tc > 0 ? (tp / tc) : 0;
             document.getElementById('moy-generale').innerText = moyenne.toFixed(2);
             document.getElementById('barre-moyenne').style.width = ((moyenne / 20) * 100) + '%';
-            let mention = 'Insuffisant', couleur = '#EF4444';
+            var mention = 'Insuffisant', couleur = '#EF4444';
             if (moyenne >= 16) { mention = 'Felicitations'; couleur = '#10B981'; }
             else if (moyenne >= 14) { mention = 'Tres bien'; couleur = '#10B981'; }
             else if (moyenne >= 12) { mention = 'Bien'; couleur = '#10B981'; }
             else if (moyenne >= 10) { mention = 'Passable'; couleur = '#F59E0B'; }
-            const mentionElement = document.getElementById('mention-eleve');
-            mentionElement.innerText = 'Mention : ' + mention; mentionElement.style.color = couleur;
+            var mentionElement = document.getElementById('mention-eleve');
+            mentionElement.innerText = 'Mention : ' + mention;
         }
 
         async function chargerNote() {
             if (!monEleveId) return;
-            const { data: note } = await supabaseClient.from('notes').select('note').eq('eleve_id', monEleveId).order('date_saisie', { ascending: false }).limit(1).maybeSingle();
-            document.getElementById('note-eleve').innerText = note ? note.note + "/20" : "--";
+            var res = await supabaseClient.from('notes').select('note').eq('eleve_id', monEleveId).order('date_saisie', { ascending: false }).limit(1).maybeSingle();
+            document.getElementById('note-eleve').innerText = res.data ? res.data.note + "/20" : "--";
         }
 
         async function chargerBadgeNotifs() {
-            const { count } = await supabaseClient.from('notifications').select('*', { count: 'exact', head: true }).eq('utilisateur_id', currentUser.id).eq('lu', false);
-            const badge = document.getElementById('badge-notif');
+            var res = await supabaseClient.from('notifications').select('*', { count: 'exact', head: true }).eq('utilisateur_id', currentUser.id).eq('lu', false);
+            var count = res.count;
+            var badge = document.getElementById('badge-notif');
             if (count > 0) { badge.innerText = count; badge.classList.remove('hidden'); } else { badge.classList.add('hidden'); }
         }
 
+        // ════════════ BULLETIN ════════════
         async function afficherBulletin() {
             hideAllViews();
             document.getElementById('view-bulletin').classList.remove('hidden');
@@ -566,8 +677,8 @@
 
         async function changerTrimestre(n) {
             trimestreActuel = n;
-            [1, 2].forEach(i => {
-                const tab = document.getElementById('tab-t' + i);
+            [1, 2].forEach(function(i) {
+                var tab = document.getElementById('tab-t' + i);
                 if (!tab) return;
                 if (i === n) tab.className = 'py-2 rounded-xl font-bold text-xs bg-edu-blue text-white';
                 else tab.className = 'py-2 rounded-xl font-bold text-xs bg-gray-100 text-gray-600';
@@ -576,44 +687,46 @@
         }
 
         async function chargerBulletin() {
-            const { data: eleve } = await supabaseClient.from('eleves').select('*, classes(nom)').eq('utilisateur_id', currentUser.id).single();
-            const { data: notes } = await supabaseClient.from('notes').select('matiere, note, coefficient, type_evaluation').eq('eleve_id', eleve.id).eq('semestre', trimestreActuel);
+            var resE = await supabaseClient.from('eleves').select('*, classes(nom)').eq('utilisateur_id', currentUser.id).single();
+            var eleve = resE.data;
+            var resN = await supabaseClient.from('notes').select('matiere, note, coefficient, type_evaluation').eq('eleve_id', eleve.id).eq('semestre', trimestreActuel);
+            var notes = resN.data;
 
-            const matieres = {};
+            var matieres = {};
             if (notes) {
-                notes.forEach(n => {
+                notes.forEach(function(n) {
                     if (!matieres[n.matiere]) matieres[n.matiere] = { devoir1: null, devoir2: null, devoir3: null, composition: null };
                     matieres[n.matiere][n.type_evaluation || 'composition'] = { note: parseFloat(n.note), coef: n.coefficient };
                 });
             }
 
-            let totalPoints = 0, totalCoef = 0, lignes = '';
-            const ordreMatieres = Object.keys(matieres).sort();
+            var totalPoints = 0, totalCoef = 0, lignes = '';
+            var ordreMatieres = Object.keys(matieres).sort();
 
             if (ordreMatieres.length === 0) {
                 lignes = '<tr><td colspan="7" style="padding: 20px; text-align: center; color: #6b7280; font-size: 12px;">Aucune note pour ce semestre</td></tr>';
             } else {
-                let i = 0;
-                ordreMatieres.forEach(mat => {
-                    const data = matieres[mat];
-                    let points = 0, coefs = 0;
-                    ['devoir1', 'devoir2', 'devoir3', 'composition'].forEach(t => {
+                var i = 0;
+                ordreMatieres.forEach(function(mat) {
+                    var data = matieres[mat];
+                    var points = 0, coefs = 0;
+                    ['devoir1', 'devoir2', 'devoir3', 'composition'].forEach(function(t) {
                         if (data[t]) { points += data[t].note * data[t].coef; coefs += data[t].coef; }
                     });
-                    const moyMat = coefs > 0 ? (points / coefs) : 0;
+                    var moyMat = coefs > 0 ? (points / coefs) : 0;
                     totalPoints += points; totalCoef += coefs;
 
-                    let couleur = '#EF4444', bgNote = '#fef2f2';
+                    var couleur = '#EF4444', bgNote = '#fef2f2';
                     if (moyMat >= 10) { couleur = '#2EAD5E'; bgNote = '#f0fdf4'; }
                     if (moyMat >= 14) { couleur = '#2EAD5E'; bgNote = '#dcfce7'; }
 
-                    const bgLigne = (i % 2 === 0) ? '#ffffff' : '#f9fafb'; i++;
-                    let apprec = 'Insuffisant';
+                    var bgLigne = (i % 2 === 0) ? '#ffffff' : '#f9fafb'; i++;
+                    var apprec = 'Insuffisant';
                     if (moyMat >= 16) apprec = 'Excellent'; else if (moyMat >= 14) apprec = 'Tres bien';
                     else if (moyMat >= 12) apprec = 'Bien'; else if (moyMat >= 10) apprec = 'Passable';
 
-                    const fNote = (d) => d ? d.note.toFixed(2) : '--';
-                    const fCoef = (d) => d ? 'c' + d.coef : '';
+                    var fNote = function(d) { return d ? d.note.toFixed(2) : '--'; };
+                    var fCoef = function(d) { return d ? 'c' + d.coef : ''; };
 
                     lignes += '<tr style="background: ' + bgLigne + ';">';
                     lignes += '<td style="padding: 6px 4px; border: 1px solid #d1d5db; font-size: 11px; font-weight: 600; color: #1f2937;">' + mat + '</td>';
@@ -627,86 +740,85 @@
                 });
             }
 
-            const moyenneGenerale = totalCoef > 0 ? (totalPoints / totalCoef) : 0;
-            const moyStr = totalCoef > 0 ? moyenneGenerale.toFixed(2) : '--';
-            const mention = moyenneGenerale >= 16 ? 'Felicitations' : moyenneGenerale >= 14 ? 'Tres bien' : moyenneGenerale >= 12 ? 'Bien' : moyenneGenerale >= 10 ? 'Passable' : 'Insuffisant';
-            const mentionCouleur = moyenneGenerale >= 10 ? '#2EAD5E' : '#EF4444';
-            const dateJour = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+            var moyenneGenerale = totalCoef > 0 ? (totalPoints / totalCoef) : 0;
+            var moyStr = totalCoef > 0 ? moyenneGenerale.toFixed(2) : '--';
+            var mention = moyenneGenerale >= 16 ? 'Felicitations' : moyenneGenerale >= 14 ? 'Tres bien' : moyenneGenerale >= 12 ? 'Bien' : moyenneGenerale >= 10 ? 'Passable' : 'Insuffisant';
+            var mentionCouleur = moyenneGenerale >= 10 ? '#2EAD5E' : '#EF4444';
+            var dateJour = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
 
-            let blocSignature = '';
+            var blocSignature = '';
             if (signatureEcole) {
                 blocSignature = '<table style="width: 100%; margin-top: 22px;"><tr><td style="width: 50%; text-align: left; padding: 8px;"><p style="font-size: 9px; color: #6b7280; margin: 0;">Fait le ' + dateJour + '</p></td><td style="width: 50%; text-align: right; padding: 8px;"><p style="font-size: 9px; color: #6b7280; margin: 0;">Le Directeur</p><img src="' + signatureEcole + '" style="max-height: 50px; max-width: 160px; margin-top: 4px;"></td></tr></table>';
             } else {
                 blocSignature = '<table style="width: 100%; margin-top: 22px;"><tr><td style="width: 50%; text-align: left; padding: 8px;"><p style="font-size: 9px; color: #6b7280; margin: 0;">Fait le ' + dateJour + '</p></td><td style="width: 50%; text-align: right; padding: 8px;"><p style="font-size: 9px; color: #6b7280; margin: 0;">Le Directeur</p></td></tr></table>';
             }
 
-            document.getElementById('contenu-bulletin').innerHTML = `
-                <div id="bulletin-pdf" style="background: white; padding: 20px; border-radius: 12px; border: 2px solid #004AAD; font-family: Arial, sans-serif;">
-                    <div style="text-align: center; border-bottom: 2px solid #004AAD; padding-bottom: 12px; margin-bottom: 16px;">
-                        <div style="font-size: 32px;">📖</div><h1 style="font-size: 18px; font-weight: bold; color: #004AAD; margin: 4px 0;">EDU-LINK</h1>
-                        <p style="font-size: 10px; color: #6b7280; margin: 0;">${document.getElementById('ecole-nom-affiche').innerText.replace('🏫 ', '')}</p>
-                        <p style="font-size: 13px; font-weight: bold; color: #1f2937; margin-top: 8px;">BULLETIN SCOLAIRE - SEMESTRE ${trimestreActuel}</p>
-                    </div>
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 12px;"><tr><td style="padding: 4px 0;"><b>Eleve :</b> ${currentUser.prenom} ${currentUser.nom}</td></tr><tr><td style="padding: 4px 0;"><b>Matricule :</b> ${eleve.matricule}</td></tr><tr><td style="padding: 4px 0;"><b>Classe :</b> ${eleve.classes ? eleve.classes.nom : 'N/A'}</td></tr></table>
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px;">
-                        <thead><tr style="background: #004AAD;">
-                            <th style="border: 1px solid #004AAD; padding: 6px 4px; font-size: 10px; color: white; text-align: left;">Matiere</th>
-                            <th style="border: 1px solid #004AAD; padding: 6px 4px; font-size: 10px; color: white; text-align: center;">Dev. 1</th>
-                            <th style="border: 1px solid #004AAD; padding: 6px 4px; font-size: 10px; color: white; text-align: center;">Dev. 2</th>
-                            <th style="border: 1px solid #004AAD; padding: 6px 4px; font-size: 10px; color: white; text-align: center;">Dev. 3</th>
-                            <th style="border: 1px solid #004AAD; padding: 6px 4px; font-size: 10px; color: white; text-align: center;">Comp.</th>
-                            <th style="border: 1px solid #004AAD; padding: 6px 4px; font-size: 10px; color: white; text-align: center;">Moy.</th>
-                            <th style="border: 1px solid #004AAD; padding: 6px 4px; font-size: 10px; color: white; text-align: center;">Apprec.</th>
-                        </tr></thead>
-                        <tbody>${lignes}</tbody>
-                    </table>
-                    <div style="border: 2px solid #004AAD; padding: 12px; text-align: center; background: #f0f7ff; border-radius: 6px;"><p style="font-size: 10px; color: #004AAD; margin: 0; font-weight: 600;">MOYENNE GENERALE</p><p style="font-size: 24px; font-weight: 800; color: ${mentionCouleur}; margin: 4px 0 0 0;">${moyStr}/20</p><p style="font-size: 14px; font-weight: bold; color: ${mentionCouleur}; margin: 4px 0 0 0;">Mention : ${mention}</p></div>
-                    ${blocSignature}
-                    <p style="text-align: center; font-size: 8px; color: #9ca3af; margin-top: 12px;">Document genere par EDU-LINK</p>
-                </div>
-                <button onclick="telechargerPDF()" id="btn-pdf" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl mt-4">📥 Telecharger le bulletin S${trimestreActuel} en PDF</button>
-                <div id="message-pdf" class="text-center text-sm font-semibold mt-2"></div>
-            `;
+            document.getElementById('contenu-bulletin').innerHTML = ''
+                + '<div id="bulletin-pdf" style="background: white; padding: 20px; border-radius: 12px; border: 2px solid #004AAD; font-family: Arial, sans-serif;">'
+                + '<div style="text-align: center; border-bottom: 2px solid #004AAD; padding-bottom: 12px; margin-bottom: 16px;">'
+                + '<div style="font-size: 32px;">📖</div><h1 style="font-size: 18px; font-weight: bold; color: #004AAD; margin: 4px 0;">EDU-LINK</h1>'
+                + '<p style="font-size: 10px; color: #6b7280; margin: 0;">' + document.getElementById('ecole-nom-affiche').innerText.replace('🏫 ', '') + '</p>'
+                + '<p style="font-size: 13px; font-weight: bold; color: #1f2937; margin-top: 8px;">BULLETIN SCOLAIRE - SEMESTRE ' + trimestreActuel + '</p>'
+                + '</div>'
+                + '<table style="width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 12px;"><tr><td style="padding: 4px 0;"><b>Eleve :</b> ' + currentUser.prenom + ' ' + currentUser.nom + '</td></tr><tr><td style="padding: 4px 0;"><b>Matricule :</b> ' + eleve.matricule + '</td></tr><tr><td style="padding: 4px 0;"><b>Classe :</b> ' + (eleve.classes ? eleve.classes.nom : 'N/A') + '</td></tr></table>'
+                + '<table style="width: 100%; border-collapse: collapse; margin-bottom: 16px;">'
+                + '<thead><tr style="background: #004AAD;">'
+                + '<th style="border: 1px solid #004AAD; padding: 6px 4px; font-size: 10px; color: white; text-align: left;">Matiere</th>'
+                + '<th style="border: 1px solid #004AAD; padding: 6px 4px; font-size: 10px; color: white; text-align: center;">Dev. 1</th>'
+                + '<th style="border: 1px solid #004AAD; padding: 6px 4px; font-size: 10px; color: white; text-align: center;">Dev. 2</th>'
+                + '<th style="border: 1px solid #004AAD; padding: 6px 4px; font-size: 10px; color: white; text-align: center;">Dev. 3</th>'
+                + '<th style="border: 1px solid #004AAD; padding: 6px 4px; font-size: 10px; color: white; text-align: center;">Comp.</th>'
+                + '<th style="border: 1px solid #004AAD; padding: 6px 4px; font-size: 10px; color: white; text-align: center;">Moy.</th>'
+                + '<th style="border: 1px solid #004AAD; padding: 6px 4px; font-size: 10px; color: white; text-align: center;">Apprec.</th>'
+                + '</tr></thead>'
+                + '<tbody>' + lignes + '</tbody>'
+                + '</table>'
+                + '<div style="border: 2px solid #004AAD; padding: 12px; text-align: center; background: #f0f7ff; border-radius: 6px;"><p style="font-size: 10px; color: #004AAD; margin: 0; font-weight: 600;">MOYENNE GENERALE</p><p style="font-size: 24px; font-weight: 800; color: ' + mentionCouleur + '; margin: 4px 0 0 0;">' + moyStr + '/20</p><p style="font-size: 14px; font-weight: bold; color: ' + mentionCouleur + '; margin: 4px 0 0 0;">Mention : ' + mention + '</p></div>'
+                + blocSignature
+                + '<p style="text-align: center; font-size: 8px; color: #9ca3af; margin-top: 12px;">Document genere par EDU-LINK</p>'
+                + '</div>'
+                + '<button onclick="telechargerPDF()" id="btn-pdf" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl mt-4">📥 Telecharger le bulletin S' + trimestreActuel + ' en PDF</button>'
+                + '<div id="message-pdf" class="text-center text-sm font-semibold mt-2"></div>';
         }
 
         async function telechargerPDF() {
-            const btn = document.getElementById('btn-pdf');
-            const msg = document.getElementById('message-pdf');
+            var btn = document.getElementById('btn-pdf');
+            var msg = document.getElementById('message-pdf');
             btn.innerText = "Generation...";
             btn.disabled = true;
             msg.innerText = '';
-            let iframe = null;
+            var iframe = null;
 
             try {
-                const bulletinOriginal = document.getElementById('bulletin-pdf');
-                const htmlInterne = bulletinOriginal.outerHTML;
-                const nomFichier = 'Bulletin_T' + trimestreActuel + '_' + currentUser.prenom + '_' + currentUser.nom + '.pdf';
+                var bulletinOriginal = document.getElementById('bulletin-pdf');
+                var htmlInterne = bulletinOriginal.outerHTML;
+                var nomFichier = 'Bulletin_T' + trimestreActuel + '_' + currentUser.prenom + '_' + currentUser.nom + '.pdf';
 
                 iframe = document.createElement('iframe');
                 iframe.style.cssText = 'position:fixed;top:0;left:0;width:800px;height:1100px;opacity:0;pointer-events:none;z-index:-1;border:none;';
                 document.body.appendChild(iframe);
-                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                var doc = iframe.contentDocument || iframe.contentWindow.document;
                 doc.open();
                 doc.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{margin:0;padding:20px;background:#ffffff;font-family:Arial,sans-serif;}</style></head><body>' + htmlInterne + '</body></html>');
                 doc.close();
-                await new Promise(r => setTimeout(r, 400));
+                await new Promise(function(r) { setTimeout(r, 400); });
 
-                const options = {
+                var options = {
                     margin: 10,
                     filename: nomFichier,
                     image: { type: 'jpeg', quality: 0.98 },
                     html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', width: 800, windowWidth: 800, scrollX: 0, scrollY: 0 },
                     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
                 };
-                const pdfBlob = await html2pdf().set(options).from(doc.body).outputPdf('blob');
-                const fichier = new File([pdfBlob], nomFichier, { type: 'application/pdf' });
+                var pdfBlob = await html2pdf().set(options).from(doc.body).outputPdf('blob');
+                var fichier = new File([pdfBlob], nomFichier, { type: 'application/pdf' });
                 document.body.removeChild(iframe); iframe = null;
 
                 if (navigator.canShare && navigator.canShare({ files: [fichier] })) {
                     await navigator.share({ files: [fichier], title: 'Bulletin scolaire' });
                     msg.innerText = "Bulletin partage !"; msg.style.color = "green";
                 } else {
-                    const url = URL.createObjectURL(pdfBlob);
+                    var url = URL.createObjectURL(pdfBlob);
                     window.open(url, '_blank');
                     msg.innerText = "PDF ouvert !"; msg.style.color = "green";
                 }
@@ -720,11 +832,12 @@
             }
         }
 
+        // ════════════ ABSENCES ════════════
         async function afficherAbsences() {
             hideAllViews();
             document.getElementById('view-absences').classList.remove('hidden');
-            const { data: absences } = await supabaseClient.from('absences').select('*').eq('eleve_id', monEleveId).order('date_absence', { ascending: false });
-            toutesAbsences = absences || []; filtreAbsences = 'tout';
+            var res = await supabaseClient.from('absences').select('*').eq('eleve_id', monEleveId).order('date_absence', { ascending: false });
+            toutesAbsences = res.data || []; filtreAbsences = 'tout';
             document.getElementById('tab-abs-tout').className = 'py-2 rounded-xl font-bold text-xs bg-edu-blue text-white';
             document.getElementById('tab-abs-just').className = 'py-2 rounded-xl font-bold text-xs bg-gray-100 text-gray-600';
             document.getElementById('tab-abs-non').className = 'py-2 rounded-xl font-bold text-xs bg-gray-100 text-gray-600';
@@ -733,111 +846,221 @@
 
         function filtrerAbsences(filtre) {
             filtreAbsences = filtre;
-            const tabs = { tout: 'tab-abs-tout', justifiees: 'tab-abs-just', non_justifiees: 'tab-abs-non' };
-            Object.keys(tabs).forEach(k => { const tab = document.getElementById(tabs[k]); if (k === filtre) tab.className = 'py-2 rounded-xl font-bold text-xs bg-edu-blue text-white'; else tab.className = 'py-2 rounded-xl font-bold text-xs bg-gray-100 text-gray-600'; });
+            var tabs = { tout: 'tab-abs-tout', justifiees: 'tab-abs-just', non_justifiees: 'tab-abs-non' };
+            Object.keys(tabs).forEach(function(k) {
+                var tab = document.getElementById(tabs[k]);
+                if (k === filtre) tab.className = 'py-2 rounded-xl font-bold text-xs bg-edu-blue text-white';
+                else tab.className = 'py-2 rounded-xl font-bold text-xs bg-gray-100 text-gray-600';
+            });
             afficherListeAbsences();
         }
 
         function afficherListeAbsences() {
-            let absencesFiltrees = toutesAbsences;
-            if (filtreAbsences === 'justifiees') absencesFiltrees = toutesAbsences.filter(a => a.justifiee);
-            else if (filtreAbsences === 'non_justifiees') absencesFiltrees = toutesAbsences.filter(a => !a.justifiee);
-            let html = '';
+            var absencesFiltrees = toutesAbsences;
+            if (filtreAbsences === 'justifiees') absencesFiltrees = toutesAbsences.filter(function(a) { return a.justifiee; });
+            else if (filtreAbsences === 'non_justifiees') absencesFiltrees = toutesAbsences.filter(function(a) { return !a.justifiee; });
+            var html = '';
             if (absencesFiltrees.length === 0) html = '<p class="text-gray-500 text-center py-6">Aucune absence.</p>';
-            else absencesFiltrees.forEach(a => {
-                const bgBadge = a.justifiee ? 'bg-green-100 text-edu-green' : 'bg-red-100 text-edu-red';
-                const labelBadge = a.justifiee ? 'Justifiee' : 'Non justifiee';
-                const dateStr = new Date(a.date_absence).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-                html += `<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100"><div class="flex justify-between items-start mb-2"><div class="flex-1"><p class="text-sm font-bold text-gray-800">${a.matiere || 'Cours'}</p><p class="text-[10px] text-gray-500">${dateStr}</p></div><span class="${bgBadge} text-[10px] font-bold px-2 py-1 rounded">${labelBadge}</span></div></div>`;
+            else absencesFiltrees.forEach(function(a) {
+                var bgBadge = a.justifiee ? 'bg-green-100 text-edu-green' : 'bg-red-100 text-edu-red';
+                var labelBadge = a.justifiee ? 'Justifiee' : 'Non justifiee';
+                var dateStr = new Date(a.date_absence).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+                html += '<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100"><div class="flex justify-between items-start mb-2"><div class="flex-1"><p class="text-sm font-bold text-gray-800">' + (a.matiere || 'Cours') + '</p><p class="text-[10px] text-gray-500">' + dateStr + '</p></div><span class="' + bgBadge + ' text-[10px] font-bold px-2 py-1 rounded">' + labelBadge + '</span></div></div>';
             });
             document.getElementById('liste-absences').innerHTML = html;
         }
 
+        // ════════════ EMPLOI DU TEMPS ════════════
         async function afficherEmploi() {
             hideAllViews();
             document.getElementById('view-emploi').classList.remove('hidden');
-            const { data: cours } = await supabaseClient.from('emploi_du_temps').select('*').eq('classe_id', monClasseId).order('heure_debut');
-            tousLesCours = cours || []; afficherEncadreAujourdhui(); afficherTableauEmploi(tousLesCours, 'tableau-emploi-eleve'); window.scrollTo(0, 0);
+            var res = await supabaseClient.from('emploi_du_temps').select('*').eq('classe_id', monClasseId).order('heure_debut');
+            tousLesCours = res.data || [];
+            afficherEncadreAujourdhui();
+            afficherTableauEmploi(tousLesCours, 'tableau-emploi-eleve');
+            window.scrollTo(0, 0);
         }
 
         function afficherEncadreAujourdhui() {
-            const conteneur = document.getElementById('encadre-aujourdhui');
-            const jours = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
-            const maintenant = new Date(); const jourActuel = jours[maintenant.getDay()];
-            const dateAffichee = maintenant.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+            var conteneur = document.getElementById('encadre-aujourdhui');
+            var jours = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+            var maintenant = new Date(); var jourActuel = jours[maintenant.getDay()];
+            var dateAffichee = maintenant.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
             if (jourActuel === 'Dimanche') {
-                conteneur.innerHTML = `<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 text-center"><div class="text-3xl mb-1">🌴</div><p class="text-sm font-bold text-gray-700">Pas de cours aujourd'hui</p><p class="text-[10px] text-gray-500">Profitez bien de votre dimanche !</p></div>`;
+                conteneur.innerHTML = '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 text-center"><div class="text-3xl mb-1">🌴</div><p class="text-sm font-bold text-gray-700">Pas de cours aujourd\'hui</p><p class="text-[10px] text-gray-500">Profitez bien de votre dimanche !</p></div>';
                 return;
             }
-            const coursDuJour = tousLesCours.filter(c => c.jour === jourActuel).sort((a, b) => a.heure_debut.localeCompare(b.heure_debut));
-            const heureActuelle = maintenant.getHours() * 60 + maintenant.getMinutes();
-            let html = `<div class="bg-gradient-to-br from-edu-blue to-blue-700 text-white rounded-2xl shadow-lg p-4 mb-3">
-                <div class="flex items-center justify-between mb-3"><div><p class="text-[10px] opacity-80 uppercase font-bold">Aujourd'hui</p><p class="text-base font-bold capitalize">${dateAffichee}</p></div><div class="w-11 h-11 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">📅</div></div>`;
-            if (coursDuJour.length === 0) html += `<p class="text-sm opacity-90 text-center py-2">Aucun cours programmé aujourd'hui.</p>`;
+            var coursDuJour = tousLesCours.filter(function(c) { return c.jour === jourActuel; }).sort(function(a, b) { return a.heure_debut.localeCompare(b.heure_debut); });
+            var heureActuelle = maintenant.getHours() * 60 + maintenant.getMinutes();
+            var html = '<div class="bg-gradient-to-br from-edu-blue to-blue-700 text-white rounded-2xl shadow-lg p-4 mb-3">'
+                + '<div class="flex items-center justify-between mb-3"><div><p class="text-[10px] opacity-80 uppercase font-bold">Aujourd\'hui</p><p class="text-base font-bold capitalize">' + dateAffichee + '</p></div><div class="w-11 h-11 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">📅</div></div>';
+            if (coursDuJour.length === 0) html += '<p class="text-sm opacity-90 text-center py-2">Aucun cours programmé aujourd\'hui.</p>';
             else {
-                html += `<div class="space-y-2">`;
-                coursDuJour.forEach(c => {
-                    const [hD, mD] = c.heure_debut.split(':').map(Number);
-                    const [hF, mF] = c.heure_fin.split(':').map(Number);
-                    const debut = hD * 60 + mD, fin = hF * 60 + mF;
-                    let statut = 'a_venir';
+                html += '<div class="space-y-2">';
+                coursDuJour.forEach(function(c) {
+                    var p1 = c.heure_debut.split(':').map(Number);
+                    var p2 = c.heure_fin.split(':').map(Number);
+                    var debut = p1[0] * 60 + p1[1], fin = p2[0] * 60 + p2[1];
+                    var statut = 'a_venir';
                     if (heureActuelle >= debut && heureActuelle < fin) statut = 'en_cours';
                     else if (heureActuelle >= fin) statut = 'passe';
-                    let bgStyle = 'background: rgba(255,255,255,0.15);', badge = '', opacite = '';
+                    var bgStyle = 'background: rgba(255,255,255,0.15);', badge = '', opacite = '';
                     if (statut === 'en_cours') { bgStyle = 'background: rgba(46, 173, 94, 0.9); box-shadow: 0 0 0 2px rgba(255,255,255,0.5);'; badge = '<span class="bg-white text-edu-green text-[9px] font-bold px-2 py-0.5 rounded-full">🔴 EN COURS</span>'; }
                     else if (statut === 'passe') { bgStyle = 'background: rgba(255,255,255,0.08);'; badge = '<span class="text-[9px] opacity-60">Terminé</span>'; opacite = 'opacity-60'; }
                     else badge = '<span class="text-[9px] opacity-80">À venir</span>';
-                    html += `<div class="${opacite} rounded-xl p-3 flex items-center gap-3" style="${bgStyle}">
-                        <div class="text-center flex-shrink-0" style="min-width: 45px;"><p class="text-xs font-bold">${c.heure_debut.substring(0, 5)}</p><p class="text-[9px] opacity-70">${c.heure_fin.substring(0, 5)}</p></div>
-                        <div class="flex-1 min-w-0"><p class="text-sm font-bold truncate">${c.matiere}</p>${c.salle ? `<p class="text-[10px] opacity-80">📍 ${c.salle}</p>` : ''}</div>${badge}</div>`;
+                    html += '<div class="' + opacite + ' rounded-xl p-3 flex items-center gap-3" style="' + bgStyle + '">'
+                        + '<div class="text-center flex-shrink-0" style="min-width: 45px;"><p class="text-xs font-bold">' + c.heure_debut.substring(0, 5) + '</p><p class="text-[9px] opacity-70">' + c.heure_fin.substring(0, 5) + '</p></div>'
+                        + '<div class="flex-1 min-w-0"><p class="text-sm font-bold truncate">' + c.matiere + '</p>' + (c.salle ? '<p class="text-[10px] opacity-80">📍 ' + c.salle + '</p>' : '') + '</div>' + badge + '</div>';
                 });
-                html += `</div>`;
-                const restants = coursDuJour.filter(c => { const [hF, mF] = c.heure_fin.split(':').map(Number); return heureActuelle < (hF * 60 + mF); }).length;
-                if (restants > 0) html += `<p class="text-[10px] opacity-80 text-center mt-3">${restants} cours restant(s) aujourd'hui</p>`;
-                else html += `<p class="text-[10px] opacity-80 text-center mt-3">🎉 Journée terminée !</p>`;
+                html += '</div>';
+                var restants = coursDuJour.filter(function(c) { var p = c.heure_fin.split(':').map(Number); return heureActuelle < (p[0] * 60 + p[1]); }).length;
+                if (restants > 0) html += '<p class="text-[10px] opacity-80 text-center mt-3">' + restants + ' cours restant(s) aujourd\'hui</p>';
+                else html += '<p class="text-[10px] opacity-80 text-center mt-3">🎉 Journée terminée !</p>';
             }
-            html += `</div>`;
+            html += '</div>';
             conteneur.innerHTML = html;
         }
 
         function afficherTableauEmploi(cours, containerId) {
-            const jours = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
-            const creneaux = [];
-            if (cours && cours.length > 0) {
-                const setCreneaux = new Set();
-                cours.forEach(c => { const hd = c.heure_debut ? c.heure_debut.substring(0,5) : ''; const hf = c.heure_fin ? c.heure_fin.substring(0,5) : ''; const key = hd + '-' + hf; if (!setCreneaux.has(key)) { setCreneaux.add(key); creneaux.push({ debut: hd, fin: hf }); } });
-                creneaux.sort((a, b) => a.debut.localeCompare(b.debut));
-            }
-            if (creneaux.length === 0) { creneaux.push({ debut: '08:00', fin: '10:00' }); creneaux.push({ debut: '10:15', fin: '12:15' }); creneaux.push({ debut: '14:00', fin: '16:00' }); creneaux.push({ debut: '16:15', fin: '18:15' }); }
-            let html = '<table style="width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">';
-            html += '<thead><tr style="background: #004AAD;">';
-            html += '<th style="padding: 10px 8px; color: white; font-size: 11px; font-weight: bold; border: 1px solid #004AAD; min-width: 70px;">Heure</th>';
-            jours.forEach(j => { html += `<th style="padding: 10px 8px; color: white; font-size: 11px; font-weight: bold; border: 1px solid #004AAD; min-width: 95px; text-align: center;">${j.substring(0,3)}</th>`; });
+            var jours = JOURS_EDT;
+            var jourActuel = getJourActuelEDT();
+            var creneauxSet = {};
+            CRENEAUX_EDT.forEach(function(c) { creneauxSet[c.debut + '-' + c.fin] = true; });
+            var creneaux = CRENEAUX_EDT.slice();
+            (cours || []).forEach(function(c) {
+                if (!c.heure_debut || !c.heure_fin) return;
+                var hd = c.heure_debut.substring(0, 5);
+                var hf = c.heure_fin.substring(0, 5);
+                var key = hd + '-' + hf;
+                if (!creneauxSet[key]) { creneauxSet[key] = true; creneaux.push({ debut: hd, fin: hf }); }
+            });
+            creneaux.sort(function(a, b) { return a.debut.localeCompare(b.debut); });
+
+            var html = '<table style="width:100%;border-collapse:collapse;background:white;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.1);">';
+            html += '<thead><tr>';
+            html += '<th style="padding:10px 8px;color:white;font-size:11px;font-weight:bold;border:1px solid #004AAD;min-width:70px;background:#004AAD;">Heure</th>';
+            jours.forEach(function(j) {
+                var estAujourdhui = j === jourActuel;
+                var bg = estAujourdhui ? '#F59E0B' : '#004AAD';
+                html += '<th style="padding:10px 8px;color:white;font-size:11px;font-weight:bold;border:1px solid #004AAD;min-width:95px;text-align:center;background:' + bg + ';">';
+                html += j.substring(0, 3);
+                if (estAujourdhui) html += '<br><span style="font-size:7px;background:white;color:#92400e;padding:1px 4px;border-radius:4px;font-weight:bold;">AUJOURD\'HUI</span>';
+                html += '</th>';
+            });
             html += '</tr></thead><tbody>';
-            creneaux.forEach((creneau, idx) => {
-                const bgLigne = idx % 2 === 0 ? '#ffffff' : '#f9fafb';
-                html += `<tr style="background: ${bgLigne};">`;
-                html += `<td style="padding: 8px 6px; border: 1px solid #e5e7eb; font-size: 10px; font-weight: bold; color: #1f2937; text-align: center; background: #f3f4f6;">${creneau.debut}<br><span style="font-size: 8px; color: #6b7280;">${creneau.fin}</span></td>`;
-                jours.forEach(jour => {
-                    const c = cours ? cours.find(x => x.jour === jour && x.heure_debut && x.heure_fin && x.heure_debut.substring(0,5) === creneau.debut && x.heure_fin.substring(0,5) === creneau.fin) : null;
-                    if (c) html += `<td style="padding: 6px; border: 1px solid #e5e7eb; vertical-align: top;"><div style="background: #dbeafe; border-left: 3px solid #004AAD; padding: 6px; border-radius: 5px; min-height: 50px;"><p style="font-size: 10px; font-weight: bold; color: #004AAD; margin: 0; line-height: 1.2;">${c.matiere}</p>${c.salle ? `<p style="font-size: 8px; color: #6b7280; margin: 2px 0 0 0;">📍 ${c.salle}</p>` : ''}</div></td>`;
-                    else html += '<td style="padding: 6px; border: 1px solid #e5e7eb; vertical-align: top;"><div style="min-height: 50px;"></div></td>';
+
+            creneaux.forEach(function(creneau, idx) {
+                var bgLigne = idx % 2 === 0 ? '#ffffff' : '#f9fafb';
+                html += '<tr style="background:' + bgLigne + ';">';
+                html += '<td style="padding:8px 6px;border:1px solid #e5e7eb;font-size:10px;font-weight:bold;color:#1f2937;text-align:center;background:#f3f4f6;">' + creneau.debut + '<br><span style="font-size:8px;color:#6b7280;">' + creneau.fin + '</span></td>';
+                jours.forEach(function(jour) {
+                    var c = cours ? cours.find(function(x) { return x.jour === jour && x.heure_debut && x.heure_fin && x.heure_debut.substring(0, 5) === creneau.debut && x.heure_fin.substring(0, 5) === creneau.fin; }) : null;
+                    var estAujourdhui = jour === jourActuel;
+                    var borderStyle = estAujourdhui
+                        ? 'border-top:1px solid #F59E0B;border-bottom:1px solid #F59E0B;border-left:2px solid #F59E0B;border-right:2px solid #F59E0B;'
+                        : 'border:1px solid #e5e7eb;';
+                    if (c) {
+                        var couleur = getCouleurMatiere(c.matiere);
+                        html += '<td style="padding:6px;' + borderStyle + 'vertical-align:top;">';
+                        html += '<div style="background:' + couleur.bg + ';border-left:3px solid ' + couleur.border + ';padding:6px;border-radius:5px;min-height:50px;">';
+                        html += '<p style="font-size:10px;font-weight:bold;color:' + couleur.text + ';margin:0;line-height:1.2;">' + c.matiere + '</p>';
+                        if (c.salle) html += '<p style="font-size:8px;color:#6b7280;margin:2px 0 0 0;">📍 ' + c.salle + '</p>';
+                        html += '</div></td>';
+                    } else {
+                        html += '<td style="padding:6px;' + borderStyle + 'vertical-align:top;"><div style="min-height:50px;"></div></td>';
+                    }
                 });
                 html += '</tr>';
             });
             html += '</tbody></table>';
+
+            if (cours && cours.length > 0) {
+                var matieresUniques = [];
+                cours.forEach(function(c) { if (c.matiere && matieresUniques.indexOf(c.matiere) === -1) matieresUniques.push(c.matiere); });
+                if (matieresUniques.length > 0) {
+                    html += '<div style="margin-top:10px;background:#f9fafb;border-radius:10px;padding:10px;">';
+                    html += '<p style="font-size:9px;color:#6b7280;margin:0 0 6px 0;font-weight:bold;letter-spacing:1px;">MATIERES</p>';
+                    html += '<div style="display:flex;flex-wrap:wrap;gap:6px;">';
+                    matieresUniques.forEach(function(m) {
+                        var couleur = getCouleurMatiere(m);
+                        html += '<span style="background:' + couleur.bg + ';color:' + couleur.text + ';font-size:9px;font-weight:600;padding:3px 8px;border-radius:6px;border-left:3px solid ' + couleur.border + ';">' + m + '</span>';
+                    });
+                    html += '</div></div>';
+                }
+            }
+
             document.getElementById(containerId).innerHTML = html;
         }
 
+        async function exporterEmploiElevePDF(event) {
+            var conteneur = document.getElementById('tableau-emploi-eleve');
+            if (!conteneur) return;
+            var btn = event ? event.target : null;
+            if (btn) { btn.disabled = true; btn.innerText = '⏳'; }
+
+            var iframe = null;
+            try {
+                var ecoleNom = document.getElementById('ecole-nom-affiche').innerText.replace('🏫 ', '');
+                var dateJour = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+                var clone = conteneur.cloneNode(true);
+                clone.querySelectorAll('[onclick]').forEach(function(el) { el.removeAttribute('onclick'); });
+
+                var htmlInterne = '<div style="background:white;padding:15px;border:2px solid #004AAD;border-radius:12px;font-family:Arial,sans-serif;">'
+                    + '<div style="text-align:center;border-bottom:2px solid #004AAD;padding-bottom:8px;margin-bottom:12px;">'
+                    + '<h1 style="font-size:16px;color:#004AAD;margin:2px 0;">EDU-LINK</h1>'
+                    + '<p style="font-size:9px;color:#6b7280;margin:0;">' + ecoleNom + '</p>'
+                    + '<p style="font-size:13px;font-weight:bold;margin-top:4px;">EMPLOI DU TEMPS</p>'
+                    + '<p style="font-size:11px;color:#1f2937;margin:2px 0;">' + currentUser.prenom + ' ' + currentUser.nom + '</p>'
+                    + '</div>'
+                    + '<div style="font-size:11px;">' + clone.innerHTML + '</div>'
+                    + '<p style="text-align:center;font-size:8px;color:#9ca3af;margin-top:10px;">Genere par EDU-LINK - ' + dateJour + '</p>'
+                    + '</div>';
+
+                iframe = document.createElement('iframe');
+                iframe.style.cssText = 'position:fixed;top:0;left:0;width:1000px;height:800px;opacity:0;pointer-events:none;z-index:-1;border:none;';
+                document.body.appendChild(iframe);
+                var doc = iframe.contentDocument || iframe.contentWindow.document;
+                doc.open();
+                doc.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{margin:0;padding:15px;background:#fff;font-family:Arial,sans-serif;}</style></head><body>' + htmlInterne + '</body></html>');
+                doc.close();
+                await new Promise(function(r) { setTimeout(r, 400); });
+
+                var nomFichier = 'Emploi_' + currentUser.prenom + '_' + currentUser.nom + '.pdf';
+                var options = {
+                    margin: 10, filename: nomFichier,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', width: 1000, windowWidth: 1000, scrollX: 0, scrollY: 0 },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+                };
+                var pdfBlob = await html2pdf().set(options).from(doc.body).outputPdf('blob');
+                var fichier = new File([pdfBlob], nomFichier, { type: 'application/pdf' });
+                document.body.removeChild(iframe); iframe = null;
+
+                if (navigator.canShare && navigator.canShare({ files: [fichier] })) {
+                    await navigator.share({ files: [fichier], title: 'Emploi du temps' });
+                } else {
+                    window.open(URL.createObjectURL(pdfBlob), '_blank');
+                }
+            } catch (err) {
+                if (iframe && document.body.contains(iframe)) document.body.removeChild(iframe);
+                if (err.name !== 'AbortError') alert('Erreur : ' + err.message);
+            } finally {
+                if (btn) { btn.disabled = false; btn.innerText = '📥 PDF'; }
+            }
+        }
+
+        // ════════════ ANNONCES ════════════
         async function afficherAnnonces() {
             hideAllViews();
             document.getElementById('view-annonces').classList.remove('hidden');
-            const { data: annonces } = await supabaseClient.from('annonces').select('*').eq('ecole_id', monEcoleId).or('cible.eq.tous,cible.eq.eleves').order('date_publication', { ascending: false });
-            let html = '';
+            var res = await supabaseClient.from('annonces').select('*').eq('ecole_id', monEcoleId).or('cible.eq.tous,cible.eq.eleves').order('date_publication', { ascending: false });
+            var annonces = res.data;
+            var html = '';
             if (annonces && annonces.length > 0) {
-                annonces.forEach(a => {
-                    const d = new Date(a.date_publication).toLocaleDateString('fr-FR');
-                    html += `<div onclick="voirAffiche(${a.id})" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition"><div class="flex justify-between items-start mb-2"><p class="text-sm font-bold text-gray-800">📢 ${a.titre}</p><span class="text-[10px] text-gray-400">${d}</span></div><p class="text-xs text-gray-600 mb-2">${a.contenu.substring(0, 100)}${a.contenu.length > 100 ? '...' : ''}</p><p class="text-[10px] text-edu-blue font-semibold">👆 Cliquez pour voir l'affiche</p></div>`;
+                annonces.forEach(function(a) {
+                    var d = new Date(a.date_publication).toLocaleDateString('fr-FR');
+                    html += '<div onclick="voirAffiche(' + a.id + ')" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition"><div class="flex justify-between items-start mb-2"><p class="text-sm font-bold text-gray-800">📢 ' + a.titre + '</p><span class="text-[10px] text-gray-400">' + d + '</span></div><p class="text-xs text-gray-600 mb-2">' + a.contenu.substring(0, 100) + (a.contenu.length > 100 ? '...' : '') + '</p><p class="text-[10px] text-edu-blue font-semibold">👆 Cliquez pour voir l\'affiche</p></div>';
                 });
             } else html = '<p class="text-gray-500 text-center py-4">Aucune annonce.</p>';
             document.getElementById('liste-annonces').innerHTML = html;
@@ -846,21 +1069,18 @@
         async function voirAffiche(id) {
             hideAllViews();
             document.getElementById('view-affiche').classList.remove('hidden');
-            const { data: a } = await supabaseClient.from('annonces').select('*').eq('id', id).single();
-            document.getElementById('contenu-affiche').innerHTML = construireAffiche(a, document.getElementById('ecole-nom-affiche').innerText.replace('🏫 ', ''));
+            var res = await supabaseClient.from('annonces').select('*').eq('id', id).single();
+            document.getElementById('contenu-affiche').innerHTML = construireAfficheSecurisee(res.data, document.getElementById('ecole-nom-affiche').innerText.replace('🏫 ', ''), signatureEcole);
         }
 
-        function construireAffiche(a, ecoleNom) {
-            return construireAfficheSecurisee(a, ecoleNom, signatureEcole);
-        }
-
+        // ════════════ NOTIFICATIONS ════════════
         async function afficherNotifications() {
             hideAllViews();
             document.getElementById('view-notifications').classList.remove('hidden');
-            const { data: notifs } = await supabaseClient.from('notifications').select('*').eq('utilisateur_id', currentUser.id).order('date_creation', { ascending: false });
-            toutesNotifs = notifs || [];
-            const nonLues = toutesNotifs.filter(n => !n.lu).length;
-            document.getElementById('compteur-nonlues').innerText = nonLues > 0 ? `(${nonLues})` : '';
+            var res = await supabaseClient.from('notifications').select('*').eq('utilisateur_id', currentUser.id).order('date_creation', { ascending: false });
+            toutesNotifs = res.data || [];
+            var nonLues = toutesNotifs.filter(function(n) { return !n.lu; }).length;
+            document.getElementById('compteur-nonlues').innerText = nonLues > 0 ? '(' + nonLues + ')' : '';
             filtreNotifs = 'toutes';
             document.getElementById('tab-notif-toutes').className = 'py-2 rounded-xl font-bold text-xs bg-edu-blue text-white';
             document.getElementById('tab-notif-nonlues').className = 'py-2 rounded-xl font-bold text-xs bg-gray-100 text-gray-600';
@@ -869,37 +1089,46 @@
 
         function filtrerNotifs(filtre) {
             filtreNotifs = filtre;
-            if (filtre === 'toutes') { document.getElementById('tab-notif-toutes').className = 'py-2 rounded-xl font-bold text-xs bg-edu-blue text-white'; document.getElementById('tab-notif-nonlues').className = 'py-2 rounded-xl font-bold text-xs bg-gray-100 text-gray-600'; }
-            else { document.getElementById('tab-notif-toutes').className = 'py-2 rounded-xl font-bold text-xs bg-gray-100 text-gray-600'; document.getElementById('tab-notif-nonlues').className = 'py-2 rounded-xl font-bold text-xs bg-edu-blue text-white'; }
+            if (filtre === 'toutes') {
+                document.getElementById('tab-notif-toutes').className = 'py-2 rounded-xl font-bold text-xs bg-edu-blue text-white';
+                document.getElementById('tab-notif-nonlues').className = 'py-2 rounded-xl font-bold text-xs bg-gray-100 text-gray-600';
+            } else {
+                document.getElementById('tab-notif-toutes').className = 'py-2 rounded-xl font-bold text-xs bg-gray-100 text-gray-600';
+                document.getElementById('tab-notif-nonlues').className = 'py-2 rounded-xl font-bold text-xs bg-edu-blue text-white';
+            }
             afficherListeNotifs();
         }
 
         function afficherListeNotifs() {
-            let filtrees = toutesNotifs;
-            if (filtreNotifs === 'non_lues') filtrees = toutesNotifs.filter(n => !n.lu);
-            let html = '';
+            var filtrees = toutesNotifs;
+            if (filtreNotifs === 'non_lues') filtrees = toutesNotifs.filter(function(n) { return !n.lu; });
+            var html = '';
             if (filtrees.length === 0) html = '<p class="text-gray-500 text-center py-6">Aucune notification.</p>';
-            else filtrees.forEach(n => {
-                let bgColor = 'bg-blue-50 border-edu-blue', icon = '💬';
+            else filtrees.forEach(function(n) {
+                var bgColor = 'bg-blue-50 border-edu-blue', icon = '💬';
                 if (n.type === 'absence') { bgColor = 'bg-red-50 border-edu-red'; icon = '⚠️'; }
                 else if (n.type === 'note') { bgColor = 'bg-green-50 border-edu-green'; icon = '📝'; }
                 else if (n.type === 'paiement') { bgColor = 'bg-orange-50 border-edu-orange'; icon = '💰'; }
                 else if (n.type === 'annonce') { bgColor = 'bg-purple-50 border-purple-500'; icon = '📢'; }
                 else if (n.type === 'devoir') { bgColor = 'bg-amber-50 border-amber-500'; icon = '📚'; }
-                const luStyle = n.lu ? 'opacity-60' : '';
-                const d = new Date(n.date_creation).toLocaleDateString('fr-FR');
-                html += `<div class="${bgColor} ${luStyle} border-l-4 p-4 rounded-r-2xl shadow-sm cursor-pointer" onclick="lireNotif(${n.id})"><div class="flex items-start gap-3"><div class="text-xl mt-0.5">${icon}</div><div class="flex-1"><p class="text-sm font-bold text-gray-800">${n.titre}</p><p class="text-xs text-gray-600 mt-1">${n.contenu}</p><p class="text-[10px] text-gray-400 mt-2">${d}</p></div></div></div>`;
+                var luStyle = n.lu ? 'opacity-60' : '';
+                var d = new Date(n.date_creation).toLocaleDateString('fr-FR');
+                html += '<div class="' + bgColor + ' ' + luStyle + ' border-l-4 p-4 rounded-r-2xl shadow-sm cursor-pointer" onclick="lireNotif(' + n.id + ')"><div class="flex items-start gap-3"><div class="text-xl mt-0.5">' + icon + '</div><div class="flex-1"><p class="text-sm font-bold text-gray-800">' + n.titre + '</p><p class="text-xs text-gray-600 mt-1">' + n.contenu + '</p><p class="text-[10px] text-gray-400 mt-2">' + d + '</p></div></div></div>';
             });
             document.getElementById('liste-notifications').innerHTML = html;
         }
 
-        async function lireNotif(id) { await supabaseClient.from('notifications').update({ lu: true }).eq('id', id); await afficherNotifications(); chargerBadgeNotifs(); }
-// ============ RESSOURCES ============
-        let resElvListe = [];
-        let resElvFiltreType = 'tous';
+        async function lireNotif(id) {
+            await supabaseClient.from('notifications').update({ lu: true }).eq('id', id);
+            await afficherNotifications();
+            chargerBadgeNotifs();
+        }
+
+        // ════════════ RESSOURCES ════════════
+        var resElvListe = [];
+        var resElvFiltreType = 'tous';
 
         async function testRessources() {
-            // ✅ UNIFORMISÉ
             hideAllViews();
             document.getElementById('view-ressources-eleve').classList.remove('hidden');
             document.getElementById('reselv-liste').innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
@@ -910,25 +1139,21 @@
                 return;
             }
 
-            const { data, error } = await supabaseClient
-                .from('ressources')
-                .select('*')
-                .eq('classe_id', monClasseId)
-                .order('date_creation', { ascending: false });
+            var res = await supabaseClient.from('ressources').select('*').eq('classe_id', monClasseId).order('date_creation', { ascending: false });
 
-            if (error) {
-                document.getElementById('reselv-liste').innerHTML = '<div class="bg-red-50 p-4 rounded-2xl border border-red-200"><p class="text-xs font-bold text-edu-red mb-1">Erreur :</p><p class="text-[11px] text-gray-700">' + error.message + '</p></div>';
+            if (res.error) {
+                document.getElementById('reselv-liste').innerHTML = '<div class="bg-red-50 p-4 rounded-2xl border border-red-200"><p class="text-xs font-bold text-edu-red mb-1">Erreur :</p><p class="text-[11px] text-gray-700">' + res.error.message + '</p></div>';
                 return;
             }
 
-            resElvListe = data || [];
+            resElvListe = res.data || [];
             resElvFiltrerType(resElvFiltreType);
         }
 
         function resElvFiltrerType(type) {
             resElvFiltreType = type;
-            ['tous', 'programme', 'lecon', 'exercice'].forEach(t => {
-                const tab = document.getElementById('reselv-tab-' + t);
+            ['tous', 'programme', 'lecon', 'exercice'].forEach(function(t) {
+                var tab = document.getElementById('reselv-tab-' + t);
                 if (!tab) return;
                 tab.className = t === type
                     ? 'py-2 rounded-xl font-bold text-[10px] bg-edu-blue text-white'
@@ -938,34 +1163,30 @@
         }
 
         function resElvFiltrer() {
-            const matiereSel = document.getElementById('reselv-filtre-matiere');
-            const matiere = matiereSel ? matiereSel.value : '';
-            let liste = resElvListe;
-            if (resElvFiltreType !== 'tous') liste = liste.filter(r => r.type === resElvFiltreType);
-            if (matiere) liste = liste.filter(r => r.matiere === matiere);
+            var liste = resElvListe;
+            if (resElvFiltreType !== 'tous') liste = liste.filter(function(r) { return r.type === resElvFiltreType; });
             resElvAfficherListe(liste);
         }
 
         function resElvAfficherListe(liste) {
-            const conteneur = document.getElementById('reselv-liste');
+            var conteneur = document.getElementById('reselv-liste');
             if (liste.length === 0) {
                 conteneur.innerHTML = '<div class="bg-white p-8 rounded-2xl shadow-sm text-center"><div class="text-5xl mb-2">📚</div><p class="text-gray-500 text-sm">Aucune ressource pour le moment.</p></div>';
                 return;
             }
-
-            let html = '';
+            var html = '';
             html += '<div class="bg-blue-50 border border-blue-100 rounded-xl p-3 mb-3">';
             html += '<p class="text-xs font-bold text-edu-blue">' + liste.length + ' ressource(s) affichee(s)</p>';
             html += '</div>';
 
-            liste.forEach(r => {
-                let emoji = '📄';
-                let label = 'Lecon';
-                let couleur = 'bg-blue-100 text-edu-blue';
+            liste.forEach(function(r) {
+                var emoji = '📄';
+                var label = 'Lecon';
+                var couleur = 'bg-blue-100 text-edu-blue';
                 if (r.type === 'programme') { emoji = '📋'; label = 'Programme'; couleur = 'bg-purple-100 text-edu-purple'; }
                 else if (r.type === 'exercice') { emoji = '✏️'; label = 'Exercice'; couleur = 'bg-orange-100 text-edu-orange'; }
 
-                const dateStr = new Date(r.date_creation).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+                var dateStr = new Date(r.date_creation).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
 
                 html += '<div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100">';
                 html += '<div class="flex items-start gap-3 mb-2">';
@@ -984,18 +1205,18 @@
         }
 
         function resElvVoir(id) {
-            const r = resElvListe.find(x => x.id === id);
+            var r = resElvListe.find(function(x) { return x.id === id; });
             if (!r) return;
 
             hideAllViews();
             document.getElementById('view-ressource-detail-eleve').classList.remove('hidden');
 
-            let typeLabel = 'Lecon';
-            let typeEmoji = '📄';
+            var typeLabel = 'Lecon';
+            var typeEmoji = '📄';
             if (r.type === 'programme') { typeLabel = 'Programme'; typeEmoji = '📋'; }
             else if (r.type === 'exercice') { typeLabel = 'Exercice'; typeEmoji = '✏️'; }
 
-            let html = '';
+            var html = '';
             html += '<div class="bg-gradient-to-br from-edu-blue to-blue-700 text-white rounded-2xl shadow-lg p-4 mb-3">';
             html += '<p class="text-[10px] opacity-80 uppercase font-bold">' + typeEmoji + ' ' + typeLabel + '</p>';
             html += '<p class="text-lg font-extrabold mt-1">' + r.titre + '</p>';
@@ -1030,32 +1251,29 @@
 
         async function telechargerFichierBase64(idRessource) {
             try {
-                const r = resElvListe.find(x => x.id === idRessource);
+                var r = resElvListe.find(function(x) { return x.id === idRessource; });
                 if (!r || !r.fichier_base64) { alert('Fichier introuvable.'); return; }
-                const base64 = r.fichier_base64;
-                const nomFichier = r.fichier_nom || 'fichier';
-                const parts = base64.split(',');
-                const mimeMatch = parts[0].match(/data:(.*?);/);
-                const mime = mimeMatch ? mimeMatch[1] : 'application/octet-stream';
-                const bstr = atob(parts[1]);
-                let n = bstr.length;
-                const u8arr = new Uint8Array(n);
+                var base64 = r.fichier_base64;
+                var nomFichier = r.fichier_nom || 'fichier';
+                var parts = base64.split(',');
+                var mimeMatch = parts[0].match(/data:(.*?);/);
+                var mime = mimeMatch ? mimeMatch[1] : 'application/octet-stream';
+                var bstr = atob(parts[1]);
+                var n = bstr.length;
+                var u8arr = new Uint8Array(n);
                 while (n--) { u8arr[n] = bstr.charCodeAt(n); }
-                const blob = new Blob([u8arr], { type: mime });
-                const fichier = new File([blob], nomFichier, { type: mime });
+                var blob = new Blob([u8arr], { type: mime });
+                var fichier = new File([blob], nomFichier, { type: mime });
 
-                // Methode 1 : partage natif (mobile)
                 if (navigator.canShare && navigator.canShare({ files: [fichier] })) {
                     await navigator.share({ files: [fichier], title: nomFichier });
                     return;
                 }
 
-                // Methode 2 : nouvel onglet (l'utilisateur peut sauvegarder)
-                const url = URL.createObjectURL(blob);
-                const nouvelleFenetre = window.open(url, '_blank');
+                var url = URL.createObjectURL(blob);
+                var nouvelleFenetre = window.open(url, '_blank');
                 if (!nouvelleFenetre) {
-                    // Methode 3 : lien direct
-                    const a = document.createElement('a');
+                    var a = document.createElement('a');
                     a.href = url;
                     a.download = nomFichier;
                     a.target = '_blank';
@@ -1063,14 +1281,14 @@
                     a.click();
                     document.body.removeChild(a);
                 }
-                setTimeout(() => URL.revokeObjectURL(url), 60000);
+                setTimeout(function() { URL.revokeObjectURL(url); }, 60000);
             } catch (err) {
                 if (err.name === 'AbortError') return;
                 alert('Erreur telechargement : ' + err.message);
             }
         }
 
-        // ============ NAVIGATION ============
+        // ════════════ NAVIGATION ════════════
         function retourRessourcesEleve() {
             hideAllViews();
             document.getElementById('view-ressources-eleve').classList.remove('hidden');
@@ -1085,7 +1303,14 @@
             chargerBadges();
         }
 
-        function seDeconnecter() { sessionStorage.removeItem('eduLinkUser'); window.location.href = 'index.html'; }
+        function seDeconnecter() {
+            sessionStorage.removeItem('eduLinkUser');
+            window.location.href = 'index.html';
+        }
     </script>
+<script src="ripple.js"></script>
+<script src="toast.js"></script>
+<script src="confirm.js"></script>
+</body>
 </body>
 </html>
