@@ -224,6 +224,11 @@
     <div class="divider anim-up delay-8">Raccourcis</div>
 
     <div class="action-grid mb-4">
+<div class="action-tile anim-up delay-8" onclick="afficherDashboard()" style="border: 2px solid #FBBF24;">
+                        <div class="tile-icon" style="background: linear-gradient(135deg, #fef3c7, #fde68a); color: #D97706;">📊</div>
+                        <div class="tile-label">Tableau de bord</div>
+                        <div class="tile-sub">Graphiques</div>
+                    </div>
         <div class="action-tile anim-up delay-8" onclick="afficherGestionEleves()">
             <div class="tile-icon" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #004AAD;">🎓</div>
             <div class="tile-label">Élèves</div>
@@ -1090,10 +1095,69 @@
                 </div>
 
                 <!-- ═══════════════ NOTIFICATIONS ═══════════════ -->
+<!-- ═══════════════ 🆕 DASHBOARD GRAPHIQUE ═══════════════ -->
+                <div id="view-dashboard" class="hidden fade-in">
+                    <div class="section-header anim-up">
+                        <button onclick="retourAccueil()" class="back-btn">⬅️</button>
+                        <div>
+                            <h1 class="section-title">Tableau de bord</h1>
+                            <p class="section-sub">Vue graphique de l'établissement</p>
+                        </div>
+                    </div>
+
+                    <!-- Filtres -->
+                    <div class="tabs-pill anim-up delay-1" style="margin-bottom: 14px;">
+                        <button id="dash-tab-semaine" onclick="dashChargerPeriode('semaine')" class="tab-pill active">7 jours</button>
+                        <button id="dash-tab-mois" onclick="dashChargerPeriode('mois')" class="tab-pill">30 jours</button>
+                        <button id="dash-tab-trimestre" onclick="dashChargerPeriode('trimestre')" class="tab-pill">Trimestre</button>
+                    </div>
+
+                    <!-- KPI Cards -->
+                    <div id="dash-kpis" class="kpi-grid"></div>
+
+                    <!-- Taux de recouvrement (cercle) -->
+                    <div id="dash-cercle-bloc" class="card-pro anim-up delay-2" style="margin-bottom: 14px; text-align: center;">
+                        <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin-bottom: 12px;">💰 Taux de recouvrement</p>
+                        <div id="dash-cercle-contenu"></div>
+                    </div>
+
+                    <!-- Taux de présence (barres horizontales) -->
+                    <div class="card-pro anim-up delay-3" style="margin-bottom: 14px;">
+                        <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin-bottom: 12px;">📊 Présence par jour</p>
+                        <div id="dash-graph-presence"></div>
+                    </div>
+
+                    <!-- Notes par classe -->
+                    <div class="card-pro anim-up delay-4" style="margin-bottom: 14px;">
+                        <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin-bottom: 12px;">📚 Moyenne par classe</p>
+                        <div id="dash-graph-notes"></div>
+                    </div>
+
+                    <!-- Absences par classe -->
+                    <div class="card-pro anim-up delay-5" style="margin-bottom: 14px;">
+                        <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin-bottom: 12px;">🚫 Absences par classe</p>
+                        <div id="dash-graph-absences"></div>
+                    </div>
+
+                    <!-- Top 5 profs actifs -->
+                    <div class="card-pro anim-up delay-6">
+                        <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin-bottom: 12px;">🏆 Top 5 profs (heures)</p>
+                        <div id="dash-graph-profs"></div>
+                    </div>
+                </div>
+
                 <div id="view-notifications" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-4">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-4">Notifications</h1>
-                    <div id="liste-notifications" class="space-y-3"></div>
+                    <div class="notif-filter-tabs" id="notif-filter-tabs">
+    <button class="notif-filter-tab active" data-role="toutes" onclick="filtrerNotifsAdmin('toutes')">Toutes</button>
+    <button class="notif-filter-tab" data-role="parent" onclick="filtrerNotifsAdmin('parent')">👨‍👩‍👧 Parents</button>
+    <button class="notif-filter-tab" data-role="enseignant" onclick="filtrerNotifsAdmin('enseignant')">👨🏾‍🏫 Enseignants</button>
+    <button class="notif-filter-tab" data-role="eleve" onclick="filtrerNotifsAdmin('eleve')">👩🏾‍🎓 Élèves</button>
+    <button class="notif-filter-tab" data-role="staff" onclick="filtrerNotifsAdmin('staff')">👥 Staff</button>
+    <button class="notif-filter-tab" data-role="admin" onclick="filtrerNotifsAdmin('admin')">👨🏾‍💼 Admins</button>
+</div>
+<div id="liste-notifications" class="space-y-3"></div>
                 </div>
             </div>
         </div>
@@ -1413,7 +1477,7 @@ window.CRENEAUX_EDT = window.CRENEAUX_EDT || [
         async function afficherEquipe() {
             hideAllViews();
             document.getElementById('view-equipe').classList.remove('hidden');
-            document.getElementById('liste-staff').innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
+            document.getElementById('liste-staff').innerHTML = skeleton.lignes(4);
 
             const { data: staffs } = await supabaseClient.from('utilisateurs').select('*').eq('ecole_id', monEcoleId).eq('role', 'staff').order('sous_role').order('nom');
 
@@ -2373,7 +2437,7 @@ const JOURS_EDT = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
         async function afficherGestionEnseignants() {
             hideAllViews();
             document.getElementById('view-liste-enseignants').classList.remove('hidden');
-            document.getElementById('liste-enseignants-admin').innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
+            document.getElementById('liste-enseignants-admin').innerHTML = skeleton.lignes(5);
 
             const { data: users } = await supabaseClient.from('utilisateurs').select('id, prenom, nom, email, telephone, statut').eq('ecole_id', monEcoleId).eq('role', 'enseignant').order('nom');
 
@@ -2622,7 +2686,7 @@ const JOURS_EDT = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
         async function afficherGestionEleves() {
             hideAllViews();
             document.getElementById('view-liste-eleves').classList.remove('hidden');
-            document.getElementById('liste-eleves-admin').innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
+            document.getElementById('liste-eleves-admin').innerHTML = skeleton.lignes(6);
 
             const { data: classes } = await supabaseClient.from('classes').select('id, nom').eq('ecole_id', monEcoleId).order('nom');
             elvToutesClasses = classes || [];
@@ -2807,20 +2871,154 @@ const JOURS_EDT = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
         }
 
         // ════════════ NOTIFICATIONS ════════════
+        // ═════════════════════════════════════════════════════════════
+        //  NOTIFICATIONS — Filtre destinataire + disparition auto
+        // ═════════════════════════════════════════════════════════════
+
+        var toutesNotifsAdmin = [];
+        var filtreNotifAdminActuel = 'toutes';
+
         async function afficherNotifications() {
             hideAllViews();
             document.getElementById('view-notifications').classList.remove('hidden');
-            const { data: notifs } = await supabaseClient.from('notifications').select('*').eq('utilisateur_id', currentUser.id).order('date_creation', { ascending: false });
-            let html = '';
-            if (notifs && notifs.length > 0) {
-                notifs.forEach(n => {
-                    html += '<div class="bg-orange-50 border-l-4 border-edu-orange p-4 rounded-r-2xl mb-2"><p class="text-sm font-bold text-edu-orange">' + n.titre + '</p><p class="text-xs text-gray-600 mt-1">' + n.contenu + '</p></div>';
-                    supabaseClient.from('notifications').update({ lu: true }).eq('id', n.id);
-                });
-                chargerBadgeNotifs();
-            } else html = '<p class="text-gray-500 text-center py-4">Aucune notification.</p>';
-            document.getElementById('liste-notifications').innerHTML = html;
+            document.getElementById('liste-notifications').innerHTML = skeleton.lignes(4);
+
+            // Charger TOUTES les notifications de l'école (pas seulement les miennes)
+            var res = await supabaseClient
+                .from('notifications')
+                .select('*, utilisateurs!utilisateur_id(prenom, nom, role, sous_role)')
+                .eq('ecole_id', monEcoleId)
+                .order('date_creation', { ascending: false })
+                .limit(200);
+
+            toutesNotifsAdmin = res.data || [];
+            filtreNotifAdminActuel = 'toutes';
+            majTabsNotifAdmin();
+            afficherListeNotifsAdmin();
+            window.scrollTo(0, 0);
         }
+
+        function majTabsNotifAdmin() {
+            var tabs = document.querySelectorAll('#notif-filter-tabs .notif-filter-tab');
+            tabs.forEach(function(tab) {
+                if (tab.getAttribute('data-role') === filtreNotifAdminActuel) tab.classList.add('active');
+                else tab.classList.remove('active');
+            });
+        }
+
+        function filtrerNotifsAdmin(role) {
+            filtreNotifAdminActuel = role;
+            majTabsNotifAdmin();
+            afficherListeNotifsAdmin();
+        }
+
+        function afficherListeNotifsAdmin() {
+            var liste = toutesNotifsAdmin;
+
+            // Filtrer par rôle du destinataire
+            if (filtreNotifAdminActuel !== 'toutes') {
+                liste = liste.filter(function(n) {
+                    return n.utilisateurs && n.utilisateurs.role === filtreNotifAdminActuel;
+                });
+            }
+
+            var conteneur = document.getElementById('liste-notifications');
+
+            if (liste.length === 0) {
+                conteneur.innerHTML = '<div class="empty-state anim-up"><div class="empty-icon">🔔</div><div class="empty-title">Aucune notification</div><div class="empty-desc">Aucun message pour ce filtre</div></div>';
+                return;
+            }
+
+            // Stats
+            var nonLues = liste.filter(function(n) { return !n.lu; }).length;
+            var html = '<div class="stat-inline anim-up" style="margin-bottom: 12px;">';
+            html += '<div class="stat-mini"><div class="label">Total</div><div class="value">' + liste.length + '</div></div>';
+            html += '<div class="stat-mini"><div class="label">Non lues</div><div class="value" style="color: ' + (nonLues > 0 ? '#DC2626' : '#059669') + ';">' + nonLues + '</div></div>';
+            html += '</div>';
+
+            liste.forEach(function(n) {
+                var dest = n.utilisateurs || {};
+                var destNom = (dest.prenom || '?') + ' ' + (dest.nom || '?');
+                var destRole = dest.role || 'inconnu';
+
+                // Icône selon le type
+                var icon = '💬', couleur = '#3B82F6';
+                if (n.type === 'absence') { icon = '⚠️'; couleur = '#EF4444'; }
+                else if (n.type === 'note') { icon = '📝'; couleur = '#10B981'; }
+                else if (n.type === 'paiement') { icon = '💰'; couleur = '#F59E0B'; }
+                else if (n.type === 'annonce') { icon = '📢'; couleur = '#8B5CF6'; }
+                else if (n.type === 'devoir') { icon = '📚'; couleur = '#D97706'; }
+                else if (n.type === 'message') { icon = '💬'; couleur = '#EC4899'; }
+
+                // Badge rôle
+                var roleBadge = '';
+                var roleLabels = { parent: 'Parent', enseignant: 'Enseignant', eleve: 'Élève', admin: 'Admin', staff: 'Staff', super_admin: 'Super Admin' };
+                var roleColors = { parent: 'chip-success', enseignant: 'chip-info', eleve: 'chip-warning', admin: 'chip-danger', staff: 'chip-neutral' };
+                if (roleLabels[destRole]) {
+                    roleBadge = '<span class="chip ' + (roleColors[destRole] || 'chip-neutral') + '" style="font-size: 9px; margin-left: 6px;">' + roleLabels[destRole] + '</span>';
+                }
+
+                var dateStr = new Date(n.date_creation).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+                var luStyle = n.lu ? 'opacity: 0.55;' : '';
+
+                html += '<div class="list-row notif-card" id="notif-' + n.id + '" data-notif-id="' + n.id + '" style="--accent: ' + couleur + '; ' + luStyle + ' cursor: pointer;" onclick="lireNotifAvecDisparition(' + n.id + ', ' + (n.lu ? 'true' : 'false') + ')">';
+                html += '<div class="list-avatar" style="background: ' + couleur + '20; color: ' + couleur + '; font-size: 20px;">' + icon + '</div>';
+                html += '<div class="list-content">';
+                html += '<div style="display: flex; align-items: center; gap: 4px; margin-bottom: 2px;">';
+                html += '<div class="list-title" style="flex: 1;">' + (n.titre || 'Notification') + '</div>';
+                html += roleBadge;
+                html += '</div>';
+                html += '<div class="list-subtitle">👤 ' + destNom + ' • ' + dateStr + '</div>';
+                html += '<p style="font-size: 10px; color: #6b7280; margin: 4px 0 0 0; line-height: 1.3; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">' + (n.contenu || '') + '</p>';
+                html += '</div>';
+                if (!n.lu) {
+                    html += '<span style="width: 8px; height: 8px; border-radius: 50%; background: ' + couleur + '; flex-shrink: 0;"></span>';
+                }
+                html += '</div>';
+            });
+
+            conteneur.innerHTML = html;
+        }
+
+        async function lireNotifAvecDisparition(notifId, dejaLue) {
+            var carte = document.getElementById('notif-' + notifId);
+            if (!carte) return;
+
+            // Si déjà lue → juste un effet visuel, pas de disparition
+            if (dejaLue) {
+                carte.classList.add('notif-reading');
+                setTimeout(function() { carte.classList.remove('notif-reading'); }, 500);
+                return;
+            }
+
+            // 1. Animation de lecture
+            carte.classList.add('notif-reading');
+
+            // 2. Badge "Lu"
+            var badge = document.createElement('div');
+            badge.className = 'notif-reading-badge';
+            badge.textContent = '✓ Lu';
+            carte.appendChild(badge);
+
+            // 3. Marquer en base
+            await supabaseClient.from('notifications').update({ lu: true }).eq('id', notifId);
+
+            // 4. Mettre à jour la liste locale
+            var notif = toutesNotifsAdmin.find(function(n) { return n.id === notifId; });
+            if (notif) notif.lu = true;
+
+            // 5. Faire disparaître après 1.2s
+            setTimeout(function() {
+                carte.classList.add('notif-disappearing');
+                setTimeout(function() {
+                    carte.classList.add('notif-gone');
+                    // Recharger la liste pour recalculer les stats
+                    afficherListeNotifsAdmin();
+                    chargerBadgeNotifs();
+                }, 600);
+            }, 1200);
+        }
+
 
         // ════════════ UTILITAIRES ════════════
         function filtrerListe(inputId, containerId) {
@@ -4200,8 +4398,9 @@ const JOURS_EDT = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
                 const notesParEleve = {};
                 (notes || []).forEach(n => {
                     if (!notesParEleve[n.eleve_id]) notesParEleve[n.eleve_id] = {};
-                    if (!notesParEleve[n.eleve_id][n.matiere]) notesParEleve[n.eleve_id][n.matiere] = { devoir1: null, devoir2: null, devoir3: null, composition: null };
+                    if (!notesParEleve[n.eleve_id][n.matiere]) notesParEleve[n.eleve_id][n.matiere] = { devoir1: null, devoir2: null, devoir3: null, composition: null, coef: n.coefficient };
                     notesParEleve[n.eleve_id][n.matiere][n.type_evaluation || 'composition'] = { note: parseFloat(n.note), coef: n.coefficient };
+                    if (n.coefficient > notesParEleve[n.eleve_id][n.matiere].coef) notesParEleve[n.eleve_id][n.matiere].coef = n.coefficient;
                 });
 
                 const absParEleve = {};
@@ -4253,52 +4452,39 @@ const JOURS_EDT = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
                 const sigUrl = ecoleData && ecoleData.signature_url ? ecoleData.signature_url : null;
 
                 let htmlInterne = '';
-                htmlInterne += '<div style="padding: 40px; text-align: center; font-family: Arial, sans-serif; page-break-after: always; height: 90%; display: flex; flex-direction: column; justify-content: center; align-items: center;">';
-                htmlInterne += '<div style="font-size: 60px; margin-bottom: 20px;">📖</div>';
-                htmlInterne += '<h1 style="font-size: 28px; color: #004AAD; margin: 10px 0; letter-spacing: 2px;">EDU-LINK</h1>';
-                htmlInterne += '<p style="font-size: 14px; color: #6b7280; margin: 5px 0;">' + ecoleNom + '</p>';
-                htmlInterne += '<hr style="width: 80%; margin: 30px auto; border: none; border-top: 2px solid #004AAD;">';
-                htmlInterne += '<h2 style="font-size: 24px; color: #1f2937; margin: 20px 0;">BULLETINS DE CLASSE</h2>';
-                htmlInterne += '<p style="font-size: 32px; font-weight: bold; color: #004AAD; margin: 15px 0;">' + classe.nom + '</p>';
-                htmlInterne += '<p style="font-size: 18px; color: #1f2937; margin: 10px 0;">Semestre ' + semestre + '</p>';
-                htmlInterne += '<hr style="width: 80%; margin: 30px auto; border: none; border-top: 2px solid #004AAD;">';
-                htmlInterne += '<p style="font-size: 14px; color: #6b7280; margin: 5px 0;">' + eleves.length + ' eleve(s)</p>';
-                htmlInterne += '<p style="font-size: 12px; color: #9ca3af; margin: 5px 0;">Genere le ' + dateJour + '</p>';
+
+                // ═══════════ PAGE DE GARDE ═══════════
+                htmlInterne += '<div style="padding: 60px 40px; text-align: center; font-family: Arial, sans-serif; page-break-after: always; height: 90%; display: flex; flex-direction: column; justify-content: center; align-items: center;">';
+                htmlInterne += '<div style="font-size: 80px; margin-bottom: 24px;">📖</div>';
+                htmlInterne += '<h1 style="font-size: 38px; color: #004AAD; margin: 10px 0; letter-spacing: 5px; font-weight: 900;">EDU-LINK</h1>';
+                htmlInterne += '<p style="font-size: 16px; color: #6b7280; margin: 8px 0; font-weight: 600;">' + ecoleNom + '</p>';
+                htmlInterne += '<div style="width: 100px; height: 4px; background: linear-gradient(90deg, #004AAD, #0066CC); border-radius: 2px; margin: 30px auto;"></div>';
+                htmlInterne += '<h2 style="font-size: 26px; color: #1f2937; margin: 20px 0 10px 0; font-weight: 800;">BULLETINS DE CLASSE</h2>';
+                htmlInterne += '<p style="font-size: 40px; font-weight: 900; color: #004AAD; margin: 16px 0; letter-spacing: 2px;">' + classe.nom + '</p>';
+                htmlInterne += '<p style="font-size: 18px; color: #1f2937; margin: 10px 0; font-weight: 700;">Semestre ' + semestre + '</p>';
+                htmlInterne += '<div style="width: 100px; height: 4px; background: linear-gradient(90deg, #004AAD, #0066CC); border-radius: 2px; margin: 30px auto;"></div>';
+                htmlInterne += '<p style="font-size: 14px; color: #6b7280; margin: 8px 0; font-weight: 600;">' + eleves.length + ' élève(s)</p>';
+                htmlInterne += '<p style="font-size: 12px; color: #9ca3af; margin: 6px 0;">Généré le ' + dateJour + '</p>';
                 htmlInterne += '</div>';
 
+                // ═══════════ BULLETINS INDIVIDUELS ═══════════
                 elevesTries.forEach((eleve, idxEleve) => {
                     const matieres = notesParEleve[eleve.id] || {};
                     const stats = statsParEleve[eleve.id];
                     const rang = rangParEleve[eleve.id];
                     const moyGen = stats.moyenne;
-                    const mention = moyGen === null ? '--' : (moyGen >= 16 ? 'Felicitations' : moyGen >= 14 ? 'Tres bien' : moyGen >= 12 ? 'Bien' : moyGen >= 10 ? 'Passable' : 'Insuffisant');
+                    const mention = moyGen === null ? '—' : (moyGen >= 16 ? 'Félicitations' : moyGen >= 14 ? 'Très bien' : moyGen >= 12 ? 'Bien' : moyGen >= 10 ? 'Passable' : 'Insuffisant');
                     const mentionColor = moyGen !== null && moyGen >= 10 ? '#2EAD5E' : '#EF4444';
-                    const moyStr = moyGen !== null ? moyGen.toFixed(2) : '--';
-                    const eleveNomComplet = eleve.utilisateurs.nom.toUpperCase() + ' ' + eleve.utilisateurs.prenom;
+                    const moyStr = moyGen !== null ? moyGen.toFixed(2) : '—';
+                    const eleveNomComplet = eleve.utilisateurs.prenom + ' ' + eleve.utilisateurs.nom;
                     const isLast = idxEleve === elevesTries.length - 1;
 
-                    htmlInterne += '<div style="padding: 20px; font-family: Arial, sans-serif;' + (isLast ? '' : ' page-break-after: always;') + '">';
-                    htmlInterne += '<div style="text-align: center; border-bottom: 2px solid #004AAD; padding-bottom: 10px; margin-bottom: 12px;">';
-                    htmlInterne += '<p style="font-size: 9px; color: #6b7280; margin: 0;">' + ecoleNom + '</p>';
-                    htmlInterne += '<h2 style="font-size: 14px; color: #004AAD; margin: 4px 0;">BULLETIN - SEMESTRE ' + semestre + '</h2>';
-                    htmlInterne += '<p style="font-size: 11px; color: #1f2937; margin: 2px 0;"><b>' + eleveNomComplet + '</b></p>';
-                    htmlInterne += '<p style="font-size: 9px; color: #6b7280; margin: 2px 0;">' + (eleve.matricule || '') + ' - ' + classe.nom + '</p>';
-                    htmlInterne += '</div>';
-
+                    let lignes = '';
                     const ordreMatieres = Object.keys(matieres).sort();
-                    if (ordreMatieres.length === 0) {
-                        htmlInterne += '<p style="text-align: center; color: #6b7280; font-size: 11px; padding: 20px;">Aucune note ce semestre</p>';
-                    } else {
-                        htmlInterne += '<table style="width: 100%; border-collapse: collapse; margin-bottom: 12px;">';
-                        htmlInterne += '<thead><tr style="background: #004AAD;">';
-                        htmlInterne += '<th style="border: 1px solid #004AAD; padding: 5px 4px; font-size: 9px; color: white; text-align: left;">Matiere</th>';
-                        htmlInterne += '<th style="border: 1px solid #004AAD; padding: 5px 4px; font-size: 9px; color: white; text-align: center;">Dev1</th>';
-                        htmlInterne += '<th style="border: 1px solid #004AAD; padding: 5px 4px; font-size: 9px; color: white; text-align: center;">Dev2</th>';
-                        htmlInterne += '<th style="border: 1px solid #004AAD; padding: 5px 4px; font-size: 9px; color: white; text-align: center;">Dev3</th>';
-                        htmlInterne += '<th style="border: 1px solid #004AAD; padding: 5px 4px; font-size: 9px; color: white; text-align: center;">Comp</th>';
-                        htmlInterne += '<th style="border: 1px solid #004AAD; padding: 5px 4px; font-size: 9px; color: white; text-align: center;">Moy</th>';
-                        htmlInterne += '</tr></thead><tbody>';
 
+                    if (ordreMatieres.length === 0) {
+                        lignes = '<tr><td colspan="8" style="padding: 30px 20px; text-align: center; color: #94a3b8; font-size: 13px; font-style: italic;">Aucune note ce semestre</td></tr>';
+                    } else {
                         let ibg = 0;
                         ordreMatieres.forEach(mat => {
                             const d = matieres[mat];
@@ -4306,36 +4492,107 @@ const JOURS_EDT = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
                             ['devoir1', 'devoir2', 'devoir3', 'composition'].forEach(t => { if (d[t]) { pts += d[t].note * d[t].coef; cfs += d[t].coef; } });
                             const moyMat = cfs > 0 ? pts / cfs : 0;
                             const col = moyMat >= 10 ? '#2EAD5E' : '#EF4444';
-                            const bg = (ibg % 2 === 0) ? '#ffffff' : '#f9fafb'; ibg++;
-                            const f = (x) => x ? x.note.toFixed(2) : '--';
-                            htmlInterne += '<tr style="background:' + bg + ';">';
-                            htmlInterne += '<td style="border: 1px solid #d1d5db; padding: 4px; font-size: 10px; font-weight: 600;">' + mat + '</td>';
-                            htmlInterne += '<td style="border: 1px solid #d1d5db; padding: 4px; font-size: 9px; text-align: center;">' + f(d.devoir1) + '</td>';
-                            htmlInterne += '<td style="border: 1px solid #d1d5db; padding: 4px; font-size: 9px; text-align: center;">' + f(d.devoir2) + '</td>';
-                            htmlInterne += '<td style="border: 1px solid #d1d5db; padding: 4px; font-size: 9px; text-align: center; color: #9ca3af;">' + f(d.devoir3) + '</td>';
-                            htmlInterne += '<td style="border: 1px solid #d1d5db; padding: 4px; font-size: 9px; text-align: center;">' + f(d.composition) + '</td>';
-                            htmlInterne += '<td style="border: 1px solid #d1d5db; padding: 4px; font-size: 10px; text-align: center; font-weight: 700; color:' + col + ';">' + moyMat.toFixed(2) + '</td>';
-                            htmlInterne += '</tr>';
+                            const bgNote = moyMat >= 14 ? '#dbeafe' : (moyMat >= 10 ? '#f0fdf4' : '#fef2f2');
+                            const bg = (ibg % 2 === 0) ? '#ffffff' : '#f8fafc'; ibg++;
+
+                            let apprec = 'Insuffisant';
+                            if (moyMat >= 16) apprec = 'Excellent'; else if (moyMat >= 14) apprec = 'Très bien';
+                            else if (moyMat >= 12) apprec = 'Bien'; else if (moyMat >= 10) apprec = 'Passable';
+
+                            let badgeBg = '#fee2e2', badgeColor = '#991b1b';
+                            if (moyMat >= 10) { badgeBg = '#d1fae5'; badgeColor = '#065f46'; }
+                            if (moyMat >= 14) { badgeBg = '#dbeafe'; badgeColor = '#1e40af'; }
+
+                            const f = (x) => x ? '<span style="font-weight:700;color:' + (x.note >= 10 ? '#2EAD5E' : '#EF4444') + ';">' + x.note.toFixed(2) + '</span>' : '<span style="color:#cbd5e1;">—</span>';
+
+                            lignes += '<tr style="background:' + bg + ';border-bottom:1px solid #e2e8f0;">';
+                            lignes += '<td style="padding:12px 10px;font-size:13px;font-weight:700;color:#1e293b;border-right:1px solid #e2e8f0;">' + mat + '</td>';
+                            lignes += '<td style="padding:12px 8px;font-size:12px;font-weight:700;color:#004AAD;text-align:center;background:#f0f7ff;border-right:1px solid #e2e8f0;">×' + d.coef + '</td>';
+                            lignes += '<td style="padding:12px 8px;font-size:12px;text-align:center;color:#334155;border-right:1px solid #f1f5f9;">' + f(d.devoir1) + '</td>';
+                            lignes += '<td style="padding:12px 8px;font-size:12px;text-align:center;color:#334155;border-right:1px solid #f1f5f9;">' + f(d.devoir2) + '</td>';
+                            lignes += '<td style="padding:12px 8px;font-size:12px;text-align:center;color:#334155;border-right:1px solid #f1f5f9;">' + f(d.devoir3) + '</td>';
+                            lignes += '<td style="padding:12px 8px;font-size:12px;text-align:center;color:#334155;border-right:1px solid #f1f5f9;">' + f(d.composition) + '</td>';
+                            lignes += '<td style="padding:12px 8px;font-size:14px;font-weight:800;text-align:center;color:' + col + ';background:' + bgNote + ';border-right:1px solid #e2e8f0;">' + moyMat.toFixed(2) + '</td>';
+                            lignes += '<td style="padding:12px 8px;text-align:center;"><span style="display:inline-block;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:800;background:' + badgeBg + ';color:' + badgeColor + ';white-space:nowrap;">' + apprec + '</span></td>';
+                            lignes += '</tr>';
                         });
-                        htmlInterne += '</tbody></table>';
                     }
 
-                    htmlInterne += '<table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">';
-                    htmlInterne += '<tr>';
-                    htmlInterne += '<td style="border: 2px solid #004AAD; padding: 8px; text-align: center; background: #f0f7ff; width: 40%;"><p style="font-size: 8px; color: #004AAD; margin: 0;">MOYENNE</p><p style="font-size: 18px; font-weight: bold; color: ' + mentionColor + '; margin: 2px 0 0 0;">' + moyStr + '/20</p></td>';
-                    htmlInterne += '<td style="border: 2px solid #004AAD; padding: 8px; text-align: center; background: #f0f7ff; width: 20%;"><p style="font-size: 8px; color: #004AAD; margin: 0;">RANG</p><p style="font-size: 14px; font-weight: bold; color: #1f2937; margin: 2px 0 0 0;">' + (rang || '--') + '/' + avecMoy.length + '</p></td>';
-                    htmlInterne += '<td style="border: 2px solid #004AAD; padding: 8px; text-align: center; background: #f0f7ff; width: 20%;"><p style="font-size: 8px; color: #004AAD; margin: 0;">ABSENCES</p><p style="font-size: 14px; font-weight: bold; color: ' + (stats.absences.total > 0 ? '#EF4444' : '#2EAD5E') + '; margin: 2px 0 0 0;">' + stats.absences.total + '</p></td>';
-                    htmlInterne += '<td style="border: 2px solid #004AAD; padding: 8px; text-align: center; background: #f0f7ff; width: 20%;"><p style="font-size: 8px; color: #004AAD; margin: 0;">MENTION</p><p style="font-size: 10px; font-weight: bold; color: ' + mentionColor + '; margin: 2px 0 0 0;">' + mention + '</p></td>';
-                    htmlInterne += '</tr></table>';
+                    let blocSignature = '';
+                    if (sigUrl) {
+                        blocSignature = '<td style="width:50%;text-align:right;padding:12px;"><p style="font-size:11px;color:#6b7280;margin:0 0 4px 0;">Le Directeur</p><img src="' + sigUrl + '" style="max-height:55px;max-width:160px;"></td>';
+                    } else {
+                        blocSignature = '<td style="width:50%;text-align:right;padding:12px;"><p style="font-size:11px;color:#6b7280;margin:0;">Le Directeur</p><div style="height:50px;"></div></td>';
+                    }
 
-                    htmlInterne += '<table style="width: 100%; margin-top: 30px;">';
-                    htmlInterne += '<tr>';
-                    htmlInterne += '<td style="width: 50%; text-align: left;"><p style="font-size: 9px; color: #6b7280; margin: 0;">Fait le ' + dateAffichee + '</p></td>';
-                    htmlInterne += '<td style="width: 50%; text-align: right;">';
-                    htmlInterne += '<p style="font-size: 9px; color: #6b7280; margin: 0;">Le Directeur</p>';
-                    if (sigUrl) htmlInterne += '<img src="' + sigUrl + '" style="max-height: 45px; max-width: 150px; margin-top: 4px;">';
-                    htmlInterne += '</td></tr></table>';
+                    htmlInterne += '<div style="padding: 24px; font-family: Arial, sans-serif;' + (isLast ? '' : ' page-break-after: always;') + '">';
+                    htmlInterne += '<div style="background: white; padding: 28px 24px; border-radius: 16px; border: 3px solid #004AAD; box-shadow: 0 4px 20px rgba(0, 74, 173, 0.1);">';
 
+                    // Header
+                    htmlInterne += '<div style="text-align: center; padding-bottom: 18px; margin-bottom: 22px; border-bottom: 3px double #004AAD;">';
+                    htmlInterne += '<div style="font-size: 42px; line-height: 1; margin-bottom: 6px;">📖</div>';
+                    htmlInterne += '<h1 style="font-size: 24px; font-weight: 900; color: #004AAD; margin: 0; letter-spacing: 3px;">EDU-LINK</h1>';
+                    htmlInterne += '<p style="font-size: 13px; color: #64748b; margin: 6px 0 0 0; font-weight: 600;">' + ecoleNom + '</p>';
+                    htmlInterne += '<div style="display: inline-block; margin-top: 14px; padding: 8px 24px; background: linear-gradient(135deg, #004AAD, #0066CC); color: white; border-radius: 8px;">';
+                    htmlInterne += '<p style="font-size: 14px; font-weight: 800; margin: 0; letter-spacing: 1px;">BULLETIN SCOLAIRE</p>';
+                    htmlInterne += '<p style="font-size: 11px; margin: 2px 0 0 0; opacity: 0.9;">Semestre ' + semestre + ' • Année 2024-2025</p>';
+                    htmlInterne += '</div></div>';
+
+                    // Info élève
+                    htmlInterne += '<table style="width: 100%; border-collapse: collapse; margin-bottom: 22px; background: #f0f7ff; border-radius: 12px; overflow: hidden;">';
+                    htmlInterne += '<tr>';
+                    htmlInterne += '<td style="padding: 14px 16px; width: 55%;">';
+                    htmlInterne += '<p style="font-size: 11px; color: #64748b; margin: 0 0 2px 0; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Élève</p>';
+                    htmlInterne += '<p style="font-size: 16px; font-weight: 800; color: #1e293b; margin: 0;">' + eleveNomComplet + '</p>';
+                    htmlInterne += '<p style="font-size: 11px; color: #475569; margin: 6px 0 0 0;"><b style="color: #004AAD;">Matricule :</b> ' + (eleve.matricule || '') + '</p>';
+                    htmlInterne += '</td>';
+                    htmlInterne += '<td style="padding: 14px 16px; width: 45%; border-left: 2px solid #cbd5e1;">';
+                    htmlInterne += '<p style="font-size: 11px; color: #64748b; margin: 0 0 2px 0; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Classe</p>';
+                    htmlInterne += '<p style="font-size: 16px; font-weight: 800; color: #004AAD; margin: 0;">' + classe.nom + '</p>';
+                    htmlInterne += '<p style="font-size: 11px; color: #475569; margin: 6px 0 0 0;">Rang : <b>' + (rang || '—') + '</b> / ' + avecMoy.length + '</p>';
+                    htmlInterne += '</td>';
+                    htmlInterne += '</tr>';
+                    htmlInterne += '</table>';
+
+                    // Tableau
+                    htmlInterne += '<table style="width: 100%; border-collapse: collapse; margin-bottom: 22px; border: 2px solid #cbd5e1; border-radius: 10px; overflow: hidden;">';
+                    htmlInterne += '<thead>';
+                    htmlInterne += '<tr style="background: linear-gradient(135deg, #004AAD, #0066CC);">';
+                    htmlInterne += '<th style="padding: 14px 10px; font-size: 12px; color: white; text-align: left; font-weight: 800; letter-spacing: 0.5px; border-right: 1px solid rgba(255,255,255,0.2);">MATIÈRE</th>';
+                    htmlInterne += '<th style="padding: 14px 8px; font-size: 12px; color: white; text-align: center; font-weight: 800; background: rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.2); width: 55px;">COEF</th>';
+                    htmlInterne += '<th style="padding: 14px 8px; font-size: 12px; color: white; text-align: center; font-weight: 800; border-right: 1px solid rgba(255,255,255,0.2); width: 60px;">DEV 1</th>';
+                    htmlInterne += '<th style="padding: 14px 8px; font-size: 12px; color: white; text-align: center; font-weight: 800; border-right: 1px solid rgba(255,255,255,0.2); width: 60px;">DEV 2</th>';
+                    htmlInterne += '<th style="padding: 14px 8px; font-size: 12px; color: white; text-align: center; font-weight: 800; border-right: 1px solid rgba(255,255,255,0.2); width: 60px;">DEV 3</th>';
+                    htmlInterne += '<th style="padding: 14px 8px; font-size: 12px; color: white; text-align: center; font-weight: 800; border-right: 1px solid rgba(255,255,255,0.2); width: 60px;">COMP</th>';
+                    htmlInterne += '<th style="padding: 14px 8px; font-size: 12px; color: white; text-align: center; font-weight: 800; border-right: 1px solid rgba(255,255,255,0.2); width: 70px; background: rgba(255,255,255,0.15);">MOY</th>';
+                    htmlInterne += '<th style="padding: 14px 8px; font-size: 12px; color: white; text-align: center; font-weight: 800; width: 90px;">APPRÉC.</th>';
+                    htmlInterne += '</tr>';
+                    htmlInterne += '</thead>';
+                    htmlInterne += '<tbody>' + lignes + '</tbody>';
+                    htmlInterne += '</table>';
+
+                    // Moyenne générale
+                    htmlInterne += '<div style="background: linear-gradient(135deg, ' + (moyGen !== null && moyGen >= 10 ? '#d1fae5, #a7f3d0' : '#fee2e2, #fecaca') + '); border: 3px solid ' + mentionColor + '; padding: 20px; border-radius: 14px; text-align: center; margin-bottom: 22px;">';
+                    htmlInterne += '<p style="font-size: 11px; color: ' + mentionColor + '; margin: 0 0 6px 0; text-transform: uppercase; letter-spacing: 2px; font-weight: 800;">Moyenne Générale</p>';
+                    htmlInterne += '<p style="font-size: 44px; font-weight: 900; color: ' + mentionColor + '; margin: 0; line-height: 1;">' + moyStr + '<span style="font-size: 22px; opacity: 0.6;">/20</span></p>';
+                    htmlInterne += '<div style="display: inline-block; margin-top: 10px; padding: 6px 20px; background: ' + mentionColor + '; color: white; border-radius: 20px;">';
+                    htmlInterne += '<span style="font-size: 13px; font-weight: 800; letter-spacing: 1px;">' + mention.toUpperCase() + '</span>';
+                    htmlInterne += '</div>';
+                    htmlInterne += '</div>';
+
+                    // Signatures
+                    htmlInterne += '<table style="width: 100%; border-top: 2px solid #e2e8f0; padding-top: 16px;">';
+                    htmlInterne += '<tr>';
+                    htmlInterne += '<td style="width: 50%; text-align: left; padding: 12px;">';
+                    htmlInterne += '<p style="font-size: 11px; color: #64748b; margin: 0;">Fait le</p>';
+                    htmlInterne += '<p style="font-size: 12px; font-weight: 700; color: #1e293b; margin: 2px 0 0 0;">' + dateAffichee + '</p>';
+                    htmlInterne += '</td>';
+                    htmlInterne += blocSignature;
+                    htmlInterne += '</tr>';
+                    htmlInterne += '</table>';
+
+                    htmlInterne += '<p style="text-align: center; font-size: 9px; color: #94a3b8; margin: 20px 0 0 0; padding-top: 12px; border-top: 1px dashed #cbd5e1;">Document généré par EDU-LINK — Ne pas modifier</p>';
+                    htmlInterne += '</div>';
                     htmlInterne += '</div>';
                 });
 
@@ -4346,7 +4603,7 @@ const JOURS_EDT = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
                 doc.open();
                 doc.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><style>@page { margin: 0; } body { margin: 0; padding: 0; background: #ffffff; font-family: Arial, sans-serif; }</style></head><body>' + htmlInterne + '</body></html>');
                 doc.close();
-                await new Promise(r => setTimeout(r, 600));
+                await new Promise(r => setTimeout(r, 800));
 
                 const nomFichier = 'Bulletins_' + classe.nom.replace(/\s+/g, '_') + '_S' + semestre + '_' + dateAffichee.replace(/\//g, '-') + '.pdf';
                 const options = {
@@ -4388,7 +4645,7 @@ const JOURS_EDT = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
         async function afficherPaiementsV2() {
             hideAllViews();
             document.getElementById('view-paiements-v2').classList.remove('hidden');
-            document.getElementById('pv2-liste').innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
+            document.getElementById('pv2-liste').innerHTML = skeleton.lignes(6);
             document.getElementById('pv2-stats').innerHTML = '';
             await pv2ChargerDonnees();
             pv2RemplirSelectClasses();
@@ -5631,12 +5888,233 @@ CRENEAUX_APERCU.forEach((cr, idx) => {
                 btn.disabled = false; btn.innerText = '🤖 Demander à l\'IA';
             }
         }
+// ═════════════════════════════════════════════════════════════
+        //  DASHBOARD GRAPHIQUE
+        // ═════════════════════════════════════════════════════════════
+
+        var dashPeriode = 'semaine';
+
+        function afficherDashboard() {
+            hideAllViews();
+            document.getElementById('view-dashboard').classList.remove('hidden');
+            dashChargerPeriode(dashPeriode);
+            window.scrollTo(0, 0);
+        }
+
+        function dashChargerPeriode(periode) {
+            dashPeriode = periode;
+            ['semaine', 'mois', 'trimestre'].forEach(function(p) {
+                var tab = document.getElementById('dash-tab-' + p);
+                if (!tab) return;
+                if (p === periode) tab.classList.add('active');
+                else tab.classList.remove('active');
+            });
+
+            // Afficher skeletons pendant le chargement
+            document.getElementById('dash-kpis').innerHTML = skeleton.stats(4);
+            document.getElementById('dash-cercle-contenu').innerHTML = skeleton.cartes(1);
+            document.getElementById('dash-graph-presence').innerHTML = skeleton.lignes(4);
+            document.getElementById('dash-graph-notes').innerHTML = skeleton.lignes(4);
+            document.getElementById('dash-graph-absences').innerHTML = skeleton.lignes(4);
+            document.getElementById('dash-graph-profs').innerHTML = skeleton.lignes(4);
+
+            dashChargerStats();
+            dashChargerCercle();
+            dashChargerPresence();
+            dashChargerNotes();
+            dashChargerAbsences();
+            dashChargerProfs();
+        }
+
+        function dashCalculerDates(periode) {
+            var now = new Date();
+            var y = now.getFullYear(), m = now.getMonth(), d = now.getDate();
+            var pad = function(n) { return String(n).padStart(2, '0'); };
+            var fmt = function(dt) { return dt.getFullYear() + '-' + pad(dt.getMonth() + 1) + '-' + pad(dt.getDate()); };
+            var debut, fin;
+            if (periode === 'semaine') {
+                var d1 = new Date(now); d1.setDate(d - 6);
+                debut = fmt(d1); fin = fmt(now);
+            } else if (periode === 'mois') {
+                var d2 = new Date(now); d2.setDate(d - 29);
+                debut = fmt(d2); fin = fmt(now);
+            } else {
+                debut = fmt(new Date(y, m - 2, 1)); fin = fmt(now);
+            }
+            return { debut: debut, fin: fin };
+        }
+
+        async function dashChargerStats() {
+            var resE = await supabaseClient.from('eleves').select('*', { count: 'exact', head: true }).eq('ecole_id', monEcoleId);
+            var resC = await supabaseClient.from('classes').select('*', { count: 'exact', head: true }).eq('ecole_id', monEcoleId);
+            var resP = await supabaseClient.from('utilisateurs').select('*', { count: 'exact', head: true }).eq('ecole_id', monEcoleId).eq('role', 'enseignant');
+            var resA = await supabaseClient.from('utilisateurs').select('*', { count: 'exact', head: true }).eq('ecole_id', monEcoleId).eq('role', 'admin');
+
+            var html = '';
+            html += '<div class="kpi-card"><div class="kpi-icon">🎓</div><div class="kpi-label">Élèves</div><div class="kpi-value">' + (resE.count || 0) + '</div><div class="kpi-trend up">▲ Actif</div></div>';
+            html += '<div class="kpi-card"><div class="kpi-icon">🏫</div><div class="kpi-label">Classes</div><div class="kpi-value">' + (resC.count || 0) + '</div><div class="kpi-trend neutral">Organisées</div></div>';
+            html += '<div class="kpi-card"><div class="kpi-icon">👨🏾‍🏫</div><div class="kpi-label">Enseignants</div><div class="kpi-value">' + (resP.count || 0) + '</div><div class="kpi-trend up">Actifs</div></div>';
+            html += '<div class="kpi-card"><div class="kpi-icon">👨🏾‍💼</div><div class="kpi-label">Admins</div><div class="kpi-value">' + (resA.count || 0) + '</div><div class="kpi-trend neutral">Direction</div></div>';
+            document.getElementById('dash-kpis').innerHTML = html;
+        }
+
+        async function dashChargerCercle() {
+            var resEl = await supabaseClient.from('eleves').select('id').eq('ecole_id', monEcoleId);
+            var eleves = resEl.data || [];
+            var eleveIds = eleves.map(function(e) { return e.id; });
+
+            if (eleveIds.length === 0) {
+                document.getElementById('dash-cercle-contenu').innerHTML = '<div class="empty-state" style="padding: 20px;"><div class="empty-icon" style="font-size: 32px;">💰</div><div class="empty-title">Aucun élève</div></div>';
+                return;
+            }
+
+            var resPay = await supabaseClient.from('paiements').select('montant, statut').in('eleve_id', eleveIds).eq('statut', 'paye');
+            var totalPaye = (resPay.data || []).reduce(function(s, p) { return s + parseFloat(p.montant || 0); }, 0);
+
+            var resClasses = await supabaseClient.from('classes').select('id, frais_scolarite').eq('ecole_id', monEcoleId);
+            var totalAttendu = 0;
+            var mapFrais = {};
+            (resClasses.data || []).forEach(function(c) {
+                mapFrais[c.id] = parseFloat(c.frais_scolarite || 0);
+            });
+            eleves.forEach(function() {
+                var fraisMoyen = 0;
+                var classesIds = Object.keys(mapFrais);
+                if (classesIds.length > 0) {
+                    var somme = 0;
+                    classesIds.forEach(function(id) { somme += mapFrais[id]; });
+                    fraisMoyen = somme / classesIds.length;
+                }
+                totalAttendu += fraisMoyen;
+            });
+
+            var pct = totalAttendu > 0 ? Math.round((totalPaye / totalAttendu) * 100) : 0;
+            var couleur = charts.couleurPct(pct);
+
+            var html = '';
+            html += charts.cercle(pct, couleur, pct, '%');
+            html += '<div style="margin-top: 12px; font-size: 11px; color: #6b7280; line-height: 1.6;">';
+            html += '<p style="margin: 0;"><b style="color: #059669;">' + totalPaye.toLocaleString('fr-FR') + ' FCFA</b> encaissés</p>';
+            html += '<p style="margin: 4px 0 0 0;">sur <b>' + totalAttendu.toLocaleString('fr-FR') + ' FCFA</b> attendus</p>';
+            html += '</div>';
+            document.getElementById('dash-cercle-contenu').innerHTML = html;
+        }
+
+        async function dashChargerPresence() {
+            var dates = dashCalculerDates(dashPeriode);
+            var res = await supabaseClient.from('absences').select('date_absence').eq('ecole_id', monEcoleId).gte('date_absence', dates.debut).lte('date_absence', dates.fin);
+
+            var parJour = {};
+            (res.data || []).forEach(function(a) {
+                parJour[a.date_absence] = (parJour[a.date_absence] || 0) + 1;
+            });
+
+            var maintenant = new Date();
+            var nbJours = dashPeriode === 'semaine' ? 7 : (dashPeriode === 'mois' ? 30 : 90);
+            var data = [];
+            for (var i = nbJours - 1; i >= 0; i--) {
+                var dt = new Date(maintenant); dt.setDate(dt.getDate() - i);
+                var key = dt.toISOString().split('T')[0];
+                var label = dt.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+                var abs = parJour[key] || 0;
+                var couleur = abs === 0 ? '#10B981' : (abs <= 3 ? '#F59E0B' : '#EF4444');
+                data.push({ label: label, valeur: abs, couleur: couleur });
+            }
+            document.getElementById('dash-graph-presence').innerHTML = charts.barres(data, { suffixe: '' });
+        }
+
+        async function dashChargerNotes() {
+            var resC = await supabaseClient.from('classes').select('id, nom').eq('ecole_id', monEcoleId).order('nom');
+            var classes = resC.data || [];
+            if (classes.length === 0) {
+                document.getElementById('dash-graph-notes').innerHTML = '<div class="empty-state" style="padding: 20px;"><div class="empty-icon" style="font-size: 32px;">📚</div><div class="empty-title">Aucune classe</div></div>';
+                return;
+            }
+
+            var data = [];
+            for (var i = 0; i < classes.length; i++) {
+                var c = classes[i];
+                var resEl = await supabaseClient.from('eleves').select('id').eq('classe_id', c.id);
+                var eleveIds = (resEl.data || []).map(function(e) { return e.id; });
+                if (eleveIds.length === 0) {
+                    data.push({ label: c.nom, valeur: 0, couleur: '#9ca3af' });
+                    continue;
+                }
+                var resN = await supabaseClient.from('notes').select('note, coefficient').in('eleve_id', eleveIds);
+                var notes = resN.data || [];
+                var points = 0, coefs = 0;
+                notes.forEach(function(n) {
+                    points += parseFloat(n.note) * (n.coefficient || 1);
+                    coefs += (n.coefficient || 1);
+                });
+                var moy = coefs > 0 ? (points / coefs) : 0;
+                data.push({ label: c.nom, valeur: parseFloat(moy.toFixed(2)), couleur: charts.couleurNote(moy) });
+            }
+            data.sort(function(a, b) { return b.valeur - a.valeur; });
+            document.getElementById('dash-graph-notes').innerHTML = charts.barres(data, { max: 20, suffixe: '' });
+        }
+
+        async function dashChargerAbsences() {
+            var dates = dashCalculerDates(dashPeriode);
+            var resC = await supabaseClient.from('classes').select('id, nom').eq('ecole_id', monEcoleId).order('nom');
+            var classes = resC.data || [];
+            if (classes.length === 0) {
+                document.getElementById('dash-graph-absences').innerHTML = '<div class="empty-state" style="padding: 20px;"><div class="empty-icon" style="font-size: 32px;">🚫</div><div class="empty-title">Aucune classe</div></div>';
+                return;
+            }
+
+            var data = [];
+            for (var i = 0; i < classes.length; i++) {
+                var c = classes[i];
+                var resEl = await supabaseClient.from('eleves').select('id').eq('classe_id', c.id);
+                var eleveIds = (resEl.data || []).map(function(e) { return e.id; });
+                if (eleveIds.length === 0) { data.push({ label: c.nom, valeur: 0, couleur: '#9ca3af' }); continue; }
+                var resAb = await supabaseClient.from('absences').select('*', { count: 'exact', head: true }).in('eleve_id', eleveIds).gte('date_absence', dates.debut).lte('date_absence', dates.fin);
+                var nb = resAb.count || 0;
+                var couleur = nb === 0 ? '#10B981' : (nb <= 5 ? '#F59E0B' : '#EF4444');
+                data.push({ label: c.nom, valeur: nb, couleur: couleur });
+            }
+            data.sort(function(a, b) { return b.valeur - a.valeur; });
+            document.getElementById('dash-graph-absences').innerHTML = charts.barres(data);
+        }
+
+        async function dashChargerProfs() {
+            var dates = dashCalculerDates(dashPeriode);
+            var res = await supabaseClient.from('pointages').select('enseignant_id, duree_minutes, enseignants(utilisateurs!utilisateur_id(prenom, nom))').eq('ecole_id', monEcoleId).gte('date_pointage', dates.debut).lte('date_pointage', dates.fin);
+
+            var parProf = {};
+            (res.data || []).forEach(function(p) {
+                var id = p.enseignant_id;
+                if (!parProf[id]) parProf[id] = { total: 0, nom: '?' };
+                var u = p.enseignants && p.enseignants.utilisateurs;
+                parProf[id].nom = u ? u.prenom + ' ' + u.nom : 'Prof #' + id;
+                parProf[id].total += p.duree_minutes || 0;
+            });
+
+            var liste = Object.values(parProf).sort(function(a, b) { return b.total - a.total; }).slice(0, 5);
+
+            if (liste.length === 0) {
+                document.getElementById('dash-graph-profs').innerHTML = '<div class="empty-state" style="padding: 20px;"><div class="empty-icon" style="font-size: 32px;">🏆</div><div class="empty-title">Aucun pointage</div><div class="empty-desc">Aucun cours pointé sur cette période</div></div>';
+                return;
+            }
+
+            var data = liste.map(function(p, idx) {
+                return {
+                    label: p.nom.length > 10 ? p.nom.substring(0, 10) + '…' : p.nom,
+                    valeur: parseFloat((p.total / 60).toFixed(1)),
+                    couleur: idx === 0 ? '#004AAD' : (idx < 3 ? '#2EAD5E' : '#6b7280')
+                };
+            });
+            document.getElementById('dash-graph-profs').innerHTML = charts.barres(data, { suffixe: 'h' });
+        }
 
         function seDeconnecter() { sessionStorage.removeItem('eduLinkUser'); window.location.href = 'index.html'; }
     </script>
 <script src="ripple.js"></script>
 <script src="toast.js"></script>
 <script src="confirm.js"></script>
+<script src="skeleton.js"></script>
+<script src="charts.js"></script>
 </body>
 </body>
 </html>

@@ -70,7 +70,7 @@
 
             <div class="flex-1 overflow-y-auto -mt-4 pt-6 px-4 pb-6">
 
-                <!-- ═══════════════ ACCUEIL PRO ═══════════════ -->
+                <!-- ACCUEIL -->
                 <div id="view-accueil" class="hidden">
                     <button onclick="activerNotificationsPush(supabaseClient, currentUser)" id="btn-push" class="btn-float anim-up" style="background: linear-gradient(135deg, #F59E0B, #EA580C); margin-bottom: 14px;">
                         <div class="btn-icon">🔔</div>
@@ -157,6 +157,11 @@
                             <div class="tile-label">Annonces</div>
                             <div class="tile-sub">École</div>
                         </div>
+                        <div class="action-tile anim-up delay-4" onclick="afficherStatsEleve()">
+                            <div class="tile-icon" style="background: linear-gradient(135deg, #d1fae5, #a7f3d0); color: #059669;">📊</div>
+                            <div class="tile-label">Mes stats</div>
+                            <div class="tile-sub">Progression</div>
+                        </div>
                     </div>
 
                     <div class="divider anim-up delay-5">Mes apprentissages</div>
@@ -199,7 +204,7 @@
                     </button>
                 </div>
 
-                <!-- ═══════════════ DEVOIRS (version originale) ═══════════════ -->
+                <!-- DEVOIRS -->
                 <div id="view-devoirs" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-2">📚 Mes devoirs</h1>
@@ -212,7 +217,7 @@
                     <div id="liste-devoirs-eleve" class="space-y-3"></div>
                 </div>
 
-                <!-- ═══════════════ BADGES ═══════════════ -->
+                <!-- BADGES -->
                 <div id="view-badges" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-2">🏆 Mes récompenses</h1>
@@ -224,7 +229,64 @@
                     <div id="liste-badges" class="space-y-3"></div>
                 </div>
 
-                <!-- ═══════════════ BULLETIN ═══════════════ -->
+                <!-- 📊 STATISTIQUES ÉLÈVE -->
+                <div id="view-stats-eleve" class="hidden fade-in">
+                    <div class="section-header anim-up">
+                        <button onclick="retourAccueil()" class="back-btn">⬅️</button>
+                        <div>
+                            <h1 class="section-title">📊 Mes statistiques</h1>
+                            <p class="section-sub">Ma progression personnelle</p>
+                        </div>
+                    </div>
+
+                    <div id="stats-cercle-principal" class="hero-stat anim-up delay-1" style="--from: #004AAD; --to: #1E40AF; margin-bottom: 14px; text-align: center;">
+                        <div class="hero-stat-label" style="margin-bottom: 12px;">🎯 Ma moyenne actuelle</div>
+                        <div id="stats-cercle-moyenne" style="position: relative; z-index: 2;"></div>
+                        <p id="stats-objectif-txt" class="hero-stat-sub" style="margin-top: 10px; position: relative; z-index: 2;">...</p>
+                    </div>
+
+                    <div class="card-pro anim-up delay-2" style="margin-bottom: 14px;">
+                        <div class="card-title">
+                            <div class="icon-badge" style="background: linear-gradient(135deg, #ede9fe, #ddd6fe); color: #7C3AED;">⚖️</div>
+                            <span>Comparaison semestres</span>
+                        </div>
+                        <div id="stats-comparaison" style="display: flex; justify-content: space-around; align-items: center; gap: 10px;"></div>
+                    </div>
+
+                    <div class="card-pro anim-up delay-3" style="margin-bottom: 14px;">
+                        <div class="card-title">
+                            <div class="icon-badge" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #004AAD;">📚</div>
+                            <span>Moyennes par matière</span>
+                        </div>
+                        <div id="stats-graph-matieres"></div>
+                    </div>
+
+                    <div class="card-pro anim-up delay-4" style="margin-bottom: 14px;">
+                        <div class="card-title">
+                            <div class="icon-badge" style="background: linear-gradient(135deg, #fef3c7, #fde68a); color: #D97706;">🏆</div>
+                            <span>Points forts et à améliorer</span>
+                        </div>
+                        <div id="stats-top-flop"></div>
+                    </div>
+
+                    <div class="card-pro anim-up delay-5" style="margin-bottom: 14px;">
+                        <div class="card-title">
+                            <div class="icon-badge" style="background: linear-gradient(135deg, #fee2e2, #fecaca); color: #DC2626;">🚫</div>
+                            <span>Absences par matière</span>
+                        </div>
+                        <div id="stats-graph-absences"></div>
+                    </div>
+
+                    <div class="card-pro anim-up delay-6">
+                        <div class="card-title">
+                            <div class="icon-badge" style="background: linear-gradient(135deg, #cffafe, #a5f3fc); color: #0891B2;">📈</div>
+                            <span>Chiffres clés</span>
+                        </div>
+                        <div id="stats-chiffres" class="stat-inline"></div>
+                    </div>
+                </div>
+
+                <!-- BULLETIN -->
                 <div id="view-bulletin" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-3">📄 Mon bulletin</h1>
@@ -235,7 +297,7 @@
                     <div id="contenu-bulletin"></div>
                 </div>
 
-                <!-- ═══════════════ ABSENCES (version originale) ═══════════════ -->
+                <!-- ABSENCES -->
                 <div id="view-absences" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-3">🚫 Mes absences</h1>
@@ -247,7 +309,7 @@
                     <div id="liste-absences" class="space-y-3"></div>
                 </div>
 
-                <!-- ═══════════════ EMPLOI ═══════════════ -->
+                <!-- EMPLOI -->
                 <div id="view-emploi" class="hidden fade-in">
                     <div class="flex items-center gap-3 mb-3">
                         <button onclick="retourAccueil()" class="text-2xl">⬅️</button>
@@ -259,7 +321,7 @@
                     <div class="overflow-x-auto pb-2"><div id="tableau-emploi-eleve" class="min-w-[700px]"></div></div>
                 </div>
 
-                <!-- ═══════════════ ANNONCES ═══════════════ -->
+                <!-- ANNONCES -->
                 <div id="view-annonces" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-3">📢 Annonces de l'ecole</h1>
@@ -271,7 +333,7 @@
                     <div id="contenu-affiche"></div>
                 </div>
 
-                <!-- ═══════════════ RESSOURCES ═══════════════ -->
+                <!-- RESSOURCES -->
                 <div id="view-ressources-eleve" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-2">📚 Mes ressources</h1>
@@ -292,7 +354,7 @@
                     <div id="reselv-detail-contenu"></div>
                 </div>
 
-                <!-- ═══════════════ NOTIFICATIONS ═══════════════ -->
+                <!-- NOTIFICATIONS -->
                 <div id="view-notifications" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-3">🔔 Mes notifications</h1>
@@ -309,8 +371,12 @@
     <script src="badges.js"></script>
     <script src="push.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <script>
+    <script src="ripple.js"></script>
+    <script src="toast.js"></script>
+    <script src="confirm.js"></script>
+    <script src="skeleton.js"></script>
+    <script src="charts.js"></script>
+<script>
         // ════════════ CONSTANTES EDT ════════════
         var JOURS_EDT = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
         var CRENEAUX_EDT = [
@@ -342,7 +408,7 @@
             return j[new Date().getDay()];
         }
 
-        // ════════════ AUTH + XSS ════════════
+        // ════════════ AUTH ════════════
         var AUTH_SALT = 'EDU-LINK::v1::S3n3g4l::2024';
         var AUTH_ITERATIONS = 100000;
         var AUTH_PREFIX = 'pbkdf2$';
@@ -371,7 +437,6 @@
             var ecoleNomSec = echapperHtml(ecoleNom || '');
             var datePub = new Date(a.date_publication).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
             var blocLogo = '<div style="font-size:40px;margin-bottom:5px;">📖</div>';
-            var blocSignatureImg = '';
             var blocSignatureTxt = signatureTxt ? '<p style="font-size:13px;font-weight:bold;color:#004AAD;margin:5px 0 0 0;">' + signatureTxt + '</p>' : '';
             return '<div style="background:white;border:3px solid #004AAD;border-radius:15px;overflow:hidden;font-family:Arial,sans-serif;">'
                 + '<div style="background:linear-gradient(135deg,#004AAD 0%,#0066CC 100%);padding:20px 15px;text-align:center;">'
@@ -384,7 +449,7 @@
                 + '<p style="font-size:13px;color:#1f2937;line-height:1.8;margin:0;white-space:pre-wrap;text-align:justify;">' + contenu + '</p></div>'
                 + '<div style="text-align:right;margin-top:25px;padding-top:15px;border-top:1px solid #e5e7eb;">'
                 + '<p style="font-size:11px;color:#6b7280;margin:0;">Publiee le ' + datePub + '</p>'
-                + blocSignatureImg + blocSignatureTxt + '</div></div>'
+                + blocSignatureTxt + '</div></div>'
                 + '<div style="background:#004AAD;padding:8px;text-align:center;"><p style="color:white;font-size:9px;margin:0;">Document officiel - EDU-LINK</p></div></div>';
         }
 
@@ -472,7 +537,7 @@
         async function afficherMesBadges() {
             hideAllViews();
             document.getElementById('view-badges').classList.remove('hidden');
-            document.getElementById('liste-badges').innerHTML = '<p class="text-gray-500 text-center py-6">Chargement...</p>';
+            document.getElementById('liste-badges').innerHTML = skeleton.cartes(4);
             badgesActuels = await calculerBadgesEleve(supabaseClient, monEleveId, monClasseId, trimestreBadges);
             afficherVueBadges('liste-badges', badgesActuels, trimestreBadges);
             majTabsBadges();
@@ -481,7 +546,7 @@
 
         async function changerTrimestreBadges(t) {
             trimestreBadges = t;
-            document.getElementById('liste-badges').innerHTML = '<p class="text-gray-500 text-center py-6">Chargement...</p>';
+            document.getElementById('liste-badges').innerHTML = skeleton.cartes(4);
             badgesActuels = await calculerBadgesEleve(supabaseClient, monEleveId, monClasseId, trimestreBadges);
             afficherVueBadges('liste-badges', badgesActuels, trimestreBadges);
             majTabsBadges();
@@ -564,6 +629,7 @@
             hideAllViews();
             document.getElementById('view-devoirs').classList.remove('hidden');
             if (!monClasseId || !monEleveId) { document.getElementById('liste-devoirs-eleve').innerHTML = '<p class="text-gray-500 text-center py-4">Aucune classe associée.</p>'; return; }
+            document.getElementById('liste-devoirs-eleve').innerHTML = skeleton.devoirs(3);
             var resD = await supabaseClient.from('devoirs').select('*').eq('classe_id', monClasseId).order('date_creation', { ascending: false });
             tousDevoirs = resD.data || [];
             var resF = await supabaseClient.from('devoirs_faits').select('devoir_id').eq('eleve_id', monEleveId);
@@ -625,13 +691,13 @@
 
         async function marquerFait(devoirId) {
             var res = await supabaseClient.from('devoirs_faits').insert([{ devoir_id: devoirId, eleve_id: monEleveId }]);
-            if (res.error) { alert("Erreur : " + res.error.message); return; }
+            if (res.error) { toast.error(res.error.message); return; }
             mesDevoirsFaits.push(devoirId); afficherListeDevoirs(); chargerBadgeDevoirs();
         }
 
         async function marquerNonFait(devoirId) {
             var res = await supabaseClient.from('devoirs_faits').delete().eq('devoir_id', devoirId).eq('eleve_id', monEleveId);
-            if (res.error) { alert("Erreur : " + res.error.message); return; }
+            if (res.error) { toast.error(res.error.message); return; }
             mesDevoirsFaits = mesDevoirsFaits.filter(function(id) { return id !== devoirId; }); afficherListeDevoirs(); chargerBadgeDevoirs();
         }
 
@@ -668,10 +734,250 @@
             if (count > 0) { badge.innerText = count; badge.classList.remove('hidden'); } else { badge.classList.add('hidden'); }
         }
 
+        // ═════════════════════════════════════════════════════════════
+        //  STATISTIQUES ÉLÈVE — Graphiques personnels
+        // ═════════════════════════════════════════════════════════════
+
+        async function afficherStatsEleve() {
+            hideAllViews();
+            document.getElementById('view-stats-eleve').classList.remove('hidden');
+
+            // Skeletons
+            document.getElementById('stats-cercle-moyenne').innerHTML = '<div class="skeleton" style="width: 120px; height: 120px; border-radius: 50%; margin: 0 auto;"></div>';
+            document.getElementById('stats-comparaison').innerHTML = '<div class="skeleton" style="width: 90px; height: 90px; border-radius: 50%;"></div><div style="width: 30px;"></div><div class="skeleton" style="width: 90px; height: 90px; border-radius: 50%;"></div>';
+            document.getElementById('stats-graph-matieres').innerHTML = skeleton.lignes(4);
+            document.getElementById('stats-top-flop').innerHTML = skeleton.lignes(2);
+            document.getElementById('stats-graph-absences').innerHTML = skeleton.lignes(3);
+            document.getElementById('stats-chiffres').innerHTML = skeleton.stats(4);
+
+            // Charger les données
+            var resN = await supabaseClient.from('notes').select('matiere, note, coefficient, semestre, type_evaluation').eq('eleve_id', monEleveId);
+            var notes = resN.data || [];
+
+            var resA = await supabaseClient.from('absences').select('matiere, justifiee').eq('eleve_id', monEleveId);
+            var absences = resA.data || [];
+
+            var resD = await supabaseClient.from('devoirs').select('id').eq('classe_id', monClasseId);
+            var devoirs = resD.data || [];
+            var resF = await supabaseClient.from('devoirs_faits').select('devoir_id').eq('eleve_id', monEleveId);
+            var faits = resF.data || [];
+
+            // ─── MOYENNE GÉNÉRALE ───
+            var totalPoints = 0, totalCoef = 0;
+            notes.forEach(function(n) {
+                totalPoints += parseFloat(n.note) * (n.coefficient || 1);
+                totalCoef += (n.coefficient || 1);
+            });
+            var moyenneGenerale = totalCoef > 0 ? (totalPoints / totalCoef) : 0;
+            var pctMoyenne = Math.round((moyenneGenerale / 20) * 100);
+
+            // ─── CERCLE PRINCIPAL ───
+            if (typeof charts !== 'undefined') {
+                var couleur = charts.couleurNote(moyenneGenerale);
+                var cercle = charts.cercle(pctMoyenne, couleur, moyenneGenerale.toFixed(2), '/20');
+                document.getElementById('stats-cercle-moyenne').innerHTML = cercle;
+                setTimeout(function() { charts.animerCercles(); }, 100);
+            } else {
+                // Fallback CSS si charts.js absent
+                var colFallback = moyenneGenerale >= 10 ? '#2EAD5E' : '#EF4444';
+                document.getElementById('stats-cercle-moyenne').innerHTML = '<div style="width: 120px; height: 120px; border-radius: 50%; background: conic-gradient(' + colFallback + ' 0% ' + pctMoyenne + '%, rgba(255,255,255,0.2) ' + pctMoyenne + '% 100%); margin: 0 auto; display: flex; align-items: center; justify-content: center; position: relative;"><div style="width: 100px; height: 100px; border-radius: 50%; background: #004AAD; display: flex; flex-direction: column; align-items: center; justify-content: center;"><span style="font-size: 22px; font-weight: 900; color: white;">' + moyenneGenerale.toFixed(2) + '</span><span style="font-size: 10px; color: rgba(255,255,255,0.7);">/20</span></div></div>';
+            }
+
+            // Objectif
+            var objectif = 15;
+            var reste = objectif - moyenneGenerale;
+            var objTxt = document.getElementById('stats-objectif-txt');
+            if (moyenneGenerale >= objectif) {
+                objTxt.innerText = '🎉 Objectif ' + objectif + '/20 atteint !';
+            } else if (reste > 0) {
+                objTxt.innerText = '🎯 Plus que ' + reste.toFixed(2) + ' points pour atteindre ' + objectif + '/20';
+            }
+
+            // ─── COMPARAISON S1 / S2 ───
+            var parSemestre = { 1: { p: 0, c: 0 }, 2: { p: 0, c: 0 } };
+            notes.forEach(function(n) {
+                if (!parSemestre[n.semestre]) parSemestre[n.semestre] = { p: 0, c: 0 };
+                parSemestre[n.semestre].p += parseFloat(n.note) * (n.coefficient || 1);
+                parSemestre[n.semestre].c += (n.coefficient || 1);
+            });
+            var moyS1 = parSemestre[1] && parSemestre[1].c > 0 ? parSemestre[1].p / parSemestre[1].c : null;
+            var moyS2 = parSemestre[2] && parSemestre[2].c > 0 ? parSemestre[2].p / parSemestre[2].c : null;
+
+            var compHtml = '';
+            var pct1 = moyS1 !== null ? Math.round((moyS1 / 20) * 100) : 0;
+            var col1 = moyS1 !== null && typeof charts !== 'undefined' ? charts.couleurNote(moyS1) : (moyS1 !== null && moyS1 >= 10 ? '#2EAD5E' : '#94a3b8');
+            var col1Hex = moyS1 !== null ? col1 : '#94a3b8';
+
+            compHtml += '<div style="text-align: center; flex: 1;">';
+            compHtml += '<p style="font-size: 10px; color: #6b7280; margin: 0 0 8px 0; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Semestre 1</p>';
+            if (typeof charts !== 'undefined') {
+                compHtml += charts.cercle(pct1, col1Hex, moyS1 !== null ? moyS1.toFixed(2) : '--', '/20');
+            } else {
+                compHtml += '<div style="font-size: 24px; font-weight: 900; color: ' + col1Hex + ';">' + (moyS1 !== null ? moyS1.toFixed(2) : '--') + '</div>';
+            }
+            compHtml += '</div>';
+
+            var fleche = '';
+            if (moyS1 !== null && moyS2 !== null) {
+                if (moyS2 > moyS1) fleche = '<div style="font-size: 28px; align-self: center; color: #10B981;">↗</div>';
+                else if (moyS2 < moyS1) fleche = '<div style="font-size: 28px; align-self: center; color: #EF4444;">↘</div>';
+                else fleche = '<div style="font-size: 28px; align-self: center; color: #94a3b8;">=</div>';
+            } else {
+                fleche = '<div style="font-size: 20px; align-self: center; color: #cbd5e1;">→</div>';
+            }
+            compHtml += fleche;
+
+            var pct2 = moyS2 !== null ? Math.round((moyS2 / 20) * 100) : 0;
+            var col2 = moyS2 !== null && typeof charts !== 'undefined' ? charts.couleurNote(moyS2) : (moyS2 !== null && moyS2 >= 10 ? '#2EAD5E' : '#94a3b8');
+            var col2Hex = moyS2 !== null ? col2 : '#94a3b8';
+
+            compHtml += '<div style="text-align: center; flex: 1;">';
+            compHtml += '<p style="font-size: 10px; color: #6b7280; margin: 0 0 8px 0; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Semestre 2</p>';
+            if (typeof charts !== 'undefined') {
+                compHtml += charts.cercle(pct2, col2Hex, moyS2 !== null ? moyS2.toFixed(2) : '--', '/20');
+            } else {
+                compHtml += '<div style="font-size: 24px; font-weight: 900; color: ' + col2Hex + ';">' + (moyS2 !== null ? moyS2.toFixed(2) : '--') + '</div>';
+            }
+            compHtml += '</div>';
+
+            document.getElementById('stats-comparaison').innerHTML = compHtml;
+            setTimeout(function() { if (typeof charts !== 'undefined') charts.animerCercles(); }, 150);
+
+            // ─── MOYENNES PAR MATIÈRE ───
+            var parMatiere = {};
+            notes.forEach(function(n) {
+                if (!parMatiere[n.matiere]) parMatiere[n.matiere] = { p: 0, c: 0, nb: 0 };
+                parMatiere[n.matiere].p += parseFloat(n.note) * (n.coefficient || 1);
+                parMatiere[n.matiere].c += (n.coefficient || 1);
+                parMatiere[n.matiere].nb++;
+            });
+
+            var matieresData = [];
+            Object.keys(parMatiere).forEach(function(mat) {
+                var m = parMatiere[mat];
+                var moy = m.c > 0 ? m.p / m.c : 0;
+                var colMat = typeof charts !== 'undefined' ? charts.couleurNote(moy) : (moy >= 14 ? '#004AAD' : moy >= 10 ? '#2EAD5E' : '#EF4444');
+                matieresData.push({
+                    label: mat.length > 10 ? mat.substring(0, 10) + '…' : mat,
+                    valeur: parseFloat(moy.toFixed(2)),
+                    couleur: colMat,
+                    fullName: mat
+                });
+            });
+            matieresData.sort(function(a, b) { return b.valeur - a.valeur; });
+
+            var graphMatHtml = '';
+            if (matieresData.length === 0) {
+                graphMatHtml = '<div class="empty-state" style="padding: 20px;"><div class="empty-icon" style="font-size: 32px;">📚</div><div class="empty-title">Aucune note</div><div class="empty-desc">Tes moyennes apparaîtront ici</div></div>';
+            } else if (typeof charts !== 'undefined') {
+                graphMatHtml = charts.barres(matieresData, { max: 20 });
+            } else {
+                // Fallback CSS pur
+                var maxM = 20;
+                matieresData.forEach(function(d) {
+                    var pct = Math.round((d.valeur / maxM) * 100);
+                    graphMatHtml += '<div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">';
+                    graphMatHtml += '<div style="font-size: 11px; font-weight: 600; color: #4b5563; width: 65px; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' + d.label + '</div>';
+                    graphMatHtml += '<div style="flex: 1; height: 18px; background: #f3f4f6; border-radius: 9px; overflow: hidden;"><div style="height: 100%; border-radius: 9px; width: ' + pct + '%; background: ' + d.couleur + '; transition: width 1s;"></div></div>';
+                    graphMatHtml += '<div style="font-size: 11px; font-weight: 800; color: #1f2937; width: 42px; text-align: right;">' + d.valeur.toFixed(2) + '</div>';
+                    graphMatHtml += '</div>';
+                });
+            }
+            document.getElementById('stats-graph-matieres').innerHTML = graphMatHtml;
+
+            // ─── TOP / FLOP ───
+            var topHtml = '';
+            if (matieresData.length > 0) {
+                var top3 = matieresData.slice(0, 3);
+                var flop3 = matieresData.length > 3 ? matieresData.slice(-3).reverse() : [];
+
+                topHtml += '<p style="font-size: 11px; font-weight: 800; color: #059669; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 1px;">✅ Mes points forts</p>';
+                top3.forEach(function(m, i) {
+                    var medaille = ['🥇', '🥈', '🥉'][i] || '•';
+                    topHtml += '<div class="list-row" style="--accent: ' + m.couleur + '; margin-bottom: 6px; padding: 10px 12px;">';
+                    topHtml += '<div style="font-size: 18px; flex-shrink: 0;">' + medaille + '</div>';
+                    topHtml += '<div class="list-content"><div class="list-title">' + m.fullName + '</div></div>';
+                    topHtml += '<div style="font-size: 14px; font-weight: 800; color: ' + m.couleur + ';">' + m.valeur.toFixed(2) + '</div>';
+                    topHtml += '</div>';
+                });
+
+                if (flop3.length > 0) {
+                    topHtml += '<p style="font-size: 11px; font-weight: 800; color: #DC2626; margin: 14px 0 8px 0; text-transform: uppercase; letter-spacing: 1px;">📉 À améliorer</p>';
+                    flop3.forEach(function(m) {
+                        topHtml += '<div class="list-row" style="--accent: #EF4444; margin-bottom: 6px; padding: 10px 12px;">';
+                        topHtml += '<div style="font-size: 18px; flex-shrink: 0;">💪</div>';
+                        topHtml += '<div class="list-content"><div class="list-title">' + m.fullName + '</div></div>';
+                        topHtml += '<div style="font-size: 14px; font-weight: 800; color: ' + m.couleur + ';">' + m.valeur.toFixed(2) + '</div>';
+                        topHtml += '</div>';
+                    });
+                }
+            } else {
+                topHtml = '<div class="empty-state" style="padding: 20px;"><div class="empty-icon" style="font-size: 32px;">🏆</div><div class="empty-title">Aucune donnée</div></div>';
+            }
+            document.getElementById('stats-top-flop').innerHTML = topHtml;
+
+            // ─── ABSENCES PAR MATIÈRE ───
+            var absParMat = {};
+            absences.forEach(function(a) {
+                var mat = a.matiere || 'Cours';
+                if (!absParMat[mat]) absParMat[mat] = { total: 0, nonJust: 0 };
+                absParMat[mat].total++;
+                if (!a.justifiee) absParMat[mat].nonJust++;
+            });
+
+            var absData = [];
+            Object.keys(absParMat).forEach(function(mat) {
+                var a = absParMat[mat];
+                var couleur = a.nonJust === 0 ? '#10B981' : (a.nonJust <= 2 ? '#F59E0B' : '#EF4444');
+                absData.push({
+                    label: mat.length > 10 ? mat.substring(0, 10) + '…' : mat,
+                    valeur: a.total,
+                    couleur: couleur
+                });
+            });
+            absData.sort(function(a, b) { return b.valeur - a.valeur; });
+
+            var graphAbsHtml = '';
+            if (absData.length === 0) {
+                graphAbsHtml = '<div class="empty-state" style="padding: 20px;"><div class="empty-icon" style="font-size: 32px;">🎉</div><div class="empty-title">Aucune absence</div><div class="empty-desc">Félicitations, continue comme ça !</div></div>';
+            } else if (typeof charts !== 'undefined') {
+                graphAbsHtml = charts.barres(absData);
+            } else {
+                var maxA = Math.max.apply(null, absData.map(function(d) { return d.valeur; })) || 1;
+                absData.forEach(function(d) {
+                    var pct = Math.round((d.valeur / maxA) * 100);
+                    graphAbsHtml += '<div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">';
+                    graphAbsHtml += '<div style="font-size: 11px; font-weight: 600; color: #4b5563; width: 65px; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' + d.label + '</div>';
+                    graphAbsHtml += '<div style="flex: 1; height: 18px; background: #f3f4f6; border-radius: 9px; overflow: hidden;"><div style="height: 100%; border-radius: 9px; width: ' + pct + '%; background: ' + d.couleur + '; transition: width 1s;"></div></div>';
+                    graphAbsHtml += '<div style="font-size: 11px; font-weight: 800; color: #1f2937; width: 42px; text-align: right;">' + d.valeur + '</div>';
+                    graphAbsHtml += '</div>';
+                });
+            }
+            document.getElementById('stats-graph-absences').innerHTML = graphAbsHtml;
+
+            // ─── CHIFFRES CLÉS ───
+            var nbNotes = notes.length;
+            var nbDevoirs = devoirs.length;
+            var nbFaits = faits.length;
+            var pctDevoirs = nbDevoirs > 0 ? Math.round((nbFaits / nbDevoirs) * 100) : 0;
+            var nbAbsTotal = absences.length;
+            var nbAbsJust = absences.filter(function(a) { return a.justifiee; }).length;
+
+            var chiffresHtml = '';
+            chiffresHtml += '<div class="stat-mini"><div class="label">Notes</div><div class="value" style="color: #004AAD;">' + nbNotes + '</div></div>';
+            chiffresHtml += '<div class="stat-mini"><div class="label">Devoirs</div><div class="value" style="color: ' + (pctDevoirs >= 80 ? '#059669' : '#D97706') + ';">' + pctDevoirs + '%</div></div>';
+            chiffresHtml += '<div class="stat-mini"><div class="label">Absences</div><div class="value" style="color: ' + (nbAbsTotal === 0 ? '#059669' : '#DC2626') + ';">' + nbAbsTotal + '</div></div>';
+            chiffresHtml += '<div class="stat-mini"><div class="label">Justifiées</div><div class="value" style="color: #0891B2;">' + nbAbsJust + '/' + nbAbsTotal + '</div></div>';
+
+            document.getElementById('stats-chiffres').innerHTML = chiffresHtml;
+            window.scrollTo(0, 0);
+        }
+
         // ════════════ BULLETIN ════════════
         async function afficherBulletin() {
             hideAllViews();
             document.getElementById('view-bulletin').classList.remove('hidden');
+            document.getElementById('contenu-bulletin').innerHTML = skeleton.cartes(3);
             trimestreActuel = 1; await chargerBulletin();
         }
 
@@ -683,6 +989,7 @@
                 if (i === n) tab.className = 'py-2 rounded-xl font-bold text-xs bg-edu-blue text-white';
                 else tab.className = 'py-2 rounded-xl font-bold text-xs bg-gray-100 text-gray-600';
             });
+            document.getElementById('contenu-bulletin').innerHTML = skeleton.cartes(3);
             await chargerBulletin();
         }
 
@@ -695,8 +1002,9 @@
             var matieres = {};
             if (notes) {
                 notes.forEach(function(n) {
-                    if (!matieres[n.matiere]) matieres[n.matiere] = { devoir1: null, devoir2: null, devoir3: null, composition: null };
+                    if (!matieres[n.matiere]) matieres[n.matiere] = { devoir1: null, devoir2: null, devoir3: null, composition: null, coef: n.coefficient };
                     matieres[n.matiere][n.type_evaluation || 'composition'] = { note: parseFloat(n.note), coef: n.coefficient };
+                    if (n.coefficient > matieres[n.matiere].coef) matieres[n.matiere].coef = n.coefficient;
                 });
             }
 
@@ -704,7 +1012,7 @@
             var ordreMatieres = Object.keys(matieres).sort();
 
             if (ordreMatieres.length === 0) {
-                lignes = '<tr><td colspan="7" style="padding: 20px; text-align: center; color: #6b7280; font-size: 12px;">Aucune note pour ce semestre</td></tr>';
+                lignes = '<tr><td colspan="8" style="padding: 30px 20px; text-align: center; color: #94a3b8; font-size: 13px; font-style: italic;">Aucune note pour ce semestre</td></tr>';
             } else {
                 var i = 0;
                 ordreMatieres.forEach(function(mat) {
@@ -718,74 +1026,110 @@
 
                     var couleur = '#EF4444', bgNote = '#fef2f2';
                     if (moyMat >= 10) { couleur = '#2EAD5E'; bgNote = '#f0fdf4'; }
-                    if (moyMat >= 14) { couleur = '#2EAD5E'; bgNote = '#dcfce7'; }
+                    if (moyMat >= 14) { couleur = '#004AAD'; bgNote = '#dbeafe'; }
 
-                    var bgLigne = (i % 2 === 0) ? '#ffffff' : '#f9fafb'; i++;
+                    var bgLigne = (i % 2 === 0) ? '#ffffff' : '#f8fafc'; i++;
                     var apprec = 'Insuffisant';
-                    if (moyMat >= 16) apprec = 'Excellent'; else if (moyMat >= 14) apprec = 'Tres bien';
+                    if (moyMat >= 16) apprec = 'Excellent'; else if (moyMat >= 14) apprec = 'Très bien';
                     else if (moyMat >= 12) apprec = 'Bien'; else if (moyMat >= 10) apprec = 'Passable';
 
-                    var fNote = function(d) { return d ? d.note.toFixed(2) : '--'; };
-                    var fCoef = function(d) { return d ? 'c' + d.coef : ''; };
+                    var badgeBg = '#fee2e2', badgeColor = '#991b1b';
+                    if (moyMat >= 10) { badgeBg = '#d1fae5'; badgeColor = '#065f46'; }
+                    if (moyMat >= 14) { badgeBg = '#dbeafe'; badgeColor = '#1e40af'; }
 
-                    lignes += '<tr style="background: ' + bgLigne + ';">';
-                    lignes += '<td style="padding: 6px 4px; border: 1px solid #d1d5db; font-size: 11px; font-weight: 600; color: #1f2937;">' + mat + '</td>';
-                    lignes += '<td style="padding: 6px 4px; border: 1px solid #d1d5db; font-size: 10px; text-align: center; color: #1f2937;">' + fNote(data.devoir1) + '<br><span style="color:#9ca3af;font-size:8px;">' + fCoef(data.devoir1) + '</span></td>';
-                    lignes += '<td style="padding: 6px 4px; border: 1px solid #d1d5db; font-size: 10px; text-align: center; color: #1f2937;">' + fNote(data.devoir2) + '<br><span style="color:#9ca3af;font-size:8px;">' + fCoef(data.devoir2) + '</span></td>';
-                    lignes += '<td style="padding: 6px 4px; border: 1px solid #d1d5db; font-size: 10px; text-align: center; color: #9ca3af;">' + fNote(data.devoir3) + '<br><span style="font-size:8px;">' + fCoef(data.devoir3) + '</span></td>';
-                    lignes += '<td style="padding: 6px 4px; border: 1px solid #d1d5db; font-size: 10px; text-align: center; color: #1f2937;">' + fNote(data.composition) + '<br><span style="color:#9ca3af;font-size:8px;">' + fCoef(data.composition) + '</span></td>';
-                    lignes += '<td style="padding: 6px 4px; border: 1px solid #d1d5db; font-size: 11px; font-weight: 700; text-align: center; color: ' + couleur + '; background: ' + bgNote + ';">' + moyMat.toFixed(2) + '</td>';
-                    lignes += '<td style="padding: 6px 4px; border: 1px solid #d1d5db; font-size: 9px; text-align: center; color: ' + couleur + '; font-weight: 600;">' + apprec + '</td>';
+                    var fNote = function(d) { return d ? '<span style="font-weight: 700; color: ' + (d.note >= 10 ? '#2EAD5E' : '#EF4444') + ';">' + d.note.toFixed(2) + '</span>' : '<span style="color: #cbd5e1;">—</span>'; };
+
+                    lignes += '<tr style="background: ' + bgLigne + '; border-bottom: 1px solid #e2e8f0;">';
+                    lignes += '<td style="padding: 12px 10px; font-size: 13px; font-weight: 700; color: #1e293b; border-right: 1px solid #e2e8f0;">' + mat + '</td>';
+                    lignes += '<td style="padding: 12px 8px; font-size: 12px; font-weight: 700; color: #004AAD; text-align: center; background: #f0f7ff; border-right: 1px solid #e2e8f0;">×' + data.coef + '</td>';
+                    lignes += '<td style="padding: 12px 8px; font-size: 12px; text-align: center; color: #334155; border-right: 1px solid #f1f5f9;">' + fNote(data.devoir1) + '</td>';
+                    lignes += '<td style="padding: 12px 8px; font-size: 12px; text-align: center; color: #334155; border-right: 1px solid #f1f5f9;">' + fNote(data.devoir2) + '</td>';
+                    lignes += '<td style="padding: 12px 8px; font-size: 12px; text-align: center; color: #334155; border-right: 1px solid #f1f5f9;">' + fNote(data.devoir3) + '</td>';
+                    lignes += '<td style="padding: 12px 8px; font-size: 12px; text-align: center; color: #334155; border-right: 1px solid #f1f5f9;">' + fNote(data.composition) + '</td>';
+                    lignes += '<td style="padding: 12px 8px; font-size: 14px; font-weight: 800; text-align: center; color: ' + couleur + '; background: ' + bgNote + '; border-right: 1px solid #e2e8f0;">' + moyMat.toFixed(2) + '</td>';
+                    lignes += '<td style="padding: 12px 8px; text-align: center;"><span style="display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 800; background: ' + badgeBg + '; color: ' + badgeColor + '; white-space: nowrap;">' + apprec + '</span></td>';
                     lignes += '</tr>';
                 });
             }
 
             var moyenneGenerale = totalCoef > 0 ? (totalPoints / totalCoef) : 0;
-            var moyStr = totalCoef > 0 ? moyenneGenerale.toFixed(2) : '--';
-            var mention = moyenneGenerale >= 16 ? 'Felicitations' : moyenneGenerale >= 14 ? 'Tres bien' : moyenneGenerale >= 12 ? 'Bien' : moyenneGenerale >= 10 ? 'Passable' : 'Insuffisant';
+            var moyStr = totalCoef > 0 ? moyenneGenerale.toFixed(2) : '—';
+            var mention = moyenneGenerale >= 16 ? 'Félicitations' : moyenneGenerale >= 14 ? 'Très bien' : moyenneGenerale >= 12 ? 'Bien' : moyenneGenerale >= 10 ? 'Passable' : 'Insuffisant';
             var mentionCouleur = moyenneGenerale >= 10 ? '#2EAD5E' : '#EF4444';
             var dateJour = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+            var ecoleNom = document.getElementById('ecole-nom-affiche').innerText.replace('🏫 ', '');
 
             var blocSignature = '';
             if (signatureEcole) {
-                blocSignature = '<table style="width: 100%; margin-top: 22px;"><tr><td style="width: 50%; text-align: left; padding: 8px;"><p style="font-size: 9px; color: #6b7280; margin: 0;">Fait le ' + dateJour + '</p></td><td style="width: 50%; text-align: right; padding: 8px;"><p style="font-size: 9px; color: #6b7280; margin: 0;">Le Directeur</p><img src="' + signatureEcole + '" style="max-height: 50px; max-width: 160px; margin-top: 4px;"></td></tr></table>';
+                blocSignature = '<td style="width: 50%; text-align: right; padding: 12px;"><p style="font-size: 11px; color: #6b7280; margin: 0 0 4px 0;">Le Directeur</p><img src="' + signatureEcole + '" style="max-height: 55px; max-width: 160px;"></td>';
             } else {
-                blocSignature = '<table style="width: 100%; margin-top: 22px;"><tr><td style="width: 50%; text-align: left; padding: 8px;"><p style="font-size: 9px; color: #6b7280; margin: 0;">Fait le ' + dateJour + '</p></td><td style="width: 50%; text-align: right; padding: 8px;"><p style="font-size: 9px; color: #6b7280; margin: 0;">Le Directeur</p></td></tr></table>';
+                blocSignature = '<td style="width: 50%; text-align: right; padding: 12px;"><p style="font-size: 11px; color: #6b7280; margin: 0;">Le Directeur</p><div style="height: 50px;"></div></td>';
             }
 
             document.getElementById('contenu-bulletin').innerHTML = ''
-                + '<div id="bulletin-pdf" style="background: white; padding: 20px; border-radius: 12px; border: 2px solid #004AAD; font-family: Arial, sans-serif;">'
-                + '<div style="text-align: center; border-bottom: 2px solid #004AAD; padding-bottom: 12px; margin-bottom: 16px;">'
-                + '<div style="font-size: 32px;">📖</div><h1 style="font-size: 18px; font-weight: bold; color: #004AAD; margin: 4px 0;">EDU-LINK</h1>'
-                + '<p style="font-size: 10px; color: #6b7280; margin: 0;">' + document.getElementById('ecole-nom-affiche').innerText.replace('🏫 ', '') + '</p>'
-                + '<p style="font-size: 13px; font-weight: bold; color: #1f2937; margin-top: 8px;">BULLETIN SCOLAIRE - SEMESTRE ' + trimestreActuel + '</p>'
-                + '</div>'
-                + '<table style="width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 12px;"><tr><td style="padding: 4px 0;"><b>Eleve :</b> ' + currentUser.prenom + ' ' + currentUser.nom + '</td></tr><tr><td style="padding: 4px 0;"><b>Matricule :</b> ' + eleve.matricule + '</td></tr><tr><td style="padding: 4px 0;"><b>Classe :</b> ' + (eleve.classes ? eleve.classes.nom : 'N/A') + '</td></tr></table>'
-                + '<table style="width: 100%; border-collapse: collapse; margin-bottom: 16px;">'
-                + '<thead><tr style="background: #004AAD;">'
-                + '<th style="border: 1px solid #004AAD; padding: 6px 4px; font-size: 10px; color: white; text-align: left;">Matiere</th>'
-                + '<th style="border: 1px solid #004AAD; padding: 6px 4px; font-size: 10px; color: white; text-align: center;">Dev. 1</th>'
-                + '<th style="border: 1px solid #004AAD; padding: 6px 4px; font-size: 10px; color: white; text-align: center;">Dev. 2</th>'
-                + '<th style="border: 1px solid #004AAD; padding: 6px 4px; font-size: 10px; color: white; text-align: center;">Dev. 3</th>'
-                + '<th style="border: 1px solid #004AAD; padding: 6px 4px; font-size: 10px; color: white; text-align: center;">Comp.</th>'
-                + '<th style="border: 1px solid #004AAD; padding: 6px 4px; font-size: 10px; color: white; text-align: center;">Moy.</th>'
-                + '<th style="border: 1px solid #004AAD; padding: 6px 4px; font-size: 10px; color: white; text-align: center;">Apprec.</th>'
-                + '</tr></thead>'
-                + '<tbody>' + lignes + '</tbody>'
-                + '</table>'
-                + '<div style="border: 2px solid #004AAD; padding: 12px; text-align: center; background: #f0f7ff; border-radius: 6px;"><p style="font-size: 10px; color: #004AAD; margin: 0; font-weight: 600;">MOYENNE GENERALE</p><p style="font-size: 24px; font-weight: 800; color: ' + mentionCouleur + '; margin: 4px 0 0 0;">' + moyStr + '/20</p><p style="font-size: 14px; font-weight: bold; color: ' + mentionCouleur + '; margin: 4px 0 0 0;">Mention : ' + mention + '</p></div>'
+                + '<div id="bulletin-pdf" style="background: white; padding: 28px 24px; border-radius: 16px; border: 3px solid #004AAD; font-family: Arial, Helvetica, sans-serif; box-shadow: 0 4px 20px rgba(0, 74, 173, 0.1);">'
+                + '<div style="text-align: center; padding-bottom: 18px; margin-bottom: 22px; border-bottom: 3px double #004AAD;">'
+                + '<div style="font-size: 42px; line-height: 1; margin-bottom: 6px;">📖</div>'
+                + '<h1 style="font-size: 24px; font-weight: 900; color: #004AAD; margin: 0; letter-spacing: 3px;">EDU-LINK</h1>'
+                + '<p style="font-size: 13px; color: #64748b; margin: 6px 0 0 0; font-weight: 600;">' + ecoleNom + '</p>'
+                + '<div style="display: inline-block; margin-top: 14px; padding: 8px 24px; background: linear-gradient(135deg, #004AAD, #0066CC); color: white; border-radius: 8px;">'
+                + '<p style="font-size: 14px; font-weight: 800; margin: 0; letter-spacing: 1px;">BULLETIN SCOLAIRE</p>'
+                + '<p style="font-size: 11px; margin: 2px 0 0 0; opacity: 0.9;">Semestre ' + trimestreActuel + ' • Année 2024-2025</p>'
+                + '</div></div>'
+                + '<table style="width: 100%; border-collapse: collapse; margin-bottom: 22px; background: #f0f7ff; border-radius: 12px; overflow: hidden;">'
+                + '<tr>'
+                + '<td style="padding: 14px 16px; width: 55%;">'
+                + '<p style="font-size: 11px; color: #64748b; margin: 0 0 2px 0; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Élève</p>'
+                + '<p style="font-size: 16px; font-weight: 800; color: #1e293b; margin: 0;">' + currentUser.prenom + ' ' + currentUser.nom + '</p>'
+                + '<p style="font-size: 11px; color: #475569; margin: 6px 0 0 0;"><b style="color: #004AAD;">Matricule :</b> ' + eleve.matricule + '</p>'
+                + '</td>'
+                + '<td style="padding: 14px 16px; width: 45%; border-left: 2px solid #cbd5e1;">'
+                + '<p style="font-size: 11px; color: #64748b; margin: 0 0 2px 0; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Classe</p>'
+                + '<p style="font-size: 16px; font-weight: 800; color: #004AAD; margin: 0;">' + (eleve.classes ? eleve.classes.nom : 'N/A') + '</p>'
+                + '<p style="font-size: 11px; color: #475569; margin: 6px 0 0 0;">Semestre <b>' + trimestreActuel + '</b></p>'
+                + '</td>'
+                + '</tr></table>'
+                + '<table style="width: 100%; border-collapse: collapse; margin-bottom: 22px; border: 2px solid #cbd5e1; border-radius: 10px; overflow: hidden;">'
+                + '<thead>'
+                + '<tr style="background: linear-gradient(135deg, #004AAD, #0066CC);">'
+                + '<th style="padding: 14px 10px; font-size: 12px; color: white; text-align: left; font-weight: 800; letter-spacing: 0.5px; border-right: 1px solid rgba(255,255,255,0.2);">MATIÈRE</th>'
+                + '<th style="padding: 14px 8px; font-size: 12px; color: white; text-align: center; font-weight: 800; background: rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.2); width: 55px;">COEF</th>'
+                + '<th style="padding: 14px 8px; font-size: 12px; color: white; text-align: center; font-weight: 800; border-right: 1px solid rgba(255,255,255,0.2); width: 60px;">DEV 1</th>'
+                + '<th style="padding: 14px 8px; font-size: 12px; color: white; text-align: center; font-weight: 800; border-right: 1px solid rgba(255,255,255,0.2); width: 60px;">DEV 2</th>'
+                + '<th style="padding: 14px 8px; font-size: 12px; color: white; text-align: center; font-weight: 800; border-right: 1px solid rgba(255,255,255,0.2); width: 60px;">DEV 3</th>'
+                + '<th style="padding: 14px 8px; font-size: 12px; color: white; text-align: center; font-weight: 800; border-right: 1px solid rgba(255,255,255,0.2); width: 60px;">COMP</th>'
+                + '<th style="padding: 14px 8px; font-size: 12px; color: white; text-align: center; font-weight: 800; border-right: 1px solid rgba(255,255,255,0.2); width: 70px; background: rgba(255,255,255,0.15);">MOY</th>'
+                + '<th style="padding: 14px 8px; font-size: 12px; color: white; text-align: center; font-weight: 800; width: 90px;">APPRÉC.</th>'
+                + '</tr></thead><tbody>' + lignes + '</tbody></table>'
+                + '<div style="background: linear-gradient(135deg, ' + (moyenneGenerale >= 10 ? '#d1fae5, #a7f3d0' : '#fee2e2, #fecaca') + '); border: 3px solid ' + mentionCouleur + '; padding: 20px; border-radius: 14px; text-align: center; margin-bottom: 22px;">'
+                + '<p style="font-size: 11px; color: ' + mentionCouleur + '; margin: 0 0 6px 0; text-transform: uppercase; letter-spacing: 2px; font-weight: 800;">Moyenne Générale</p>'
+                + '<p style="font-size: 44px; font-weight: 900; color: ' + mentionCouleur + '; margin: 0; line-height: 1;">' + moyStr + '<span style="font-size: 22px; opacity: 0.6;">/20</span></p>'
+                + '<div style="display: inline-block; margin-top: 10px; padding: 6px 20px; background: ' + mentionCouleur + '; color: white; border-radius: 20px;">'
+                + '<span style="font-size: 13px; font-weight: 800; letter-spacing: 1px;">' + mention.toUpperCase() + '</span>'
+                + '</div></div>'
+                + '<table style="width: 100%; border-top: 2px solid #e2e8f0; padding-top: 16px;"><tr>'
+                + '<td style="width: 50%; text-align: left; padding: 12px;">'
+                + '<p style="font-size: 11px; color: #64748b; margin: 0;">Fait le</p>'
+                + '<p style="font-size: 12px; font-weight: 700; color: #1e293b; margin: 2px 0 0 0;">' + dateJour + '</p>'
+                + '</td>'
                 + blocSignature
-                + '<p style="text-align: center; font-size: 8px; color: #9ca3af; margin-top: 12px;">Document genere par EDU-LINK</p>'
+                + '</tr></table>'
+                + '<p style="text-align: center; font-size: 9px; color: #94a3b8; margin: 20px 0 0 0; padding-top: 12px; border-top: 1px dashed #cbd5e1;">Document généré par EDU-LINK — Ne pas modifier</p>'
                 + '</div>'
-                + '<button onclick="telechargerPDF()" id="btn-pdf" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl mt-4">📥 Telecharger le bulletin S' + trimestreActuel + ' en PDF</button>'
+                + '<button onclick="telechargerPDF()" id="btn-pdf" class="btn-float" style="background: linear-gradient(135deg, #004AAD, #1E40AF); margin-top: 16px;">'
+                + '<div class="btn-icon">📥</div>'
+                + '<div class="btn-content"><div class="btn-title">Télécharger en PDF</div><div class="btn-desc">Bulletin Semestre ' + trimestreActuel + '</div></div>'
+                + '<div class="btn-arrow">→</div>'
+                + '</button>'
                 + '<div id="message-pdf" class="text-center text-sm font-semibold mt-2"></div>';
         }
 
         async function telechargerPDF() {
             var btn = document.getElementById('btn-pdf');
             var msg = document.getElementById('message-pdf');
-            btn.innerText = "Generation...";
             btn.disabled = true;
+            var spanOrig = btn.innerHTML;
+            btn.innerHTML = 'Generation...';
             msg.innerText = '';
             var iframe = null;
 
@@ -827,8 +1171,7 @@
                 if (err.name === 'AbortError') { msg.innerText = "Annule."; msg.style.color = "gray"; }
                 else { msg.innerText = "Erreur"; msg.style.color = "red"; }
             } finally {
-                btn.innerText = "📥 Telecharger le bulletin T" + trimestreActuel + " en PDF";
-                btn.disabled = false;
+                btn.disabled = false; btn.innerHTML = spanOrig;
             }
         }
 
@@ -836,6 +1179,7 @@
         async function afficherAbsences() {
             hideAllViews();
             document.getElementById('view-absences').classList.remove('hidden');
+            document.getElementById('liste-absences').innerHTML = skeleton.lignes(4);
             var res = await supabaseClient.from('absences').select('*').eq('eleve_id', monEleveId).order('date_absence', { ascending: false });
             toutesAbsences = res.data || []; filtreAbsences = 'tout';
             document.getElementById('tab-abs-tout').className = 'py-2 rounded-xl font-bold text-xs bg-edu-blue text-white';
@@ -874,6 +1218,7 @@
         async function afficherEmploi() {
             hideAllViews();
             document.getElementById('view-emploi').classList.remove('hidden');
+            document.getElementById('tableau-emploi-eleve').innerHTML = skeleton.hero() + skeleton.cartes(2);
             var res = await supabaseClient.from('emploi_du_temps').select('*').eq('classe_id', monClasseId).order('heure_debut');
             tousLesCours = res.data || [];
             afficherEncadreAujourdhui();
@@ -1044,7 +1389,7 @@
                 }
             } catch (err) {
                 if (iframe && document.body.contains(iframe)) document.body.removeChild(iframe);
-                if (err.name !== 'AbortError') alert('Erreur : ' + err.message);
+                if (err.name !== 'AbortError') toast.error('Erreur : ' + err.message);
             } finally {
                 if (btn) { btn.disabled = false; btn.innerText = '📥 PDF'; }
             }
@@ -1054,6 +1399,7 @@
         async function afficherAnnonces() {
             hideAllViews();
             document.getElementById('view-annonces').classList.remove('hidden');
+            document.getElementById('liste-annonces').innerHTML = skeleton.cartes(3);
             var res = await supabaseClient.from('annonces').select('*').eq('ecole_id', monEcoleId).or('cible.eq.tous,cible.eq.eleves').order('date_publication', { ascending: false });
             var annonces = res.data;
             var html = '';
@@ -1077,6 +1423,7 @@
         async function afficherNotifications() {
             hideAllViews();
             document.getElementById('view-notifications').classList.remove('hidden');
+            document.getElementById('liste-notifications').innerHTML = skeleton.lignes(4);
             var res = await supabaseClient.from('notifications').select('*').eq('utilisateur_id', currentUser.id).order('date_creation', { ascending: false });
             toutesNotifs = res.data || [];
             var nonLues = toutesNotifs.filter(function(n) { return !n.lu; }).length;
@@ -1113,15 +1460,42 @@
                 else if (n.type === 'devoir') { bgColor = 'bg-amber-50 border-amber-500'; icon = '📚'; }
                 var luStyle = n.lu ? 'opacity-60' : '';
                 var d = new Date(n.date_creation).toLocaleDateString('fr-FR');
-                html += '<div class="' + bgColor + ' ' + luStyle + ' border-l-4 p-4 rounded-r-2xl shadow-sm cursor-pointer" onclick="lireNotif(' + n.id + ')"><div class="flex items-start gap-3"><div class="text-xl mt-0.5">' + icon + '</div><div class="flex-1"><p class="text-sm font-bold text-gray-800">' + n.titre + '</p><p class="text-xs text-gray-600 mt-1">' + n.contenu + '</p><p class="text-[10px] text-gray-400 mt-2">' + d + '</p></div></div></div>';
+                html += '<div id="notif-' + n.id + '" data-notif-id="' + n.id + '" class="' + bgColor + ' ' + luStyle + ' border-l-4 p-4 rounded-r-2xl shadow-sm cursor-pointer notif-card" onclick="lireNotif(' + n.id + ')"><div class="flex items-start gap-3"><div class="text-xl mt-0.5">' + icon + '</div><div class="flex-1"><p class="text-sm font-bold text-gray-800">' + n.titre + '</p><p class="text-xs text-gray-600 mt-1">' + n.contenu + '</p><p class="text-[10px] text-gray-400 mt-2">' + d + '</p></div></div></div>';
             });
             document.getElementById('liste-notifications').innerHTML = html;
         }
 
         async function lireNotif(id) {
+            var carte = document.getElementById('notif-' + id);
+            if (!carte) return;
+
+            var dejaLue = carte.classList.contains('opacity-60');
+
+            if (dejaLue) {
+                carte.classList.add('notif-reading');
+                setTimeout(function() { carte.classList.remove('notif-reading'); }, 500);
+                return;
+            }
+
+            carte.classList.add('notif-reading');
+            var badge = document.createElement('div');
+            badge.className = 'notif-reading-badge';
+            badge.textContent = '✓ Lu';
+            carte.appendChild(badge);
+
             await supabaseClient.from('notifications').update({ lu: true }).eq('id', id);
-            await afficherNotifications();
-            chargerBadgeNotifs();
+
+            var notif = toutesNotifs.find(function(n) { return n.id === id; });
+            if (notif) notif.lu = true;
+
+            setTimeout(function() {
+                carte.classList.add('notif-disappearing');
+                setTimeout(function() {
+                    toutesNotifs = toutesNotifs.filter(function(n) { return n.id !== id; });
+                    afficherListeNotifs();
+                    chargerBadgeNotifs();
+                }, 600);
+            }, 1200);
         }
 
         // ════════════ RESSOURCES ════════════
@@ -1131,7 +1505,7 @@
         async function testRessources() {
             hideAllViews();
             document.getElementById('view-ressources-eleve').classList.remove('hidden');
-            document.getElementById('reselv-liste').innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
+            document.getElementById('reselv-liste').innerHTML = skeleton.cartes(3);
             window.scrollTo(0, 0);
 
             if (!monClasseId) {
@@ -1252,7 +1626,7 @@
         async function telechargerFichierBase64(idRessource) {
             try {
                 var r = resElvListe.find(function(x) { return x.id === idRessource; });
-                if (!r || !r.fichier_base64) { alert('Fichier introuvable.'); return; }
+                if (!r || !r.fichier_base64) { toast.warning('Fichier introuvable.'); return; }
                 var base64 = r.fichier_base64;
                 var nomFichier = r.fichier_nom || 'fichier';
                 var parts = base64.split(',');
@@ -1284,7 +1658,7 @@
                 setTimeout(function() { URL.revokeObjectURL(url); }, 60000);
             } catch (err) {
                 if (err.name === 'AbortError') return;
-                alert('Erreur telechargement : ' + err.message);
+                toast.error('Erreur telechargement : ' + err.message);
             }
         }
 
@@ -1308,9 +1682,5 @@
             window.location.href = 'index.html';
         }
     </script>
-<script src="ripple.js"></script>
-<script src="toast.js"></script>
-<script src="confirm.js"></script>
-</body>
 </body>
 </html>

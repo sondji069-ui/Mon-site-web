@@ -700,3 +700,660 @@ body.dark-mode .confirm-icon {
     background: linear-gradient(135deg, #78350f, #92400e);
     box-shadow: 0 8px 20px rgba(245, 158, 11, 0.15);
 }
+/* ═══════════ 30. SKELETON COMPOSANTS ═══════════ */
+.skeleton-row {
+    pointer-events: none;
+    cursor: default;
+}
+
+.skeleton-row:hover {
+    transform: none !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+    border-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+.skeleton-row::before {
+    transform: scaleY(0) !important;
+}
+
+.skeleton-card {
+    pointer-events: none;
+    cursor: default;
+}
+
+.skeleton-card:hover {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+
+@keyframes skeletonWave {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+.skeleton {
+    background: linear-gradient(90deg, #f3f4f6 0%, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%, #f3f4f6 100%) !important;
+    background-size: 200% 100% !important;
+    animation: skeletonWave 1.8s ease-in-out infinite !important;
+    border-radius: 8px;
+}
+
+body.dark-mode .skeleton {
+    background: linear-gradient(90deg, #1e293b 0%, #334155 25%, #1e293b 50%, #334155 75%, #1e293b 100%) !important;
+    background-size: 200% 100% !important;
+}
+
+body.dark-mode .skeleton-row,
+body.dark-mode .skeleton-card {
+    background: #1e293b;
+    border-color: rgba(255, 255, 255, 0.06);
+}
+/* ═══════════ 31. GRAPHIQUES (dashboard admin) ═══════════ */
+.chart-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.chart-bar-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #4b5563;
+    width: 65px;
+    flex-shrink: 0;
+    text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.chart-bar-track {
+    flex: 1;
+    height: 18px;
+    background: #f3f4f6;
+    border-radius: 9px;
+    overflow: hidden;
+    position: relative;
+}
+
+.chart-bar-fill {
+    height: 100%;
+    border-radius: 9px;
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.chart-bar-value {
+    font-size: 11px;
+    font-weight: 800;
+    color: #1f2937;
+    width: 42px;
+    flex-shrink: 0;
+    text-align: right;
+}
+
+/* Cercle de progression */
+.progress-ring {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    margin: 0 auto;
+}
+
+.progress-ring svg {
+    transform: rotate(-90deg);
+    width: 100%;
+    height: 100%;
+}
+
+.progress-ring .ring-bg {
+    fill: none;
+    stroke: #e5e7eb;
+    stroke-width: 8;
+}
+
+.progress-ring .ring-fg {
+    fill: none;
+    stroke-width: 8;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.progress-ring .ring-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    color: #1f2937;
+}
+
+.progress-ring .ring-text .val {
+    font-size: 22px;
+    line-height: 1;
+}
+
+.progress-ring .ring-text .unit {
+    font-size: 10px;
+    color: #9ca3af;
+    font-weight: 600;
+    margin-top: 2px;
+}
+
+/* KPI cards pour dashboard */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.kpi-card {
+    background: white;
+    border-radius: 16px;
+    padding: 14px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.25s;
+}
+
+.kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.kpi-card .kpi-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #9ca3af;
+    margin-bottom: 6px;
+}
+
+.kpi-card .kpi-value {
+    font-size: 22px;
+    font-weight: 900;
+    color: #1f2937;
+    line-height: 1;
+}
+
+.kpi-card .kpi-trend {
+    font-size: 10px;
+    font-weight: 700;
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.kpi-card .kpi-trend.up { color: #059669; }
+.kpi-card .kpi-trend.down { color: #DC2626; }
+.kpi-card .kpi-trend.neutral { color: #6b7280; }
+
+.kpi-icon {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-size: 24px;
+    opacity: 0.35;
+}
+
+/* Dark mode */
+body.dark-mode .chart-bar-track { background: #334155; }
+body.dark-mode .chart-bar-label,
+body.dark-mode .chart-bar-value { color: #cbd5e1; }
+body.dark-mode .progress-ring .ring-bg { stroke: #334155; }
+body.dark-mode .progress-ring .ring-text { color: #f1f5f9; }
+body.dark-mode .kpi-card { background: #1e293b; border-color: rgba(255,255,255,0.08); }
+body.dark-mode .kpi-card .kpi-value { color: #f1f5f9; }
+/* ═══════════ 32. NOTIFICATIONS — Filtre & Disparition ═══════════ */
+.notif-filter-tabs {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 4px;
+    margin-bottom: 14px;
+    background: #f3f4f6;
+    border-radius: 14px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.notif-filter-tabs::-webkit-scrollbar { height: 0; }
+
+.notif-filter-tab {
+    flex-shrink: 0;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    color: #6b7280;
+    border: none;
+    background: transparent;
+    white-space: nowrap;
+}
+
+.notif-filter-tab:hover { color: #1f2937; background: rgba(255,255,255,0.6); }
+.notif-filter-tab.active {
+    background: white;
+    color: #004AAD;
+    box-shadow: 0 2px 8px rgba(0, 74, 173, 0.15);
+}
+
+.notif-card {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Disparition après lecture */
+.notif-card.notif-reading {
+    animation: notifReadPulse 0.5s ease-out;
+}
+
+@keyframes notifReadPulse {
+    0% { transform: scale(1); background-color: inherit; }
+    50% { transform: scale(1.02); background-color: #dcfce7; }
+    100% { transform: scale(1); background-color: inherit; }
+}
+
+.notif-card.notif-disappearing {
+    animation: notifDisappear 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    pointer-events: none;
+}
+
+@keyframes notifDisappear {
+    0% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+        max-height: 200px;
+        margin-bottom: 8px;
+        padding: 16px;
+    }
+    60% {
+        opacity: 0.4;
+        transform: translateX(30px) scale(0.95);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(60px) scale(0.9);
+        max-height: 0;
+        margin-bottom: 0;
+        padding: 0 16px;
+    }
+}
+
+.notif-card.notif-gone {
+    display: none;
+}
+
+/* Compteur de lecture en haut à droite */
+.notif-reading-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 9px;
+    font-weight: 800;
+    background: #d1fae5;
+    color: #065f46;
+    padding: 2px 6px;
+    border-radius: 6px;
+    opacity: 0;
+    animation: notifReadingBadge 1.5s ease-out forwards;
+}
+
+@keyframes notifReadingBadge {
+    0% { opacity: 0; transform: scale(0.7); }
+    20% { opacity: 1; transform: scale(1); }
+    80% { opacity: 1; }
+    100% { opacity: 0; transform: scale(0.9); }
+}
+
+/* Dark mode */
+body.dark-mode .notif-filter-tabs { background: #1e293b; }
+body.dark-mode .notif-filter-tab:hover { background: #334155; color: #f1f5f9; }
+body.dark-mode .notif-filter-tab.active { background: #334155; color: #60a5fa; }
+body.dark-mode .notif-reading-badge { background: #14532d; color: #86efac; }
+/* ═══════════════════════════════════════════════════════════════
+   MODE SOMBRE PREMIUM — surcharge les styles existants
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Transition douce au changement de thème */
+body, .card-pro, .stat-card, .hero-stat, .btn-float, .action-tile, .list-row,
+input, select, textarea, button {
+    transition: background-color 0.35s ease, color 0.35s ease,
+                border-color 0.35s ease, box-shadow 0.35s ease;
+}
+
+/* ─────────── FOND GÉNÉRAL ─────────── */
+body.dark-mode {
+    background: #0a0f1e !important;
+    color: #e2e8f0 !important;
+    background-image:
+        radial-gradient(circle at 20% 0%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 100%, rgba(139, 92, 246, 0.06) 0%, transparent 50%) !important;
+    background-attachment: fixed !important;
+}
+
+/* ─────────── CONTENEUR PRINCIPAL ─────────── */
+body.dark-mode > div > div,
+body.dark-mode #page-dashboard > div {
+    background: #0f172a !important;
+}
+
+body.dark-mode .bg-white,
+body.dark-mode #page-dashboard {
+    background: #0f172a !important;
+}
+
+/* ─────────── CARTES ─────────── */
+body.dark-mode .card-pro,
+body.dark-mode .stat-card,
+body.dark-mode .list-row,
+body.dark-mode .action-tile {
+    background: #1a2332 !important;
+    border-color: rgba(148, 163, 184, 0.12) !important;
+    box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.03) !important;
+}
+
+body.dark-mode .card-pro:hover,
+body.dark-mode .stat-card:hover,
+body.dark-mode .action-tile:hover {
+    background: #1e2a3d !important;
+    box-shadow:
+        0 12px 30px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(96, 165, 250, 0.15) !important;
+}
+
+body.dark-mode .list-row:hover {
+    background: #1e2a3d !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Cartes stat colorées : garder une touche de couleur */
+body.dark-mode .stat-card.blue { background: linear-gradient(135deg, #0f2544 0%, #1e3a5f 100%) !important; border-color: rgba(96, 165, 250, 0.25) !important; }
+body.dark-mode .stat-card.green { background: linear-gradient(135deg, #0a2e1f 0%, #14532d 100%) !important; border-color: rgba(52, 211, 153, 0.25) !important; }
+body.dark-mode .stat-card.orange { background: linear-gradient(135deg, #3d2008 0%, #7c2d12 100%) !important; border-color: rgba(251, 146, 60, 0.25) !important; }
+body.dark-mode .stat-card.pink { background: linear-gradient(135deg, #3d0a1f 0%, #831843 100%) !important; border-color: rgba(244, 114, 182, 0.25) !important; }
+body.dark-mode .stat-card.purple { background: linear-gradient(135deg, #1f0a3d 0%, #4c1d95 100%) !important; border-color: rgba(167, 139, 250, 0.25) !important; }
+body.dark-mode .stat-card.teal { background: linear-gradient(135deg, #042f2e 0%, #134e4a 100%) !important; border-color: rgba(45, 212, 191, 0.25) !important; }
+body.dark-mode .stat-card.red { background: linear-gradient(135deg, #3d0a0a 0%, #7f1d1d 100%) !important; border-color: rgba(248, 113, 113, 0.25) !important; }
+
+/* ─────────── TEXTES ─────────── */
+body.dark-mode .text-gray-800 { color: #f1f5f9 !important; }
+body.dark-mode .text-gray-700 { color: #e2e8f0 !important; }
+body.dark-mode .text-gray-600 { color: #cbd5e1 !important; }
+body.dark-mode .text-gray-500 { color: #94a3b8 !important; }
+body.dark-mode .text-gray-400 { color: #64748b !important; }
+body.dark-mode .text-gray-300 { color: #475569 !important; }
+
+body.dark-mode .list-title,
+body.dark-mode .card-title,
+body.dark-mode .kpi-value,
+body.dark-mode .section-title,
+body.dark-mode .confirm-title,
+body.dark-mode .toast-content {
+    color: #f1f5f9 !important;
+}
+
+body.dark-mode .list-subtitle,
+body.dark-mode .section-sub,
+body.dark-mode .confirm-message {
+    color: #94a3b8 !important;
+}
+
+body.dark-mode .stat-value,
+body.dark-mode .hero-stat-value {
+    color: #f8fafc !important;
+}
+
+/* ─────────── BORDURES ─────────── */
+body.dark-mode .border-gray-100,
+body.dark-mode .border-gray-200 {
+    border-color: rgba(148, 163, 184, 0.12) !important;
+}
+body.dark-mode .border-gray-300 {
+    border-color: rgba(148, 163, 184, 0.2) !important;
+}
+
+body.dark-mode .divider {
+    color: #64748b !important;
+}
+body.dark-mode .divider::before,
+body.dark-mode .divider::after {
+    background: linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.2), transparent) !important;
+}
+
+/* ─────────── CHAMPS DE SAISIE ─────────── */
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+    background: #0f1a2e !important;
+    color: #f1f5f9 !important;
+    border-color: rgba(148, 163, 184, 0.2) !important;
+}
+
+body.dark-mode input:focus,
+body.dark-mode select:focus,
+body.dark-mode textarea:focus {
+    border-color: #60a5fa !important;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15) !important;
+    background: #0f1a2e !important;
+}
+
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder {
+    color: #64748b !important;
+}
+
+body.dark-mode input:read-only,
+body.dark-mode input[readonly] {
+    background: #1a2332 !important;
+    color: #94a3b8 !important;
+}
+
+/* ─────────── BOUTONS PRINCIPAUX ─────────── */
+body.dark-mode .btn-float {
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+}
+body.dark-mode .btn-float:hover {
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+body.dark-mode .btn-float .btn-icon {
+    background: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* ─────────── HERO STAT ─────────── */
+body.dark-mode .hero-stat {
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+
+body.dark-mode .hero-stat::before {
+    background: rgba(255, 255, 255, 0.05) !important;
+}
+body.dark-mode .hero-stat::after {
+    background: rgba(255, 255, 255, 0.03) !important;
+}
+
+/* ─────────── PROGRESS ─────────── */
+body.dark-mode .progress {
+    background: rgba(148, 163, 184, 0.15) !important;
+}
+body.dark-mode .progress.on-light {
+    background: rgba(148, 163, 184, 0.15) !important;
+}
+
+body.dark-mode .mini-progress-track {
+    background: rgba(148, 163, 184, 0.12) !important;
+}
+
+/* ─────────── SECTIONS COLORÉES (bg-blue-50, etc.) ─────────── */
+body.dark-mode .bg-blue-50 { background-color: rgba(59, 130, 246, 0.08) !important; }
+body.dark-mode .bg-green-50 { background-color: rgba(16, 185, 129, 0.08) !important; }
+body.dark-mode .bg-red-50 { background-color: rgba(239, 68, 68, 0.08) !important; }
+body.dark-mode .bg-orange-50 { background-color: rgba(245, 158, 11, 0.08) !important; }
+body.dark-mode .bg-purple-50 { background-color: rgba(139, 92, 246, 0.08) !important; }
+body.dark-mode .bg-pink-50 { background-color: rgba(236, 72, 153, 0.08) !important; }
+body.dark-mode .bg-amber-50 { background-color: rgba(217, 119, 6, 0.08) !important; }
+body.dark-mode .bg-cyan-50 { background-color: rgba(6, 182, 212, 0.08) !important; }
+body.dark-mode .bg-indigo-50 { background-color: rgba(99, 102, 241, 0.08) !important; }
+body.dark-mode .bg-teal-50 { background-color: rgba(13, 148, 136, 0.08) !important; }
+
+/* ─────────── ALERT BANNERS ─────────── */
+body.dark-mode .alert-banner.success { background: rgba(16, 185, 129, 0.1) !important; color: #6ee7b7 !important; border-color: #10B981 !important; }
+body.dark-mode .alert-banner.warning { background: rgba(245, 158, 11, 0.1) !important; color: #fcd34d !important; border-color: #F59E0B !important; }
+body.dark-mode .alert-banner.danger { background: rgba(239, 68, 68, 0.1) !important; color: #fca5a5 !important; border-color: #EF4444 !important; }
+body.dark-mode .alert-banner.info { background: rgba(59, 130, 246, 0.1) !important; color: #93c5fd !important; border-color: #3B82F6 !important; }
+
+/* ─────────── CHIPS ─────────── */
+body.dark-mode .chip-success { background: rgba(16, 185, 129, 0.15) !important; color: #6ee7b7 !important; }
+body.dark-mode .chip-warning { background: rgba(245, 158, 11, 0.15) !important; color: #fcd34d !important; }
+body.dark-mode .chip-danger { background: rgba(239, 68, 68, 0.15) !important; color: #fca5a5 !important; }
+body.dark-mode .chip-info { background: rgba(59, 130, 246, 0.15) !important; color: #93c5fd !important; }
+body.dark-mode .chip-neutral { background: rgba(148, 163, 184, 0.12) !important; color: #cbd5e1 !important; }
+
+/* ─────────── ONGLETS PILL ─────────── */
+body.dark-mode .tabs-pill {
+    background: #1a2332 !important;
+    border: 1px solid rgba(148, 163, 184, 0.1) !important;
+}
+body.dark-mode .tabs-pill .tab-pill {
+    color: #94a3b8 !important;
+}
+body.dark-mode .tabs-pill .tab-pill:hover {
+    background: rgba(148, 163, 184, 0.08) !important;
+    color: #e2e8f0 !important;
+}
+body.dark-mode .tabs-pill .tab-pill.active {
+    background: #334155 !important;
+    color: #60a5fa !important;
+    box-shadow: 0 2px 8px rgba(96, 165, 250, 0.2) !important;
+}
+
+/* ─────────── NOTE CELLS ─────────── */
+body.dark-mode .note-cell.excellent { background: rgba(16, 185, 129, 0.15) !important; color: #6ee7b7 !important; }
+body.dark-mode .note-cell.bien { background: rgba(59, 130, 246, 0.15) !important; color: #93c5fd !important; }
+body.dark-mode .note-cell.passable { background: rgba(245, 158, 11, 0.15) !important; color: #fcd34d !important; }
+body.dark-mode .note-cell.faible { background: rgba(239, 68, 68, 0.15) !important; color: #fca5a5 !important; }
+body.dark-mode .note-cell.vide { background: rgba(148, 163, 184, 0.1) !important; color: #64748b !important; }
+
+/* ─────────── ÉTATS VIDES ─────────── */
+body.dark-mode .empty-state {
+    background: #1a2332 !important;
+    border-color: rgba(148, 163, 184, 0.15) !important;
+}
+body.dark-mode .empty-state .empty-title { color: #cbd5e1 !important; }
+body.dark-mode .empty-state .empty-desc { color: #64748b !important; }
+
+/* ─────────── LISTE BTN ─────────── */
+body.dark-mode .list-btn {
+    background: rgba(148, 163, 184, 0.1) !important;
+    color: #cbd5e1 !important;
+}
+body.dark-mode .list-btn:hover {
+    background: rgba(148, 163, 184, 0.2) !important;
+}
+body.dark-mode .list-btn.edit { background: rgba(59, 130, 246, 0.15) !important; color: #93c5fd !important; }
+body.dark-mode .list-btn.delete { background: rgba(239, 68, 68, 0.15) !important; color: #fca5a5 !important; }
+body.dark-mode .list-btn.view { background: rgba(16, 185, 129, 0.15) !important; color: #6ee7b7 !important; }
+
+/* ─────────── BADGE NOTIF (cloche) ─────────── */
+body.dark-mode #badge-notif {
+    box-shadow: 0 0 0 2px #0f172a, 0 0 10px rgba(239, 68, 68, 0.5) !important;
+}
+
+/* ─────────── SKELETON ─────────── */
+body.dark-mode .skeleton,
+body.dark-mode .skeleton-row,
+body.dark-mode .skeleton-card {
+    background: linear-gradient(90deg, #1a2332 0%, #253347 25%, #1a2332 50%, #253347 75%, #1a2332 100%) !important;
+    background-size: 200% 100% !important;
+}
+
+/* ─────────── CHARTS ─────────── */
+body.dark-mode .chart-bar-track { background: rgba(148, 163, 184, 0.12) !important; }
+body.dark-mode .chart-bar-label { color: #cbd5e1 !important; }
+body.dark-mode .chart-bar-value { color: #f1f5f9 !important; }
+
+body.dark-mode .progress-ring .ring-bg { stroke: rgba(148, 163, 184, 0.15) !important; }
+body.dark-mode .progress-ring .ring-text { color: #f1f5f9 !important; }
+
+/* ─────────── TOAST ─────────── */
+body.dark-mode .toast {
+    background: #1a2332 !important;
+    border-color: rgba(148, 163, 184, 0.15) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
+}
+body.dark-mode .toast-content { color: #f1f5f9 !important; }
+body.dark-mode .toast-close { background: rgba(148, 163, 184, 0.1) !important; color: #94a3b8 !important; }
+body.dark-mode .toast-close:hover { background: rgba(148, 163, 184, 0.2) !important; color: #f1f5f9 !important; }
+
+/* ─────────── CONFIRM MODAL ─────────── */
+body.dark-mode .confirm-box {
+    background: #1a2332 !important;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7) !important;
+}
+body.dark-mode .confirm-icon {
+    background: linear-gradient(135deg, #78350f, #92400e) !important;
+    box-shadow: 0 8px 20px rgba(245, 158, 11, 0.15) !important;
+}
+body.dark-mode .confirm-title { color: #f1f5f9 !important; }
+body.dark-mode .confirm-message { color: #cbd5e1 !important; }
+body.dark-mode .confirm-btn-non {
+    background: rgba(148, 163, 184, 0.1) !important;
+    color: #cbd5e1 !important;
+}
+body.dark-mode .confirm-btn-non:hover {
+    background: rgba(148, 163, 184, 0.2) !important;
+    color: #f1f5f9 !important;
+}
+
+/* ─────────── NOTIFICATIONS ─────────── */
+body.dark-mode .notif-filter-tabs { background: #1a2332 !important; }
+body.dark-mode .notif-filter-tab:hover { background: rgba(148, 163, 184, 0.1) !important; color: #e2e8f0 !important; }
+body.dark-mode .notif-filter-tab.active {
+    background: #334155 !important;
+    color: #60a5fa !important;
+}
+body.dark-mode .notif-reading-badge {
+    background: rgba(16, 185, 129, 0.2) !important;
+    color: #6ee7b7 !important;
+}
+
+/* ─────────── SCROLLBAR ─────────── */
+body.dark-mode ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+body.dark-mode ::-webkit-scrollbar-track {
+    background: #0f172a;
+}
+body.dark-mode ::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.25);
+    border-radius: 4px;
+}
+body.dark-mode ::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.4);
+}
+
+/* ─────────── BOUTON THEME ─────────── */
+body.dark-mode .btn-theme-toggle {
+    background: rgba(250, 204, 21, 0.2) !important;
+    box-shadow: 0 0 15px rgba(250, 204, 21, 0.15) !important;
+}
+body.dark-mode .btn-theme-toggle:hover {
+    background: rgba(250, 204, 21, 0.3) !important;
+    box-shadow: 0 0 20px rgba(250, 204, 21, 0.25) !important;
+}

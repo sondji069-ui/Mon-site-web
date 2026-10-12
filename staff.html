@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link rel="stylesheet" href="dashboard.css">
     <script>
         tailwind.config = { theme: { extend: { colors: { 'edu-blue': '#004AAD', 'edu-green': '#2EAD5E', 'edu-red': '#EF4444', 'edu-orange': '#F59E0B', 'edu-teal': '#0D9488', 'edu-purple': '#8B5CF6' } } } }
     </script>
@@ -18,8 +19,6 @@
         .bouton-action:active { transform: scale(0.96); }
         .fade-in { animation: fadeIn 0.5s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .barre-progression { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.3); overflow: hidden; }
-        .barre-progression-fill { height: 100%; border-radius: 3px; transition: width 0.8s ease; background: linear-gradient(90deg, #ffffff 0%, #a7f3d0 100%); }
         body.dark-mode { background-color: #0f172a; color: #e2e8f0; }
         body.dark-mode .bg-white { background-color: #1e293b; }
         body.dark-mode .bg-gray-50 { background-color: #0f172a; }
@@ -33,20 +32,14 @@
         body.dark-mode .border-gray-200 { border-color: #334155; }
         body.dark-mode .border-gray-300 { border-color: #475569; }
         body.dark-mode input, body.dark-mode select, body.dark-mode textarea { background-color: #334155; color: #f1f5f9; border-color: #475569; }
-        body.dark-mode input::placeholder, body.dark-mode textarea::placeholder { color: #94a3b8; }
         body.dark-mode .bg-blue-50 { background-color: #1e3a5f; }
         body.dark-mode .bg-green-50 { background-color: #14532d; }
         body.dark-mode .bg-red-50 { background-color: #7f1d1d; }
         body.dark-mode .bg-orange-50 { background-color: #7c2d12; }
-        body.dark-mode .bg-purple-50 { background-color: #4c1d95; }
-        body.dark-mode .bg-pink-50 { background-color: #831843; }
         body.dark-mode .bg-teal-50 { background-color: #134e4a; }
-        body.dark-mode .bg-cyan-50 { background-color: #164e63; }
         .btn-theme-toggle { width: 36px; height: 36px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; border: none; color: white; transition: all 0.2s ease; flex-shrink: 0; }
         .btn-theme-toggle:hover { background: rgba(255,255,255,0.35); }
-        .btn-theme-toggle:active { transform: scale(0.92); }
     </style>
-<link rel="stylesheet" href="dashboard.css">
 </head>
 <body class="min-h-screen flex justify-center items-start pt-4 p-3">
     <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col h-auto min-h-[600px]">
@@ -71,106 +64,107 @@
             </div>
 
             <div class="flex-1 overflow-y-auto -mt-4 pt-6 px-4 pb-6">
-                <!-- ═══════════════ ACCUEIL STAFF — VERSION PRO ═══════════════ -->
-<div id="view-accueil" class="hidden">
-    <button onclick="activerNotificationsPush(supabaseClient, currentUser)" id="btn-push" class="btn-float anim-up" style="background: linear-gradient(135deg, #F59E0B, #EA580C); margin-bottom: 14px;">
-        <div class="btn-icon">🔔</div>
-        <div class="btn-content">
-            <div class="btn-title">Activer les notifications</div>
-            <div class="btn-desc">Alertes sur votre téléphone</div>
-        </div>
-        <div class="btn-arrow">→</div>
-    </button>
 
-    <!-- HERO STAFF -->
-    <div class="hero-stat anim-up delay-1" style="--from: #0D9488; --to: #059669; margin-bottom: 14px;">
-        <div class="hero-stat-icon">🎯</div>
-        <div class="hero-stat-label">Mon rôle</div>
-        <h2 id="role-accueil" style="font-size: 20px; font-weight: 900; margin-top: 4px; letter-spacing: -0.3px; position: relative; z-index: 2;">...</h2>
-        <p id="description-role" style="font-size: 11px; opacity: 0.9; margin-top: 6px; line-height: 1.4; position: relative; z-index: 2;">...</p>
-    </div>
+                <!-- ACCUEIL PRO -->
+                <div id="view-accueil" class="hidden">
+                    <button onclick="activerNotificationsPush(supabaseClient, currentUser)" id="btn-push" class="btn-float anim-up" style="background: linear-gradient(135deg, #F59E0B, #EA580C); margin-bottom: 14px;">
+                        <div class="btn-icon">🔔</div>
+                        <div class="btn-content">
+                            <div class="btn-title">Activer les notifications</div>
+                            <div class="btn-desc">Alertes sur votre téléphone</div>
+                        </div>
+                        <div class="btn-arrow">→</div>
+                    </button>
 
-    <!-- STATS RAPIDES -->
-    <div class="grid grid-cols-2 gap-3 mb-4">
-        <div class="stat-card blue anim-up delay-2">
-            <div class="stat-icon">🎓</div>
-            <div class="stat-label">Élèves</div>
-            <p id="total-eleves" class="stat-value">0</p>
-        </div>
-        <div class="stat-card purple anim-up delay-2">
-            <div class="stat-icon">🏫</div>
-            <div class="stat-label">Classes</div>
-            <p id="total-classes" class="stat-value">0</p>
-        </div>
-    </div>
+                    <div class="hero-stat anim-up delay-1" style="--from: #0D9488; --to: #059669; margin-bottom: 14px;">
+                        <div class="hero-stat-icon">🎯</div>
+                        <div class="hero-stat-label">Mon rôle</div>
+                        <h2 id="role-accueil" style="font-size: 20px; font-weight: 900; margin-top: 4px; letter-spacing: -0.3px; position: relative; z-index: 2;">...</h2>
+                        <p id="description-role" style="font-size: 11px; opacity: 0.9; margin-top: 6px; line-height: 1.4; position: relative; z-index: 2;">...</p>
+                    </div>
 
-    <div class="divider anim-up delay-3">Mes outils</div>
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <div class="stat-card blue anim-up delay-2">
+                            <div class="stat-icon">🎓</div>
+                            <div class="stat-label">Élèves</div>
+                            <p id="total-eleves" class="stat-value">0</p>
+                        </div>
+                        <div class="stat-card purple anim-up delay-2">
+                            <div class="stat-icon">🏫</div>
+                            <div class="stat-label">Classes</div>
+                            <p id="total-classes" class="stat-value">0</p>
+                        </div>
+                    </div>
 
-    <button id="btn-nav-eleves" onclick="afficherEleves()" class="btn-float anim-up delay-3" style="background: linear-gradient(135deg, #3B82F6, #1D4ED8); margin-bottom: 10px;">
-        <div class="btn-icon">🎓</div>
-        <div class="btn-content">
-            <div class="btn-title">Liste des élèves</div>
-            <div class="btn-desc">Consulter les élèves</div>
-        </div>
-        <div class="btn-arrow">→</div>
-    </button>
+                    <div class="divider anim-up delay-3">Mes outils</div>
 
-    <button id="btn-nav-emploi" onclick="afficherEmploi()" class="btn-float anim-up delay-4" style="background: linear-gradient(135deg, #8B5CF6, #6366F1); margin-bottom: 10px;">
-        <div class="btn-icon">📅</div>
-        <div class="btn-content">
-            <div class="btn-title">Emploi du temps</div>
-            <div class="btn-desc">Par classe</div>
-        </div>
-        <div class="btn-arrow">→</div>
-    </button>
+                    <button id="btn-nav-eleves" onclick="afficherEleves()" class="btn-float anim-up delay-3" style="background: linear-gradient(135deg, #3B82F6, #1D4ED8); margin-bottom: 10px;">
+                        <div class="btn-icon">🎓</div>
+                        <div class="btn-content">
+                            <div class="btn-title">Liste des élèves</div>
+                            <div class="btn-desc">Consulter les élèves</div>
+                        </div>
+                        <div class="btn-arrow">→</div>
+                    </button>
 
-    <button id="btn-nav-absences" onclick="afficherAbsences()" class="btn-float anim-up delay-5" style="background: linear-gradient(135deg, #F97316, #DC2626); margin-bottom: 10px;">
-        <div class="btn-icon">⚠️</div>
-        <div class="btn-content">
-            <div class="btn-title">Suivi des absences</div>
-            <div class="btn-desc">Élèves absents du jour</div>
-        </div>
-        <div class="btn-arrow">→</div>
-    </button>
+                    <button id="btn-nav-emploi" onclick="afficherEmploi()" class="btn-float anim-up delay-4" style="background: linear-gradient(135deg, #8B5CF6, #6366F1); margin-bottom: 10px;">
+                        <div class="btn-icon">📅</div>
+                        <div class="btn-content">
+                            <div class="btn-title">Emploi du temps</div>
+                            <div class="btn-desc">Par classe</div>
+                        </div>
+                        <div class="btn-arrow">→</div>
+                    </button>
 
-    <button id="btn-nav-heures" onclick="afficherHeuresStaff()" class="btn-float anim-up delay-6" style="background: linear-gradient(135deg, #0D9488, #059669); margin-bottom: 10px;">
-        <div class="btn-icon">🕐</div>
-        <div class="btn-content">
-            <div class="btn-title">Heures d'enseignement</div>
-            <div class="btn-desc">Suivi des cours dispensés</div>
-        </div>
-        <div class="btn-arrow">→</div>
-    </button>
+                    <button id="btn-nav-absences" onclick="afficherAbsences()" class="btn-float anim-up delay-5" style="background: linear-gradient(135deg, #F97316, #DC2626); margin-bottom: 10px;">
+                        <div class="btn-icon">⚠️</div>
+                        <div class="btn-content">
+                            <div class="btn-title">Suivi des absences</div>
+                            <div class="btn-desc">Élèves absents du jour</div>
+                        </div>
+                        <div class="btn-arrow">→</div>
+                    </button>
 
-    <div class="divider anim-up delay-7">Communication</div>
+                    <button id="btn-nav-heures" onclick="afficherHeuresStaff()" class="btn-float anim-up delay-6" style="background: linear-gradient(135deg, #0D9488, #059669); margin-bottom: 10px;">
+                        <div class="btn-icon">🕐</div>
+                        <div class="btn-content">
+                            <div class="btn-title">Heures d'enseignement</div>
+                            <div class="btn-desc">Suivi des cours dispensés</div>
+                        </div>
+                        <div class="btn-arrow">→</div>
+                    </button>
 
-    <button id="btn-nav-annonces" onclick="afficherAnnonces()" class="btn-float anim-up delay-7" style="background: linear-gradient(135deg, #F59E0B, #D97706); margin-bottom: 10px;">
-        <div class="btn-icon">📢</div>
-        <div class="btn-content">
-            <div class="btn-title">Annonces de l'école</div>
-            <div class="btn-desc">Communications officielles</div>
-        </div>
-        <div class="btn-arrow">→</div>
-    </button>
+                    <div class="divider anim-up delay-7">Communication</div>
 
-    <button onclick="window.location.href='messagerie.html'" class="btn-float anim-up delay-8" style="background: linear-gradient(135deg, #EC4899, #DB2777);">
-        <div class="btn-icon">💬</div>
-        <div class="btn-content">
-            <div class="btn-title">Messagerie</div>
-            <div class="btn-desc">Discuter avec l'équipe</div>
-        </div>
-        <div class="btn-arrow">→</div>
-    </button>
-</div>
+                    <button id="btn-nav-annonces" onclick="afficherAnnonces()" class="btn-float anim-up delay-7" style="background: linear-gradient(135deg, #F59E0B, #D97706); margin-bottom: 10px;">
+                        <div class="btn-icon">📢</div>
+                        <div class="btn-content">
+                            <div class="btn-title">Annonces de l'école</div>
+                            <div class="btn-desc">Communications officielles</div>
+                        </div>
+                        <div class="btn-arrow">→</div>
+                    </button>
 
+                    <button onclick="window.location.href='messagerie.html'" class="btn-float anim-up delay-8" style="background: linear-gradient(135deg, #EC4899, #DB2777);">
+                        <div class="btn-icon">💬</div>
+                        <div class="btn-content">
+                            <div class="btn-title">Messagerie</div>
+                            <div class="btn-desc">Discuter avec l'équipe</div>
+                        </div>
+                        <div class="btn-arrow">→</div>
+                    </button>
+                </div>
+
+                <!-- ELEVES -->
                 <div id="view-eleves" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
-                    <h1 class="text-lg font-bold text-gray-800 mb-2">🎓 Liste des eleves</h1>
-                    <p class="text-xs text-gray-500 mb-3">Consultez les eleves de l'ecole.</p>
+                    <h1 class="text-lg font-bold text-gray-800 mb-2">🎓 Liste des élèves</h1>
+                    <p class="text-xs text-gray-500 mb-3">Consultez les élèves de l'école.</p>
                     <input type="text" id="recherche-eleves" oninput="filtrerListe('recherche-eleves', 'liste-eleves-staff')" placeholder="🔍 Rechercher un élève..." class="w-full px-4 py-2.5 rounded-xl border border-gray-300 mb-3 text-sm focus:outline-none focus:ring-2 focus:ring-edu-teal">
                     <div id="liste-eleves-staff" class="space-y-3"></div>
                 </div>
 
+                <!-- EMPLOI CLASSES -->
                 <div id="view-emploi-classes" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-2">📅 Emploi du temps</h1>
@@ -178,6 +172,7 @@
                     <div id="liste-classes-emploi" class="space-y-3"></div>
                 </div>
 
+                <!-- EMPLOI CLASSE -->
                 <div id="view-emploi-classe" class="hidden fade-in">
                     <div class="flex items-center gap-3 mb-3">
                         <button onclick="afficherEmploi()" class="text-2xl">⬅️</button>
@@ -188,16 +183,18 @@
                     <div class="overflow-x-auto pb-2"><div id="tableau-emploi-staff" class="min-w-[700px]"></div></div>
                 </div>
 
+                <!-- ABSENCES -->
                 <div id="view-absences" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-2">⚠️ Absences du jour</h1>
-                    <p class="text-xs text-gray-500 mb-3">Eleves absents aujourd'hui.</p>
+                    <p class="text-xs text-gray-500 mb-3">Élèves absents aujourd'hui.</p>
                     <div id="liste-absences-staff" class="space-y-3"></div>
                 </div>
 
+                <!-- ANNONCES -->
                 <div id="view-annonces" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
-                    <h1 class="text-lg font-bold text-gray-800 mb-3">📢 Annonces de l'ecole</h1>
+                    <h1 class="text-lg font-bold text-gray-800 mb-3">📢 Annonces de l'école</h1>
                     <div id="liste-annonces" class="space-y-3"></div>
                 </div>
 
@@ -206,10 +203,11 @@
                     <div id="contenu-affiche"></div>
                 </div>
 
+                <!-- HEURES STAFF -->
                 <div id="view-heures-staff" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-2">🕐 Heures d'enseignement</h1>
-                    <p class="text-xs text-gray-500 mb-3">Suivi des cours dispenses par les enseignants.</p>
+                    <p class="text-xs text-gray-500 mb-3">Suivi des cours dispensés par les enseignants.</p>
 
                     <div class="grid grid-cols-3 gap-2 mb-3">
                         <button id="hs-periode-jour" onclick="setPeriodeHeuresStaff('jour')" class="py-2 rounded-xl font-bold text-[10px] bg-gray-100 text-gray-600">Aujourd'hui</button>
@@ -228,6 +226,7 @@
                     <div id="hs-contenu"></div>
                 </div>
 
+                <!-- NOTIFICATIONS -->
                 <div id="view-notifications" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-3">🔔 Mes notifications</h1>
@@ -236,12 +235,15 @@
             </div>
         </div>
     </div>
-<link rel="stylesheet" href="dashboard.css"> 
+
     <script src="push.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <script>
-        // ════════════ CONSTANTES EDT — EN TOUT PREMIER ════════════
+    <script src="ripple.js"></script>
+    <script src="toast.js"></script>
+    <script src="confirm.js"></script>
+    <script src="skeleton.js"></script>
+<script>
+        // ════════════ CONSTANTES EDT ════════════
         var JOURS_EDT = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
         var CRENEAUX_EDT = [
             { debut: '08:00', fin: '10:00' },
@@ -285,7 +287,6 @@
             var ecoleNomSec = echapperHtml(ecoleNom || '');
             var datePub = new Date(a.date_publication).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
             var blocLogo = '<div style="font-size:40px;margin-bottom:5px;">📖</div>';
-            var blocSignatureImg = '';
             var blocSignatureTxt = signatureTxt ? '<p style="font-size:13px;font-weight:bold;color:#004AAD;margin:5px 0 0 0;">' + signatureTxt + '</p>' : '';
             return '<div style="background:white;border:3px solid #004AAD;border-radius:15px;overflow:hidden;font-family:Arial,sans-serif;">'
                 + '<div style="background:linear-gradient(135deg,#004AAD 0%,#0066CC 100%);padding:20px 15px;text-align:center;">'
@@ -298,7 +299,7 @@
                 + '<p style="font-size:13px;color:#1f2937;line-height:1.8;margin:0;white-space:pre-wrap;text-align:justify;">' + contenu + '</p></div>'
                 + '<div style="text-align:right;margin-top:25px;padding-top:15px;border-top:1px solid #e5e7eb;">'
                 + '<p style="font-size:11px;color:#6b7280;margin:0;">Publiee le ' + datePub + '</p>'
-                + blocSignatureImg + blocSignatureTxt + '</div></div>'
+                + blocSignatureTxt + '</div></div>'
                 + '<div style="background:#004AAD;padding:8px;text-align:center;"><p style="color:white;font-size:9px;margin:0;">Document officiel - EDU-LINK</p></div></div>';
         }
 
@@ -423,19 +424,14 @@
 
         // ════════════ ELEVES ════════════
         async function afficherEleves() {
-            if (!aPermission('eleves')) { alert('Acces refuse.'); return; }
+            if (!aPermission('eleves')) { toast.error('Accès refusé'); return; }
             hideAllViews();
             document.getElementById('view-eleves').classList.remove('hidden');
-            document.getElementById('liste-eleves-staff').innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
+            document.getElementById('liste-eleves-staff').innerHTML = skeleton.lignes(6);
 
-            var q = supabaseClient.from('eleves')
-                .select('id, matricule, date_naissance, utilisateurs!utilisateur_id(prenom, nom), classes(nom, id)')
-                .eq('ecole_id', monEcoleId)
-                .order('id', { ascending: false });
+            var q = supabaseClient.from('eleves').select('id, matricule, date_naissance, utilisateurs!utilisateur_id(prenom, nom), classes(nom, id)').eq('ecole_id', monEcoleId).order('id', { ascending: false });
 
-            if (mesClassesStaff.length > 0) {
-                q = q.in('classe_id', mesClassesStaff);
-            }
+            if (mesClassesStaff.length > 0) q = q.in('classe_id', mesClassesStaff);
 
             var res = await q;
             var eleves = res.data;
@@ -443,10 +439,7 @@
             var html = '';
 
             if (mesClassesStaff.length > 0) {
-                html += '<div class="bg-teal-50 border border-teal-100 p-3 rounded-xl mb-3">';
-                html += '<p class="text-[10px] text-teal-700 font-bold mb-1">Vous voyez uniquement vos classes :</p>';
-                html += '<p class="text-[10px] text-gray-600">' + mesClassesStaffNoms.join(', ') + '</p>';
-                html += '</div>';
+                html += '<div class="alert-banner info"><div class="alert-icon">🔒</div><div class="alert-content"><div class="alert-title">Accès limité</div><div class="alert-desc">Vous voyez uniquement : ' + mesClassesStaffNoms.join(', ') + '</div></div></div>';
             }
 
             if (eleves && eleves.length > 0) {
@@ -455,16 +448,15 @@
                     var nom = e.utilisateurs ? e.utilisateurs.nom : '?';
                     var classe = e.classes ? e.classes.nom : 'Sans classe';
                     var initiale = (prenom || '?').charAt(0).toUpperCase();
-                    html += '<div data-search="' + prenom + ' ' + nom + ' ' + (e.matricule || '') + ' ' + classe + '" class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100">';
-                    html += '<div class="flex items-center gap-3">';
-                    html += '<div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm" style="background:linear-gradient(135deg,#0D9488,#004AAD);">' + initiale + '</div>';
-                    html += '<div class="flex-1 min-w-0">';
-                    html += '<p class="text-xs font-bold text-gray-800 truncate">' + prenom + ' ' + nom + '</p>';
-                    html += '<p class="text-[10px] text-gray-500">' + (e.matricule || '') + ' - ' + classe + '</p>';
-                    html += '</div></div></div>';
+                    html += '<div class="list-row" data-search="' + prenom + ' ' + nom + ' ' + (e.matricule || '') + ' ' + classe + '" style="--accent: #0D9488;">';
+                    html += '<div class="list-avatar teal">' + initiale + '</div>';
+                    html += '<div class="list-content">';
+                    html += '<div class="list-title">' + prenom + ' ' + nom + '</div>';
+                    html += '<div class="list-subtitle">' + (e.matricule || '') + ' • ' + classe + '</div>';
+                    html += '</div></div>';
                 });
             } else {
-                html += '<p class="text-gray-500 text-center py-6 text-sm">Aucun eleve.</p>';
+                html += '<div class="empty-state"><div class="empty-icon">🎓</div><div class="empty-title">Aucun élève</div><div class="empty-desc">Aucun élève dans les classes assignées</div></div>';
             }
 
             document.getElementById('liste-eleves-staff').innerHTML = html;
@@ -484,9 +476,10 @@
 
         // ════════════ EMPLOI DU TEMPS ════════════
         async function afficherEmploi() {
-            if (!aPermission('emploi')) { alert('Acces refuse.'); return; }
+            if (!aPermission('emploi')) { toast.error('Accès refusé'); return; }
             hideAllViews();
             document.getElementById('view-emploi-classes').classList.remove('hidden');
+            document.getElementById('liste-classes-emploi').innerHTML = skeleton.lignes(4);
 
             var q = supabaseClient.from('classes').select('*').eq('ecole_id', monEcoleId).order('nom');
             if (mesClassesStaff.length > 0) q = q.in('id', mesClassesStaff);
@@ -496,22 +489,23 @@
 
             var html = '';
             if (mesClassesStaff.length > 0) {
-                html += '<div class="bg-teal-50 border border-teal-100 p-3 rounded-xl mb-3">';
-                html += '<p class="text-[10px] text-teal-700 font-bold">Vos classes uniquement</p>';
-                html += '</div>';
+                html += '<div class="alert-banner info"><div class="alert-icon">🔒</div><div class="alert-content"><div class="alert-title">Vos classes uniquement</div></div></div>';
             }
 
             if (classes && classes.length > 0) {
                 for (var k = 0; k < classes.length; k++) {
                     var c = classes[k];
                     var resC = await supabaseClient.from('emploi_du_temps').select('*', { count: 'exact', head: true }).eq('classe_id', c.id);
-                    html += '<div onclick="afficherEmploiClasse(' + c.id + ', \'' + c.nom.replace(/'/g, "\\'") + '\')" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3 cursor-pointer hover:shadow-md transition">';
-                    html += '<div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-2xl">🏫</div>';
-                    html += '<div class="flex-1"><p class="text-sm font-bold text-gray-800">' + c.nom + '</p>';
-                    html += '<p class="text-[10px] text-gray-500">' + (resC.count || 0) + ' cours</p></div>';
-                    html += '<span class="text-xl text-gray-400">→</span></div>';
+                    html += '<div class="list-row" onclick="afficherEmploiClasse(' + c.id + ', \'' + c.nom.replace(/'/g, "\\'") + '\')" style="--accent: #0D9488;">';
+                    html += '<div class="list-avatar purple">🏫</div>';
+                    html += '<div class="list-content">';
+                    html += '<div class="list-title">' + c.nom + '</div>';
+                    html += '<div class="list-subtitle">' + (resC.count || 0) + ' cours</div>';
+                    html += '</div>';
+                    html += '<span style="font-size: 18px; color: #d1d5db;">→</span>';
+                    html += '</div>';
                 }
-            } else html = '<p class="text-gray-500 text-center py-4">Aucune classe.</p>';
+            } else html = '<div class="empty-state"><div class="empty-icon">🏫</div><div class="empty-title">Aucune classe</div></div>';
 
             document.getElementById('liste-classes-emploi').innerHTML = html;
             window.scrollTo(0, 0);
@@ -524,6 +518,7 @@
             document.getElementById('view-emploi-classe').classList.remove('hidden');
             document.getElementById('titre-emploi-classe').innerText = nomClasse;
             classeEnCoursStaff = { id: classeId, nom: nomClasse };
+            document.getElementById('tableau-emploi-staff').innerHTML = skeleton.hero() + skeleton.cartes(2);
             var res = await supabaseClient.from('emploi_du_temps').select('*').eq('classe_id', classeId).order('heure_debut');
             afficherTableauEmploi(res.data, 'tableau-emploi-staff');
             window.scrollTo(0, 0);
@@ -653,7 +648,7 @@
                 }
             } catch (err) {
                 if (iframe && document.body.contains(iframe)) document.body.removeChild(iframe);
-                if (err.name !== 'AbortError') alert('Erreur : ' + err.message);
+                if (err.name !== 'AbortError') toast.error('Erreur : ' + err.message);
             } finally {
                 if (btn) { btn.disabled = false; btn.innerText = '📥 PDF'; }
             }
@@ -661,18 +656,14 @@
 
         // ════════════ ABSENCES DU JOUR ════════════
         async function afficherAbsences() {
-            if (!aPermission('absences')) { alert('Acces refuse.'); return; }
+            if (!aPermission('absences')) { toast.error('Accès refusé'); return; }
             hideAllViews();
             document.getElementById('view-absences').classList.remove('hidden');
-            document.getElementById('liste-absences-staff').innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
+            document.getElementById('liste-absences-staff').innerHTML = skeleton.lignes(4);
 
             var aujourdHui = new Date().toISOString().split('T')[0];
 
-            var res = await supabaseClient.from('absences')
-                .select('*, eleves(matricule, classe_id, utilisateurs!utilisateur_id(prenom, nom), classes(nom))')
-                .eq('ecole_id', monEcoleId)
-                .eq('date_absence', aujourdHui)
-                .order('id', { ascending: false });
+            var res = await supabaseClient.from('absences').select('*, eleves(matricule, classe_id, utilisateurs!utilisateur_id(prenom, nom), classes(nom))').eq('ecole_id', monEcoleId).eq('date_absence', aujourdHui).order('id', { ascending: false });
 
             var liste = res.data || [];
             if (mesClassesStaff.length > 0) {
@@ -681,9 +672,7 @@
 
             var html = '';
             if (mesClassesStaff.length > 0) {
-                html += '<div class="bg-teal-50 border border-teal-100 p-3 rounded-xl mb-3">';
-                html += '<p class="text-[10px] text-teal-700 font-bold">Absences de vos classes uniquement</p>';
-                html += '</div>';
+                html += '<div class="alert-banner info"><div class="alert-icon">🔒</div><div class="alert-content"><div class="alert-title">Vos classes uniquement</div></div></div>';
             }
 
             if (liste.length > 0) {
@@ -693,18 +682,23 @@
                     var nom = eleve && eleve.utilisateurs ? eleve.utilisateurs.nom : '?';
                     var classe = eleve && eleve.classes ? eleve.classes.nom : '';
                     var matiere = a.matiere || 'Cours';
-                    var justif = a.justifiee
-                        ? '<span class="bg-green-100 text-edu-green text-[10px] font-bold px-2 py-1 rounded">Justifiee</span>'
-                        : '<span class="bg-red-100 text-edu-red text-[10px] font-bold px-2 py-1 rounded">Non justifiee</span>';
-                    html += '<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">';
-                    html += '<div class="flex justify-between items-start mb-2">';
-                    html += '<div class="flex-1 min-w-0">';
-                    html += '<p class="text-sm font-bold text-gray-800 truncate">' + prenom + ' ' + nom + '</p>';
-                    html += '<p class="text-[10px] text-gray-500">' + classe + ' - ' + matiere + '</p>';
-                    html += '</div>' + justif + '</div></div>';
+                    var initiale = prenom.charAt(0).toUpperCase();
+                    var bgIcon = a.justifiee ? 'green' : 'red';
+                    var accent = a.justifiee ? '#10B981' : '#EF4444';
+                    var chipClass = a.justifiee ? 'chip-success' : 'chip-danger';
+                    var chipTxt = a.justifiee ? 'Justifiée' : 'Non justifiée';
+
+                    html += '<div class="list-row" style="--accent: ' + accent + ';">';
+                    html += '<div class="list-avatar ' + bgIcon + '">' + initiale + '</div>';
+                    html += '<div class="list-content">';
+                    html += '<div class="list-title">' + prenom + ' ' + nom + '</div>';
+                    html += '<div class="list-subtitle">' + classe + ' • ' + matiere + '</div>';
+                    html += '</div>';
+                    html += '<span class="chip ' + chipClass + '"><span class="chip-dot"></span>' + chipTxt + '</span>';
+                    html += '</div>';
                 });
             } else {
-                html += '<div class="bg-white p-8 rounded-2xl shadow-sm text-center"><div class="text-5xl mb-2">🎉</div><p class="text-gray-500 text-sm">Aucune absence enregistree aujourd\'hui.</p></div>';
+                html += '<div class="empty-state"><div class="empty-icon">🎉</div><div class="empty-title">Aucune absence</div><div class="empty-desc">Aucune absence enregistrée aujourd\'hui</div></div>';
             }
 
             document.getElementById('liste-absences-staff').innerHTML = html;
@@ -713,24 +707,22 @@
 
         // ════════════ ANNONCES ════════════
         async function afficherAnnonces() {
-            if (!aPermission('annonces')) { alert('Acces refuse.'); return; }
+            if (!aPermission('annonces')) { toast.error('Accès refusé'); return; }
             hideAllViews();
             document.getElementById('view-annonces').classList.remove('hidden');
             document.getElementById('view-affiche').classList.add('hidden');
+            document.getElementById('liste-annonces').innerHTML = skeleton.cartes(3);
             var res = await supabaseClient.from('annonces').select('*').eq('ecole_id', monEcoleId).or('cible.eq.tous').order('date_publication', { ascending: false });
             var annonces = res.data;
             var html = '';
             if (annonces && annonces.length > 0) {
                 annonces.forEach(function(a) {
                     var d = new Date(a.date_publication).toLocaleDateString('fr-FR');
-                    html += '<div onclick="voirAffiche(' + a.id + ')" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition">'
-                        + '<div class="flex justify-between items-start mb-2">'
-                        + '<p class="text-sm font-bold text-gray-800">📢 ' + a.titre + '</p>'
-                        + '<span class="text-[10px] text-gray-400">' + d + '</span>'
-                        + '</div>'
-                        + '<p class="text-xs text-gray-600 mb-2">' + a.contenu.substring(0, 100) + (a.contenu.length > 100 ? '...' : '') + '</p>'
-                        + '<p class="text-[10px] text-edu-teal font-semibold">👆 Cliquez pour voir l\'affiche</p>'
-                        + '</div>';
+                    html += '<div onclick="voirAffiche(' + a.id + ')" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition">';
+                    html += '<div class="flex justify-between items-start mb-2"><p class="text-sm font-bold text-gray-800">📢 ' + a.titre + '</p><span class="text-[10px] text-gray-400">' + d + '</span></div>';
+                    html += '<p class="text-xs text-gray-600 mb-2">' + a.contenu.substring(0, 100) + (a.contenu.length > 100 ? '...' : '') + '</p>';
+                    html += '<p class="text-[10px] text-edu-teal font-semibold">👆 Cliquez pour voir l\'affiche</p>';
+                    html += '</div>';
                 });
             } else html = '<p class="text-gray-500 text-center py-4">Aucune annonce.</p>';
             document.getElementById('liste-annonces').innerHTML = html;
@@ -746,22 +738,53 @@
             document.getElementById('contenu-affiche').innerHTML = construireAfficheSecurisee(res.data, ecole ? ecole.nom : 'Etablissement', ecole ? ecole.signature_url : null);
         }
 
-        // ════════════ NOTIFICATIONS ════════════
+        // ════════════ NOTIFICATIONS (avec disparition) ════════════
         async function afficherNotifications() {
             hideAllViews();
             document.getElementById('view-notifications').classList.remove('hidden');
+            document.getElementById('liste-notifications').innerHTML = skeleton.lignes(4);
             var res = await supabaseClient.from('notifications').select('*').eq('utilisateur_id', currentUser.id).order('date_creation', { ascending: false });
             var notifs = res.data;
             var html = '';
             if (notifs && notifs.length > 0) {
                 notifs.forEach(function(n) {
-                    html += '<div class="bg-teal-50 border-l-4 border-edu-teal p-4 rounded-r-2xl mb-2"><p class="text-sm font-bold text-edu-teal">' + n.titre + '</p><p class="text-xs text-gray-600 mt-1">' + n.contenu + '</p></div>';
+                    var luStyle = n.lu ? 'opacity-60' : '';
+                    html += '<div id="notif-' + n.id + '" data-notif-id="' + n.id + '" class="bg-teal-50 ' + luStyle + ' border-l-4 border-edu-teal p-4 rounded-r-2xl mb-2 shadow-sm cursor-pointer notif-card" onclick="lireNotif(' + n.id + ')"><p class="text-sm font-bold text-edu-teal">' + n.titre + '</p><p class="text-xs text-gray-600 mt-1">' + n.contenu + '</p></div>';
                     supabaseClient.from('notifications').update({ lu: true }).eq('id', n.id);
                 });
                 chargerBadgeNotifs();
             } else html = '<p class="text-gray-500 text-center py-4">Aucune notification.</p>';
             document.getElementById('liste-notifications').innerHTML = html;
             window.scrollTo(0, 0);
+        }
+
+        async function lireNotif(id) {
+            var carte = document.getElementById('notif-' + id);
+            if (!carte) return;
+
+            var dejaLue = carte.classList.contains('opacity-60');
+
+            if (dejaLue) {
+                carte.classList.add('notif-reading');
+                setTimeout(function() { carte.classList.remove('notif-reading'); }, 500);
+                return;
+            }
+
+            carte.classList.add('notif-reading');
+            var badge = document.createElement('div');
+            badge.className = 'notif-reading-badge';
+            badge.textContent = '✓ Lu';
+            carte.appendChild(badge);
+
+            await supabaseClient.from('notifications').update({ lu: true }).eq('id', id);
+
+            setTimeout(function() {
+                carte.classList.add('notif-disappearing');
+                setTimeout(function() {
+                    carte.classList.add('notif-gone');
+                    chargerBadgeNotifs();
+                }, 600);
+            }, 1200);
         }
 
         function retourAccueil() {
@@ -813,8 +836,8 @@
                 if (!existant && accueil) {
                     var msg = document.createElement('div');
                     msg.id = 'msg-aucun-acces';
-                    msg.className = 'bg-orange-50 border border-orange-200 rounded-2xl p-4 mb-3 text-center';
-                    msg.innerHTML = '<div class="text-3xl mb-2">🔒</div><p class="text-sm font-bold text-edu-orange mb-1">Acces limite</p><p class="text-[11px] text-gray-600">Vous n\'avez acces a aucun module. Contactez l\'administration.</p>';
+                    msg.className = 'alert-banner warning';
+                    msg.innerHTML = '<div class="alert-icon">🔒</div><div class="alert-content"><div class="alert-title">Accès limité</div><div class="alert-desc">Vous n\'avez accès à aucun module. Contactez l\'administration.</div></div>';
                     accueil.appendChild(msg);
                 }
             }
@@ -860,11 +883,11 @@
 
         async function chargerHeuresStaff() {
             var conteneur = document.getElementById('hs-contenu');
-            conteneur.innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
+            conteneur.innerHTML = skeleton.stats(1) + skeleton.lignes(4);
 
             var debut = document.getElementById('hs-date-debut').value;
             var fin = document.getElementById('hs-date-fin').value;
-            if (!debut || !fin) { conteneur.innerHTML = '<p class="text-orange-500 text-center py-4 text-sm">Selectionnez une periode.</p>'; return; }
+            if (!debut || !fin) { conteneur.innerHTML = '<p class="text-orange-500 text-center py-4 text-sm">Sélectionnez une période.</p>'; return; }
 
             var q = supabaseClient.from('pointages')
                 .select('*, classes(nom), enseignants(utilisateurs!utilisateur_id(prenom, nom))')
@@ -873,9 +896,7 @@
                 .lte('date_pointage', fin)
                 .order('date_pointage', { ascending: false });
 
-            if (mesClassesStaff.length > 0) {
-                q = q.in('classe_id', mesClassesStaff);
-            }
+            if (mesClassesStaff.length > 0) q = q.in('classe_id', mesClassesStaff);
 
             var res = await q;
             var liste = res.data || [];
@@ -886,20 +907,22 @@
             var nbProfsActifs = new Set(liste.map(function(p) { return p.enseignant_id; })).size;
 
             var html = '';
-            html += '<div class="bg-gradient-to-br from-teal-500 to-cyan-600 text-white rounded-2xl shadow-lg p-4 mb-3">';
-            html += '<p class="text-[10px] opacity-90 uppercase font-bold">Total heures</p>';
-            html += '<p class="text-4xl font-extrabold mt-1">' + totalHeures + 'h</p>';
-            html += '<div class="grid grid-cols-2 gap-2 mt-3 text-center">';
-            html += '<div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-90">Cours</p><p class="text-base font-bold">' + nbCours + '</p></div>';
-            html += '<div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-90">Profs actifs</p><p class="text-base font-bold">' + nbProfsActifs + '</p></div>';
-            html += '</div></div>';
+            html += '<div class="hero-stat" style="--from: #0D9488; --to: #059669; margin-bottom: 14px;">';
+            html += '<div class="hero-stat-icon">🕐</div>';
+            html += '<div class="hero-stat-label">Total heures</div>';
+            html += '<p class="hero-stat-value">' + totalHeures + 'h</p>';
+            html += '<div class="stat-inline" style="margin-top: 12px; position: relative; z-index: 2;">';
+            html += '<div class="stat-mini" style="background: rgba(255,255,255,0.2);"><div class="label" style="color: white; opacity: 0.85;">Cours</div><div class="value" style="color: white;">' + nbCours + '</div></div>';
+            html += '<div class="stat-mini" style="background: rgba(255,255,255,0.2);"><div class="label" style="color: white; opacity: 0.85;">Profs actifs</div><div class="value" style="color: white;">' + nbProfsActifs + '</div></div>';
+            html += '</div>';
+            html += '</div>';
 
             if (mesClassesStaff.length > 0) {
-                html += '<div class="bg-teal-50 border border-teal-100 p-3 rounded-xl mb-3"><p class="text-[10px] text-teal-700 font-bold">Vos classes uniquement</p></div>';
+                html += '<div class="alert-banner info"><div class="alert-icon">🔒</div><div class="alert-content"><div class="alert-title">Vos classes uniquement</div></div></div>';
             }
 
             if (liste.length === 0) {
-                html += '<div class="bg-white p-8 rounded-2xl shadow-sm text-center"><div class="text-5xl mb-2">📭</div><p class="text-gray-500 text-sm">Aucun cours pointe sur cette periode.</p></div>';
+                html += '<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-title">Aucun cours pointé</div><div class="empty-desc">Aucun cours sur cette période</div></div>';
                 conteneur.innerHTML = html;
                 return;
             }
@@ -917,17 +940,17 @@
             var profsTries = Object.values(parProf).sort(function(a, b) { return b.total - a.total; });
             var maxTotal = Math.max.apply(null, profsTries.map(function(p) { return p.total; }).concat([1]));
 
-            html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">';
-            html += '<p class="text-sm font-bold text-gray-800 mb-3">Classement des profs</p>';
+            html += '<div class="card-pro">';
+            html += '<p style="font-size: 13px; font-weight: 800; color: #1f2937; margin-bottom: 12px;">Classement des profs</p>';
 
             profsTries.forEach(function(p, idx) {
                 var pct = Math.round((p.total / maxTotal) * 100);
                 var couleur = idx === 0 ? '#004AAD' : (idx < 3 ? '#2EAD5E' : '#6b7280');
-                html += '<div class="mb-3 last:mb-0">';
-                html += '<div class="flex justify-between items-center mb-1"><span class="text-xs font-bold text-gray-800">' + (idx + 1) + '. ' + p.nom + '</span>';
-                html += '<span class="text-xs font-bold" style="color:' + couleur + '">' + (p.total / 60).toFixed(1) + 'h</span></div>';
-                html += '<div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden"><div class="h-2 rounded-full" style="width:' + pct + '%;background:' + couleur + '"></div></div>';
-                html += '<p class="text-[10px] text-gray-500 mt-0.5">' + p.nb + ' cours</p>';
+                html += '<div style="margin-bottom: 12px;">';
+                html += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;"><span style="font-size: 12px; font-weight: 700; color: #1f2937;">' + (idx + 1) + '. ' + p.nom + '</span>';
+                html += '<span style="font-size: 12px; font-weight: 800; color: ' + couleur + ';">' + (p.total / 60).toFixed(1) + 'h</span></div>';
+                html += '<div class="mini-progress-track"><div class="mini-progress-fill" style="width: ' + pct + '%; background: ' + couleur + ';"></div></div>';
+                html += '<p style="font-size: 10px; color: #6b7280; margin-top: 2px;">' + p.nb + ' cours</p>';
                 html += '</div>';
             });
             html += '</div>';
@@ -940,9 +963,5 @@
             window.location.href = 'index.html';
         }
     </script>
-<script src="ripple.js"></script>
-<script src="toast.js"></script>
-<script src="confirm.js"></script>
-</body>
 </body>
 </html>
