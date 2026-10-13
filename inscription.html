@@ -221,66 +221,64 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
 
     <!-- ============ AUTH — Hachage PBKDF2 ============ -->
-    <script>
-        const AUTH_SALT = 'EDU-LINK::v1::S3n3g4l::2024';
-        const AUTH_ITERATIONS = 100000;
-        const AUTH_PREFIX = 'pbkdf2$';
+<script>
+    const AUTH_SALT = 'EDU-LINK::v1::S3n3g4l::2024';
+    const AUTH_ITERATIONS = 100000;
+    const AUTH_PREFIX = 'pbkdf2$';
 
-        async function hashPassword(plainPassword) {
-            const enc = new TextEncoder();
-            const keyMaterial = await crypto.subtle.importKey(
-                'raw',
-                enc.encode(plainPassword),
-                { name: 'PBKDF2' },
-                false,
-                ['deriveBits']
-            );
-            const hashBuffer = await crypto.subtle.deriveBits(
-                {
-                    name: 'PBKDF2',
-                    salt: enc.encode(AUTH_SALT),
-                    iterations: AUTH_ITERATIONS,
-                    hash: 'SHA-256'
-                },
-                keyMaterial,
-                256
-            );
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            const hex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-            return AUTH_PREFIX + AUTH_ITERATIONS + '$' + hex;
-        }
+    async function hashPassword(plainPassword) {
+        const enc = new TextEncoder();
+        const keyMaterial = await crypto.subtle.importKey(
+            'raw',
+            enc.encode(plainPassword),
+            { name: 'PBKDF2' },
+            false,
+            ['deriveBits']
+        );
+        const hashBuffer = await crypto.subtle.deriveBits(
+            {
+                name: 'PBKDF2',
+                salt: enc.encode(AUTH_SALT),
+                iterations: AUTH_ITERATIONS,
+                hash: 'SHA-256'
+            },
+            keyMaterial,
+            256
+        );
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        return AUTH_PREFIX + AUTH_ITERATIONS + '$' + hex;
+    }
 
-        async function verifyPassword(plainPassword, storedPassword) {
-            if (!storedPassword) return { ok: false, needsRehash: false };
-            if (storedPassword.startsWith(AUTH_PREFIX)) {
-                const hashCalcule = await hashPassword(plainPassword);
-                return { ok: hashCalcule === storedPassword, needsRehash: false };
-            }
-            if (storedPassword === plainPassword) {
-                return { ok: true, needsRehash: true };
-            }
-            return { ok: false, needsRehash: false };
+    async function verifyPassword(plainPassword, storedPassword) {
+        if (!storedPassword) return { ok: false, needsRehash: false };
+        if (storedPassword.startsWith(AUTH_PREFIX)) {
+            const hashCalcule = await hashPassword(plainPassword);
+            return { ok: hashCalcule === storedPassword, needsRehash: false };
         }
+        if (storedPassword === plainPassword) {
+            return { ok: true, needsRehash: true };
+        }
+        return { ok: false, needsRehash: false };
+    }
 
-        async function rehashSiNecessaire(supabaseClient, userId, plainPassword, needsRehash) {
-            if (!needsRehash) return;
-            try {
-                const newHash = await hashPassword(plainPassword);
-                await supabaseClient.from('utilisateurs').update({ mot_de_passe: newHash }).eq('id', userId);
-                console.log('🔐 Mot de passe migré vers PBKDF2');
-            } catch (e) {
-                console.warn('Rehash échoué (non bloquant) :', e);
-            }
+    async function rehashSiNecessaire(supabaseClient, userId, plainPassword, needsRehash) {
+        if (!needsRehash) return;
+        try {
+            const newHash = await hashPassword(plainPassword);
+            await supabaseClient.from('utilisateurs').update({ mot_de_passe: newHash }).eq('id', userId);
+            console.log('🔐 Mot de passe migré vers PBKDF2');
+        } catch (e) {
+            console.warn('Rehash échoué (non bloquant) :', e);
         }
-    </script>
+    }
+</script>
 
     <!-- ============ SCRIPT PRINCIPAL ============ -->
     <script>
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFid2d1aXhjbG14dHp2bHNtYmJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4OTg1OTMsImV4cCI6MjEwNjQ3NDU5M30.8MiG5YdoMIY69KYfBdlXHIB9Zisd5miX3slaCoqVcjM';
-        const supabaseUrl = 'https://abwguixclmxtzvlsmbby.supabase.co';
-        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
         let roleChoisi = null;
         let ecoleValidee = null;

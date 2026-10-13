@@ -2,7 +2,7 @@
 // EDU-LINK — Service Worker (PWA)
 // ==========================================
 
-const CACHE_NAME = 'edu-link-v1';
+const CACHE_NAME = 'edu-link-v2 la';
 
 // Fichiers essentiels a mettre en cache au demarrage
 const FICHIERS_ESSENTIELS = [

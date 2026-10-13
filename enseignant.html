@@ -125,6 +125,14 @@
                             <div class="tile-sub">Dernière éval.</div>
                         </div>
                     </div>
+<button onclick="afficherReseau()" class="btn-float anim-up delay-3" style="background: linear-gradient(135deg, #EC4899, #8B5CF6); margin-bottom: 14px;">
+                        <div class="btn-icon">📱</div>
+                        <div class="btn-content">
+                            <div class="btn-title">Réseau social</div>
+                            <div class="btn-desc">Actualités + féliciter les élèves</div>
+                        </div>
+                        <div class="btn-arrow">→</div>
+                    </button>
 
                     <div class="divider anim-up delay-4">Ma disponibilité</div>
 
@@ -437,7 +445,7 @@
                             <p class="text-[10px] text-gray-600 mb-2">Remplissez l'un ou l'autre (ou les deux).</p>
                             <label class="block text-[10px] font-bold text-gray-700 mb-1">Texte direct (lecon, consignes)</label>
                             <textarea id="res-texte" rows="4" placeholder="Ecrivez ici le contenu..." class="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs mb-3"></textarea>
-                            <label class="block text-[10px] font-bold text-gray-700 mb-1">Fichier joint (max 400 Ko)</label>
+                            <label class="block text-[10px] font-bold text-gray-700 mb-1">Fichier joint (max 5 Mo)</label>
                             <input type="file" id="res-fichier" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt" class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white text-xs">
                             <p id="res-fichier-info" class="text-[10px] text-gray-500 mt-1"></p>
                         </div>
@@ -492,6 +500,51 @@
                 </div>
 
                 <!-- NOTIFICATIONS -->
+<!-- ═══════════════ RÉSEAU SOCIAL (FEED) ═══════════════ -->
+                <div id="view-reseau" class="hidden fade-in" style="padding-bottom: 80px;">
+                    <div class="section-header anim-up" style="margin-bottom: 10px;">
+                        <button onclick="retourAccueil()" class="back-btn">⬅️</button>
+                        <div>
+                            <h1 class="section-title">Réseau social</h1>
+                            <p class="section-sub">Félicitez vos élèves et partagez</p>
+                        </div>
+                        <button onclick="socialOuvrirCreateur()" class="bg-gradient-to-r from-edu-green to-edu-blue text-white text-xs font-bold px-3 py-2 rounded-lg" style="margin-left: auto;">✏️ Publier</button>
+                    </div>
+
+
+                    <!-- Filtres rôle -->
+                    <div class="feed-filters anim-up delay-2">
+                        <button class="feed-filter active" data-filtre-role="tous" onclick="socialFiltrerRole('tous')">Tous</button>
+                        <button class="feed-filter" data-filtre-role="admin" onclick="socialFiltrerRole('admin')">👨🏾‍💼 Admin</button>
+                        <button class="feed-filter" data-filtre-role="enseignant" onclick="socialFiltrerRole('enseignant')">👨🏾‍🏫 Profs</button>
+                        <button class="feed-filter" data-filtre-role="eleve" onclick="socialFiltrerRole('eleve')">👩🏾‍🎓 Élèves</button>
+                        <button class="feed-filter" data-filtre-role="parent" onclick="socialFiltrerRole('parent')">👨‍👩‍👧 Parents</button>
+                    </div>
+
+                    <!-- Filtres type -->
+                    <div class="feed-filters anim-up delay-3" style="margin-bottom: 16px;">
+                        <button class="feed-filter active" data-filtre-type="tous" onclick="socialFiltrerType('tous')">📌 Tout</button>
+                        <button class="feed-filter" data-filtre-type="annonce" onclick="socialFiltrerType('annonce')">📢 Annonces</button>
+                        <button class="feed-filter" data-filtre-type="reussite" onclick="socialFiltrerType('reussite')">🏆 Réussites</button>
+                        <button class="feed-filter" data-filtre-type="photo" onclick="socialFiltrerType('photo')">📸 Photos</button>
+                        <button class="feed-filter" data-filtre-type="motivation" onclick="socialFiltrerType('motivation')">💬 Motivation</button>
+                    </div>
+
+                    <!-- Liste des posts -->
+                    <div id="feed-liste" class="anim-up delay-4"></div>
+                </div>
+<!-- ═══════════════ PROFIL SOCIAL ═══════════════ -->
+                <div id="view-profil-social" class="hidden fade-in" style="padding-bottom: 80px;">
+                    <div class="section-header anim-up" style="margin-bottom: 14px;">
+                        <button onclick="socialRetourFeed()" class="back-btn">⬅️</button>
+                        <div>
+                            <h1 class="section-title">Profil</h1>
+                            <p class="section-sub">Publications de l'utilisateur</p>
+                        </div>
+                    </div>
+                    <div id="profil-social-contenu"></div>
+                </div>
+
                 <div id="view-notifications" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-3">🔔 Mes notifications</h1>
@@ -508,6 +561,9 @@
     <script src="toast.js"></script>
     <script src="confirm.js"></script>
     <script src="skeleton.js"></script>
+<script src="social.js"></script>
+<script src="image-utils.js"></script>
+<script src="storage.js"></script>
 <script>
         // ════════════ CONSTANTES EDT ════════════
         var JOURS_EDT = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
@@ -2086,32 +2142,41 @@
             window.scrollTo(0, 0);
         }
 
-        document.addEventListener('change', function(e) {
+        document.addEventListener('change', async function(e) {
             if (e.target && e.target.id === 'res-fichier') {
                 var file = e.target.files[0];
                 var info = document.getElementById('res-fichier-info');
                 if (!file) { info.innerText = ''; resFichierBase64 = null; return; }
 
-                if (file.size > 400 * 1024) {
-                    info.innerText = 'Fichier trop lourd (max 400 Ko)';
+                // Limite : 5 Mo
+                if (file.size > 5 * 1024 * 1024) {
+                    info.innerText = 'Fichier trop lourd (max 5 Mo).';
                     info.style.color = '#EF4444';
                     e.target.value = '';
                     resFichierBase64 = null;
                     return;
                 }
 
-                info.innerText = 'Chargement...';
+                info.innerText = '⏳ Envoi en cours...';
                 info.style.color = '#F59E0B';
 
-                var reader = new FileReader();
-                reader.onload = function(ev) {
-                    resFichierBase64 = ev.target.result;
+                try {
+                    var resultat = await EduStorage.uploaderFichier(file, 'ressources', {
+                        userId: monEcoleId,
+                        maxSizeMo: 5
+                    });
+
+                    resFichierBase64 = resultat.url;
                     resFichierNom = file.name;
                     resFichierType = file.type || 'application/octet-stream';
-                    info.innerText = 'Pret : ' + file.name;
+
+                    info.innerText = '✅ Prêt : ' + file.name + ' (' + formaterTaille(file.size) + ')';
                     info.style.color = '#2EAD5E';
-                };
-                reader.readAsDataURL(file);
+                } catch (err) {
+                    info.innerText = '❌ ' + err.message;
+                    info.style.color = '#EF4444';
+                    resFichierBase64 = null;
+                }
             }
         });
 
@@ -2209,6 +2274,21 @@
             try {
                 var r = resListe.find(function(x) { return x.id === idRessource; });
                 if (!r || !r.fichier_base64) { toast.warning('Fichier introuvable.'); return; }
+
+                // ─── Cas 1 : c'est déjà une URL Storage (nouveau) ───
+                if (r.fichier_base64.indexOf('http') === 0) {
+                    var a = document.createElement('a');
+                    a.href = r.fichier_base64;
+                    a.target = '_blank';
+                    a.rel = 'noopener';
+                    a.download = r.fichier_nom || 'fichier';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    return;
+                }
+
+                // ─── Cas 2 : ancien format base64 (fallback) ───
                 var base64 = r.fichier_base64;
                 var nomFichier = r.fichier_nom || 'fichier';
                 var parts = base64.split(',');
@@ -2220,14 +2300,14 @@
                 while (n--) { u8arr[n] = bstr.charCodeAt(n); }
                 var blob = new Blob([u8arr], { type: mime });
                 var url = URL.createObjectURL(blob);
-                var a = document.createElement('a');
-                a.href = url;
-                a.download = nomFichier;
-                a.style.display = 'none';
-                document.body.appendChild(a);
-                a.click();
+                var a2 = document.createElement('a');
+                a2.href = url;
+                a2.download = nomFichier;
+                a2.style.display = 'none';
+                document.body.appendChild(a2);
+                a2.click();
                 setTimeout(function() {
-                    document.body.removeChild(a);
+                    document.body.removeChild(a2);
                     URL.revokeObjectURL(url);
                 }, 1000);
             } catch (err) {
@@ -2496,6 +2576,22 @@
 
             html += '</div>';
             conteneur.innerHTML = html;
+        }
+// ════════════ RÉSEAU SOCIAL ════════════
+        var socialInitialise = false;
+
+        async function afficherReseau() {
+            hideAllViews();
+            document.getElementById('view-reseau').classList.remove('hidden');
+            window.scrollTo(0, 0);
+
+            if (!socialInitialise) {
+                socialInit(supabaseClient, currentUser, monEcoleId);
+                window.socialCtx.feedContainerId = 'feed-liste';
+                socialInitialise = true;
+            }
+
+            await socialChargerFeed('feed-liste');
         }
 
         function seDeconnecter() { sessionStorage.removeItem('eduLinkUser'); window.location.href = 'index.html'; }

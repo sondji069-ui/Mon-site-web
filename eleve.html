@@ -135,7 +135,14 @@
                     </div>
 
                     <div class="divider anim-up delay-4">Mes outils</div>
-
+<button onclick="afficherReseau()" class="btn-float anim-up delay-4" style="background: linear-gradient(135deg, #EC4899, #8B5CF6); margin-bottom: 14px;">
+                        <div class="btn-icon">📱</div>
+                        <div class="btn-content">
+                            <div class="btn-title">Réseau social</div>
+                            <div class="btn-desc">Actualités de l'école</div>
+                        </div>
+                        <div class="btn-arrow">→</div>
+                    </button>
                     <div class="action-grid mb-4">
                         <div class="action-tile anim-up delay-4" onclick="afficherBulletin()">
                             <div class="tile-icon" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #004AAD;">📄</div>
@@ -355,6 +362,52 @@
                 </div>
 
                 <!-- NOTIFICATIONS -->
+<!-- ═══════════════ RÉSEAU SOCIAL (FEED) ═══════════════ -->
+                <div id="view-reseau" class="hidden fade-in" style="padding-bottom: 80px;">
+                    <div class="section-header anim-up" style="margin-bottom: 10px;">
+                        <button onclick="retourAccueil()" class="back-btn">⬅️</button>
+                        <div>
+                            <h1 class="section-title">Réseau social</h1>
+                            <p class="section-sub">Actualités de l'école</p>
+                        </div>
+                        <button onclick="socialOuvrirCreateur()" class="bg-gradient-to-r from-edu-blue to-edu-green text-white text-xs font-bold px-3 py-2 rounded-lg" style="margin-left: auto;">✏️ Publier</button>
+                    </div>
+
+                   
+
+                    <!-- Filtres rôle -->
+                    <div class="feed-filters anim-up delay-2">
+                        <button class="feed-filter active" data-filtre-role="tous" onclick="socialFiltrerRole('tous')">Tous</button>
+                        <button class="feed-filter" data-filtre-role="admin" onclick="socialFiltrerRole('admin')">👨🏾‍💼 Admin</button>
+                        <button class="feed-filter" data-filtre-role="enseignant" onclick="socialFiltrerRole('enseignant')">👨🏾‍🏫 Profs</button>
+                        <button class="feed-filter" data-filtre-role="eleve" onclick="socialFiltrerRole('eleve')">👩🏾‍🎓 Élèves</button>
+                        <button class="feed-filter" data-filtre-role="parent" onclick="socialFiltrerRole('parent')">👨‍👩‍👧 Parents</button>
+                    </div>
+
+                    <!-- Filtres type -->
+                    <div class="feed-filters anim-up delay-3" style="margin-bottom: 16px;">
+                        <button class="feed-filter active" data-filtre-type="tous" onclick="socialFiltrerType('tous')">📌 Tout</button>
+                        <button class="feed-filter" data-filtre-type="annonce" onclick="socialFiltrerType('annonce')">📢 Annonces</button>
+                        <button class="feed-filter" data-filtre-type="reussite" onclick="socialFiltrerType('reussite')">🏆 Réussites</button>
+                        <button class="feed-filter" data-filtre-type="photo" onclick="socialFiltrerType('photo')">📸 Photos</button>
+                        <button class="feed-filter" data-filtre-type="motivation" onclick="socialFiltrerType('motivation')">💬 Motivation</button>
+                    </div>
+
+                    <!-- Liste des posts -->
+                    <div id="feed-liste" class="anim-up delay-4"></div>
+                </div>
+<!-- ═══════════════ PROFIL SOCIAL ═══════════════ -->
+                <div id="view-profil-social" class="hidden fade-in" style="padding-bottom: 80px;">
+                    <div class="section-header anim-up" style="margin-bottom: 14px;">
+                        <button onclick="socialRetourFeed()" class="back-btn">⬅️</button>
+                        <div>
+                            <h1 class="section-title">Profil</h1>
+                            <p class="section-sub">Publications de l'utilisateur</p>
+                        </div>
+                    </div>
+                    <div id="profil-social-contenu"></div>
+                </div>
+
                 <div id="view-notifications" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-3">🔔 Mes notifications</h1>
@@ -375,6 +428,9 @@
     <script src="toast.js"></script>
     <script src="confirm.js"></script>
     <script src="skeleton.js"></script>
+<script src="social.js"></script>
+<script src="image-utils.js"></script>
+<script src="storage.js"></script>
     <script src="charts.js"></script>
 <script>
         // ════════════ CONSTANTES EDT ════════════
@@ -1627,6 +1683,21 @@
             try {
                 var r = resElvListe.find(function(x) { return x.id === idRessource; });
                 if (!r || !r.fichier_base64) { toast.warning('Fichier introuvable.'); return; }
+
+                // ─── Cas 1 : URL Storage (nouveau) ───
+                if (r.fichier_base64.indexOf('http') === 0) {
+                    var a = document.createElement('a');
+                    a.href = r.fichier_base64;
+                    a.target = '_blank';
+                    a.rel = 'noopener';
+                    a.download = r.fichier_nom || 'fichier';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    return;
+                }
+
+                // ─── Cas 2 : ancien format base64 (fallback) ───
                 var base64 = r.fichier_base64;
                 var nomFichier = r.fichier_nom || 'fichier';
                 var parts = base64.split(',');
@@ -1647,13 +1718,13 @@
                 var url = URL.createObjectURL(blob);
                 var nouvelleFenetre = window.open(url, '_blank');
                 if (!nouvelleFenetre) {
-                    var a = document.createElement('a');
-                    a.href = url;
-                    a.download = nomFichier;
-                    a.target = '_blank';
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
+                    var a2 = document.createElement('a');
+                    a2.href = url;
+                    a2.download = nomFichier;
+                    a2.target = '_blank';
+                    document.body.appendChild(a2);
+                    a2.click();
+                    document.body.removeChild(a2);
                 }
                 setTimeout(function() { URL.revokeObjectURL(url); }, 60000);
             } catch (err) {
@@ -1675,6 +1746,22 @@
             chargerBadgeDevoirs();
             chargerProchainCours();
             chargerBadges();
+        }
+// ════════════ RÉSEAU SOCIAL ════════════
+        var socialInitialise = false;
+
+        async function afficherReseau() {
+            hideAllViews();
+            document.getElementById('view-reseau').classList.remove('hidden');
+            window.scrollTo(0, 0);
+
+            if (!socialInitialise) {
+                socialInit(supabaseClient, currentUser, monEcoleId);
+                window.socialCtx.feedContainerId = 'feed-liste';
+                socialInitialise = true;
+            }
+
+            await socialChargerFeed('feed-liste');
         }
 
         function seDeconnecter() {

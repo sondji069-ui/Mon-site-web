@@ -140,40 +140,15 @@
             </div>
         </div>
     </div>
-
+<!-- Console de debug mobile (à retirer plus tard) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+    <script src="image-utils.js"></script>
+<script src="storage.js"></script>
 
-    <!-- ============ AUTH — Hachage PBKDF2 ============ -->
-    <script>
-        const AUTH_SALT = 'EDU-LINK::v1::S3n3g4l::2024';
-        const AUTH_ITERATIONS = 100000;
-        const AUTH_PREFIX = 'pbkdf2$';
-
-        async function hashPassword(plainPassword) {
-            const enc = new TextEncoder();
-            const keyMaterial = await crypto.subtle.importKey(
-                'raw',
-                enc.encode(plainPassword),
-                { name: 'PBKDF2' },
-                false,
-                ['deriveBits']
-            );
-            const hashBuffer = await crypto.subtle.deriveBits(
-                { name: 'PBKDF2', salt: enc.encode(AUTH_SALT), iterations: AUTH_ITERATIONS, hash: 'SHA-256' },
-                keyMaterial,
-                256
-            );
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            const hex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-            return AUTH_PREFIX + AUTH_ITERATIONS + '$' + hex;
-        }
-    </script>
 
     <!-- ============ SCRIPT PRINCIPAL ============ -->
     <script>
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFid2d1aXhjbG14dHp2bHNtYmJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4OTg1OTMsImV4cCI6MjEwNjQ3NDU5M30.8MiG5YdoMIY69KYfBdlXHIB9Zisd5miX3slaCoqVcjM';
-        const supabaseUrl = 'https://abwguixclmxtzvlsmbby.supabase.co';
-        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
         const sessionUser = sessionStorage.getItem('eduLinkUser');
         if (!sessionUser) { window.location.href = 'index.html'; }
@@ -210,7 +185,7 @@
         function afficherAvatar() {
             const conteneur = document.getElementById('avatar-grand');
             const carteAvatar = document.getElementById('carte-avatar');
-            const avatarsEmoji = { eleve: '👩🏾‍🎓', enseignant: '👩🏾‍🏫', parent: '👨‍👩‍👧', admin: '👨🏾‍💼' };
+            const avatarsEmoji = { eleve: '👩🏾‍🎓', enseignant: '👩🏾‍🏫', parent: '👨‍👩‍👧', admin: '👨🏾‍💼', staff: '👥', super_admin: '🔑' };
             const emoji = avatarsEmoji[currentUser.role] || '👤';
 
             if (currentUser.photo_url) {
@@ -223,48 +198,63 @@
             }
         }
 
-        document.addEventListener('change', function(e) {
-            if (e.target && e.target.id === 'photo-input') {
-                const file = e.target.files[0];
-                const msg = document.getElementById('message-photo');
-                if (!file) return;
+        // ═══════════ PHOTO DE PROFIL (COMPRESSION AUTOMATIQUE) ═══════════
+        document.addEventListener('change', async function(e) {
+    if (e.target && e.target.id === 'photo-input') {
+        var file = e.target.files[0];
+        var msg = document.getElementById('message-photo');
+        if (!file) return;
 
-                if (file.size > 200 * 1024) {
-                    msg.innerText = "⚠️ Image trop lourde (max 200 Ko).";
-                    msg.style.color = "#EF4444";
-                    e.target.value = '';
-                    return;
-                }
+        if (file.size > 10 * 1024 * 1024) {
+            msg.innerText = "⚠️ Image trop lourde (max 10 Mo).";
+            msg.style.color = "#EF4444";
+            e.target.value = '';
+            return;
+        }
 
-                if (!file.type.startsWith('image/')) {
-                    msg.innerText = "⚠️ Format d'image non supporté.";
-                    msg.style.color = "#EF4444";
-                    e.target.value = '';
-                    return;
-                }
+        if (!file.type.startsWith('image/')) {
+            msg.innerText = "⚠️ Format d'image non supporté.";
+            msg.style.color = "#EF4444";
+            e.target.value = '';
+            return;
+        }
 
-                msg.innerText = "Chargement...";
-                msg.style.color = "#F59E0B";
+        msg.innerText = "⏳ Envoi en cours...";
+        msg.style.color = "#F59E0B";
 
-                const reader = new FileReader();
-                reader.onload = async (ev) => {
-                    const photoBase64 = ev.target.result;
-                    const { error } = await supabaseClient.from('utilisateurs').update({ photo_url: photoBase64 }).eq('id', currentUser.id);
-                    if (error) {
-                        msg.innerText = "Erreur : " + error.message;
-                        msg.style.color = "#EF4444";
-                        return;
-                    }
-                    currentUser.photo_url = photoBase64;
-                    sessionStorage.setItem('eduLinkUser', JSON.stringify(currentUser));
-                    afficherAvatar();
-                    msg.innerText = "✅ Photo mise à jour !";
-                    msg.style.color = "#2EAD5E";
-                    setTimeout(() => { msg.innerText = ''; }, 2000);
-                };
-                reader.readAsDataURL(file);
+        try {
+            var resultat = await EduStorage.uploaderImage(file, 'avatars', {
+                maxWidth: 500,
+                maxHeight: 500,
+                quality: 0.85,
+                userId: currentUser.id
+            });
+
+            const { error } = await supabaseClient
+                .from('utilisateurs')
+                .update({ photo_url: resultat.url })
+                .eq('id', currentUser.id);
+
+            if (error) {
+                msg.innerText = "Erreur : " + error.message;
+                msg.style.color = "#EF4444";
+                return;
             }
-        });
+
+            currentUser.photo_url = resultat.url;
+            EduLink.setSessionUser(currentUser);
+            afficherAvatar();
+
+            msg.innerText = "✅ Photo mise à jour !";
+            msg.style.color = "#2EAD5E";
+            setTimeout(function() { msg.innerText = ''; }, 2500);
+
+        } catch (err) {
+            msg.innerText = "Erreur : " + err.message;
+            msg.style.color = "#EF4444";
+        }
+    }
+});
 
         async function chargerInfosEleve() {
             document.getElementById('bloc-eleve').classList.remove('hidden');
@@ -311,7 +301,6 @@
             const upd = { prenom, nom, email };
             if (telephone) upd.telephone = telephone;
 
-            // 🔐 Hashage du nouveau mot de passe si saisi
             if (password) {
                 if (password.length < 6) { msg.innerText = "Mot de passe min 6 caracteres."; msg.style.color = "red"; return; }
                 upd.mot_de_passe = await hashPassword(password);
@@ -321,8 +310,7 @@
             if (error) { msg.innerText = "Erreur"; msg.style.color = "red"; return; }
 
             const { data: user } = await supabaseClient.from('utilisateurs').select('*').eq('id', currentUser.id).single();
-            sessionStorage.setItem('eduLinkUser', JSON.stringify(user));
-            currentUser = user;
+            EduLink.setSessionUser(user);
             document.getElementById('profil-nom').innerText = prenom + ' ' + nom;
             msg.innerText = "Profil mis a jour !"; msg.style.color = "green";
             document.getElementById('input-password').value = '';
@@ -354,7 +342,17 @@
                 const fichier = new File([pdfBlob], nomFichier, { type: 'application/pdf' });
                 document.body.removeChild(zoneTemp);
 
-                const url = URL.createObjectURL(pdfBlob); const a = document.createElement('a'); a.href = url; a.download = nomFichier; a.style.display = 'none'; document.body.appendChild(a); a.click(); setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
+                const url = URL.createObjectURL(pdfBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = nomFichier;
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }, 1000);
                 btn.innerText = "🪪 Telecharger ma carte scolaire";
                 btn.disabled = false;
             } catch (err) {
@@ -367,7 +365,7 @@
         }
 
         function retour() {
-            const pages = { eleve: 'eleve.html', enseignant: 'enseignant.html', parent: 'parent.html', admin: 'admin.html' };
+            const pages = { eleve: 'eleve.html', enseignant: 'enseignant.html', parent: 'parent.html', admin: 'admin.html', staff: 'staff.html', super_admin: 'super-admin.html' };
             window.location.href = pages[currentUser.role] || 'index.html';
         }
 

@@ -157,6 +157,14 @@
     </div>
 
     <div class="divider anim-up delay-4">Actions critiques</div>
+<button onclick="afficherReseau()" class="btn-float anim-up delay-4" style="background: linear-gradient(135deg, #EC4899, #8B5CF6); margin-bottom: 14px;">
+                        <div class="btn-icon">📱</div>
+                        <div class="btn-content">
+                            <div class="btn-title">Réseau social</div>
+                            <div class="btn-desc">Communauté et publications</div>
+                        </div>
+                        <div class="btn-arrow">→</div>
+                    </button>
 
     <div class="space-y-2 mb-4">
         <button onclick="afficherDemandesInscription()" class="btn-float anim-up delay-4" style="background: linear-gradient(135deg, #F97316, #DC2626); position: relative;">
@@ -1145,6 +1153,51 @@
                         <div id="dash-graph-profs"></div>
                     </div>
                 </div>
+<!-- ═══════════════ RÉSEAU SOCIAL (FEED) ═══════════════ -->
+                <div id="view-reseau" class="hidden fade-in" style="padding-bottom: 80px;">
+                    <div class="section-header anim-up" style="margin-bottom: 10px;">
+                        <button onclick="retourAccueil()" class="back-btn">⬅️</button>
+                        <div>
+                            <h1 class="section-title">Réseau social</h1>
+                            <p class="section-sub">Gérez la communauté de l'école</p>
+                        </div>
+                        <button onclick="socialOuvrirCreateur()" class="bg-gradient-to-r from-edu-blue to-edu-green text-white text-xs font-bold px-3 py-2 rounded-lg" style="margin-left: auto;">✏️ Publier</button>
+                    </div>
+                   
+
+                    <!-- Filtres rôle -->
+                    <div class="feed-filters anim-up delay-2">
+                        <button class="feed-filter active" data-filtre-role="tous" onclick="socialFiltrerRole('tous')">Tous</button>
+                        <button class="feed-filter" data-filtre-role="admin" onclick="socialFiltrerRole('admin')">👨🏾‍💼 Admin</button>
+                        <button class="feed-filter" data-filtre-role="enseignant" onclick="socialFiltrerRole('enseignant')">👨🏾‍🏫 Profs</button>
+                        <button class="feed-filter" data-filtre-role="eleve" onclick="socialFiltrerRole('eleve')">👩🏾‍🎓 Élèves</button>
+                        <button class="feed-filter" data-filtre-role="parent" onclick="socialFiltrerRole('parent')">👨‍👩‍👧 Parents</button>
+                        <button class="feed-filter" data-filtre-role="staff" onclick="socialFiltrerRole('staff')">👥 Staff</button>
+                    </div>
+
+                    <!-- Filtres type -->
+                    <div class="feed-filters anim-up delay-3" style="margin-bottom: 16px;">
+                        <button class="feed-filter active" data-filtre-type="tous" onclick="socialFiltrerType('tous')">📌 Tout</button>
+                        <button class="feed-filter" data-filtre-type="annonce" onclick="socialFiltrerType('annonce')">📢 Annonces</button>
+                        <button class="feed-filter" data-filtre-type="reussite" onclick="socialFiltrerType('reussite')">🏆 Réussites</button>
+                        <button class="feed-filter" data-filtre-type="photo" onclick="socialFiltrerType('photo')">📸 Photos</button>
+                        <button class="feed-filter" data-filtre-type="motivation" onclick="socialFiltrerType('motivation')">💬 Motivation</button>
+                    </div>
+
+                    <!-- Liste des posts -->
+                    <div id="feed-liste" class="anim-up delay-4"></div>
+                </div>
+<!-- ═══════════════ PROFIL SOCIAL ═══════════════ -->
+                <div id="view-profil-social" class="hidden fade-in" style="padding-bottom: 80px;">
+                    <div class="section-header anim-up" style="margin-bottom: 14px;">
+                        <button onclick="socialRetourFeed()" class="back-btn">⬅️</button>
+                        <div>
+                            <h1 class="section-title">Profil</h1>
+                            <p class="section-sub">Publications de l'utilisateur</p>
+                        </div>
+                    </div>
+                    <div id="profil-social-contenu"></div>
+                </div>
 
                 <div id="view-notifications" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-4">⬅️</button>
@@ -1668,48 +1721,96 @@ window.CRENEAUX_EDT = window.CRENEAUX_EDT || [
             }
         }
 
-        document.addEventListener('change', function(e) {
+        document.addEventListener('change', async function(e) {
+            // ─────── SIGNATURE ÉCOLE ───────
             if (e.target && e.target.id === 'signature-input') {
-                const file = e.target.files[0];
-                const msg = document.getElementById('message-signature');
+                var file = e.target.files[0];
+                var msg = document.getElementById('message-signature');
                 if (!file) return;
-                if (file.size > 200 * 1024) { msg.innerText = "Image trop lourde (max 200 Ko)."; msg.style.color = "#EF4444"; e.target.value = ''; return; }
-                if (!file.type.startsWith('image/')) { msg.innerText = "Format non supporte."; msg.style.color = "#EF4444"; e.target.value = ''; return; }
-                msg.innerText = '';
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    document.getElementById('img-signature-apercu').src = ev.target.result;
+
+                if (file.size > 5 * 1024 * 1024) {
+                    msg.innerText = "Image trop lourde (max 5 Mo).";
+                    msg.style.color = "#EF4444";
+                    e.target.value = '';
+                    return;
+                }
+                if (!file.type.startsWith('image/')) {
+                    msg.innerText = "Format non supporte.";
+                    msg.style.color = "#EF4444";
+                    e.target.value = '';
+                    return;
+                }
+
+                msg.innerText = "Envoi en cours...";
+                msg.style.color = "#F59E0B";
+
+                try {
+                    var resultat = await EduStorage.uploaderImage(file, 'signatures', {
+                        maxWidth: 600,
+                        maxHeight: 300,
+                        quality: 0.85,
+                        userId: monEcoleId
+                    });
+
+                    document.getElementById('img-signature-apercu').src = resultat.url;
                     document.getElementById('apercu-signature-nouvelle').classList.remove('hidden');
                     document.getElementById('btn-save-signature').classList.remove('hidden');
-                };
-                reader.readAsDataURL(file);
+
+                    // On stocke l'URL temporairement pour la sauvegarde
+                    window._signatureUrlTemp = resultat.url;
+
+                    msg.innerText = "Signature prete - cliquez sur Enregistrer";
+                    msg.style.color = "#2EAD5E";
+                } catch (err) {
+                    msg.innerText = "Erreur : " + err.message;
+                    msg.style.color = "#EF4444";
+                }
             }
+
+            // ─────── LOGO ÉCOLE ───────
             if (e.target && e.target.id === 'logo-input') {
-                const file = e.target.files[0];
-                if (!file) return;
-                if (file.size > 200 * 1024) { alert("Image trop lourde (max 200 Ko)."); e.target.value = ''; return; }
-                const reader = new FileReader();
-                reader.onload = (ev) => { logoBase64 = ev.target.result; document.getElementById('img-apercu').src = logoBase64; document.getElementById('apercu-logo').classList.remove('hidden'); };
-                reader.readAsDataURL(file);
+                var file2 = e.target.files[0];
+                if (!file2) return;
+
+                if (file2.size > 5 * 1024 * 1024) {
+                    toast.warning("Image trop lourde (max 5 Mo)");
+                    e.target.value = '';
+                    return;
+                }
+
+                try {
+                    var resultat2 = await EduStorage.uploaderImage(file2, 'logos', {
+                        maxWidth: 500,
+                        maxHeight: 500,
+                        quality: 0.85,
+                        userId: monEcoleId
+                    });
+                    logoBase64 = resultat2.url;
+                    document.getElementById('img-apercu').src = resultat2.url;
+                    document.getElementById('apercu-logo').classList.remove('hidden');
+                } catch (err) {
+                    toast.error('Erreur : ' + err.message);
+                }
             }
         });
 
         async function sauvegarderSignature() {
-            const btn = document.getElementById('btn-save-signature');
-            const msg = document.getElementById('message-signature');
-            const imgSrc = document.getElementById('img-signature-apercu').src;
-            if (!imgSrc) { msg.innerText = "Selectionnez une image."; msg.style.color = "#EF4444"; return; }
-            btn.disabled = true; btn.innerText = "Enregistrement...";
-            const { error } = await supabaseClient.from('ecoles').update({ signature_url: imgSrc }).eq('id', monEcoleId);
-            if (error) { msg.innerText = "Erreur : " + error.message; msg.style.color = "#EF4444"; btn.disabled = false; btn.innerText = "Enregistrer"; return; }
-            signatureBase64 = imgSrc;
-            msg.innerText = "✅ Signature enregistree !"; msg.style.color = "#2EAD5E";
-            mettreAJourApercuSignature();
-            document.getElementById('apercu-signature-nouvelle').classList.add('hidden');
-            document.getElementById('signature-input').value = '';
-            btn.classList.add('hidden'); btn.disabled = false; btn.innerText = "Enregistrer";
-            setTimeout(() => { msg.innerText = ''; }, 2500);
-        }
+    const btn = document.getElementById('btn-save-signature');
+    const msg = document.getElementById('message-signature');
+    const url = window._signatureUrlTemp;
+    if (!url) { msg.innerText = "Selectionnez une image."; msg.style.color = "#EF4444"; return; }
+    btn.disabled = true; btn.innerText = "Enregistrement...";
+    const { error } = await supabaseClient.from('ecoles').update({ signature_url: url }).eq('id', monEcoleId);
+    if (error) { msg.innerText = "Erreur : " + error.message; msg.style.color = "#EF4444"; btn.disabled = false; btn.innerText = "Enregistrer"; return; }
+    signatureBase64 = url;
+    msg.innerText = "✅ Signature enregistree !"; msg.style.color = "#2EAD5E";
+    mettreAJourApercuSignature();
+    document.getElementById('apercu-signature-nouvelle').classList.add('hidden');
+    document.getElementById('signature-input').value = '';
+    btn.classList.add('hidden'); btn.disabled = false; btn.innerText = "Enregistrer";
+    window._signatureUrlTemp = null;
+    setTimeout(function() { msg.innerText = ''; }, 2500);
+}
 
         async function supprimerSignature() {
             if (!confirm("Supprimer la signature ?")) return;
@@ -6107,6 +6208,22 @@ CRENEAUX_APERCU.forEach((cr, idx) => {
             });
             document.getElementById('dash-graph-profs').innerHTML = charts.barres(data, { suffixe: 'h' });
         }
+// ════════════ RÉSEAU SOCIAL ════════════
+        var socialInitialise = false;
+
+        async function afficherReseau() {
+            hideAllViews();
+            document.getElementById('view-reseau').classList.remove('hidden');
+            window.scrollTo(0, 0);
+
+            if (!socialInitialise) {
+                socialInit(supabaseClient, currentUser, monEcoleId);
+                window.socialCtx.feedContainerId = 'feed-liste';
+                socialInitialise = true;
+            }
+
+            await socialChargerFeed('feed-liste');
+        }
 
         function seDeconnecter() { sessionStorage.removeItem('eduLinkUser'); window.location.href = 'index.html'; }
     </script>
@@ -6115,6 +6232,10 @@ CRENEAUX_APERCU.forEach((cr, idx) => {
 <script src="confirm.js"></script>
 <script src="skeleton.js"></script>
 <script src="charts.js"></script>
+<script src="storage.js"></script>
+<script src="social.js"></script>
+<script src="image-utils.js"></script>
+<script src="storage.js"></script>
 </body>
 </body>
 </html>
