@@ -474,8 +474,12 @@
         }
 
         function hideAllViews() {
-            document.querySelectorAll('[id^="view-"]').forEach(function(el) { el.classList.add('hidden'); });
-        }
+    var accueil = document.getElementById('view-accueil');
+    if (accueil && !accueil.classList.contains('hidden')) {
+        window._scrollAccueil = window.scrollY;
+    }
+    document.querySelectorAll('[id^="view-"]').forEach(function(el) { el.classList.add('hidden'); });
+}
 
         // ════════════ ELEVES ════════════
         async function afficherEleves() {
@@ -843,11 +847,14 @@
         }
 
         function retourAccueil() {
-            hideAllViews();
-            document.getElementById('view-accueil').classList.remove('hidden');
-            chargerStats();
-            window.scrollTo(0, 0);
-        }
+    hideAllViews();
+    document.getElementById('view-accueil').classList.remove('hidden');
+    chargerStats();
+    var pos = window._scrollAccueil || 0;
+    requestAnimationFrame(function() {
+        setTimeout(function() { window.scrollTo(0, pos); }, 30);
+    });
+}
 
         // ════════════ PERMISSIONS ════════════
         var mesPermissions = {};

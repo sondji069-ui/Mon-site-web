@@ -142,13 +142,40 @@
     </div>
 <!-- Console de debug mobile (à retirer plus tard) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js"></script>
     <script src="image-utils.js"></script>
 <script src="storage.js"></script>
 
+    <!-- ============ AUTH — Hachage PBKDF2 ============ -->
+    <script>
+        const AUTH_SALT = 'EDU-LINK::v1::S3n3g4l::2024';
+        const AUTH_ITERATIONS = 100000;
+        const AUTH_PREFIX = 'pbkdf2$';
+
+        async function hashPassword(plainPassword) {
+            const enc = new TextEncoder();
+            const keyMaterial = await crypto.subtle.importKey(
+                'raw',
+                enc.encode(plainPassword),
+                { name: 'PBKDF2' },
+                false,
+                ['deriveBits']
+            );
+            const hashBuffer = await crypto.subtle.deriveBits(
+                { name: 'PBKDF2', salt: enc.encode(AUTH_SALT), iterations: AUTH_ITERATIONS, hash: 'SHA-256' },
+                keyMaterial,
+                256
+            );
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return AUTH_PREFIX + AUTH_ITERATIONS + '$' + hex;
+        }
+    </script>
 
     <!-- ============ SCRIPT PRINCIPAL ============ -->
     <script>
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFid2d1aXhjbG14dHp2bHNtYmJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4OTg1OTMsImV4cCI6MjEwNjQ3NDU5M30.8MiG5YdoMIY69KYfBdlXHIB9Zisd5miX3slaCoqVcjM';
+        const supabaseUrl = 'https://abwguixclmxtzvlsmbby.supabase.co';
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
         const sessionUser = sessionStorage.getItem('eduLinkUser');
         if (!sessionUser) { window.location.href = 'index.html'; }
@@ -242,7 +269,7 @@
             }
 
             currentUser.photo_url = resultat.url;
-            EduLink.setSessionUser(currentUser);
+            sessionStorage.setItem('eduLinkUser', JSON.stringify(currentUser));
             afficherAvatar();
 
             msg.innerText = "✅ Photo mise à jour !";
@@ -310,7 +337,8 @@
             if (error) { msg.innerText = "Erreur"; msg.style.color = "red"; return; }
 
             const { data: user } = await supabaseClient.from('utilisateurs').select('*').eq('id', currentUser.id).single();
-            EduLink.setSessionUser(user);
+            sessionStorage.setItem('eduLinkUser', JSON.stringify(user));
+            currentUser = user;
             document.getElementById('profil-nom').innerText = prenom + ' ' + nom;
             msg.innerText = "Profil mis a jour !"; msg.style.color = "green";
             document.getElementById('input-password').value = '';

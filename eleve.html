@@ -547,8 +547,13 @@
         var signatureEcole = null;
 
         function hideAllViews() {
-            document.querySelectorAll('[id^="view-"]').forEach(function(el) { el.classList.add('hidden'); });
-        }
+    // Sauvegarder la position de scroll de l'accueil avant de changer de vue
+    var accueil = document.getElementById('view-accueil');
+    if (accueil && !accueil.classList.contains('hidden')) {
+        window._scrollAccueil = window.scrollY;
+    }
+    document.querySelectorAll('[id^="view-"]').forEach(function(el) { el.classList.add('hidden'); });
+}
 
         function afficherAvatarHeader() {
             var btn = document.getElementById('avatar-header');
@@ -1684,22 +1689,50 @@
                 var r = resElvListe.find(function(x) { return x.id === idRessource; });
                 if (!r || !r.fichier_base64) { toast.warning('Fichier introuvable.'); return; }
 
-                // ─── Cas 1 : URL Storage (nouveau) ───
-                if (r.fichier_base64.indexOf('http') === 0) {
-                    var a = document.createElement('a');
-                    a.href = r.fichier_base64;
-                    a.target = '_blank';
-                    a.rel = 'noopener';
-                    a.download = r.fichier_nom || 'fichier';
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
+                var url = r.fichier_base64;
+                var nomFichier = r.fichier_nom || 'fichier';
+                var btn = event && event.target ? event.target : null;
+
+                // ─── URL Storage (nouveau) ───
+                if (url.indexOf('http') === 0) {
+                    if (btn) { btn.disabled = true; btn.innerText = 'Chargement...'; }
+
+                    try {
+                        // 1. Récupérer le fichier en blob
+                        var response = await fetch(url);
+                        if (!response.ok) throw new Error('Fichier inaccessible (' + response.status + ')');
+                        var blob = await response.blob();
+                        var fichier = new File([blob], nomFichier, { type: blob.type || 'application/octet-stream' });
+
+                        // 2. Essayer le partage natif iOS (le plus fiable)
+                        if (navigator.canShare && navigator.canShare({ files: [fichier] })) {
+                            await navigator.share({ files: [fichier], title: nomFichier });
+                            if (btn) { btn.disabled = false; btn.innerText = '📥 Telecharger'; }
+                            return;
+                        }
+
+                        // 3. Fallback : ouvrir dans un nouvel onglet
+                        var urlBlob = URL.createObjectURL(blob);
+                        window.open(urlBlob, '_blank');
+                        setTimeout(function() { URL.revokeObjectURL(urlBlob); }, 60000);
+
+                    } catch (err) {
+                        if (err.name === 'AbortError') {
+                            // L'utilisateur a annulé le partage → normal
+                            if (btn) { btn.disabled = false; btn.innerText = '📥 Telecharger'; }
+                            return;
+                        }
+                        // Si fetch échoue (CORS par ex.), on tente l'ouverture directe
+                        console.warn('Fetch échoué, tentative ouverture directe:', err);
+                        window.open(url, '_blank');
+                    }
+
+                    if (btn) { btn.disabled = false; btn.innerText = '📥 Telecharger'; }
                     return;
                 }
 
-                // ─── Cas 2 : ancien format base64 (fallback) ───
-                var base64 = r.fichier_base64;
-                var nomFichier = r.fichier_nom || 'fichier';
+                // ─── Ancien format base64 (fallback) ───
+                var base64 = url;
                 var parts = base64.split(',');
                 var mimeMatch = parts[0].match(/data:(.*?);/);
                 var mime = mimeMatch ? mimeMatch[1] : 'application/octet-stream';
@@ -1707,26 +1740,18 @@
                 var n = bstr.length;
                 var u8arr = new Uint8Array(n);
                 while (n--) { u8arr[n] = bstr.charCodeAt(n); }
-                var blob = new Blob([u8arr], { type: mime });
-                var fichier = new File([blob], nomFichier, { type: mime });
+                var blob2 = new Blob([u8arr], { type: mime });
+                var fichier2 = new File([blob2], nomFichier, { type: mime });
 
-                if (navigator.canShare && navigator.canShare({ files: [fichier] })) {
-                    await navigator.share({ files: [fichier], title: nomFichier });
+                if (navigator.canShare && navigator.canShare({ files: [fichier2] })) {
+                    await navigator.share({ files: [fichier2], title: nomFichier });
                     return;
                 }
 
-                var url = URL.createObjectURL(blob);
-                var nouvelleFenetre = window.open(url, '_blank');
-                if (!nouvelleFenetre) {
-                    var a2 = document.createElement('a');
-                    a2.href = url;
-                    a2.download = nomFichier;
-                    a2.target = '_blank';
-                    document.body.appendChild(a2);
-                    a2.click();
-                    document.body.removeChild(a2);
-                }
-                setTimeout(function() { URL.revokeObjectURL(url); }, 60000);
+                var url2 = URL.createObjectURL(blob2);
+                window.open(url2, '_blank');
+                setTimeout(function() { URL.revokeObjectURL(url2); }, 60000);
+
             } catch (err) {
                 if (err.name === 'AbortError') return;
                 toast.error('Erreur telechargement : ' + err.message);
@@ -1741,12 +1766,20 @@
         }
 
         function retourAccueil() {
-            hideAllViews();
-            document.getElementById('view-accueil').classList.remove('hidden');
-            chargerBadgeDevoirs();
-            chargerProchainCours();
-            chargerBadges();
-        }
+    hideAllViews();
+    document.getElementById('view-accueil').classList.remove('hidden');
+    chargerBadgeDevoirs();
+    chargerProchainCours();
+    chargerBadges();
+
+    // Restaurer la position de scroll de l'accueil
+    var pos = window._scrollAccueil || 0;
+    requestAnimationFrame(function() {
+        setTimeout(function() {
+            window.scrollTo(0, pos);
+        }, 30);
+    });
+}
 // ════════════ RÉSEAU SOCIAL ════════════
         var socialInitialise = false;
 

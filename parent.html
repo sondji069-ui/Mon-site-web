@@ -385,6 +385,16 @@
         var parsedUser = JSON.parse(sessionUser);
         var currentUser = null, monEcoleId = null, listeEnfants = [];
         var trimestreActuel = 1, filtreAbsences = 'tout', toutesAbsences = [];
+// ═══════════ MÉMORISATION SCROLL ACCUEIL ═══════════
+        var _dernierScrollAccueil = 0;
+        window.addEventListener('scroll', function() {
+            var accueil = document.getElementById('view-accueil');
+            if (accueil && !accueil.classList.contains('hidden')) {
+                _dernierScrollAccueil = window.scrollY;
+            }
+        }, { passive: true });
+
+        // ═══════════ FIN ═══════════
         var signatureEcole = null;
         var trimestreBadgesParent = 1;
 
@@ -1050,7 +1060,9 @@
             document.getElementById('view-accueil').classList.remove('hidden');
             chargerBadgeDevoirs();
             chargerBadgeBadgesEnfants();
-            window.scrollTo(0, 0);
+            requestAnimationFrame(function() {
+                setTimeout(function() { window.scrollTo(0, _dernierScrollAccueil); }, 30);
+            });
         }
 
         function afficherLierEnfant() {
@@ -1166,7 +1178,11 @@
         var socialInitialise = false;
 
         async function afficherReseau() {
-            hideAllViews();
+            var accueil = document.getElementById('view-accueil');
+            if (accueil && !accueil.classList.contains('hidden')) {
+                window._scrollAccueil = window.scrollY;
+            }
+            document.querySelectorAll('[id^="view-"]').forEach(function(el) { el.classList.add('hidden'); });
             document.getElementById('view-reseau').classList.remove('hidden');
             window.scrollTo(0, 0);
 

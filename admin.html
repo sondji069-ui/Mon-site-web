@@ -228,7 +228,14 @@
             <div class="btn-arrow">→</div>
         </button>
     </div>
-
+<button onclick="afficherCahierTexteAdmin()" class="btn-float anim-up delay-7" style="background: linear-gradient(135deg, #0D9488, #14B8A6); margin-bottom: 14px;">
+    <div class="btn-icon">📓</div>
+    <div class="btn-content">
+        <div class="btn-title">Cahier de texte</div>
+        <div class="btn-desc">Voir les notes des enseignants</div>
+    </div>
+    <div class="btn-arrow">→</div>
+</button>
     <div class="divider anim-up delay-8">Raccourcis</div>
 
     <div class="action-grid mb-4">
@@ -1198,6 +1205,30 @@
                     </div>
                     <div id="profil-social-contenu"></div>
                 </div>
+<!-- CAHIER DE TEXTE ADMIN -->
+                <div id="view-cahier-texte-admin" class="hidden fade-in">
+                    <div class="section-header anim-up">
+                        <button onclick="retourAccueil()" class="back-btn">⬅️</button>
+                        <div>
+                            <h1 class="section-title">📓 Cahier de texte</h1>
+                            <p class="section-sub">Notes des enseignants</p>
+                        </div>
+                    </div>
+
+                    <div class="card-pro anim-up delay-1" style="margin-bottom: 14px; padding: 12px;">
+                        <label style="font-size: 11px; font-weight: 700; color: #6b7280; display: block; margin-bottom: 6px; text-transform: uppercase;">Filtrer par</label>
+                        <select id="cahier-admin-classe" onchange="chargerCahierTexteAdmin()" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #d1d5db; font-size: 12px; background: white; margin-bottom: 8px;">
+                            <option value="">Toutes les classes</option>
+                        </select>
+                        <select id="cahier-admin-prof" onchange="chargerCahierTexteAdmin()" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #d1d5db; font-size: 12px; background: white;">
+                            <option value="">Tous les enseignants</option>
+                        </select>
+                    </div>
+
+                    <div id="cahier-admin-stats" class="anim-up delay-2" style="margin-bottom: 12px;"></div>
+
+                    <div id="liste-cahier-texte-admin" class="anim-up delay-3"></div>
+                </div>
 
                 <div id="view-notifications" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-4">⬅️</button>
@@ -1400,8 +1431,12 @@ window.CRENEAUX_EDT = window.CRENEAUX_EDT || [
         }
 
         function hideAllViews() {
-            document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
-        }
+    var accueil = document.getElementById('view-accueil');
+    if (accueil && !accueil.classList.contains('hidden')) {
+        window._scrollAccueil = window.scrollY;
+    }
+    document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
+}
 
         // ════════════ DEMANDES MDP ════════════
         async function afficherDemandesMdp() {
@@ -3132,17 +3167,142 @@ const JOURS_EDT = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
                 else item.style.display = 'none';
             });
         }
+// ═══════════ CAHIER DE TEXTE ADMIN ═══════════
+        var cahierAdminListe = [];
 
-        function retourAccueil() {
+        async function afficherCahierTexteAdmin() {
             hideAllViews();
-            document.getElementById('view-accueil').classList.remove('hidden');
-            chargerStats();
-            chargerDashboardJour();
-            chargerBadgeDemandes();
-            chargerBadgeEquipe();
-            chargerBadgeMdp();
+            document.getElementById('view-cahier-texte-admin').classList.remove('hidden');
+            document.getElementById('liste-cahier-texte-admin').innerHTML = skeleton.lignes(4);
+
+            // Charger les classes
+            var resC = await supabaseClient.from('classes').select('id, nom').eq('ecole_id', monEcoleId).order('nom');
+            var selC = document.getElementById('cahier-admin-classe');
+            selC.innerHTML = '<option value="">Toutes les classes</option>';
+            (resC.data || []).forEach(function(c) {
+                selC.innerHTML += '<option value="' + c.id + '">' + c.nom + '</option>';
+            });
+
+            // Charger les enseignants
+            var resE = await supabaseClient.from('utilisateurs').select('id, prenom, nom').eq('ecole_id', monEcoleId).eq('role', 'enseignant').order('nom');
+            var selP = document.getElementById('cahier-admin-prof');
+            selP.innerHTML = '<option value="">Tous les enseignants</option>';
+            var profMap = {};
+            (resE.data || []).forEach(function(p) {
+                profMap[p.id] = p.prenom + ' ' + p.nom;
+            });
+
+            // Charger les enseignants.id (table enseignants)
+            var resEns = await supabaseClient.from('enseignants').select('id, utilisateur_id').in('utilisateur_id', (resE.data || []).map(function(p) { return p.id; }));
+            var ensIdMap = {};
+            (resEns.data || []).forEach(function(e) {
+                ensIdMap[e.utilisateur_id] = e.id;
+            });
+
+            // Remplir le select profs avec les enseignants.id
+            (resE.data || []).forEach(function(p) {
+                var ensId = ensIdMap[p.id];
+                if (ensId) {
+                    selP.innerHTML += '<option value="' + ensId + '">' + p.prenom + ' ' + p.nom + '</option>';
+                }
+            });
+
+            await chargerCahierTexteAdmin();
             window.scrollTo(0, 0);
         }
+
+        async function chargerCahierTexteAdmin() {
+            var conteneur = document.getElementById('liste-cahier-texte-admin');
+            conteneur.innerHTML = skeleton.lignes(4);
+
+            var classeId = document.getElementById('cahier-admin-classe').value;
+            var ensId = document.getElementById('cahier-admin-prof').value;
+
+            var q = supabaseClient.from('cahier_texte')
+                .select('*, classes(nom), enseignants(utilisateurs!utilisateur_id(prenom, nom))')
+                .eq('ecole_id', monEcoleId)
+                .order('date_cours', { ascending: false })
+                .order('id', { ascending: false })
+                .limit(200);
+
+            if (classeId) q = q.eq('classe_id', parseInt(classeId));
+            if (ensId) q = q.eq('enseignant_id', parseInt(ensId));
+
+            var res = await q;
+            if (res.error) {
+                conteneur.innerHTML = '<div class="bg-red-50 p-4 rounded-2xl text-xs text-red-600">' + res.error.message + '</div>';
+                return;
+            }
+
+            cahierAdminListe = res.data || [];
+
+            // Stats
+            var statsDiv = document.getElementById('cahier-admin-stats');
+            var nbProf = new Set(cahierAdminListe.map(function(e) { return e.enseignant_id; })).size;
+            var nbClasses = new Set(cahierAdminListe.map(function(e) { return e.classe_id; })).size;
+
+            var statsHtml = '<div class="stat-inline">';
+            statsHtml += '<div class="stat-mini"><div class="label">Notes</div><div class="value" style="color: #0D9488;">' + cahierAdminListe.length + '</div></div>';
+            statsHtml += '<div class="stat-mini"><div class="label">Enseignants</div><div class="value">' + nbProf + '</div></div>';
+            statsHtml += '<div class="stat-mini"><div class="label">Classes</div><div class="value">' + nbClasses + '</div></div>';
+            statsHtml += '</div>';
+            statsDiv.innerHTML = statsHtml;
+
+            if (cahierAdminListe.length === 0) {
+                conteneur.innerHTML = '<div class="empty-state"><div class="empty-icon">📓</div><div class="empty-title">Aucune note</div><div class="empty-desc">Aucun enseignant n\'a encore utilisé le cahier de texte</div></div>';
+                return;
+            }
+
+            // Grouper par date
+            var parDate = {};
+            cahierAdminListe.forEach(function(e) {
+                if (!parDate[e.date_cours]) parDate[e.date_cours] = [];
+                parDate[e.date_cours].push(e);
+            });
+
+            var datesTriees = Object.keys(parDate).sort().reverse();
+            var html = '';
+
+            datesTriees.forEach(function(date) {
+                var dateObj = new Date(date + 'T00:00:00');
+                var dateLbl = dateObj.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+                html += '<div style="margin-bottom: 18px;">';
+                html += '<p style="font-size: 11px; font-weight: 800; color: #0D9488; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; text-transform: capitalize;">' + dateLbl + '</p>';
+
+                parDate[date].forEach(function(e) {
+                    var classeNom = e.classes ? e.classes.nom : 'Sans classe';
+                    var profNom = '';
+                    if (e.enseignants && e.enseignants.utilisateurs) {
+                        profNom = e.enseignants.utilisateurs.prenom + ' ' + e.enseignants.utilisateurs.nom;
+                    }
+                    var contenu = (e.contenu || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+                    html += '<div class="card-pro" style="margin-bottom: 8px; border-left: 3px solid #0D9488;">';
+                    html += '<p style="font-size: 13px; font-weight: 800; color: #0D9488; margin: 0 0 4px 0;">' + e.matiere + ' — ' + classeNom + '</p>';
+                    if (profNom) html += '<p style="font-size: 10px; color: #6b7280; margin: 0 0 6px 0;">👤 ' + profNom + '</p>';
+                    html += '<p class="text-gray-800" style="font-size: 12px; white-space: pre-wrap; margin: 0; line-height: 1.5;">' + contenu + '</p>';
+                    html += '</div>';
+                });
+
+                html += '</div>';
+            });
+
+            conteneur.innerHTML = html;
+        }
+
+        function retourAccueil() {
+    hideAllViews();
+    document.getElementById('view-accueil').classList.remove('hidden');
+    chargerStats();
+    chargerDashboardJour();
+    chargerBadgeDemandes();
+    chargerBadgeEquipe();
+    chargerBadgeMdp();
+    var pos = window._scrollAccueil || 0;
+    requestAnimationFrame(function() {
+        setTimeout(function() { window.scrollTo(0, pos); }, 30);
+    });
+}
 
         // ════════════ IMPORT ELEVES CSV ════════════
         let impMode = 'fichier';
@@ -6233,6 +6393,7 @@ CRENEAUX_APERCU.forEach((cr, idx) => {
 <script src="skeleton.js"></script>
 <script src="charts.js"></script>
 <script src="storage.js"></script>
+<script src="cahier-texte.js"></script>
 <script src="social.js"></script>
 <script src="image-utils.js"></script>
 <script src="storage.js"></script>

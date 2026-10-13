@@ -67,7 +67,7 @@
         // 2. Conversion en Blob
         var blob = dataUrlVersBlob(dataUrlCompresse);
 
-        // 3. Upload avec timeout
+        // 3. Upload avec timeout de 30s
         var client = getClient();
         var chemin = genererChemin(options.userId, file.name);
 
