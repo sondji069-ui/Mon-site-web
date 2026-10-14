@@ -1,17 +1,41 @@
-// ==========================================
+// ═══════════════════════════════════════════════════════════════
 // EDU-LINK — Service Worker (PWA)
-// ==========================================
+// Version 3 — Cache étendu + mise à jour automatique
+// ═══════════════════════════════════════════════════════════════
 
-const CACHE_NAME = 'edu-link-v2 la';
+const CACHE_VERSION = 'v3';
+const CACHE_NAME = 'edu-link-' + CACHE_VERSION;
 
-// Fichiers essentiels a mettre en cache au demarrage
+// Fichiers essentiels (coquille de l'app)
 const FICHIERS_ESSENTIELS = [
     './',
     './index.html',
-    './manifest.json'
+    './manifest.json',
+    './icons/icon-192.png',
+    './icons/icon-512.png',
+    './icons/apple-touch-icon.png',
+    './icons/icon.svg'
 ];
 
-// Installation : mise en cache des fichiers essentiels
+// Fichiers optionnels (cachés au premier accès)
+const FICHIERS_OPTIONNELS = [
+    './dashboard.css',
+    './config.js',
+    './storage.js',
+    './image-utils.js',
+    './toast.js',
+    './confirm.js',
+    './skeleton.js',
+    './charts.js',
+    './badges.js',
+    './theme.js',
+    './ripple.js',
+    './push.js',
+    './social.js',
+    './cahier-texte.js'
+];
+
+// ─────── INSTALLATION ───────
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
@@ -20,58 +44,84 @@ self.addEventListener('install', (event) => {
             });
         })
     );
+    // Force l'activation immédiate
     self.skipWaiting();
 });
 
-// Activation : suppression des anciens caches
+// ─────── ACTIVATION ───────
 self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches.keys().then((noms) => {
             return Promise.all(
-                noms.filter((n) => n !== CACHE_NAME).map((n) => caches.delete(n))
+                noms
+                    .filter((n) => n !== CACHE_NAME)
+                    .map((n) => caches.delete(n))
             );
+        }).then(() => {
+            // Prend le contrôle des pages ouvertes
+            return self.clients.claim();
         })
     );
-    self.clients.claim();
 });
 
-// Fetch : network-first avec fallback cache
+// ─────── STRATÉGIE DE FETCH ───────
 self.addEventListener('fetch', (event) => {
-    // Ignorer les requetes non-GET et Supabase
-    if (event.request.method !== 'GET') return;
-    if (event.request.url.includes('supabase.co')) return;
-    if (event.request.url.includes('cdn.jsdelivr.net')) return;
-    if (event.request.url.includes('cdn.tailwindcss.com')) return;
-    if (event.request.url.includes('cdnjs.cloudflare.com')) return;
+    const url = event.request.url;
 
+    // ─── Ignorer certaines requêtes ───
+    if (event.request.method !== 'GET') return;
+    if (url.includes('supabase.co')) return;                    // API Supabase
+    if (url.includes('cdn.jsdelivr.net')) return;               // CDN
+    if (url.includes('cdn.tailwindcss.com')) return;            // Tailwind CDN
+    if (url.includes('cdnjs.cloudflare.com')) return;           // HTML2PDF
+    if (url.includes('fonts.googleapis.com')) return;           // Google Fonts
+    if (url.includes('fonts.gstatic.com')) return;              // Google Fonts
+    if (url.includes('pexels.com')) return;                     // Images fallback
+    if (url.includes('openrouter.ai')) return;                  // IA
+
+    // ─── Stratégie network-first avec fallback cache ───
     event.respondWith(
         fetch(event.request)
             .then((response) => {
-                // Mettre en cache les reponses OK pour les pages HTML
+                // Cacher les réponses valides (page, CSS, JS local)
                 if (response && response.status === 200 && response.type === 'basic') {
-                    const responseClone = response.clone();
+                    const clone = response.clone();
                     caches.open(CACHE_NAME).then((cache) => {
-                        cache.put(event.request, responseClone).catch(() => {});
+                        cache.put(event.request, clone).catch(() => {});
                     });
                 }
                 return response;
             })
             .catch(() => {
-                // Fallback sur le cache si offline
+                // Hors-ligne → fallback cache
                 return caches.match(event.request).then((cached) => {
                     if (cached) return cached;
-                    // Si c'est une navigation, retour a l'accueil
+
+                    // Navigation → retour à l'accueil
                     if (event.request.mode === 'navigate') {
                         return caches.match('./index.html');
                     }
-                    return new Response('Hors ligne', { status: 503, statusText: 'Offline' });
+
+                    return new Response('Hors ligne', {
+                        status: 503,
+                        statusText: 'Offline',
+                        headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+                    });
                 });
             })
     );
 });
-// ==========================================
+
+// ─────── MESSAGE : forcer la mise à jour ───────
+self.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        self.skipWaiting();
+    }
+});
+
+// ═══════════════════════════════════════════════════════════════
 // WEB PUSH — Affichage des notifications
-// ==========================================
+// ═══════════════════════════════════════════════════════════════
 
 self.addEventListener('push', function(event) {
     let data = {};
@@ -84,10 +134,11 @@ self.addEventListener('push', function(event) {
     const title = data.title || 'EDU-LINK';
     const options = {
         body: data.body || 'Nouvelle notification',
-        icon: './icons/icon.png',
-        badge: './icons/icon.png',
+        icon: './icons/icon-192.png',
+        badge: './icons/icon-192.png',
         tag: data.tag || 'edu-link-notif',
         renotify: true,
+        vibrate: [200, 100, 200],
         data: { url: data.url || './index.html' }
     };
 

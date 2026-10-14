@@ -1,20 +1,65 @@
 {
     "name": "EDU-LINK - Plateforme scolaire",
     "short_name": "EDU-LINK",
-    "description": "L'ecole connectee, l'education rapprochee",
+    "description": "L'école connectée, l'éducation rapprochée. Notes, devoirs, cahier de texte, messagerie et bien plus.",
     "start_url": "./index.html",
+    "scope": "./",
     "display": "standalone",
+    "display_override": ["standalone", "minimal-ui"],
     "orientation": "portrait",
-    "background_color": "#ffffff",
+    "background_color": "#f3f4f6",
     "theme_color": "#004AAD",
     "lang": "fr",
-    "scope": "./",
+    "dir": "ltr",
+    "categories": ["education", "productivity"],
+    "prefer_related_applications": false,
     "icons": [
+        {
+            "src": "./icons/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "./icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "./icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
         {
             "src": "./icons/icon.svg",
             "sizes": "any",
             "type": "image/svg+xml",
-            "purpose": "any maskable"
+            "purpose": "any"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Réseau social",
+            "short_name": "Réseau",
+            "description": "Voir les publications de l'école",
+            "url": "./eleve.html?page=reseau",
+            "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }]
+        },
+        {
+            "name": "Cahier de texte",
+            "short_name": "Cahier",
+            "description": "Notes de cours (enseignant)",
+            "url": "./enseignant.html?page=cahier",
+            "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }]
+        },
+        {
+            "name": "Messagerie",
+            "short_name": "Messages",
+            "description": "Discuter avec l'école",
+            "url": "./messagerie.html",
+            "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }]
         }
     ]
 }

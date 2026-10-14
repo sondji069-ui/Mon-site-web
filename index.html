@@ -305,19 +305,11 @@
         });
     </script>
 
-    <!-- ============ SERVICE WORKER (PWA) ============ -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('sw.js').catch(function(err) {
-                    console.log('Service Worker non enregistre :', err);
-                });
-            });
-        }
-    </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>          
 <script>
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
+<script src="pwa.js"></script>
+</body>
 </body>
 </html>
