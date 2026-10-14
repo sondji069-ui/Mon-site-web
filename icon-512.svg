@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Fond bleu rond -->
+  <rect width="512" height="512" rx="112" fill="#004AAD"/>
+  
+  <!-- Cercle décoratif -->
+  <circle cx="256" cy="220" r="140" fill="rgba(255,255,255,0.08)"/>
+  
+  <!-- Livre ouvert - page gauche -->
+  <path d="M 256 140 
+           C 220 110, 140 110, 120 130 
+           L 120 300 
+           C 140 280, 220 280, 256 310 Z" 
+        fill="#e0efff" stroke="#ffffff" stroke-width="6" stroke-linejoin="round"/>
+  
+  <!-- Livre ouvert - page droite -->
+  <path d="M 256 140 
+           C 292 110, 372 110, 392 130 
+           L 392 300 
+           C 372 280, 292 280, 256 310 Z" 
+        fill="#bfdbfe" stroke="#ffffff" stroke-width="6" stroke-linejoin="round"/>
+  
+  <!-- Lignes de texte page gauche -->
+  <line x1="155" y1="175" x2="230" y2="175" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
+  <line x1="155" y1="200" x2="230" y2="200" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
+  <line x1="155" y1="225" x2="230" y2="225" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Lignes de texte page droite -->
+  <line x1="282" y1="175" x2="357" y2="175" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
+  <line x1="282" y1="200" x2="357" y2="200" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
+  <line x1="282" y1="225" x2="357" y2="225" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Reliure centrale -->
+  <line x1="256" y1="145" x2="256" y2="305" stroke="#004AAD" stroke-width="4"/>
+  
+  <!-- Marque-page rouge -->
+  <path d="M 245 135 L 245 185 L 256 175 L 267 185 L 267 135 Z" fill="#dc2626"/>
+  
+  <!-- Texte EDU-LINK -->
+  <text x="256" y="400" 
+        font-family="Arial, Helvetica, sans-serif" 
+        font-size="52" 
+        font-weight="900" 
+        fill="#ffffff" 
+        text-anchor="middle" 
+        letter-spacing="4">EDU-LINK</text>
+  
+  <!-- Sous-titre -->
+  <text x="256" y="438" 
+        font-family="Arial, Helvetica, sans-serif" 
+        font-size="18" 
+        font-weight="500" 
+        fill="rgba(255,255,255,0.75)" 
+        text-anchor="middle" 
+        letter-spacing="1">L'école connectée</text>
+</svg>
