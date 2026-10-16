@@ -10,64 +10,54 @@
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFid2d1aXhjbG14dHp2bHNtYmJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4OTg1OTMsImV4cCI6MjEwNjQ3NDU5M30.8MiG5YdoMIY69KYfBdlXHIB9Zisd5miX3slaCoqVcjM';
         const supabaseUrl = 'https://abwguixclmxtzvlsmbby.supabase.co';
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
-
-        // Log de diagnostic dès le chargement
-        window.addEventListener('load', function() {
-            var log = document.getElementById('log');
-            log.innerHTML += '<div class="text-yellow-300">✅ Page chargée</div>';
-            log.innerHTML += '<div class="text-yellow-300">Supabase : ' + (typeof supabaseClient) + '</div>';
-            log.innerHTML += '<div class="text-yellow-300">EduStorage : ' + (typeof EduStorage) + '</div>';
-            log.innerHTML += '<div class="text-yellow-300">WORKER_URL : ' + (typeof WORKER_URL !== 'undefined' ? WORKER_URL : 'non défini') + '</div>';
-            log.innerHTML += '<div class="text-green-300">─────────────────</div>';
-        });
     </script>
     <script src="image-utils.js"></script>
     <script src="storage.js"></script>
 </head>
 <body class="bg-gray-100 min-h-screen p-4">
     <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-lg p-6">
-        <h1 class="text-2xl font-bold text-blue-700 mb-4">🔄 Migration Storage</h1>
+        <h1 class="text-2xl font-bold text-blue-700 mb-4">🔄 Migration Storage Complète</h1>
 
-        <button onclick="testSimple()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl mb-2">
-            🧪 Test 1 : bouton simple
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 mb-4">
+            <p class="text-xs text-blue-800">Cette migration va traiter tous les fichiers restants. Le 1er élément a déjà été migré lors du test.</p>
+        </div>
+
+        <button onclick="lancerMigrationComplete()" id="btn" class="w-full bg-green-600 text-white font-bold py-3 rounded-xl mb-4">
+            ▶️ Lancer la migration complète
         </button>
 
-        <button onclick="lancerMigration()" id="btn-migrer" class="w-full bg-green-600 text-white font-bold py-3 rounded-xl mb-4">
-            ▶️ Lancer la migration
-        </button>
+        <div class="bg-gray-200 rounded-full h-4 overflow-hidden mb-2">
+            <div id="barre" class="bg-green-500 h-4 transition-all duration-300" style="width: 0%"></div>
+        </div>
+        <p id="pct" class="text-xs text-center text-gray-500 mb-4">0%</p>
 
         <div id="log" class="bg-gray-900 text-green-300 text-xs font-mono p-3 rounded-lg" style="height: 400px; overflow-y: auto;">
-            Démarrage...<br>
+            Cliquez sur "Lancer la migration complète"...
         </div>
     </div>
 
     <script>
-        function testSimple() {
-            document.getElementById('log').innerHTML += '<div class="text-blue-300">🖱️ Clic détecté !</div>';
+        function log(msg, type) {
+            var el = document.getElementById('log');
+            var color = type === 'error' ? 'text-red-400' : (type === 'success' ? 'text-green-400' : (type === 'warn' ? 'text-yellow-300' : 'text-cyan-300'));
+            var time = new Date().toLocaleTimeString('fr-FR');
+            el.innerHTML += '<div class="' + color + '">[' + time + '] ' + msg + '</div>';
+            el.scrollTop = el.scrollHeight;
         }
 
-        async function lancerMigration() {
-            var log = document.getElementById('log');
-            log.innerHTML += '<div class="text-yellow-300">🚀 Démarrage...</div>';
+        function majProgression(actuel, total) {
+            var pct = total > 0 ? Math.round((actuel / total) * 100) : 0;
+            document.getElementById('barre').style.width = pct + '%';
+            document.getElementById('pct').innerText = pct + '% (' + actuel + '/' + total + ')';
+        }
 
-            // Test étape 1 : Supabase répond
-            try {
-                var res = await supabaseClient.from('ecoles').select('id, logo_url').limit(1);
-                log.innerHTML += '<div class="text-green-300">✅ Supabase répond. Ecoles trouvées : ' + (res.data ? res.data.length : 0) + '</div>';
-            } catch (err) {
-                log.innerHTML += '<div class="text-red-400">❌ Supabase erreur : ' + err.message + '</div>';
-                return;
-            }
+        async function lancerMigrationComplete() {
+            var btn = document.getElementById('btn');
+            btn.disabled = true;
+            btn.innerText = '⏳ Migration en cours...';
 
-            // Test étape 2 : EduStorage est chargé
-            if (typeof EduStorage === 'undefined') {
-                log.innerHTML += '<div class="text-red-400">❌ EduStorage non chargé — storage.js a un problème</div>';
-                return;
-            }
-            log.innerHTML += '<div class="text-green-300">✅ EduStorage disponible</div>';
+            log('🚀 Démarrage de la migration complète...');
 
-            // Test étape 3 : Récupérer les images à migrer
-            var taches = [];
             var migrations = [
                 { table: 'ecoles', champ: 'logo_url', bucket: 'logos' },
                 { table: 'ecoles', champ: 'signature_url', bucket: 'signatures' },
@@ -76,63 +66,82 @@
                 { table: 'ressources', champ: 'fichier_base64', bucket: 'ressources' }
             ];
 
+            var taches = [];
+
+            // 1. Récupérer tous les éléments à migrer
             for (var i = 0; i < migrations.length; i++) {
                 var m = migrations[i];
                 try {
-                    var res2 = await supabaseClient.from(m.table).select('id, ' + m.champ).like(m.champ, 'https://abwguixclmxtzvlsmbby.supabase.co%');
-                    if (res2.data && res2.data.length > 0) {
-                        log.innerHTML += '<div class="text-cyan-300">📋 ' + m.table + '.' + m.champ + ' → ' + res2.data.length + ' éléments</div>';
-                        res2.data.forEach(function(item) {
+                    var res = await supabaseClient.from(m.table).select('id, ' + m.champ).like(m.champ, 'https://abwguixclmxtzvlsmbby.supabase.co%');
+                    if (res.data && res.data.length > 0) {
+                        log('📋 ' + m.table + '.' + m.champ + ' → ' + res.data.length);
+                        res.data.forEach(function(item) {
                             taches.push({ table: m.table, champ: m.champ, bucket: m.bucket, item: item });
                         });
                     }
                 } catch (err) {
-                    log.innerHTML += '<div class="text-red-400">❌ Erreur ' + m.table + '.' + m.champ + ' : ' + err.message + '</div>';
+                    log('❌ Erreur lecture ' + m.table + '.' + m.champ + ' : ' + err.message, 'error');
                 }
             }
 
-            log.innerHTML += '<div class="text-green-300">📊 Total : ' + taches.length + ' élément(s) à migrer</div>';
+            log('📊 Total : ' + taches.length + ' élément(s) à migrer');
+            log('─────────────────────────');
 
-            // Test étape 4 : migrer la première pour valider
             if (taches.length === 0) {
-                log.innerHTML += '<div class="text-yellow-300">✨ Rien à migrer</div>';
+                log('✨ Rien à migrer !', 'success');
+                btn.disabled = false;
+                btn.innerText = '▶️ Relancer';
                 return;
             }
 
-            var t0 = taches[0];
-            log.innerHTML += '<div class="text-yellow-300">🧪 Test migration sur ' + t0.table + ' #' + t0.item.id + '</div>';
+            var total = taches.length;
+            var reussis = 0;
+            var echecs = 0;
 
-            try {
-                var urlOrigine = t0.item[t0.champ];
-                log.innerHTML += '<div class="text-yellow-300">📥 Téléchargement : ' + urlOrigine.substring(0, 60) + '...</div>';
+            // 2. Migrer un par un
+            for (var j = 0; j < taches.length; j++) {
+                var t = taches[j];
+                var id = t.item.id;
+                var urlOrigine = t.item[t.champ];
 
-                var response = await fetch(urlOrigine);
-                if (!response.ok) throw new Error('HTTP ' + response.status);
+                log('📥 [' + (j+1) + '/' + total + '] ' + t.table + ' #' + id);
 
-                var blob = await response.blob();
-                log.innerHTML += '<div class="text-green-300">✅ Téléchargé (' + Math.round(blob.size / 1024) + ' Ko)</div>';
+                try {
+                    var response = await fetch(urlOrigine);
+                    if (!response.ok) throw new Error('HTTP ' + response.status);
+                    var blob = await response.blob();
 
-                var nomFichier = 'fichier.jpg';
-                var file = new File([blob], nomFichier, { type: blob.type || 'image/jpeg' });
+                    var nomFichier = 'fichier.jpg';
+                    if (urlOrigine.indexOf('.png') !== -1) nomFichier = 'fichier.png';
+                    else if (urlOrigine.indexOf('.pdf') !== -1) nomFichier = 'fichier.pdf';
 
-                log.innerHTML += '<div class="text-yellow-300">📤 Upload vers R2...</div>';
+                    var file = new File([blob], nomFichier, { type: blob.type || 'image/jpeg' });
 
-                var result = await EduStorage.uploaderFichier(file, t0.bucket, {
-                    userId: 'migration',
-                    maxSizeMo: 20
-                });
+                    var result = await EduStorage.uploaderFichier(file, t.bucket, {
+                        userId: 'migration',
+                        maxSizeMo: 20
+                    });
 
-                log.innerHTML += '<div class="text-green-300">✅ Uploadé : ' + result.url + '</div>';
+                    var upd = await supabaseClient.from(t.table).update({ [t.champ]: result.url }).eq('id', id);
+                    if (upd.error) throw upd.error;
 
-                var upd = await supabaseClient.from(t0.table).update({ [t0.champ]: result.url }).eq('id', t0.item.id);
-                if (upd.error) throw upd.error;
+                    log('   ✅ ' + Math.round(blob.size / 1024) + ' Ko → ' + result.url.substring(result.url.lastIndexOf('/') + 1), 'success');
+                    reussis++;
+                } catch (err) {
+                    log('   ❌ Échec : ' + err.message, 'error');
+                    echecs++;
+                }
 
-                log.innerHTML += '<div class="text-green-300">🎉 PREMIER ÉLÉMENT MIGRÉ AVEC SUCCÈS !</div>';
-                log.innerHTML += '<div class="text-yellow-300">La chaîne complète fonctionne. Prêt à tout migrer.</div>';
-            } catch (err) {
-                log.innerHTML += '<div class="text-red-400">❌ Erreur migration : ' + err.message + '</div>';
-                log.innerHTML += '<div class="text-red-400">Stack : ' + (err.stack || 'n/a') + '</div>';
+                majProgression(j + 1, total);
             }
+
+            log('─────────────────────────');
+            log('🎉 Migration terminée !', 'success');
+            log('✅ Réussis : ' + reussis, 'success');
+            if (echecs > 0) log('❌ Échecs : ' + echecs, 'error');
+
+            btn.disabled = false;
+            btn.innerText = '▶️ Relancer';
         }
     </script>
 </body>
