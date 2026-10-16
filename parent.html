@@ -435,33 +435,55 @@
         });
 
         async function chargerEnfants() {
-            var res = await supabaseClient.from('eleves').select('*').eq('parent_id', currentUser.id);
-            var enfants = res.data;
-            if (!enfants || enfants.length === 0) {
+            // 1 SEULE requête avec jointures
+            var res = await supabaseClient
+                .from('eleves')
+                .select('*, utilisateurs!utilisateur_id(prenom, nom), classes(nom, id)')
+                .eq('parent_id', currentUser.id);
+
+            var enfants = res.data || [];
+
+            if (enfants.length === 0) {
                 document.getElementById('liste-enfants').innerHTML = '<p class="text-sm text-gray-500">Aucun enfant lié.</p>';
                 return;
             }
+
             listeEnfants = [];
             var html = '';
             var select = document.getElementById('select-enfant-bulletin');
             select.innerHTML = '<option value="">Selectionnez un enfant</option>';
-            for (var i = 0; i < enfants.length; i++) {
-                var e = enfants[i];
-                var resU = await supabaseClient.from('utilisateurs').select('prenom, nom').eq('id', e.utilisateur_id).single();
-                var resC = await supabaseClient.from('classes').select('nom').eq('id', e.classe_id).single();
-                var u = resU.data;
-                var c = resC.data;
-                listeEnfants.push(Object.assign({}, e, { prenom: u.prenom, nom: u.nom, classe: c ? c.nom : 'N/A' }));
-                html += '<div class="flex flex-col items-center min-w-[80px]"><div class="list-avatar pink" style="width: 64px; height: 64px; font-size: 28px; border-radius: 50%;">👦🏾</div><span class="text-xs font-bold text-edu-pink mt-2">' + u.prenom + '</span><span class="text-[10px] text-gray-500">' + (c ? c.nom : 'N/A') + '</span></div>';
-                select.innerHTML += '<option value="' + e.id + '">' + u.prenom + ' ' + u.nom + ' - ' + (c ? c.nom : 'N/A') + '</option>';
-            }
+
+            enfants.forEach(function(e) {
+                var u = e.utilisateurs || {};
+                var c = e.classes || {};
+                var prenom = u.prenom || '?';
+                var nom = u.nom || '?';
+                var classeNom = c.nom || 'N/A';
+
+                listeEnfants.push(Object.assign({}, e, {
+                    prenom: prenom,
+                    nom: nom,
+                    classe: classeNom
+                }));
+
+                html += '<div class="flex flex-col items-center min-w-[80px]"><div class="list-avatar pink" style="width: 64px; height: 64px; font-size: 28px; border-radius: 50%;">👦🏾</div><span class="text-xs font-bold text-edu-pink mt-2">' + prenom + '</span><span class="text-[10px] text-gray-500">' + classeNom + '</span></div>';
+                select.innerHTML += '<option value="' + e.id + '">' + prenom + ' ' + nom + ' - ' + classeNom + '</option>';
+            });
+
             document.getElementById('liste-enfants').innerHTML = html;
             if (listeEnfants.length >= 2) document.getElementById('btn-comparer').classList.remove('hidden');
+
+            // ─── Stats rapides : 2 requêtes parallèles (au lieu de séquentielles) ───
             var premier = enfants[0];
-            var resN = await supabaseClient.from('notes').select('note, matiere').eq('eleve_id', premier.id).order('date_saisie', { ascending: false }).limit(1).maybeSingle();
-            document.getElementById('derniere-note').innerText = resN.data ? resN.data.matiere + " : " + resN.data.note + "/20" : "Aucune note";
-            var resA = await supabaseClient.from('absences').select('*', { count: 'exact', head: true }).eq('eleve_id', premier.id);
-            document.getElementById('nb-absences').innerText = (resA.count || 0) + " absence(s)";
+            var resNotes = supabaseClient.from('notes').select('note, matiere').eq('eleve_id', premier.id).order('date_saisie', { ascending: false }).limit(1).maybeSingle();
+            var resAbs = supabaseClient.from('absences').select('*', { count: 'exact', head: true }).eq('eleve_id', premier.id);
+
+            var resultats = await Promise.all([resNotes, resAbs]);
+            var noteData = resultats[0].data;
+            var absCount = resultats[1].count || 0;
+
+            document.getElementById('derniere-note').innerText = noteData ? noteData.matiere + " : " + noteData.note + "/20" : "Aucune note";
+            document.getElementById('nb-absences').innerText = absCount + " absence(s)";
         }
 
         // ════════════ BADGES ENFANTS ════════════
@@ -632,15 +654,31 @@
 
         async function chargerDernieresNotes() {
             var conteneur = document.getElementById('liste-derniers-notes');
-            if (listeEnfants.length === 0) { conteneur.innerHTML = '<p class="text-gray-500 text-center py-3 text-xs">Aucun enfant.</p>'; return; }
+            if (listeEnfants.length === 0) {
+                conteneur.innerHTML = '<p class="text-gray-500 text-center py-3 text-xs">Aucun enfant.</p>';
+                return;
+            }
+
             var ids = listeEnfants.map(function(e) { return e.id; });
-            var res = await supabaseClient.from('notes').select('*').in('eleve_id', ids).order('date_saisie', { ascending: false }).limit(5);
-            var notes = res.data;
-            if (!notes || notes.length === 0) { conteneur.innerHTML = '<p class="text-gray-500 text-center py-3 text-xs">Aucune note enregistrée.</p>'; return; }
+
+            // Requête unique avec jointure sur eleves
+            var res = await supabaseClient
+                .from('notes')
+                .select('*, eleves!inner(utilisateurs!utilisateur_id(prenom))')
+                .in('eleve_id', ids)
+                .order('date_saisie', { ascending: false })
+                .limit(5);
+
+            var notes = res.data || [];
+
+            if (notes.length === 0) {
+                conteneur.innerHTML = '<p class="text-gray-500 text-center py-3 text-xs">Aucune note enregistrée.</p>';
+                return;
+            }
+
             var html = '';
             notes.forEach(function(n) {
-                var enfant = listeEnfants.find(function(e) { return e.id === n.eleve_id; });
-                var prenom = enfant ? enfant.prenom : '?';
+                var prenom = n.eleves && n.eleves.utilisateurs ? n.eleves.utilisateurs.prenom : '?';
                 var noteVal = parseFloat(n.note);
                 var couleur = '#EF4444', bg = 'bg-red-50';
                 if (noteVal >= 10) { couleur = '#2EAD5E'; bg = 'bg-green-50'; }
@@ -652,6 +690,7 @@
                 html += '<span style="font-size: 16px; font-weight: 900; color: ' + couleur + ';">' + noteVal.toFixed(2) + '</span>';
                 html += '</div>';
             });
+
             conteneur.innerHTML = html;
         }
 

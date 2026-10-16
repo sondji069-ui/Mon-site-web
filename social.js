@@ -662,11 +662,12 @@
             });
         } else {
             resultat = await EduStorage.uploaderImage(file, bucket, {
-                maxWidth: 1200,
-                maxHeight: 1200,
-                quality: 0.8,
-                userId: window.socialCtx.user.id
-            });
+    maxWidth: 1000,
+    maxHeight: 1000,
+    quality: 0.75,
+    maxSizeKo: 200,
+    userId: window.socialCtx.user.id
+});
         }
 
         // On stocke l'URL pour la publication

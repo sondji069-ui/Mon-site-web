@@ -1,20 +1,15 @@
 // ═══════════════════════════════════════════════════════════════
-// EDU-LINK — Storage (upload d'images et fichiers vers Supabase)
+// EDU-LINK — Storage (Cloudflare R2 via Worker)
 // ═══════════════════════════════════════════════════════════════
 
 (function() {
     'use strict';
 
-    // ─────── Utilitaires internes ───────
-    function nettoyerNom(texte) {
-        return String(texte || 'fichier')
-            .toLowerCase()
-            .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-            .replace(/[^a-z0-9.-]/g, '-')
-            .replace(/-+/g, '-')
-            .replace(/^-|-$/g, '');
-    }
+    // ─────── Configuration Cloudflare ───────
+    const WORKER_URL = 'https://edu-link-storage-api.sondji069.workers.dev';
+    const R2_PUBLIC_URL = 'https://pub-a2366ac592594708a7ab9e2194a86022.r2.dev';
 
+    // ─────── Utilitaires ───────
     function extraireExtension(nom) {
         var m = nom.match(/\.([a-z0-9]+)$/i);
         return m ? m[1].toLowerCase() : 'bin';
@@ -28,7 +23,6 @@
         return dossier + '/' + ts + '-' + rand + '.' + ext;
     }
 
-    // ─────── dataURL → Blob ───────
     function dataUrlVersBlob(dataUrl) {
         var parts = dataUrl.split(',');
         var mimeMatch = parts[0].match(/data:(.*?);/);
@@ -39,15 +33,46 @@
         return new Blob([u8], { type: mime });
     }
 
-    // ─────── Récupère le client Supabase ───────
-    // (au moment de l'appel, pas au chargement du fichier)
-    function getClient() {
-        if (typeof supabaseClient !== 'undefined') return supabaseClient;
-        if (typeof window !== 'undefined' && window.supabaseClient) return window.supabaseClient;
-        throw new Error('Client Supabase introuvable');
+    // ─────── Upload vers R2 via Worker ───────
+    async function uploaderVersR2(blob, chemin, contentType) {
+        var url = WORKER_URL + '/' + chemin;
+
+        // Timeout de 30 secondes
+        var controller = new AbortController();
+        var timeoutId = setTimeout(function() { controller.abort(); }, 30000);
+
+        try {
+            var res = await fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': contentType || 'application/octet-stream'
+                },
+                body: blob,
+                signal: controller.signal
+            });
+
+            clearTimeout(timeoutId);
+
+            if (!res.ok) {
+                var errText = await res.text();
+                throw new Error('Upload R2 échoué : ' + res.status + ' - ' + errText);
+            }
+
+            var data = await res.json();
+            return {
+                url: data.url || (R2_PUBLIC_URL + '/' + chemin),
+                path: chemin
+            };
+        } catch (err) {
+            clearTimeout(timeoutId);
+            if (err.name === 'AbortError') {
+                throw new Error('Délai dépassé (serveur lent)');
+            }
+            throw err;
+        }
     }
 
-    // ─────── UPLOAD IMAGE (avec compression auto) ───────
+    // ─────── UPLOAD IMAGE (avec compression) ───────
     async function uploaderImage(file, bucket, options) {
         options = options || {};
         if (!file || !file.type.startsWith('image/')) {
@@ -61,37 +86,21 @@
         var dataUrlCompresse = await compresserImage(file, {
             maxWidth: options.maxWidth || 1200,
             maxHeight: options.maxHeight || 1200,
-            quality: options.quality || 0.8
+            quality: options.quality || 0.8,
+            maxSizeKo: options.maxSizeKo || 200
         });
 
         // 2. Conversion en Blob
         var blob = dataUrlVersBlob(dataUrlCompresse);
 
-        // 3. Upload avec timeout de 30s
-        var client = getClient();
-        var chemin = genererChemin(options.userId, file.name);
+        // 3. Chemin avec préfixe du bucket
+        var chemin = bucket + '/' + genererChemin(options.userId, file.name);
 
-        var uploadPromise = client.storage
-            .from(bucket)
-            .upload(chemin, blob, {
-                contentType: 'image/jpeg',
-                cacheControl: '3600',
-                upsert: false
-            });
-
-        var timeoutPromise = new Promise(function(_, reject) {
-            setTimeout(function() { reject(new Error('Délai dépassé (serveur lent)')); }, 30000);
-        });
-
-        var res = await Promise.race([uploadPromise, timeoutPromise]);
-        if (res.error) throw new Error('Upload : ' + res.error.message);
-
-        // 4. URL publique
-        var pub = client.storage.from(bucket).getPublicUrl(res.data.path);
-        return { url: pub.data.publicUrl, path: res.data.path };
+        // 4. Upload
+        return await uploaderVersR2(blob, chemin, 'image/jpeg');
     }
 
-    // ─────── UPLOAD FICHIER (sans compression : PDF, vidéo…) ───────
+    // ─────── UPLOAD FICHIER (sans compression) ───────
     async function uploaderFichier(file, bucket, options) {
         options = options || {};
         if (!file) throw new Error('Fichier requis');
@@ -101,38 +110,33 @@
             throw new Error('Fichier trop lourd (max ' + maxMo + ' Mo)');
         }
 
-        var client = getClient();
         var nomOrig = options.nomFichier || file.name || 'fichier.bin';
-        var chemin = genererChemin(options.userId, nomOrig);
+        var chemin = bucket + '/' + genererChemin(options.userId, nomOrig);
 
-        var uploadPromise = client.storage
-            .from(bucket)
-            .upload(chemin, file, {
-                contentType: file.type || 'application/octet-stream',
-                cacheControl: '3600',
-                upsert: false
-            });
-
-        var timeoutPromise = new Promise(function(_, reject) {
-            setTimeout(function() { reject(new Error('Délai dépassé (serveur lent)')); }, 30000);
-        });
-
-        var res = await Promise.race([uploadPromise, timeoutPromise]);
-        if (res.error) throw new Error('Upload : ' + res.error.message);
-
-        var pub = client.storage.from(bucket).getPublicUrl(res.data.path);
-        return { url: pub.data.publicUrl, path: res.data.path };
+        return await uploaderVersR2(file, chemin, file.type || 'application/octet-stream');
     }
 
     // ─────── SUPPRIMER UN FICHIER ───────
     async function supprimer(bucket, path) {
         if (!path) return;
-        if (path.indexOf('data:') === 0 || path.indexOf('http') === 0) return;
-        var client = getClient();
-        await client.storage.from(bucket).remove([path]);
+        // Ignore les anciennes URLs (Supabase ou base64)
+        if (path.indexOf('data:') === 0) return;
+        if (path.indexOf('supabase.co') !== -1) return;
+
+        // Extraire le chemin relatif si c'est une URL R2 complète
+        var cheminRelatif = path;
+        if (path.indexOf(R2_PUBLIC_URL) === 0) {
+            cheminRelatif = path.substring(R2_PUBLIC_URL.length + 1);
+        }
+
+        try {
+            await fetch(WORKER_URL + '/' + cheminRelatif, { method: 'DELETE' });
+        } catch (err) {
+            console.warn('Suppression R2 échouée :', err);
+        }
     }
 
-    // ─────── dataURL → URL Storage (migration) ───────
+    // ─────── dataURL → URL R2 (migration) ───────
     async function migrerDataUrl(dataUrl, bucket, options) {
         if (!dataUrl || dataUrl.indexOf('data:') !== 0) return dataUrl;
         options = options || {};
@@ -148,8 +152,10 @@
         uploaderFichier: uploaderFichier,
         supprimer: supprimer,
         migrerDataUrl: migrerDataUrl,
-        dataUrlVersBlob: dataUrlVersBlob
+        dataUrlVersBlob: dataUrlVersBlob,
+        WORKER_URL: WORKER_URL,
+        R2_PUBLIC_URL: R2_PUBLIC_URL
     };
 
-    console.log('✅ EDU-LINK storage chargé');
+    console.log('✅ EDU-LINK storage R2 chargé');
 })();
