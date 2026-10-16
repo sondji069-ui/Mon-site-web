@@ -294,6 +294,7 @@
 <script src="pwa.js"></script>
     <script src="push.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
     <script src="ripple.js"></script>
     <script src="toast.js"></script>
     <script src="confirm.js"></script>
@@ -384,10 +385,6 @@
             if (btn) btn.innerHTML = estDark ? '☀️' : '🌙';
         }
 
-        // ════════════ SUPABASE ════════════
-        var supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFid2d1aXhjbG14dHp2bHNtYmJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4OTg1OTMsImV4cCI6MjEwNjQ3NDU5M30.8MiG5YdoMIY69KYfBdlXHIB9Zisd5miX3slaCoqVcjM';
-        var supabaseUrl = 'https://abwguixclmxtzvlsmbby.supabase.co';
-        var supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
         var sessionUser = sessionStorage.getItem('eduLinkUser');
         if (!sessionUser) { window.location.href = 'index.html'; }
         var parsedUser = JSON.parse(sessionUser);
