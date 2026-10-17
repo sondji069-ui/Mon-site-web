@@ -2,104 +2,21 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-<script>eruda.init();</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EDU-LINK - Messagerie</title>
-    <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
-    <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = { theme: { extend: { colors: { 'edu-blue': '#004AAD', 'edu-green': '#2EAD5E', 'edu-red': '#EF4444' } } } }
     </script>
-    <style>
-        body { background-color: #f3f4f6; }
-
-        /* ═══════════ LAYOUT PC ═══════════ */
-        @media (min-width: 1024px) {
-            body {
-                background: linear-gradient(135deg, #004AAD 0%, #0066CC 50%, #2EAD5E 100%) !important;
-                background-attachment: fixed !important;
-                padding: 40px 20px !important;
-                align-items: flex-start !important;
-            }
-
-            body::before {
-                content: '📖 EDU-LINK';
-                position: fixed;
-                top: 22px;
-                left: 32px;
-                color: rgba(255, 255, 255, 0.9);
-                font-size: 15px;
-                font-weight: 800;
-                letter-spacing: 2px;
-                z-index: 1;
-                text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            }
-
-            body::after {
-                content: "L'école connectée, l'éducation rapprochée";
-                position: fixed;
-                bottom: 22px;
-                right: 32px;
-                color: rgba(255, 255, 255, 0.7);
-                font-size: 11px;
-                font-style: italic;
-                z-index: 1;
-            }
-
-            body > div.bg-white {
-                max-width: 900px !important;
-                width: 100% !important;
-                min-height: 80vh !important;
-                max-height: 85vh !important;
-                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
-            }
-
-            #page-app {
-                height: 100% !important;
-            }
-
-            /* Barre de titre plus aérée */
-            #page-app > div:first-child {
-                padding: 24px 32px 16px !important;
-            }
-
-            /* Contenu : plus d'espace */
-            #page-app > div.flex-1 {
-                padding: 24px 32px 32px !important;
-            }
-
-            /* Cartes de conversation plus larges */
-            #liste-conversations > div {
-                padding: 16px 20px !important;
-            }
-
-            /* Thread : messages plus larges */
-            #liste-thread > div > div {
-                max-width: 70% !important;
-            }
-
-            /* Scrollbar discrète */
-            #page-app > div.flex-1::-webkit-scrollbar { width: 8px; }
-            #page-app > div.flex-1::-webkit-scrollbar-thumb {
-                background: rgba(0, 74, 173, 0.25);
-                border-radius: 4px;
-            }
-        }
-
-        @media (min-width: 1400px) {
-            body > div.bg-white {
-                max-width: 1000px !important;
-            }
-        }
-    </style>
+    <style> body { background-color: #f3f4f6; } </style>
 </head>
 <body class="min-h-screen flex justify-center items-start pt-10 p-4">
     <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col h-auto min-h-[600px]">
-
+        
         <div id="page-login" class="hidden"></div>
 
         <div id="page-app" class="flex-1 flex-col hidden">
@@ -114,15 +31,16 @@
                 <button onclick="seDeconnecter()" class="text-sm font-bold text-red-500">Deconnexion</button>
             </div>
             <div class="flex-1 overflow-y-auto p-6">
-
+                
                 <div id="view-conversations">
                     <button onclick="afficherNouveau()" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl mb-4">✏️ Nouveau message</button>
-
-                    <div class="grid grid-cols-3 gap-2 mb-4">
-                        <button id="tab-msg-toutes" onclick="filtrerConversations('toutes')" class="py-2 rounded-xl font-bold text-[11px] bg-edu-blue text-white">Toutes</button>
-                        <button id="tab-msg-admin" onclick="filtrerConversations('admin')" class="py-2 rounded-xl font-bold text-[11px] bg-gray-100 text-gray-600">Admin</button>
-                        <button id="tab-msg-ens" onclick="filtrerConversations('enseignants')" class="py-2 rounded-xl font-bold text-[11px] bg-gray-100 text-gray-600">Enseignants</button>
-                    </div>
+                    
+                    
+<div class="grid grid-cols-3 gap-2 mb-4">
+    <button id="tab-msg-toutes" onclick="filtrerConversations('toutes')" class="py-2 rounded-xl font-bold text-[11px] bg-edu-blue text-white">Toutes</button>
+    <button id="tab-msg-admin" onclick="filtrerConversations('admin')" class="py-2 rounded-xl font-bold text-[11px] bg-gray-100 text-gray-600">Admin</button>
+    <button id="tab-msg-ens" onclick="filtrerConversations('enseignants')" class="py-2 rounded-xl font-bold text-[11px] bg-gray-100 text-gray-600">Enseignants</button>
+</div>                    
                     <div id="liste-conversations" class="space-y-3"></div>
                 </div>
 
@@ -135,13 +53,15 @@
                         </div>
                     </div>
                     <div id="liste-thread" class="space-y-3 mb-4"></div>
-                    < borderdiv class="flex gap-2 border-gray-t pt-3">
-                       - <input type="text" id300="input-reponse" placeholder="Votre message..." class="flex"></-1 px-4 py-2 rounded-xl border bordertextarea-gray-300 text-sm">
+                    <div class="flex gap-2 border-t pt-3">
+                        <input type="text" id="input-reponse" placeholder="Votre message..." class="flex-1 px-4 py-2 rounded-xl border border-gray-300 text-sm">
                         <button onclick="envoyerReponse()" class="bg-edu-blue text-white font-bold px-4 py-2 rounded-xl">➤</button>
                     </div>
                     <div id="message-reponse" class="text-center text-sm font-semibold mt-2"></div>
                 </div>
 
+                    <div id="liste-thread-groupe" class="space-y-3 mb-4"></div>
+                    
                 <div id="view-nouveau" class="hidden">
                     <div class="flex items-center gap-3 mb-4">
                         <button onclick="afficherConversations()" class="text-2xl">⬅️</button>
@@ -152,7 +72,7 @@
                             <option value="">Chargement...</option>
                         </select>
                         <input type="text" id="sujet-message" placeholder="Sujet" class="w-full px-4 py-3 rounded-xl border border-gray-300">
-                        <textarea id="contenu-message" rows="4" placeholder="Votre message..." class="w-full px-4 py-3 rounded-xl border>
+                        <textarea id="contenu-message" rows="4" placeholder="Votre message..." class="w-full px-4 py-3 rounded-xl border border-gray-300"></textarea>
                         <button onclick="envoyerMessage()" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl">Envoyer</button>
                         <div id="message-envoi" class="text-center text-sm font-semibold"></div>
                     </div>
@@ -163,33 +83,27 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="config.js"></script>
+<script src="config.js"></script>
     <script>
-        var sessionUser = sessionStorage.getItem('eduLinkUser');
+
+        const sessionUser = sessionStorage.getItem('eduLinkUser');
         if (!sessionUser) { window.location.href = 'index.html'; }
-        var parsedUser = JSON.parse(sessionUser);
+        const parsedUser = JSON.parse(sessionUser);
 
         let currentUser = parsedUser;
         let monEcoleId = parsedUser.ecole_id;
         let conversationActuelle = null;
         let filtreConversationsActuel = 'toutes';
 
-        function initPage() {
+        window.addEventListener('load', async () => {
             document.getElementById('page-login').classList.add('hidden');
             document.getElementById('page-app').classList.remove('hidden');
             document.getElementById('page-app').classList.add('flex');
             document.getElementById('welcome-message').innerText = currentUser.prenom + " " + currentUser.nom;
             document.getElementById('role-label').innerText = currentUser.role;
             afficherConversations();
-        }
-
-        if (document.readyState === 'loading') {
-            window.addEventListener('load', initPage);
-        } else {
-            initPage();
-        }
-
-        function filtrerConversations(filtre) {
+        });
+function filtrerConversations(filtre) {
             filtreConversationsActuel = filtre;
             const tabs = { toutes: 'tab-msg-toutes', admin: 'tab-msg-admin', enseignants: 'tab-msg-ens' };
             Object.keys(tabs).forEach(k => {
@@ -200,7 +114,6 @@
             });
             afficherConversations();
         }
-
         async function afficherConversations() {
             document.getElementById('view-conversations').classList.remove('hidden');
             document.getElementById('view-thread').classList.add('hidden');
@@ -230,7 +143,7 @@
                 const autreId = m.expediteur_id === currentUser.id ? m.destinataire_id : m.expediteur_id;
                 const { data: u } = await supabaseClient.from('utilisateurs').select('prenom, nom, role, ecole_id').eq('id', autreId).single();
                 if (!u) continue;
-
+                
                 if (u.ecole_id !== monEcoleId) continue;
 
                 if (filtreConversationsActuel === 'admin' && u.role !== 'admin') continue;
@@ -247,7 +160,7 @@
 
                 const badgeLus = nonLus > 0 ? `<span class="bg-red-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">${nonLus}</span>` : '';
                 const boldClass = nonLus > 0 ? 'font-bold' : 'font-semibold';
-
+                
                 let avatar = '👤';
                 if (u.role === 'enseignant') avatar = '👩🏾‍🏫';
                 else if (u.role === 'parent') avatar = '👨‍👩‍👧';
@@ -377,7 +290,7 @@
         }
 
         function retourEspace() {
-            const pages = { eleve: 'eleve.html', enseignant: 'enseignant.html', parent: 'parent.html', admin: 'admin.html', staff: 'staff.html', super_admin: 'super-admin.html' };
+            const pages = { eleve: 'eleve.html', enseignant: 'enseignant.html', parent: 'parent.html', admin: 'admin.html' };
             window.location.href = pages[currentUser.role] || 'index.html';
         }
 
@@ -386,7 +299,7 @@
             window.location.href = 'index.html';
         }
     </script>
-    <script src="pwa.js"></script>
+<script src="pwa.js"></script>
     <script src="theme.js"></script>
 </body>
 </html>
