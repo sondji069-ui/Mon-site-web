@@ -42,7 +42,7 @@
     /* ─── Page dashboard en grid ─── */
     #page-dashboard {
         display: grid !important;
-        grid-template-columns: 260px 1fr !important;
+        grid-template-columns: 300px 1fr !important;
         grid-template-rows: 72px 1fr !important;
         grid-template-areas:
             "sidebar topbar"
@@ -281,8 +281,7 @@
 
 /* ═══════════ GRANDS ÉCRANS (≥ 1400px) ═══════════ */
 @media (min-width: 1400px) {
-    #page-dashboard {
-        grid-template-columns: 280px 1fr !important;
+    #page-dashboard { grid-template-columns: 320px 1fr !important; }
     }
 
     #page-dashboard > .flex-1 {
