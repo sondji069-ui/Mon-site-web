@@ -5409,11 +5409,29 @@ if (window.Cache) Cache.invalidatePattern('admin_');
                 msg.innerHTML = '✅ <b>' + eleves.length + ' bulletin(s) genere(s) !</b> (' + Math.round(pdfBlob.size / 1024) + ' Ko)';
                 msg.style.color = '#2EAD5E';
 
+                let fichierPartage = false;
                 if (navigator.canShare && navigator.canShare({ files: [fichier] })) {
-                    await navigator.share({ files: [fichier], title: 'Bulletins ' + classe.nom });
-                } else {
+                    try {
+                        await navigator.share({ files: [fichier], title: 'Bulletins ' + classe.nom });
+                        fichierPartage = true;
+                    } catch (shareError) {
+                        if (shareError.name === 'AbortError') {
+                            fichierPartage = true; // L'utilisateur a juste annulé
+                        } else {
+                            console.warn('Partage natif impossible, bascule sur le téléchargement classique.', shareError);
+                        }
+                    }
+                }
+
+                if (!fichierPartage) {
                     const url = URL.createObjectURL(pdfBlob);
-                    window.open(url, '_blank');
+                    const lien = document.createElement('a');
+                    lien.href = url;
+                    lien.download = nomFichier;
+                    document.body.appendChild(lien);
+                    lien.click();
+                    document.body.removeChild(lien);
+                    setTimeout(() => URL.revokeObjectURL(url), 10000);
                 }
 
             } catch (err) {
