@@ -1178,6 +1178,28 @@ function dessinerCourbeSVG(data, conteneur) {
             var resEl = await supabaseClient.from('eleves').select('*, classes(nom)').eq('id', eleveId).single();
             var eleve = resEl.data;
             var resN = await supabaseClient.from('notes').select('matiere, note, coefficient, type_evaluation').eq('eleve_id', eleveId).eq('semestre', trimestreActuel);
+// Récupérer les absences
+            var resAbs = await supabaseClient.from('absences').select('*').eq('eleve_id', eleveId);
+            var mesAbsences = resAbs.data || [];
+            var nbAbsJust = mesAbsences.filter(function(a) { return a.justifiee; }).length;
+            var nbAbsNonJust = mesAbsences.filter(function(a) { return !a.justifiee; }).length;
+            
+            // Récupérer la moyenne de la classe pour comparer
+            var resElvClasse = await supabaseClient.from('eleves').select('id').eq('classe_id', eleve.classe_id);
+            var idsClasse = resElvClasse.data.map(function(e) { return e.id; });
+            var moyClasse = 0;
+            if (idsClasse.length > 0) {
+                var resNotesClasse = await supabaseClient.from('notes').select('note, coefficient').in('eleve_id', idsClasse).eq('semestre', trimestreActuel);
+                if (resNotesClasse.data && resNotesClasse.data.length > 0) {
+                    var cPts = 0, cCfs = 0;
+                    resNotesClasse.data.forEach(function(n) {
+                        var c = parseFloat(n.coefficient) || 1;
+                        cPts += (parseFloat(n.note) || 0) * c;
+                        cCfs += c;
+                    });
+                    moyClasse = cCfs > 0 ? (cPts / cCfs) : 0;
+                }
+            }
             var notes = resN.data;
 
             var matieres = {};
@@ -1247,9 +1269,19 @@ function dessinerCourbeSVG(data, conteneur) {
                 blocSignature = '<td style="width: 50%; text-align: right; padding: 12px;"><p style="font-size: 11px; color: #6b7280; margin: 0;">Le Directeur</p><div style="height: 50px;"></div></td>';
             }
 
+            var blocSignature = '';
+            if (signatureEcole) {
+                blocSignature = '<td style="width: 33%; text-align: right; padding: 12px;"><p style="font-size: 11px; color: #64748b; margin: 0 0 4px 0;">Le Directeur</p><img src="' + signatureEcole + '" style="max-height: 55px; max-width: 160px;"></td>';
+            } else {
+                blocSignature = '<td style="width: 33%; text-align: right; padding: 12px;"><p style="font-size: 11px; color: #64748b; margin: 0;">Le Directeur</p><div style="height: 50px;"></div></td>';
+            }
+
+            var elevePrenom = enfant ? enfant.prenom : (eleve.utilisateurs ? eleve.utilisateurs.prenom : '');
+            var eleveNom = enfant ? enfant.nom : (eleve.utilisateurs ? eleve.utilisateurs.nom : '');
+
             document.getElementById('contenu-bulletin').innerHTML = ''
                 + '<div id="bulletin-pdf" style="background: white; padding: 28px 24px; border-radius: 16px; border: 3px solid #004AAD; font-family: Arial, Helvetica, sans-serif; box-shadow: 0 4px 20px rgba(0, 74, 173, 0.1);">'
-
+                
                 // Header
                 + '<div style="text-align: center; padding-bottom: 18px; margin-bottom: 22px; border-bottom: 3px double #004AAD;">'
                 + '<div style="font-size: 42px; line-height: 1; margin-bottom: 6px;">📖</div>'
@@ -1264,20 +1296,28 @@ function dessinerCourbeSVG(data, conteneur) {
                 // Fiche élève
                 + '<table style="width: 100%; border-collapse: collapse; margin-bottom: 22px; background: #f0f7ff; border-radius: 12px; overflow: hidden;">'
                 + '<tr>'
-                + '<td style="padding: 14px 16px; width: 55%;">'
+                + '<td style="padding: 14px 16px; width: 55%; border-bottom: 1px solid #cbd5e1;">'
                 + '<p style="font-size: 11px; color: #64748b; margin: 0 0 2px 0; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Élève</p>'
-                + '<p style="font-size: 16px; font-weight: 800; color: #1e293b; margin: 0;">' + enfant.prenom + ' ' + enfant.nom + '</p>'
+                + '<p style="font-size: 16px; font-weight: 800; color: #1e293b; margin: 0;">' + elevePrenom + ' ' + eleveNom + '</p>'
                 + '<p style="font-size: 11px; color: #475569; margin: 6px 0 0 0;"><b style="color: #004AAD;">Matricule :</b> ' + eleve.matricule + '</p>'
                 + '</td>'
-                + '<td style="padding: 14px 16px; width: 45%; border-left: 2px solid #cbd5e1;">'
+                + '<td style="padding: 14px 16px; width: 45%; border-left: 2px solid #cbd5e1; border-bottom: 1px solid #cbd5e1;">'
                 + '<p style="font-size: 11px; color: #64748b; margin: 0 0 2px 0; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Classe</p>'
                 + '<p style="font-size: 16px; font-weight: 800; color: #004AAD; margin: 0;">' + (eleve.classes ? eleve.classes.nom : 'N/A') + '</p>'
-                + '<p style="font-size: 11px; color: #475569; margin: 6px 0 0 0;">Parent : <b>' + currentUser.prenom + ' ' + currentUser.nom + '</b></p>'
+                + '<p style="font-size: 11px; color: #475569; margin: 6px 0 0 0;">Né(e) le : <b>' + (eleve.date_naissance ? new Date(eleve.date_naissance).toLocaleDateString('fr-FR') : 'N/A') + '</b></p>'
+                + '</td>'
+                + '</tr>'
+                + '<tr>'
+                + '<td style="padding: 10px 16px; width: 55%;">'
+                + '<p style="font-size: 11px; color: #475569; margin: 0;"><b style="color: #004AAD;">Absences justifiées :</b> ' + nbAbsJust + '</p>'
+                + '</td>'
+                + '<td style="padding: 10px 16px; width: 45%; border-left: 2px solid #cbd5e1;">'
+                + '<p style="font-size: 11px; color: #475569; margin: 0;"><b style="color: #DC2626;">Non justifiées :</b> ' + nbAbsNonJust + '</p>'
                 + '</td>'
                 + '</tr>'
                 + '</table>'
 
-                // Tableau
+                // Tableau des matières
                 + '<table style="width: 100%; border-collapse: collapse; margin-bottom: 22px; border: 2px solid #cbd5e1; border-radius: 10px; overflow: hidden;">'
                 + '<thead>'
                 + '<tr style="background: linear-gradient(135deg, #004AAD, #0066CC);">'
@@ -1295,7 +1335,7 @@ function dessinerCourbeSVG(data, conteneur) {
                 + '</table>'
 
                 // Moyenne
-                + '<div style="background: linear-gradient(135deg, ' + (moyenneGenerale >= 10 ? '#d1fae5, #a7f3d0' : '#fee2e2, #fecaca') + '); border: 3px solid ' + mentionCouleur + '; padding: 20px; border-radius: 14px; text-align: center; margin-bottom: 22px;">'
+                + '<div style="background: linear-gradient(135deg, ' + (moyenneGenerale >= 10 ? '#d1fae5, #a7f3d0' : '#fee2e2, #fecaca') + '); border: 3px solid ' + mentionCouleur + '; padding: 20px; border-radius: 14px; text-align: center; margin-bottom: 10px;">'
                 + '<p style="font-size: 11px; color: ' + mentionCouleur + '; margin: 0 0 6px 0; text-transform: uppercase; letter-spacing: 2px; font-weight: 800;">Moyenne Générale</p>'
                 + '<p style="font-size: 44px; font-weight: 900; color: ' + mentionCouleur + '; margin: 0; line-height: 1;">' + moyStr + '<span style="font-size: 22px; opacity: 0.6;">/20</span></p>'
                 + '<div style="display: inline-block; margin-top: 10px; padding: 6px 20px; background: ' + mentionCouleur + '; color: white; border-radius: 20px;">'
@@ -1303,13 +1343,21 @@ function dessinerCourbeSVG(data, conteneur) {
                 + '</div>'
                 + '</div>'
 
+                // Comparaison Classe
+                + '<div style="text-align: center; margin-bottom: 22px;">'
+                + '<p style="font-size: 12px; color: #64748b; margin: 0;">Moyenne générale de la classe : <b style="color: #8B5CF6;">' + moyClasse.toFixed(2) + '/20</b></p>'
+                + '</div>'
+
                 // Signatures
                 + '<table style="width: 100%; border-top: 2px solid #e2e8f0; padding-top: 16px;">'
                 + '<tr>'
-                + '<td style="width: 50%; text-align: left; padding: 12px;">'
+                + '<td style="width: 33%; text-align: left; padding: 12px;">'
                 + '<p style="font-size: 11px; color: #64748b; margin: 0;">Fait le</p>'
                 + '<p style="font-size: 12px; font-weight: 700; color: #1e293b; margin: 2px 0 0 0;">' + dateJour + '</p>'
-                + '<p style="font-size: 11px; color: #64748b; margin: 6px 0 0 0;">Parent : <b>' + currentUser.prenom + ' ' + currentUser.nom + '</b></p>'
+                + '</td>'
+                + '<td style="width: 33%; text-align: center; padding: 12px;">'
+                + '<p style="font-size: 11px; color: #64748b; margin: 0;">Signature des parents</p>'
+                + '<div style="height: 40px;"></div>'
                 + '</td>'
                 + blocSignature
                 + '</tr>'
@@ -1317,7 +1365,6 @@ function dessinerCourbeSVG(data, conteneur) {
 
                 + '<p style="text-align: center; font-size: 9px; color: #94a3b8; margin: 20px 0 0 0; padding-top: 12px; border-top: 1px dashed #cbd5e1;">Document généré par EDU-LINK — Ne pas modifier</p>'
                 + '</div>'
-
                 + '<button onclick="telechargerPDF()" id="btn-pdf" class="btn-float" style="background: linear-gradient(135deg, #004AAD, #1E40AF); margin-top: 16px;">'
                 + '<div class="btn-icon">📥</div>'
                 + '<div class="btn-content"><div class="btn-title">Télécharger en PDF</div><div class="btn-desc">Bulletin Semestre ' + trimestreActuel + '</div></div>'
