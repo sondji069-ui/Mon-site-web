@@ -5239,6 +5239,8 @@ if (window.Cache) Cache.invalidatePattern('admin_');
                 const { data: ecoleData } = await supabaseClient.from('ecoles').select('signature_url').eq('id', monEcoleId).single();
                 const sigUrl = ecoleData && ecoleData.signature_url ? ecoleData.signature_url : null;
 
+                let htmlInterne = '';
+
                 // ═══════════ PAGE DE GARDE ═══════════
                 htmlInterne += '<div style="padding: 60px 40px; text-align: center; font-family: Arial, sans-serif; page-break-after: always; height: 90%; display: flex; flex-direction: column; justify-content: center; align-items: center;">';
                 htmlInterne += '<div style="font-size: 80px; margin-bottom: 24px;">📖</div>';
@@ -5381,7 +5383,6 @@ if (window.Cache) Cache.invalidatePattern('admin_');
                     htmlInterne += '</div>';
                     htmlInterne += '</div>';
                 });
-                htmlInterne += '</div>'; // Fermeture du conteneur blanc
 
                 let iframe = document.createElement('iframe');
                 iframe.style.cssText = 'position:fixed;top:0;left:0;width:800px;height:1100px;opacity:0;pointer-events:none;z-index:-1;border:none;';
@@ -5389,7 +5390,6 @@ if (window.Cache) Cache.invalidatePattern('admin_');
                 const doc = iframe.contentDocument || iframe.contentWindow.document;
                 doc.open();
                 
-                // Ajout d'un CSS strict pour forcer le fond blanc et empêcher le décalage
                 doc.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
                     @page { margin: 0; size: A4; }
                     * { box-sizing: border-box; }
@@ -5428,11 +5428,9 @@ if (window.Cache) Cache.invalidatePattern('admin_');
                 msg.innerHTML = '✅ <b>' + eleves.length + ' bulletin(s) genere(s) !</b> (' + Math.round(pdfBlob.size / 1024) + ' Ko)';
                 msg.style.color = '#2EAD5E';
 
-                // Détecte si on est sur un mobile
                 const estMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
                 let fichierPartage = false;
 
-                // On propose le partage natif UNIQUEMENT sur mobile
                 if (estMobile && navigator.canShare && navigator.canShare({ files: [fichier] })) {
                     try {
                         await navigator.share({ files: [fichier], title: 'Bulletins ' + classe.nom });
@@ -5440,13 +5438,10 @@ if (window.Cache) Cache.invalidatePattern('admin_');
                     } catch (shareError) {
                         if (shareError.name === 'AbortError') {
                             fichierPartage = true; 
-                        } else {
-                            console.warn('Partage impossible, téléchargement classique.', shareError);
                         }
                     }
                 }
 
-                // Sur PC (ou si le partage a échoué), on télécharge directement
                 if (!fichierPartage) {
                     const url = URL.createObjectURL(pdfBlob);
                     const lien = document.createElement('a');
