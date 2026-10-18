@@ -5239,7 +5239,7 @@ if (window.Cache) Cache.invalidatePattern('admin_');
                 const { data: ecoleData } = await supabaseClient.from('ecoles').select('signature_url').eq('id', monEcoleId).single();
                 const sigUrl = ecoleData && ecoleData.signature_url ? ecoleData.signature_url : null;
 
-                let htmlInterne = '';
+                let htmlInterne = '<div style="background: #ffffff; color: #1f2937; width: 800px; margin: 0 auto; box-sizing: border-box;">';
 
                 // ═══════════ PAGE DE GARDE ═══════════
                 htmlInterne += '<div style="padding: 60px 40px; text-align: center; font-family: Arial, sans-serif; page-break-after: always; height: 90%; display: flex; flex-direction: column; justify-content: center; align-items: center;">';
@@ -5383,13 +5383,14 @@ if (window.Cache) Cache.invalidatePattern('admin_');
                     htmlInterne += '</div>';
                     htmlInterne += '</div>';
                 });
+                htmlInterne += '</div>'; // Fermeture du conteneur blanc
 
                 let iframe = document.createElement('iframe');
                 iframe.style.cssText = 'position:fixed;top:0;left:0;width:800px;height:1100px;opacity:0;pointer-events:none;z-index:-1;border:none;';
                 document.body.appendChild(iframe);
                 const doc = iframe.contentDocument || iframe.contentWindow.document;
                 doc.open();
-                doc.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><style>@page { margin: 0; } body { margin: 0; padding: 0; background: #ffffff; font-family: Arial, sans-serif; }</style></head><body>' + htmlInterne + '</body></html>');
+                doc.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><style>@page { margin: 0; size: A4; } body { margin: 0; padding: 0; background: #ffffff !important; font-family: Arial, sans-serif; } * { box-sizing: border-box; }</style></head><body>' + htmlInterne + '</body></html>');
                 doc.close();
                 await new Promise(r => setTimeout(r, 800));
 
@@ -5398,7 +5399,18 @@ if (window.Cache) Cache.invalidatePattern('admin_');
                     margin: 0,
                     filename: nomFichier,
                     image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', width: 800, windowWidth: 800, scrollX: 0, scrollY: 0 },
+                    html2canvas: { 
+                        scale: 2, 
+                        useCORS: true, 
+                        backgroundColor: '#ffffff', 
+                        width: 800, 
+                        windowWidth: 800, 
+                        scrollX: 0, 
+                        scrollY: 0,
+                        onclone: function(clonedDoc) { 
+                            clonedDoc.body.classList.remove('dark-mode'); // Force le mode clair pour le PDF
+                        } 
+                    },
                     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
                     pagebreak: { mode: ['css', 'legacy'] }
                 };
