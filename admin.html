@@ -5421,20 +5421,25 @@ if (window.Cache) Cache.invalidatePattern('admin_');
                 msg.innerHTML = '✅ <b>' + eleves.length + ' bulletin(s) genere(s) !</b> (' + Math.round(pdfBlob.size / 1024) + ' Ko)';
                 msg.style.color = '#2EAD5E';
 
+                // Détecte si on est sur un mobile
+                const estMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
                 let fichierPartage = false;
-                if (navigator.canShare && navigator.canShare({ files: [fichier] })) {
+
+                // On propose le partage natif UNIQUEMENT sur mobile
+                if (estMobile && navigator.canShare && navigator.canShare({ files: [fichier] })) {
                     try {
                         await navigator.share({ files: [fichier], title: 'Bulletins ' + classe.nom });
                         fichierPartage = true;
                     } catch (shareError) {
                         if (shareError.name === 'AbortError') {
-                            fichierPartage = true; // L'utilisateur a juste annulé
+                            fichierPartage = true; 
                         } else {
-                            console.warn('Partage natif impossible, bascule sur le téléchargement classique.', shareError);
+                            console.warn('Partage impossible, téléchargement classique.', shareError);
                         }
                     }
                 }
 
+                // Sur PC (ou si le partage a échoué), on télécharge directement
                 if (!fichierPartage) {
                     const url = URL.createObjectURL(pdfBlob);
                     const lien = document.createElement('a');
