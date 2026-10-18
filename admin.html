@@ -5242,7 +5242,7 @@ if (window.Cache) Cache.invalidatePattern('admin_');
                 let htmlInterne = '';
 
                 // ═══════════ PAGE DE GARDE ═══════════
-                htmlInterne += '<div style="padding: 60px 40px; text-align: center; font-family: Arial, sans-serif; page-break-after: always; height: 90%; display: flex; flex-direction: column; justify-content: center; align-items: center;">';
+                htmlInterne += '<div style="background:#ffffff; color:#1f2937; padding: 60px 40px; text-align: center; font-family: Arial, sans-serif; page-break-after: always; height: 90%; display: flex; flex-direction: column; justify-content: center; align-items: center;">';
                 htmlInterne += '<div style="font-size: 80px; margin-bottom: 24px;">📖</div>';
                 htmlInterne += '<h1 style="font-size: 38px; color: #004AAD; margin: 10px 0; letter-spacing: 5px; font-weight: 900;">EDU-LINK</h1>';
                 htmlInterne += '<p style="font-size: 16px; color: #6b7280; margin: 8px 0; font-weight: 600;">' + ecoleNom + '</p>';
@@ -5313,10 +5313,9 @@ if (window.Cache) Cache.invalidatePattern('admin_');
                         blocSignature = '<td style="width:50%;text-align:right;padding:12px;"><p style="font-size:11px;color:#6b7280;margin:0;">Le Directeur</p><div style="height:50px;"></div></td>';
                     }
 
-                    htmlInterne += '<div style="padding: 24px; font-family: Arial, sans-serif;' + (isLast ? '' : ' page-break-after: always;') + '">';
+                    htmlInterne += '<div style="background:#ffffff; color:#1f2937; padding: 24px; font-family: Arial, sans-serif;' + (isLast ? '' : ' page-break-after: always;') + '">';
                     htmlInterne += '<div style="background: white; padding: 28px 24px; border-radius: 16px; border: 3px solid #004AAD; box-shadow: 0 4px 20px rgba(0, 74, 173, 0.1);">';
 
-                    // Header
                     htmlInterne += '<div style="text-align: center; padding-bottom: 18px; margin-bottom: 22px; border-bottom: 3px double #004AAD;">';
                     htmlInterne += '<div style="font-size: 42px; line-height: 1; margin-bottom: 6px;">📖</div>';
                     htmlInterne += '<h1 style="font-size: 24px; font-weight: 900; color: #004AAD; margin: 0; letter-spacing: 3px;">EDU-LINK</h1>';
@@ -5326,7 +5325,6 @@ if (window.Cache) Cache.invalidatePattern('admin_');
                     htmlInterne += '<p style="font-size: 11px; margin: 2px 0 0 0; opacity: 0.9;">Semestre ' + semestre + ' • Année 2024-2025</p>';
                     htmlInterne += '</div></div>';
 
-                    // Info élève
                     htmlInterne += '<table style="width: 100%; border-collapse: collapse; margin-bottom: 22px; background: #f0f7ff; border-radius: 12px; overflow: hidden;">';
                     htmlInterne += '<tr>';
                     htmlInterne += '<td style="padding: 14px 16px; width: 55%;">';
@@ -5342,7 +5340,6 @@ if (window.Cache) Cache.invalidatePattern('admin_');
                     htmlInterne += '</tr>';
                     htmlInterne += '</table>';
 
-                    // Tableau
                     htmlInterne += '<table style="width: 100%; border-collapse: collapse; margin-bottom: 22px; border: 2px solid #cbd5e1; border-radius: 10px; overflow: hidden;">';
                     htmlInterne += '<thead>';
                     htmlInterne += '<tr style="background: linear-gradient(135deg, #004AAD, #0066CC);">';
@@ -5359,7 +5356,6 @@ if (window.Cache) Cache.invalidatePattern('admin_');
                     htmlInterne += '<tbody>' + lignes + '</tbody>';
                     htmlInterne += '</table>';
 
-                    // Moyenne générale
                     htmlInterne += '<div style="background: linear-gradient(135deg, ' + (moyGen !== null && moyGen >= 10 ? '#d1fae5, #a7f3d0' : '#fee2e2, #fecaca') + '); border: 3px solid ' + mentionColor + '; padding: 20px; border-radius: 14px; text-align: center; margin-bottom: 22px;">';
                     htmlInterne += '<p style="font-size: 11px; color: ' + mentionColor + '; margin: 0 0 6px 0; text-transform: uppercase; letter-spacing: 2px; font-weight: 800;">Moyenne Générale</p>';
                     htmlInterne += '<p style="font-size: 44px; font-weight: 900; color: ' + mentionColor + '; margin: 0; line-height: 1;">' + moyStr + '<span style="font-size: 22px; opacity: 0.6;">/20</span></p>';
@@ -5368,7 +5364,6 @@ if (window.Cache) Cache.invalidatePattern('admin_');
                     htmlInterne += '</div>';
                     htmlInterne += '</div>';
 
-                    // Signatures
                     htmlInterne += '<table style="width: 100%; border-top: 2px solid #e2e8f0; padding-top: 16px;">';
                     htmlInterne += '<tr>';
                     htmlInterne += '<td style="width: 50%; text-align: left; padding: 12px;">';
@@ -5389,8 +5384,29 @@ if (window.Cache) Cache.invalidatePattern('admin_');
                 document.body.appendChild(iframe);
                 const doc = iframe.contentDocument || iframe.contentWindow.document;
                 doc.open();
-                doc.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><style>@page { margin: 0; } body { margin: 0; padding: 0; background: #ffffff; font-family: Arial, sans-serif; }</style></head><body>' + htmlInterne + '</body></html>');
+                
+                // CSS ULTRA-BLINDÉ : on force le fond blanc, le texte noir, on enlève les marges, et on force la largeur
+                doc.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
+                    @page { margin: 0; size: A4; }
+                    * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                    html, body { 
+                        margin: 0 !important; padding: 0 !important; 
+                        background-color: #ffffff !important; 
+                        color: #1f2937 !important; 
+                        font-family: Arial, sans-serif; 
+                        width: 800px !important; 
+                        max-width: 800px !important;
+                    }
+                    .pdf-container { 
+                        background-color: #ffffff !important; 
+                        width: 800px !important; 
+                        margin: 0 !important; 
+                        padding: 0 !important; 
+                        position: relative;
+                    }
+                </style></head><body><div class="pdf-container">${htmlInterne}</div></body></html>`);
                 doc.close();
+                
                 await new Promise(r => setTimeout(r, 800));
 
                 const nomFichier = 'Bulletins_' + classe.nom.replace(/\s+/g, '_') + '_S' + semestre + '_' + dateAffichee.replace(/\//g, '-') + '.pdf';
@@ -5398,7 +5414,22 @@ if (window.Cache) Cache.invalidatePattern('admin_');
                     margin: 0,
                     filename: nomFichier,
                     image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', width: 800, windowWidth: 800, scrollX: 0, scrollY: 0 },
+                    html2canvas: { 
+                        scale: 2, 
+                        useCORS: true, 
+                        backgroundColor: '#ffffff', 
+                        width: 800, 
+                        windowWidth: 800, 
+                        x: 0, // Force le point de départ à gauche
+                        y: 0,
+                        scrollX: 0, 
+                        scrollY: 0,
+                        onclone: function(clonedDoc) {
+                            clonedDoc.body.style.backgroundColor = '#ffffff';
+                            clonedDoc.documentElement.style.backgroundColor = '#ffffff';
+                            clonedDoc.body.classList.remove('dark-mode'); // Désactive le mode sombre
+                        }
+                    },
                     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
                     pagebreak: { mode: ['css', 'legacy'] }
                 };
@@ -5409,11 +5440,29 @@ if (window.Cache) Cache.invalidatePattern('admin_');
                 msg.innerHTML = '✅ <b>' + eleves.length + ' bulletin(s) genere(s) !</b> (' + Math.round(pdfBlob.size / 1024) + ' Ko)';
                 msg.style.color = '#2EAD5E';
 
-                if (navigator.canShare && navigator.canShare({ files: [fichier] })) {
-                    await navigator.share({ files: [fichier], title: 'Bulletins ' + classe.nom });
-                } else {
+                const estMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                let fichierPartage = false;
+
+                if (estMobile && navigator.canShare && navigator.canShare({ files: [fichier] })) {
+                    try {
+                        await navigator.share({ files: [fichier], title: 'Bulletins ' + classe.nom });
+                        fichierPartage = true;
+                    } catch (shareError) {
+                        if (shareError.name === 'AbortError') {
+                            fichierPartage = true; 
+                        }
+                    }
+                }
+
+                if (!fichierPartage) {
                     const url = URL.createObjectURL(pdfBlob);
-                    window.open(url, '_blank');
+                    const lien = document.createElement('a');
+                    lien.href = url;
+                    lien.download = nomFichier;
+                    document.body.appendChild(lien);
+                    lien.click();
+                    document.body.removeChild(lien);
+                    setTimeout(() => URL.revokeObjectURL(url), 10000);
                 }
 
             } catch (err) {
