@@ -12,7 +12,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link rel="stylesheet" href="dashboard.css">
-<link rel="stylesheet" href="layout-pc.css">
     <script>
         tailwind.config = { theme: { extend: { colors: { 'edu-blue': '#004AAD', 'edu-green': '#2EAD5E', 'edu-red': '#EF4444', 'edu-orange': '#F59E0B', 'edu-purple': '#8B5CF6', 'edu-pink': '#EC4899' } } } }
     </script>
@@ -72,6 +71,18 @@
 
             <div class="flex-1 overflow-y-auto -mt-4 pt-6 px-4 pb-6">
                 <div id="view-accueil" class="hidden">
+                    
+                    <!-- L'ALERTE DOIT ÊTRE ICI, TOUTE SEULE -->
+                    <!-- ALERTE DECROCHAGE -->
+                    <div id="alerte-decrochage" style="display: none; background: #fef2f2; border: 2px solid #ef4444; border-radius: 16px; padding: 14px; margin-bottom: 14px; gap: 12px; align-items: flex-start; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);">
+                        <div style="font-size: 24px;">⚠️</div>
+                        <div>
+                            <p style="font-size: 13px; font-weight: 800; color: #991b1b; margin: 0 0 4px 0;">Alerte : Suivi de votre enfant</p>
+                            <p id="alerte-texte" style="font-size: 11px; color: #7f1d1d; margin: 0; line-height: 1.4;">...</p>
+                        </div>
+                    </div>
+                    
+                    <!-- ENSUITE LE BOUTON NOTIFICATION -->
                     <button onclick="activerNotificationsPush(supabaseClient, currentUser)" id="btn-push" class="btn-float anim-up" style="background: linear-gradient(135deg, #F59E0B, #EA580C); margin-bottom: 14px;">
                         <div class="btn-icon">🔔</div>
                         <div class="btn-content">
@@ -95,7 +106,43 @@
                         </div>
                         <div id="liste-enfants" class="flex gap-3 overflow-x-auto pb-2"></div>
                     </div>
+<!-- ═══════ GRAPHIQUE ÉVOLUTION ═══════ -->
+                    <div class="card-pro anim-up delay-3" style="margin-bottom: 14px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div class="icon-badge" style="background: #dcfce7; color: #16a34a; border-radius: 12px; padding: 8px; font-size: 20px;">📈</div>
+                                <h3 style="font-size: 14px; font-weight: 800; color: #1f2937; margin: 0; line-height: 1.2;">Évolution de<br>la moyenne</h3>
+                            </div>
+                            <select id="filtre-evolution" onchange="chargerGraphiqueEvolution()" style="padding: 6px 12px; border-radius: 12px; border: 1px solid #d1d5db; font-size: 11px; font-weight: 700; color: #4b5563; background: white; outline: none;">
+                                <option value="semaine">Par semaine</option>
+                                <option value="mois">Par mois</option>
+                            </select>
+                        </div>
 
+                        <!-- LES 2 NOUVEAUX FILTRES -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+                            <select id="filtre-enfant-graph" onchange="chargerGraphiqueEvolution()" style="padding: 8px; border-radius: 10px; border: 1px solid #d1d5db; font-size: 11px; font-weight: 600; background: #f9fafb; color: #1f2937; outline: none;">
+                                <!-- Rempli par JavaScript -->
+                            </select>
+                            <select id="filtre-matiere-graph" onchange="chargerGraphiqueEvolution()" style="padding: 8px; border-radius: 10px; border: 1px solid #d1d5db; font-size: 11px; font-weight: 600; background: #f9fafb; color: #1f2937; outline: none;">
+                                <option value="global">Toutes matières</option>
+                            </select>
+                        </div>
+
+                        <div id="graphique-evolution" style="width: 100%; height: 160px; position: relative;">
+                            <p style="text-align: center; color: #9ca3af; font-size: 12px; margin-top: 40px;">Chargement...</p>
+                        </div>
+<div id="comparaison-classe" style="margin-top: 12px; display: none; justify-content: space-between; padding: 10px; background: #f9fafb; border-radius: 10px; border: 1px dashed #d1d5db;">
+                            <div>
+                                <p style="font-size: 10px; color: #6b7280; margin: 0;">Moyenne enfant</p>
+                                <p id="moy-enfant" style="font-size: 15px; font-weight: 900; color: #10b981; margin: 2px 0 0 0;">--</p>
+                            </div>
+                            <div style="text-align: right;">
+                                <p style="font-size: 10px; color: #6b7280; margin: 0;">Moyenne classe</p>
+                                <p id="moy-classe" style="font-size: 15px; font-weight: 900; color: #8b5cf6; margin: 2px 0 0 0;">--</p>
+                            </div>
+                        </div>
+                    </div>
                     <div class="grid grid-cols-2 gap-3 mb-4">
                         <div class="stat-card green anim-up delay-3">
                             <div class="stat-icon">📝</div>
@@ -138,7 +185,14 @@
                     </button>
 
                     <div class="divider anim-up delay-5">Suivi scolaire</div>
-
+<button onclick="afficherEmploiParent()" class="btn-float anim-up delay-4" style="background: linear-gradient(135deg, #8B5CF6, #6366F1); margin-bottom: 14px;">
+    <div class="btn-icon">📅</div>
+    <div class="btn-content">
+        <div class="btn-title">Emploi du temps</div>
+        <div class="btn-desc">Voir le planning de mon enfant</div>
+    </div>
+    <div class="btn-arrow">→</div>
+</button>
                     <div class="action-grid mb-4">
                         <div class="action-tile anim-up delay-5" onclick="afficherDevoirsEnfants()" style="position: relative;">
                             <div class="tile-icon" style="background: linear-gradient(135deg, #fef3c7, #fde68a); color: #D97706;">📚</div>
@@ -212,7 +266,26 @@
                     <p class="text-xs text-gray-500 mb-3">Vue d'ensemble de tous mes enfants.</p>
                     <div id="contenu-comparaison" class="space-y-3"></div>
                 </div>
+<!-- EMPLOI DU TEMPS PARENT -->
+                <div id="view-emploi-parent" class="hidden fade-in">
+                    <div class="section-header anim-up">
+                        <button onclick="retourAccueil()" class="back-btn">⬅️</button>
+                        <div>
+                            <h1 class="section-title">📅 Emploi du temps</h1>
+                            <p class="section-sub">Planning de la semaine</p>
+                        </div>
+                    </div>
 
+                    <!-- Sélecteur d'enfant -->
+                    <div class="card-pro anim-up delay-1" style="margin-bottom: 14px; padding: 12px;">
+                        <label class="block text-xs font-bold text-gray-700 mb-2">Choisir un enfant</label>
+                        <select id="select-enfant-emploi" onchange="chargerEmploiParent()" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-sm">
+                            <option value="">Sélectionnez un enfant</option>
+                        </select>
+                    </div>
+
+                    <div id="contenu-emploi-parent"></div>
+                </div>
                 <div id="view-bulletin" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-3">📄 Bulletin</h1>
@@ -426,6 +499,7 @@
             document.getElementById('view-accueil').classList.remove('hidden');
             await chargerEnfants();
             await chargerDernieresNotes();
+await chargerGraphiqueEvolution();
             chargerBadgeDevoirs();
             chargerBadgeBadgesEnfants();
             chargerBadgeNotifs();
@@ -482,8 +556,217 @@
 
             document.getElementById('derniere-note').innerText = noteData ? noteData.matiere + " : " + noteData.note + "/20" : "Aucune note";
             document.getElementById('nb-absences').innerText = absCount + " absence(s)";
+// ─── GESTION DE L'ALERTE DÉCROCHAGE ───
+            var resNotesAlert = await supabaseClient.from('notes').select('note, coefficient').eq('eleve_id', premier.id);
+            var notesAlert = resNotesAlert.data || [];
+            var aPts = 0, aCfs = 0;
+            notesAlert.forEach(function(n) {
+                var c = parseFloat(n.coefficient) || 1;
+                aPts += (parseFloat(n.note) || 0) * c;
+                aCfs += c;
+            });
+            var moyGlobale = aCfs > 0 ? (aPts / aCfs) : 20;
+            var nbAbsTotal = absCount;
+            
+            // Récupération sécurisée du prénom
+            var prenomAffiche = 'votre enfant';
+            if (premier.utilisateurs && premier.utilisateurs.prenom) {
+                prenomAffiche = premier.utilisateurs.prenom;
+            } else if (listeEnfants && listeEnfants[0] && listeEnfants[0].prenom) {
+                prenomAffiche = listeEnfants[0].prenom;
+            }
+
+            var alertDiv = document.getElementById('alerte-decrochage');
+            var alertTxt = document.getElementById('alerte-texte');
+            
+            if (moyGlobale < 8 && aCfs > 0) {
+                alertDiv.style.display = 'flex';  // On l'affiche
+                alertTxt.innerHTML = "La moyenne de <b>" + prenomAffiche + "</b> est de <b>" + moyGlobale.toFixed(2) + "/20</b>. Il est important de l'accompagner dans ses révisions.";
+            } else if (nbAbsTotal >= 5) {
+                alertDiv.style.display = 'flex';  // On l'affiche
+                alertTxt.innerHTML = "<b>" + prenomAffiche + "</b> a accumulé <b>" + nbAbsTotal + " absences</b>. Pensez à justifier ses absences auprès de l'école.";
+            } else {
+                alertDiv.style.display = 'none';  // On le cache
+            }
+            // ─────────────────────────────────────        
+}
+// ═══════════ GRAPHIQUE D'ÉVOLUTION ═══════════
+        
+           async function chargerGraphiqueEvolution() {
+            var selectPeriode = document.getElementById('filtre-evolution');
+            var selectEnfant = document.getElementById('filtre-enfant-graph');
+            var selectMatiere = document.getElementById('filtre-matiere-graph');
+            
+            if (!selectPeriode || listeEnfants.length === 0) return;
+            
+            if (selectEnfant.options.length === 0) {
+                listeEnfants.forEach(function(enfant) {
+                    var opt = document.createElement('option');
+                    opt.value = enfant.id;
+                    opt.text = enfant.prenom;
+                    selectEnfant.add(opt);
+                });
+            }
+
+            var enfantId = parseInt(selectEnfant.value);
+            var enfant = listeEnfants.find(function(e) { return e.id === enfantId; }) || listeEnfants[0];
+            
+            var periode = selectPeriode.value;
+            var matiereFiltre = selectMatiere.value;
+            var conteneur = document.getElementById('graphique-evolution');
+            
+            conteneur.innerHTML = '<p style="text-align: center; color: #9ca3af; font-size: 11px; margin-top: 50px;">Chargement...</p>';
+
+            try {
+                var res = await supabaseClient.from('notes')
+                    .select('note, coefficient, date_saisie, matiere')
+                    .eq('eleve_id', enfant.id)
+                    .order('date_saisie', { ascending: true });
+
+                var notes = res.data || [];
+
+                if (selectMatiere.options.length === 1) {
+                    var matieres = [...new Set(notes.map(n => n.matiere))].filter(Boolean).sort();
+                    matieres.forEach(function(m) {
+                        var opt = document.createElement('option');
+                        opt.value = m;
+                        opt.text = m.length > 12 ? m.substring(0, 12) + '...' : m;
+                        selectMatiere.add(opt);
+                    });
+                }
+
+                if (matiereFiltre !== 'global') {
+                    notes = notes.filter(function(n) { return n.matiere === matiereFiltre; });
+                }
+
+                var groupes = {};
+                notes.forEach(function(n) {
+                    if (!n.date_saisie) return;
+                    var d = new Date(n.date_saisie);
+                    if (isNaN(d.getTime())) return; 
+
+                    var key = '', label = '';
+                    if (periode === 'semaine') {
+                        var start = new Date(d.getFullYear(), 0, 1);
+                        var diff = d - start;
+                        var week = Math.ceil((diff / 86400000 + start.getDay() + 1) / 7);
+                        key = d.getFullYear() + '-S' + week;
+                        label = 'S' + week;
+                    } else {
+                        key = d.getFullYear() + '-' + (d.getMonth() + 1);
+                        var mois = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
+                        label = mois[d.getMonth()];
+                    }
+
+                    if (!groupes[key]) groupes[key] = { label: label, points: 0, coefs: 0 };
+                    var coef = parseFloat(n.coefficient) || 1;
+                    var val = parseFloat(n.note) || 0;
+                    groupes[key].points += val * coef;
+                    groupes[key].coefs += coef;
+                });
+
+                var data = Object.keys(groupes).map(function(k) {
+                    return { label: groupes[k].label, moyenne: groupes[k].points / groupes[k].coefs };
+                });
+                if (data.length > 5) data = data.slice(data.length - 5);
+
+                // 1. DESSINER LE GRAPHIQUE D'ABORD
+                if (data.length === 0) {
+                    conteneur.innerHTML = '<p style="text-align: center; color: #9ca3af; font-size: 12px; margin-top: 50px;">Pas assez de notes pour afficher la courbe.</p>';
+                } else {
+                    dessinerCourbeSVG(data, conteneur);
+                }
+
+                // 2. CALCULER LA COMPARAISON ENSUITE
+                document.getElementById('comparaison-classe').style.display = 'flex';
+                var totalPts = 0, totalCfs = 0;
+                notes.forEach(function(n) {
+                    var c = parseFloat(n.coefficient) || 1;
+                    totalPts += (parseFloat(n.note) || 0) * c;
+                    totalCfs += c;
+                });
+                var moyEnfant = totalCfs > 0 ? (totalPts / totalCfs) : 0;
+                document.getElementById('moy-enfant').innerText = moyEnfant.toFixed(2) + '/20';
+
+                try {
+                    var resElv = await supabaseClient.from('eleves').select('id').eq('classe_id', enfant.classe_id);
+                    var elvIds = (resElv.data || []).map(function(e) { return e.id; });
+                    
+                    if (elvIds.length > 0) {
+                        var queryNotesClasse = supabaseClient.from('notes').select('note, coefficient').in('eleve_id', elvIds);
+                        if (matiereFiltre !== 'global') queryNotesClasse = queryNotesClasse.eq('matiere', matiereFiltre);
+                        
+                        var resNotesClasse = await queryNotesClasse;
+                        var cPts = 0, cCfs = 0;
+                        
+                        if (resNotesClasse.data) {
+                            resNotesClasse.data.forEach(function(nc) {
+                                var c = parseFloat(nc.coefficient) || 1;
+                                cPts += (parseFloat(nc.note) || 0) * c;
+                                cCfs += c;
+                            });
+                        }
+                        var moyClasse = cCfs > 0 ? (cPts / cCfs) : 0;
+                        document.getElementById('moy-classe').innerText = moyClasse.toFixed(2) + '/20';
+                    }
+                } catch (e) {
+                    document.getElementById('moy-classe').innerText = 'N/A';
+                }
+
+            } catch (err) {
+                console.error(err);
+                conteneur.innerHTML = '<p style="text-align: center; color: #ef4444; font-size: 11px; margin-top: 50px;">Erreur : ' + err.message + '</p>';
+            }
         }
 
+function dessinerCourbeSVG(data, conteneur) {
+            if (data.length === 0) return;
+
+            var width = 340;
+            var height = 150;
+            var paddingX = 30;
+            var paddingY = 25;
+            
+            var chartWidth = width - (paddingX * 2);
+            var chartHeight = height - (paddingY * 2);
+
+            var maxY = 20; 
+            var minY = 0;
+
+            var points = [];
+            data.forEach(function(d, i) {
+                var x = paddingX + (i * (chartWidth / Math.max(1, data.length - 1)));
+                var y = paddingY + chartHeight - ((d.moyenne - minY) / (maxY - minY) * chartHeight);
+                points.push({ x: x, y: y, valeur: d.moyenne.toFixed(1), label: d.label });
+            });
+
+            var pathD = '';
+            points.forEach(function(p, i) {
+                if (i === 0) pathD += 'M ' + p.x + ' ' + p.y + ' ';
+                else pathD += 'L ' + p.x + ' ' + p.y + ' ';
+            });
+
+            var svg = '<svg viewBox="0 0 ' + width + ' ' + height + '" style="width: 100%; height: 100%; overflow: visible;">';
+            
+            var y10 = paddingY + chartHeight - ((10 - minY) / (maxY - minY) * chartHeight);
+            svg += '<line x1="' + paddingX + '" y1="' + y10 + '" x2="' + (width - paddingX) + '" y2="' + y10 + '" stroke="#e5e7eb" stroke-width="1.5" stroke-dasharray="4 4" />';
+            svg += '<text x="5" y="' + (y10 + 3) + '" font-size="9" fill="#9ca3af" font-weight="bold">10</text>';
+            
+            var y20 = paddingY;
+            svg += '<line x1="' + paddingX + '" y1="' + y20 + '" x2="' + (width - paddingX) + '" y2="' + y20 + '" stroke="#f3f4f6" stroke-width="1" />';
+            svg += '<text x="5" y="' + (y20 + 3) + '" font-size="9" fill="#9ca3af" font-weight="bold">20</text>';
+
+            svg += '<path d="' + pathD + '" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />';
+
+            points.forEach(function(p, i) {
+                svg += '<circle cx="' + p.x + '" cy="' + p.y + '" r="5" fill="white" stroke="#10b981" stroke-width="3" />';
+                svg += '<text x="' + p.x + '" y="' + (p.y - 12) + '" font-size="10" fill="#10b981" font-weight="900" text-anchor="middle">' + p.valeur + '</text>';
+                svg += '<text x="' + p.x + '" y="' + (height - 5) + '" font-size="9" fill="#9ca3af" font-weight="bold" text-anchor="middle">' + p.label + '</text>';
+            });
+
+            svg += '</svg>';
+            conteneur.innerHTML = svg;
+        }
         // ════════════ BADGES ENFANTS ════════════
         async function chargerBadgeBadgesEnfants() {
             var badge = document.getElementById('badge-badges-parent');
@@ -759,6 +1042,111 @@
             var count = res.count;
             var badge = document.getElementById('badge-notif');
             if (count > 0) { badge.innerText = count; badge.classList.remove('hidden'); } else { badge.classList.add('hidden'); }
+        }
+// ═══════════ EMPLOI DU TEMPS ═══════════
+        function afficherEmploiParent() {
+            document.querySelectorAll('[id^="view-"]').forEach(function(el) { el.classList.add('hidden'); });
+            document.getElementById('view-emploi-parent').classList.remove('hidden');
+
+            // Remplir le sélecteur avec les enfants
+            var sel = document.getElementById('select-enfant-emploi');
+            sel.innerHTML = '<option value="">Sélectionnez un enfant</option>';
+            listeEnfants.forEach(function(enfant) {
+                sel.innerHTML += '<option value="' + enfant.classe_id + '" data-nom="' + enfant.prenom + '">' + enfant.prenom + ' ' + enfant.nom + ' (' + enfant.classe + ')</option>';
+            });
+
+            document.getElementById('contenu-emploi-parent').innerHTML = '';
+            window.scrollTo(0, 0);
+        }
+
+        async function chargerEmploiParent() {
+            var select = document.getElementById('select-enfant-emploi');
+            var classeId = select.value;
+            var nomEnfant = select.options[select.selectedIndex] ? select.options[select.selectedIndex].getAttribute('data-nom') : '';
+            var conteneur = document.getElementById('contenu-emploi-parent');
+
+            if (!classeId) {
+                conteneur.innerHTML = '';
+                return;
+            }
+
+            conteneur.innerHTML = skeleton.hero() + skeleton.cartes(2);
+
+            try {
+                // Récupérer le nom de la classe
+                var resClasse = await supabaseClient.from('classes').select('nom').eq('id', classeId).single();
+                var nomClasse = resClasse.data ? resClasse.data.nom : 'Classe';
+
+                // Récupérer l'emploi du temps
+                var resCours = await supabaseClient.from('emploi_du_temps')
+                    .select('*, enseignants(utilisateurs!utilisateur_id(prenom, nom))')
+                    .eq('classe_id', classeId)
+                    .order('heure_debut');
+
+                var cours = resCours.data || [];
+
+                if (cours.length === 0) {
+                    conteneur.innerHTML = '<div class="empty-state"><div class="empty-icon">📅</div><div class="empty-title">Aucun cours</div><div class="empty-desc">L\'emploi du temps n\'est pas encore configuré pour ' + nomClasse + '</div></div>';
+                    return;
+                }
+
+                // Construire le tableau
+                var jours = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+                var creneauxSet = new Set();
+                var CRENEAUX_STANDARDS = ['08:00-10:00', '10:15-12:15', '14:00-16:00', '16:15-18:15'];
+                CRENEAUX_STANDARDS.forEach(function(c) { creneauxSet.add(c); });
+
+                cours.forEach(function(c) {
+                    if (!c.heure_debut || !c.heure_fin) return;
+                    creneauxSet.add(c.heure_debut.substring(0, 5) + '-' + c.heure_fin.substring(0, 5));
+                });
+
+                var creneaux = Array.from(creneauxSet).sort().map(function(str) {
+                    var parts = str.split('-');
+                    return { debut: parts[0], fin: parts[1] };
+                });
+
+                var jourActuel = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'][new Date().getDay()];
+
+                var html = '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-2 overflow-x-auto mb-3">';
+                html += '<p class="text-xs font-bold text-gray-700 mb-2 px-2">' + nomEnfant + ' - ' + nomClasse + '</p>';
+                html += '<table style="width:100%;border-collapse:collapse;min-width:600px;">';
+                html += '<thead><tr style="background:#8B5CF6;">';
+                html += '<th style="padding:8px;color:white;font-size:10px;border:1px solid #8B5CF6;min-width:60px;">Heure</th>';
+                jours.forEach(function(j) {
+                    var bg = j === jourActuel ? '#F59E0B' : '#8B5CF6';
+                    html += '<th style="padding:8px;color:white;font-size:10px;border:1px solid #8B5CF6;text-align:center;background:' + bg + ';">' + j.substring(0,3) + '</th>';
+                });
+                html += '</tr></thead><tbody>';
+
+                creneaux.forEach(function(cr) {
+                    html += '<tr><td style="padding:6px;border:1px solid #e5e7eb;font-size:9px;font-weight:bold;text-align:center;background:#f3f4f6;">' + cr.debut + '<br>' + cr.fin + '</td>';
+                    jours.forEach(function(jour) {
+                        var c = cours.find(function(x) { return x.jour === jour && x.heure_debut.substring(0,5) === cr.debut && x.heure_fin.substring(0,5) === cr.fin; });
+                        var estAujourdhui = jour === jourActuel;
+                        var borderStyle = estAujourdhui ? 'border:2px solid #F59E0B;' : 'border:1px solid #e5e7eb;';
+                        
+                        if (c) {
+                            var profNom = c.enseignants && c.enseignants.utilisateurs ? c.enseignants.utilisateurs.prenom : '';
+                            html += '<td style="padding:4px;' + borderStyle + 'vertical-align:top;">';
+                            html += '<div style="background:#ede9fe;border-left:3px solid #8B5CF6;padding:4px;border-radius:4px;">';
+                            html += '<p style="font-size:9px;font-weight:bold;color:#5b21b6;margin:0;">' + c.matiere + '</p>';
+                            if (c.salle) html += '<p style="font-size:8px;color:#6b7280;margin:1px 0 0 0;">📍 ' + c.salle + '</p>';
+                            if (profNom) html += '<p style="font-size:8px;color:#7c3aed;margin:1px 0 0 0;">👤 ' + profNom + '</p>';
+                            html += '</div></td>';
+                        } else {
+                            html += '<td style="padding:4px;' + borderStyle + 'vertical-align:top;"><div style="min-height:45px;"></div></td>';
+                        }
+                    });
+                    html += '</tr>';
+                });
+                html += '</tbody></table></div>';
+
+                conteneur.innerHTML = html;
+
+            } catch (err) {
+                conteneur.innerHTML = '<div class="alert-banner danger"><div class="alert-icon">❌</div><div class="alert-content"><div class="alert-title">Erreur</div><div class="alert-desc">' + err.message + '</div></div></div>';
+            }
         }
 
         async function afficherBulletin() {
@@ -1239,6 +1627,5 @@
 
         function seDeconnecter() { sessionStorage.removeItem('eduLinkUser'); window.location.href = 'index.html'; }
     </script>
-<script src="layout-pc.js"></script>
 </body>
 </html>
