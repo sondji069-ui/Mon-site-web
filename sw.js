@@ -3,7 +3,7 @@
 // Version 3 — Cache étendu + mise à jour automatique
 // ═══════════════════════════════════════════════════════════════
 
-const CACHE_VERSION = 'v3';
+const CACHE_VERSION = 'v4';
 const CACHE_NAME = 'edu-link-' + CACHE_VERSION;
 
 // Fichiers essentiels (coquille de l'app)
