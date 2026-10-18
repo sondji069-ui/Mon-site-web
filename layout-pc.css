@@ -4,6 +4,7 @@
    ═══════════════════════════════════════════════════════════════ */
 
 /* ═══════════ SIDEBAR ═══════════ */
+@media (min-width: 768px) {
 .pc-sidebar {
     display: none; /* Caché par défaut (mobile) */
 }
@@ -291,4 +292,5 @@
     #page-dashboard > .flex-1 .action-grid {
         grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
     }
+}
 }
