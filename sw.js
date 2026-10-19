@@ -3,13 +3,22 @@
 // Version 3 — Cache étendu + mise à jour automatique
 // ═══════════════════════════════════════════════════════════════
 
-const CACHE_VERSION = 'v4';
+const CACHE_VERSION = 'v5';
 const CACHE_NAME = 'edu-link-' + CACHE_VERSION;
 
 // Fichiers essentiels (coquille de l'app)
 const FICHIERS_ESSENTIELS = [
     './',
     './index.html',
+    './eleve.html',
+    './enseignant.html',
+    './parent.html',
+    './admin.html',
+    './staff.html',
+    './super-admin.html',
+    './messagerie.html',
+    './profil.html',
+    './assistant-ia.html',
     './manifest.json',
     './icons/icon-192.png',
     './icons/icon-512.png',

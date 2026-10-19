@@ -134,6 +134,15 @@
 
                 const codeAcces = await trouverCodeUnique(nomEcole);
 
+                // 1. Créer le compte Auth du Directeur
+                const { data: authData, error: errAuth } = await supabaseClient.auth.signUp({
+                    email: emailAdmin,
+                    password: password
+                });
+
+                if (errAuth) throw new Error("Erreur Auth : " + errAuth.message);
+
+                // 2. Créer l'école
                 const { data: nouvelleEcole, error: errEcole } = await supabaseClient
                     .from('ecoles')
                     .insert([{
@@ -148,18 +157,16 @@
 
                 if (errEcole) throw new Error("Erreur ecole : " + errEcole.message);
 
-                // 🔐 Hachage du mot de passe du directeur
-                const passwordHashe = await hashPassword(password);
-
+                // 3. Créer le profil du Directeur
                 const { error: errAdmin } = await supabaseClient
                     .from('utilisateurs')
                     .insert([{
+                        auth_id: authData.user.id, // <-- Le lien sécurisé
                         ecole_id: nouvelleEcole.id,
                         role: 'admin',
                         prenom: prenom,
                         nom: nom,
                         email: emailAdmin,
-                        mot_de_passe: passwordHashe,
                         statut: 'actif'
                     }]);
 

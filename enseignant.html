@@ -2027,7 +2027,12 @@
             if (annonces && annonces.length > 0) {
                 annonces.forEach(function(a) {
                     var d = new Date(a.date_publication).toLocaleDateString('fr-FR');
-                    html += '<div onclick="voirAffiche(' + a.id + ')" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition"><div class="flex justify-between items-start mb-2"><p class="text-sm font-bold text-gray-800">📢 ' + a.titre + '</p><span class="text-[10px] text-gray-400">' + d + '</span></div><p class="text-xs text-gray-600 mb-2">' + a.contenu.substring(0, 100) + (a.contenu.length > 100 ? '...' : '') + '</p><p class="text-[10px] text-edu-blue font-semibold">👆 Cliquez pour voir l\'affiche</p></div>';
+                    
+                    // SÉCURITÉ XSS : On échappe les données avant de les afficher
+                    var titreSec = echapperHtml(a.titre);
+                    var contenuSec = echapperHtml(a.contenu.substring(0, 100) + (a.contenu.length > 100 ? '...' : ''));
+                    
+                    html += '<div onclick="voirAffiche(' + a.id + ')" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition"><div class="flex justify-between items-start mb-2"><p class="text-sm font-bold text-gray-800">📢 ' + titreSec + '</p><span class="text-[10px] text-gray-400">' + d + '</span></div><p class="text-xs text-gray-600 mb-2">' + contenuSec + '</p><p class="text-[10px] text-edu-blue font-semibold">👆 Cliquez pour voir l\'affiche</p></div>';
                 });
             } else html = '<p class="text-gray-500 text-center py-4">Aucune annonce.</p>';
             document.getElementById('liste-annonces').innerHTML = html;
@@ -2684,7 +2689,11 @@
             await socialChargerFeed('feed-liste');
         }
 
-        function seDeconnecter() { sessionStorage.removeItem('eduLinkUser'); window.location.href = 'index.html'; }
+        async function seDeconnecter() { 
+    await supabaseClient.auth.signOut(); // Détruit le JWT de manière sécurisée
+    sessionStorage.removeItem('eduLinkUser'); 
+    window.location.href = 'index.html'; 
+}
     </script>
 <script src="layout-pc.js"></script>
 </body>

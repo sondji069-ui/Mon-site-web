@@ -496,17 +496,23 @@
                     return;
                 }
 
-                // 🔐 Hachage du mot de passe AVANT insertion
-                const passwordHashe = await hashPassword(password);
+                // 1. Créer l'utilisateur dans le système d'authentification sécurisé de Supabase
+                const { data: authData, error: authError } = await supabaseClient.auth.signUp({
+                    email: email,
+                    password: password
+                });
 
+                if (authError) throw new Error("Erreur de création : " + authError.message);
+
+                // 2. Créer le profil dans la table utilisateurs (sans mot de passe, avec l'auth_id)
                 const { data: nouvelUtilisateur, error: errUser } = await supabaseClient.from('utilisateurs').insert([{
+                    auth_id: authData.user.id, // <-- Le lien magique
                     ecole_id: ecoleValidee.id,
                     role: roleChoisi,
                     prenom: prenom,
                     nom: nom,
                     email: email,
                     telephone: telephone || null,
-                    mot_de_passe: passwordHashe,
                     statut: 'en_attente'
                 }]).select().single();
 

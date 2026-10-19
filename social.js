@@ -180,8 +180,8 @@
 
     window.socialConstruirePostHtml = function(p, idx) {
         var u = p.utilisateurs || {};
-        var prenom = u.prenom || '?';
-        var nom = u.nom || '?';
+        var prenom = echapperTexte(u.prenom || '?'); // Ajout de echapperTexte
+        var nom = echapperTexte(u.nom || '?');       // Ajout de echapperTexte
         var role = u.role || 'eleve';
         var temps = formatTempsRelatif(p.date_creation);
         var liked = p._liked === true;
@@ -362,7 +362,7 @@
                 html += '<div class="commentaire-item">';
                 html += '<div class="commentaire-avatar ' + classeRole(u.role) + '">' + avatarHtml + '</div>';
                 html += '<div class="commentaire-content">';
-                html += '<div><span class="commentaire-auteur">' + (u.prenom || '?') + ' ' + (u.nom || '?') + '</span><span class="commentaire-texte">' + echapperTexte(c.contenu) + '</span></div>';
+                html += '<div><span class="commentaire-auteur">' + echapperTexte(u.prenom || '?') + ' ' + echapperTexte(u.nom || '?') + '</span><span class="commentaire-texte">' + echapperTexte(c.contenu) + '</span></div>';
                 html += '<div class="commentaire-date">' + temps + '</div>';
                 html += '</div></div>';
             });

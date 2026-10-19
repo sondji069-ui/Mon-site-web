@@ -7,9 +7,9 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#004AAD">
     <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
-<link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.png">
-<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
     <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -145,9 +145,24 @@
 
     </div>
 
+    <!-- ═══════════ SCRIPTS ═══════════ -->
+    <!-- L'ordre est STRICTEMENT important -->
+    
+    <!-- 1. Librairie Supabase (CDN Principal) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- 1.b CDN de secours (si le premier échoue) -->
     <script>
+        if (typeof window.supabase === 'undefined') {
+            document.write('<script src="https://unpkg.com/@supabase/supabase-js@2"><\/script>');
+        }
+    </script>
 
+    <!-- 2. Config -->
+    <script src="config.js?v=3"></script>
+
+    <!-- 3. Logique de connexion -->
+    <script>
         var imagesFallback = [
             'https://images.pexels.com/photos/256541/pexels-photo-256541.jpeg?auto=compress&cs=tinysrgb&w=1200',
             'https://images.pexels.com/photos/207691/pexels-photo-207691.jpeg?auto=compress&cs=tinysrgb&w=1200',
@@ -211,77 +226,58 @@
             document.getElementById('message-login').classList.add('hidden');
 
             try {
-                const { data: users, error: errReq } = await supabaseClient.from('utilisateurs').select('*').eq('email', email);
+                // 1. Authentification via Supabase Auth (JWT sécurisé)
+                const { data: authData, error: authError } = await supabaseClient.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
 
-                if (errReq) {
-                    afficherMessage('Erreur reseau : ' + errReq.message, 'rouge');
+                if (authError) {
+                    afficherMessage('Erreur : ' + authError.message, 'rouge');
+                    console.error("Erreur Auth complète :", authError); // Regarde dans la console F12
                     resetBtn(btn, btnText);
                     return;
                 }
 
-                if (!users || users.length === 0) {
-                    afficherMessage('Email ou mot de passe incorrect.', 'rouge');
+                // 2. Récupérer le profil depuis la table utilisateurs
+                const { data: user, error: userError } = await supabaseClient
+                    .from('utilisateurs')
+                    .select('*')
+                    .eq('auth_id', authData.user.id)
+                    .single();
+
+                if (userError || !user) {
+                    afficherMessage('Profil introuvable. Contactez votre école.', 'rouge');
+                    await supabaseClient.auth.signOut();
                     resetBtn(btn, btnText);
                     return;
                 }
 
-                const user = users[0];
-
-                const verification = await verifyPassword(password, user.mot_de_passe);
-                if (!verification.ok) {
-                    afficherMessage('Email ou mot de passe incorrect.', 'rouge');
-                    resetBtn(btn, btnText);
-                    return;
-                }
-
-                if (verification.needsRehash) {
-                    try {
-                        const newHash = await hashPassword(password);
-                        await supabaseClient.from('utilisateurs').update({ mot_de_passe: newHash }).eq('id', user.id);
-                        console.log('Mot de passe migre en PBKDF2');
-                    } catch (e) { console.warn('Migration echouee :', e); }
-                }
-
+                // 3. Vérifier le statut
                 if (user.statut === 'en_attente') {
-                    afficherMessage('Votre compte est en attente de validation par votre ecole.', 'orange');
+                    afficherMessage('Votre compte est en attente de validation par votre école.', 'orange');
+                    await supabaseClient.auth.signOut();
                     resetBtn(btn, btnText);
                     return;
                 }
 
-                if (user.statut === 'refuse') {
-                    afficherMessage('Votre demande a ete refusee. Contactez votre ecole.', 'rouge');
-                    resetBtn(btn, btnText);
-                    return;
-                }
-
+                // 4. Vérifier si l'école est active (ton ancien code)
                 if (user.ecole_id && user.role !== 'super_admin') {
-                    const { data: ecole } = await supabaseClient.from('ecoles').select('actif, nom, date_expiration').eq('id', user.ecole_id).single();
-                    if (ecole) {
-                        if (ecole.actif === false) {
-                            afficherMessage('L\'acces de votre ecole (' + ecole.nom + ') a ete temporairement suspendu.', 'rouge');
-                            resetBtn(btn, btnText);
-                            return;
-                        }
-                        if (ecole.date_expiration) {
-                            const expiration = new Date(ecole.date_expiration);
-                            const aujourdHui = new Date();
-                            aujourdHui.setHours(0, 0, 0, 0);
-                            if (expiration < aujourdHui) {
-                                afficherMessage('L\'abonnement de votre ecole a expire.', 'rouge');
-                                resetBtn(btn, btnText);
-                                return;
-                            }
-                        }
+                    const { data: ecole } = await supabaseClient.from('ecoles').select('actif, nom').eq('id', user.ecole_id).single();
+                    if (ecole && ecole.actif === false) {
+                        afficherMessage('L\'accès de votre école (' + ecole.nom + ') a été suspendu.', 'rouge');
+                        await supabaseClient.auth.signOut();
+                        resetBtn(btn, btnText);
+                        return;
                     }
                 }
 
+                // 5. Session locale (juste pour l'affichage, le vrai JWT est géré par Supabase)
                 EduLink.setSessionUser(user);
                 afficherMessage('Bienvenue ' + user.prenom + ' !', 'vert');
-                btnText.innerText = 'Connecte !';
+                btnText.innerText = 'Connecté !';
 
-                const urlActuelle = window.location.href;
-                const urlBase = urlActuelle.substring(0, urlActuelle.lastIndexOf('/') + 1);
-
+                const urlBase = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
                 let fichierCible = '';
                 if (user.role === 'eleve') fichierCible = 'eleve.html';
                 else if (user.role === 'enseignant') fichierCible = 'enseignant.html';
@@ -292,9 +288,6 @@
 
                 if (fichierCible) {
                     setTimeout(function() { window.location.replace(urlBase + fichierCible); }, 700);
-                } else {
-                    afficherMessage('Role inconnu.', 'rouge');
-                    resetBtn(btn, btnText);
                 }
 
             } catch (err) {
@@ -308,11 +301,7 @@
         });
     </script>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js"></script>          
-<script>
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
-<script src="pwa.js"></script>
-</body>
+    <!-- 4. PWA (Ajout de ?v=2 anti-cache) -->
+    <script src="pwa.js?v=2"></script>
 </body>
 </html>

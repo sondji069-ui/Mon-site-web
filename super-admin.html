@@ -539,7 +539,8 @@
         }
 
         async function resetMdpAdmin(userId, nomComplet) {
-            const nouveauMdp = 'EDU-' + Math.floor(1000 + Math.random() * 9000);
+            const nouveauMdp = window.genererMdpTemporaire();
+            // ... reste inchangé ...
             if (!confirm("Générer un nouveau mot de passe pour " + nomComplet + " ?\n\nNouveau mdp : " + nouveauMdp + "\n\nL'utilisateur devra le changer à sa prochaine connexion.")) return;
             try {
                 const hash = await hashPassword(nouveauMdp);

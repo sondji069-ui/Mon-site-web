@@ -1923,8 +1923,8 @@ window.CRENEAUX_EDT = window.CRENEAUX_EDT || [
         }
 
         async function genererMdpTemporaire(demandeId, userId, nomComplet) {
-            const aleatoire = Math.floor(1000 + Math.random() * 9000);
-            const mdpTemp = 'EDU-' + aleatoire;
+            const mdpTemp = window.genererMdpTemporaire();   // ← utilise la fonction globale
+            // ... reste inchangé ...
             if (!confirm("Generer un mot de passe temporaire pour " + nomComplet + " ?\n\nLe mot de passe sera : " + mdpTemp)) return;
             try {
                 const mdpTempHashe = await hashPassword(mdpTemp);
@@ -2882,7 +2882,11 @@ const JOURS_EDT = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
             if (annonces && annonces.length > 0) {
                 annonces.forEach(a => {
                     const d = new Date(a.date_publication).toLocaleDateString('fr-FR');
-                    html += '<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100"><div class="flex justify-between items-start mb-2"><p class="text-sm font-bold text-gray-800">📢 ' + a.titre + '</p><span class="text-[10px] text-gray-400">' + d + '</span></div><p class="text-xs text-gray-600 mb-3">' + a.contenu.substring(0, 100) + (a.contenu.length > 100 ? '...' : '') + '</p><div class="flex justify-between items-center"><span class="text-[10px] bg-blue-50 text-edu-blue font-semibold px-2 py-1 rounded">' + a.cible + '</span><div class="flex gap-2"><button onclick="voirAffiche(' + a.id + ')" class="bg-blue-50 text-edu-blue text-[10px] font-bold px-2 py-1 rounded">Voir l\'affiche</button><button onclick="supprimerAnnonce(' + a.id + ')" class="bg-red-50 text-edu-red text-[10px] font-bold px-2 py-1 rounded">Supprimer</button></div></div></div>';
+                    const titreSec = echapperHtml(a.titre);
+                    const contenuSec = echapperHtml(a.contenu);
+                    const extrait = contenuSec.substring(0, 100) + (a.contenu.length > 100 ? '...' : '');
+                    const cibleSec = echapperHtml(a.cible);
+                    html += '<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100"><div class="flex justify-between items-start mb-2"><p class="text-sm font-bold text-gray-800">📢 ' + titreSec + '</p><span class="text-[10px] text-gray-400">' + d + '</span></div><p class="text-xs text-gray-600 mb-3">' + extrait + '</p><div class="flex justify-between items-center"><span class="text-[10px] bg-blue-50 text-edu-blue font-semibold px-2 py-1 rounded">' + cibleSec + '</span><div class="flex gap-2"><button onclick="voirAffiche(' + a.id + ')" class="bg-blue-50 text-edu-blue text-[10px] font-bold px-2 py-1 rounded">Voir l\'affiche</button><button onclick="supprimerAnnonce(' + a.id + ')" class="bg-red-50 text-edu-red text-[10px] font-bold px-2 py-1 rounded">Supprimer</button></div></div></div>';
                 });
             } else html = '<p class="text-gray-500 text-center py-4">Aucune annonce.</p>';
             document.getElementById('liste-annonces-admin').innerHTML = html;
@@ -3370,9 +3374,9 @@ let elvPage = 0;         // page actuelle (0, 1, 2...)
             var html = '';
 
             liste.forEach(function(e) {
-                var prenom = e.utilisateurs ? e.utilisateurs.prenom : '?';
-                var nom = e.utilisateurs ? e.utilisateurs.nom : '?';
-                var email = e.utilisateurs ? e.utilisateurs.email : '';
+                var prenom = e.utilisateurs ? echapperHtml(e.utilisateurs.prenom) : '?';
+                var nom = e.utilisateurs ? echapperHtml(e.utilisateurs.nom) : '?';
+                var email = e.utilisateurs ? echapperHtml(e.utilisateurs.email) : '';
                 var statutUser = e.utilisateurs ? e.utilisateurs.statut : 'actif';
                 var classeNom = e.classes ? e.classes.nom : 'Sans classe';
                 var initiale = prenom.charAt(0).toUpperCase();
@@ -6999,7 +7003,11 @@ CRENEAUX_APERCU.forEach((cr, idx) => {
             await socialChargerFeed('feed-liste');
         }
 
-        function seDeconnecter() { sessionStorage.removeItem('eduLinkUser'); window.location.href = 'index.html'; }
+        async function seDeconnecter() { 
+    await supabaseClient.auth.signOut(); // Détruit le JWT de manière sécurisée
+    sessionStorage.removeItem('eduLinkUser'); 
+    window.location.href = 'index.html'; 
+}
     </script>
 <script src="ripple.js"></script>
 <script src="toast.js"></script>
@@ -7013,6 +7021,5 @@ CRENEAUX_APERCU.forEach((cr, idx) => {
 <script src="image-utils.js"></script>
 <script src="storage.js"></script>
 <script src="layout-pc.js"></script>
-</body>
 </body>
 </html>
