@@ -3998,7 +3998,7 @@ if (window.Cache) Cache.invalidatePattern('admin_');
             if (!classeId) { conteneur.innerHTML = ''; return; }
 
             conteneur.innerHTML = '<p class="text-gray-500 text-center py-4 text-sm">Chargement...</p>';
-            const { data: eleves } = await supabaseClient.from('eleves').select('id, matricule, utilisateurs!utilisateur_id(prenom, nom)').eq('classe_id', classeId).eq('ecole_id', monEcoleId).order('id');
+            const { data: eleves } = await supabaseClient.from('eleves').select('id, matricule, date_naissance, lieu_naissance, utilisateurs!utilisateur_id(prenom, nom)').eq('classe_id', classeId).eq('ecole_id', monEcoleId).order('id');
 
             if (!eleves || eleves.length === 0) {
                 conteneur.innerHTML = '<p class="text-gray-500 text-center py-4 text-sm">Aucun eleve dans cette classe.</p>';
@@ -5242,6 +5242,12 @@ if (window.Cache) Cache.invalidatePattern('admin_');
                 let htmlInterne = '';
 
                 // ═══════════ PAGE DE GARDE ═══════════
+let blocSignature = '';
+                    if (sigUrl) {
+                        blocSignature = '<td style="width:33%;text-align:right;padding:12px;"><p style="font-size:11px;color:#6b7280;margin:0 0 4px 0;">Le Directeur</p><img src="' + sigUrl + '" style="max-height:55px;max-width:160px;"></td>';
+                    } else {
+                        blocSignature = '<td style="width:33%;text-align:right;padding:12px;"><p style="font-size:11px;color:#6b7280;margin:0;">Le Directeur</p><div style="height:50px;"></div></td>';
+                    }
                 htmlInterne += '<div style="background:#ffffff; color:#1f2937; padding: 60px 40px; text-align: center; font-family: Arial, sans-serif; page-break-after: always; height: 90%; display: flex; flex-direction: column; justify-content: center; align-items: center;">';
                 htmlInterne += '<div style="font-size: 80px; margin-bottom: 24px;">📖</div>';
                 htmlInterne += '<h1 style="font-size: 38px; color: #004AAD; margin: 10px 0; letter-spacing: 5px; font-weight: 900;">EDU-LINK</h1>';
@@ -5258,16 +5264,47 @@ if (window.Cache) Cache.invalidatePattern('admin_');
                 // ═══════════ BULLETINS INDIVIDUELS ═══════════
                 elevesTries.forEach((eleve, idxEleve) => {
                     const matieres = notesParEleve[eleve.id] || {};
-                    const stats = statsParEleve[eleve.id];
-                    const rang = rangParEleve[eleve.id];
-                    const moyGen = stats.moyenne;
+const eleveNomComplet = eleve.utilisateurs.prenom + ' ' + eleve.utilisateurs.nom;
+                    const statsEleve = statsParEleve[eleve.id];
+                    const absEleve = statsEleve ? statsEleve.absences : { total: 0, nonJust: 0 };
+const moyGen = statsEleve ? statsEleve.moyenne : null;
                     const mention = moyGen === null ? '—' : (moyGen >= 16 ? 'Félicitations' : moyGen >= 14 ? 'Très bien' : moyGen >= 12 ? 'Bien' : moyGen >= 10 ? 'Passable' : 'Insuffisant');
                     const mentionColor = moyGen !== null && moyGen >= 10 ? '#2EAD5E' : '#EF4444';
                     const moyStr = moyGen !== null ? moyGen.toFixed(2) : '—';
-                    const eleveNomComplet = eleve.utilisateurs.prenom + ' ' + eleve.utilisateurs.nom;
                     const isLast = idxEleve === elevesTries.length - 1;
+                                        
+                    let dateNaiss = 'N/A';
+                    if (eleve.date_naissance && eleve.date_naissance !== 'null') {
+                        try { dateNaiss = new Date(eleve.date_naissance).toLocaleDateString('fr-FR'); } catch(e) {}
+                    }
+                    const lieuNaiss = eleve.lieu_naissance ? eleve.lieu_naissance : 'N/A';
+                    const monRang = rangParEleve[eleve.id];
+                    const eleveRang = monRang ? 'Rang : ' + monRang + ' / ' + avecMoy.length : '';
 
-                    let lignes = '';
+                    htmlInterne += '<table style="width: 100%; border-collapse: collapse; margin-bottom: 22px; background: #f0f7ff; border-radius: 12px; overflow: hidden;">';
+                    htmlInterne += '<tr>';
+                    htmlInterne += '<td style="padding: 14px 16px; width: 55%; border-bottom: 1px solid #cbd5e1;">';
+                    htmlInterne += '<p style="font-size: 11px; color: #64748b; margin: 0 0 2px 0; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Élève</p>';
+                    htmlInterne += '<p style="font-size: 16px; font-weight: 800; color: #1e293b; margin: 0;">' + eleveNomComplet + '</p>';
+                    htmlInterne += '<p style="font-size: 11px; color: #475569; margin: 6px 0 0 0;"><b style="color: #004AAD;">Matricule :</b> ' + (eleve.matricule || '') + ' <span style="margin-left:10px;"><b style="color:#8B5CF6;">' + eleveRang + '</b></span></p>';
+                    htmlInterne += '</td>';
+                    htmlInterne += '<td style="padding: 14px 16px; width: 45%; border-left: 2px solid #cbd5e1; border-bottom: 1px solid #cbd5e1;">';
+                    htmlInterne += '<p style="font-size: 11px; color: #64748b; margin: 0 0 2px 0; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Classe</p>';
+                    htmlInterne += '<p style="font-size: 16px; font-weight: 800; color: #004AAD; margin: 0;">' + classe.nom + '</p>';
+                    htmlInterne += '<p style="font-size: 11px; color: #475569; margin: 6px 0 0 0;">Né(e) le : <b>' + dateNaiss + '</b></p>';
+                    htmlInterne += '<p style="font-size: 11px; color: #475569; margin: 2px 0 0 0;">à : <b>' + lieuNaiss + '</b></p>';
+                    htmlInterne += '</td>';
+                    htmlInterne += '</tr>';
+                    htmlInterne += '<tr>';
+                    htmlInterne += '<td style="padding: 10px 16px; width: 55%;">';
+                    htmlInterne += '<p style="font-size: 11px; color: #475569; margin: 0;"><b style="color: #004AAD;">Absences justifiées :</b> ' + (absEleve.total - absEleve.nonJust) + '</p>';
+                    htmlInterne += '</td>';
+                    htmlInterne += '<td style="padding: 10px 16px; width: 45%; border-left: 2px solid #cbd5e1;">';
+                    htmlInterne += '<p style="font-size: 11px; color: #475569; margin: 0;"><b style="color: #DC2626;">Non justifiées :</b> ' + absEleve.nonJust + '</p>';
+                    htmlInterne += '</td>';
+                    htmlInterne += '</tr>';
+                    htmlInterne += '</table>';
+let lignes = '';
                     const ordreMatieres = Object.keys(matieres).sort();
 
                     if (ordreMatieres.length === 0) {
@@ -5306,40 +5343,7 @@ if (window.Cache) Cache.invalidatePattern('admin_');
                         });
                     }
 
-                    let blocSignature = '';
-                    if (sigUrl) {
-                        blocSignature = '<td style="width:50%;text-align:right;padding:12px;"><p style="font-size:11px;color:#6b7280;margin:0 0 4px 0;">Le Directeur</p><img src="' + sigUrl + '" style="max-height:55px;max-width:160px;"></td>';
-                    } else {
-                        blocSignature = '<td style="width:50%;text-align:right;padding:12px;"><p style="font-size:11px;color:#6b7280;margin:0;">Le Directeur</p><div style="height:50px;"></div></td>';
-                    }
-
-                    htmlInterne += '<div style="background:#ffffff; color:#1f2937; padding: 24px; font-family: Arial, sans-serif;' + (isLast ? '' : ' page-break-after: always;') + '">';
-                    htmlInterne += '<div style="background: white; padding: 28px 24px; border-radius: 16px; border: 3px solid #004AAD; box-shadow: 0 4px 20px rgba(0, 74, 173, 0.1);">';
-
-                    htmlInterne += '<div style="text-align: center; padding-bottom: 18px; margin-bottom: 22px; border-bottom: 3px double #004AAD;">';
-                    htmlInterne += '<div style="font-size: 42px; line-height: 1; margin-bottom: 6px;">📖</div>';
-                    htmlInterne += '<h1 style="font-size: 24px; font-weight: 900; color: #004AAD; margin: 0; letter-spacing: 3px;">EDU-LINK</h1>';
-                    htmlInterne += '<p style="font-size: 13px; color: #64748b; margin: 6px 0 0 0; font-weight: 600;">' + ecoleNom + '</p>';
-                    htmlInterne += '<div style="display: inline-block; margin-top: 14px; padding: 8px 24px; background: linear-gradient(135deg, #004AAD, #0066CC); color: white; border-radius: 8px;">';
-                    htmlInterne += '<p style="font-size: 14px; font-weight: 800; margin: 0; letter-spacing: 1px;">BULLETIN SCOLAIRE</p>';
-                    htmlInterne += '<p style="font-size: 11px; margin: 2px 0 0 0; opacity: 0.9;">Semestre ' + semestre + ' • Année 2024-2025</p>';
-                    htmlInterne += '</div></div>';
-
-                    htmlInterne += '<table style="width: 100%; border-collapse: collapse; margin-bottom: 22px; background: #f0f7ff; border-radius: 12px; overflow: hidden;">';
-                    htmlInterne += '<tr>';
-                    htmlInterne += '<td style="padding: 14px 16px; width: 55%;">';
-                    htmlInterne += '<p style="font-size: 11px; color: #64748b; margin: 0 0 2px 0; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Élève</p>';
-                    htmlInterne += '<p style="font-size: 16px; font-weight: 800; color: #1e293b; margin: 0;">' + eleveNomComplet + '</p>';
-                    htmlInterne += '<p style="font-size: 11px; color: #475569; margin: 6px 0 0 0;"><b style="color: #004AAD;">Matricule :</b> ' + (eleve.matricule || '') + '</p>';
-                    htmlInterne += '</td>';
-                    htmlInterne += '<td style="padding: 14px 16px; width: 45%; border-left: 2px solid #cbd5e1;">';
-                    htmlInterne += '<p style="font-size: 11px; color: #64748b; margin: 0 0 2px 0; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Classe</p>';
-                    htmlInterne += '<p style="font-size: 16px; font-weight: 800; color: #004AAD; margin: 0;">' + classe.nom + '</p>';
-                    htmlInterne += '<p style="font-size: 11px; color: #475569; margin: 6px 0 0 0;">Rang : <b>' + (rang || '—') + '</b> / ' + avecMoy.length + '</p>';
-                    htmlInterne += '</td>';
-                    htmlInterne += '</tr>';
-                    htmlInterne += '</table>';
-
+                    // Tableau des notes
                     htmlInterne += '<table style="width: 100%; border-collapse: collapse; margin-bottom: 22px; border: 2px solid #cbd5e1; border-radius: 10px; overflow: hidden;">';
                     htmlInterne += '<thead>';
                     htmlInterne += '<tr style="background: linear-gradient(135deg, #004AAD, #0066CC);">';
@@ -5351,24 +5355,29 @@ if (window.Cache) Cache.invalidatePattern('admin_');
                     htmlInterne += '<th style="padding: 14px 8px; font-size: 12px; color: white; text-align: center; font-weight: 800; border-right: 1px solid rgba(255,255,255,0.2); width: 60px;">COMP</th>';
                     htmlInterne += '<th style="padding: 14px 8px; font-size: 12px; color: white; text-align: center; font-weight: 800; border-right: 1px solid rgba(255,255,255,0.2); width: 70px; background: rgba(255,255,255,0.15);">MOY</th>';
                     htmlInterne += '<th style="padding: 14px 8px; font-size: 12px; color: white; text-align: center; font-weight: 800; width: 90px;">APPRÉC.</th>';
-                    htmlInterne += '</tr>';
-                    htmlInterne += '</thead>';
-                    htmlInterne += '<tbody>' + lignes + '</tbody>';
-                    htmlInterne += '</table>';
+                    htmlInterne += '</tr></thead><tbody>' + lignes + '</tbody></table>';
 
-                    htmlInterne += '<div style="background: linear-gradient(135deg, ' + (moyGen !== null && moyGen >= 10 ? '#d1fae5, #a7f3d0' : '#fee2e2, #fecaca') + '); border: 3px solid ' + mentionColor + '; padding: 20px; border-radius: 14px; text-align: center; margin-bottom: 22px;">';
+                    // Moyenne et Comparaison
+                    htmlInterne += '<div style="background: linear-gradient(135deg, ' + (moyGen !== null && moyGen >= 10 ? '#d1fae5, #a7f3d0' : '#fee2e2, #fecaca') + '); border: 3px solid ' + mentionColor + '; padding: 20px; border-radius: 14px; text-align: center; margin-bottom: 10px;">';
                     htmlInterne += '<p style="font-size: 11px; color: ' + mentionColor + '; margin: 0 0 6px 0; text-transform: uppercase; letter-spacing: 2px; font-weight: 800;">Moyenne Générale</p>';
                     htmlInterne += '<p style="font-size: 44px; font-weight: 900; color: ' + mentionColor + '; margin: 0; line-height: 1;">' + moyStr + '<span style="font-size: 22px; opacity: 0.6;">/20</span></p>';
-                    htmlInterne += '<div style="display: inline-block; margin-top: 10px; padding: 6px 20px; background: ' + mentionColor + '; color: white; border-radius: 20px;">';
-                    htmlInterne += '<span style="font-size: 13px; font-weight: 800; letter-spacing: 1px;">' + mention.toUpperCase() + '</span>';
+                    htmlInterne += '<div style="display: inline-block; margin-top: 10px; padding: 6px 20px; background: ' + mentionColor + '; color: white; border-radius: 20px;"><span style="font-size: 13px; font-weight: 800; letter-spacing: 1px;">' + mention.toUpperCase() + '</span></div>';
                     htmlInterne += '</div>';
+                    
+                    htmlInterne += '<div style="text-align: center; margin-bottom: 22px;">';
+                    htmlInterne += '<p style="font-size: 12px; color: #64748b; margin: 0;">Moyenne générale de la classe : <b style="color: #8B5CF6;">' + moyClasse.toFixed(2) + '/20</b></p>';
                     htmlInterne += '</div>';
 
+                    // Signatures
                     htmlInterne += '<table style="width: 100%; border-top: 2px solid #e2e8f0; padding-top: 16px;">';
                     htmlInterne += '<tr>';
-                    htmlInterne += '<td style="width: 50%; text-align: left; padding: 12px;">';
+                    htmlInterne += '<td style="width: 33%; text-align: left; padding: 12px;">';
                     htmlInterne += '<p style="font-size: 11px; color: #64748b; margin: 0;">Fait le</p>';
                     htmlInterne += '<p style="font-size: 12px; font-weight: 700; color: #1e293b; margin: 2px 0 0 0;">' + dateAffichee + '</p>';
+                    htmlInterne += '</td>';
+                    htmlInterne += '<td style="width: 33%; text-align: center; padding: 12px;">';
+                    htmlInterne += '<p style="font-size: 11px; color: #64748b; margin: 0;">Signature des parents</p>';
+                    htmlInterne += '<div style="height: 40px;"></div>';
                     htmlInterne += '</td>';
                     htmlInterne += blocSignature;
                     htmlInterne += '</tr>';

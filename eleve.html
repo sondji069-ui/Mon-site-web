@@ -1015,6 +1015,36 @@
             var resE = await supabaseClient.from('eleves').select('*, classes(nom)').eq('utilisateur_id', currentUser.id).single();
             var eleve = resE.data;
             var resN = await supabaseClient.from('notes').select('matiere, note, coefficient, type_evaluation').eq('eleve_id', eleve.id).eq('semestre', trimestreActuel);
+// Calcul du rang sécurisé
+            var monRang = '-';
+            try {
+                if (monClasseId) {
+                    var resElvClasse = await supabaseClient.from('eleves').select('id').eq('classe_id', monClasseId);
+                    if (resElvClasse.data && resElvClasse.data.length > 0) {
+                        var idsClasse = resElvClasse.data.map(function(e) { return e.id; });
+                        var resNotesClasse = await supabaseClient.from('notes').select('eleve_id, note, coefficient').in('eleve_id', idsClasse).eq('semestre', trimestreActuel);
+                        
+                        if (resNotesClasse.data && resNotesClasse.data.length > 0) {
+                            var moyennes = {};
+                            resNotesClasse.data.forEach(function(n) {
+                                if (!moyennes[n.eleve_id]) moyennes[n.eleve_id] = { p: 0, c: 0 };
+                                moyennes[n.eleve_id].p += (parseFloat(n.note) || 0) * (n.coefficient || 1);
+                                moyennes[n.eleve_id].c += (n.coefficient || 1);
+                            });
+                            
+                            var classement = Object.keys(moyennes).map(function(id) {
+                                return { id: parseInt(id), moy: moyennes[id].p / moyennes[id].c };
+                            }).sort(function(a, b) { return b.moy - a.moy; });
+                            
+                            var index = classement.findIndex(function(e) { return e.id === eleve.id; });
+                            if (index !== -1) monRang = (index + 1) + ' / ' + classement.length;
+                        }
+                    }
+                }
+            } catch (e) {
+                console.log("Erreur calcul rang:", e);
+            }
+
 // Récupérer les absences
             var resAbs = await supabaseClient.from('absences').select('*').eq('eleve_id', eleve.id);
             var mesAbsences = resAbs.data || [];
@@ -1022,7 +1052,7 @@
             var nbAbsNonJust = mesAbsences.filter(function(a) { return !a.justifiee; }).length;
             
             // Récupérer la moyenne de la classe pour comparer
-            var resElvClasse = await supabaseClient.from('eleves').select('id').eq('classe_id', eleve.classe_id);
+            var resElvClasse = await supabaseClient.from('eleves').select('id').eq('classe_id', monClasseId);
             var idsClasse = resElvClasse.data.map(function(e) { return e.id; });
             var moyClasse = 0;
             if (idsClasse.length > 0) {
@@ -1126,12 +1156,13 @@
                 + '<td style="padding: 14px 16px; width: 55%; border-bottom: 1px solid #cbd5e1;">'
                 + '<p style="font-size: 11px; color: #64748b; margin: 0 0 2px 0; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Élève</p>'
                 + '<p style="font-size: 16px; font-weight: 800; color: #1e293b; margin: 0;">' + currentUser.prenom + ' ' + currentUser.nom + '</p>'
-                + '<p style="font-size: 11px; color: #475569; margin: 6px 0 0 0;"><b style="color: #004AAD;">Matricule :</b> ' + eleve.matricule + '</p>'
+                + '<p style="font-size: 11px; color: #475569; margin: 6px 0 0 0;"><b style="color: #004AAD;">Matricule :</b> ' + eleve.matricule + ' <span style="margin-left:10px;"><b style="color:#8B5CF6;">Rang : ' + monRang + '</b></span></p>'
                 + '</td>'
                 + '<td style="padding: 14px 16px; width: 45%; border-left: 2px solid #cbd5e1; border-bottom: 1px solid #cbd5e1;">'
                 + '<p style="font-size: 11px; color: #64748b; margin: 0 0 2px 0; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Classe</p>'
                 + '<p style="font-size: 16px; font-weight: 800; color: #004AAD; margin: 0;">' + (eleve.classes ? eleve.classes.nom : 'N/A') + '</p>'
                 + '<p style="font-size: 11px; color: #475569; margin: 6px 0 0 0;">Né(e) le : <b>' + (eleve.date_naissance ? new Date(eleve.date_naissance).toLocaleDateString('fr-FR') : 'N/A') + '</b></p>'
++ '<p style="font-size: 11px; color: #475569; margin: 2px 0 0 0;">à : <b>' + (eleve.lieu_naissance || 'N/A') + '</b></p>'
                 + '</td>'
                 + '</tr>'
                 + '<tr>'
