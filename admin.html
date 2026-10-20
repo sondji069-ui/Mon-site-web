@@ -141,7 +141,10 @@
             <span style="flex: 1;">Paiements en attente</span>
             <span id="paiements-attente" style="font-size: 20px; font-weight: 800; color: #F59E0B;">0</span>
         </div>
-        <p style="font-size: 11px; color: #6b7280; margin-top: 8px;">Consultez l'onglet "Paiements" pour voir le taux de recouvrement exact.</p>
+        <div class="progress on-light">
+            <div class="progress-fill" style="width: 65%; background: linear-gradient(90deg, #F59E0B, #FBBF24);"></div>
+        </div>
+        <p style="font-size: 10px; color: #6b7280; margin-top: 8px;">65% des frais de scolarité encaissés ce mois</p>
     </div>
 
     <div class="divider anim-up delay-4">Actions critiques</div>
@@ -162,16 +165,6 @@
                 <div class="btn-desc">Valider ou refuser les comptes</div>
             </div>
             <span id="badge-demandes" class="hidden chip" style="background: white; color: #DC2626; font-weight: 800; min-width: 26px; justify-content: center;">0</span>
-            <div class="btn-arrow">→</div>
-        </button>
-
-        <button onclick="afficherDemandesMdp()" class="btn-float anim-up delay-5" style="background: linear-gradient(135deg, #EC4899, #8B5CF6); position: relative;">
-            <div class="btn-icon">🔑</div>
-            <div class="btn-content">
-                <div class="btn-title">Demandes de mot de passe</div>
-                <div class="btn-desc">Réinitialiser les mots de passe</div>
-            </div>
-            <span id="badge-mdp" class="hidden chip" style="background: white; color: #EC4899; font-weight: 800; min-width: 26px; justify-content: center;">0</span>
             <div class="btn-arrow">→</div>
         </button>
 
@@ -366,13 +359,7 @@
                     <div id="pve-contenu"></div>
                 </div>
 
-                <!-- ═══════════════ DEMANDES MDP ═══════════════ -->
-                <div id="view-demandes-mdp" class="hidden fade-in">
-                    <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
-                    <h1 class="text-lg font-bold text-gray-800 mb-2">🔑 Demandes de mot de passe</h1>
-                    <p class="text-xs text-gray-500 mb-4">Générez un mot de passe temporaire pour les utilisateurs qui ont oublié le leur.</p>
-                    <div id="liste-demandes-mdp" class="space-y-3"></div>
-                </div>
+                
 <!-- ═══════════════ CODE ACCES ═══════════════ -->
                 <div id="view-code" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-4">⬅️</button>
@@ -485,12 +472,23 @@
                 </div>
 
                 <div id="view-emploi-classe" class="hidden fade-in">
-                    <div class="flex items-center gap-3 mb-3">
+                    <div class="flex items-center gap-2 mb-3 flex-wrap">
                         <button onclick="afficherGestionEmploi()" class="text-2xl">⬅️</button>
                         <div class="flex-1"><h1 id="titre-emploi-classe" class="text-lg font-bold text-gray-800">...</h1><p class="text-xs text-gray-500">Emploi du temps</p></div>
-                        <button onclick="exporterEmploiPDF('tableau-emploi', event)" class="bg-edu-green text-white text-xs font-bold px-3 py-2 rounded-lg">📥 PDF</button>
-                        <button onclick="afficherFormCours()" class="bg-edu-blue text-white text-xs font-bold px-3 py-2 rounded-lg ml-1">+ Ajouter</button>
                     </div>
+                    <div class="flex gap-2 mb-3 justify-end">
+                        <button onclick="supprimerEmploiComplet(classeEnCours.id)" class="bg-red-50 text-edu-red text-[11px] font-bold px-3 py-2 rounded-lg border border-red-100">🗑️ Vider</button>
+                        <button onclick="toggleModeSelectionEmploi()" id="btn-mode-select" class="bg-purple-50 text-edu-purple text-[11px] font-bold px-3 py-2 rounded-lg border border-purple-100">☑️ Sélectionner</button>
+                        <button onclick="exporterEmploiPDF('tableau-emploi', event)" class="bg-edu-green text-white text-[11px] font-bold px-3 py-2 rounded-lg">📥 PDF</button>
+                        <button onclick="afficherFormCours()" class="bg-edu-blue text-white text-[11px] font-bold px-3 py-2 rounded-lg">+ Ajouter</button>
+                    </div>
+                    <div id="barre-action-selection" class="hidden bg-red-500 text-white p-2 rounded-xl mb-3 flex justify-between items-center anim-up">
+                        <p class="text-xs font-bold ml-2"><span id="nb-selection">0</span> cours sélectionné(s)</p>
+                        <button onclick="supprimerCoursSelectionnes()" class="bg-white text-red-600 text-xs font-bold px-3 py-1.5 rounded-lg">Supprimer la sélection</button>
+                    </div>
+                    <p class="text-[10px] text-gray-400 italic mb-2">💡 Glissez horizontalement</p>
+                    <div class="overflow-x-auto pb-2"><div id="tableau-emploi" class="min-w-[700px]"></div></div>
+                </div>
                     <p class="text-[10px] text-gray-400 italic mb-2">💡 Glissez horizontalement</p>
                     <div class="overflow-x-auto pb-2"><div id="tableau-emploi" class="min-w-[700px]"></div></div>
                 </div>
@@ -1106,54 +1104,54 @@
                 </div>
 
                 <!-- ═══════════════ NOTIFICATIONS ═══════════════ -->
-<!-- ═══════════════ 🆕 DASHBOARD GRAPHIQUE ═══════════════ -->
+<!-- ═══════════════ 🆕 DASHBOARD PREMIUM ═══════════════ -->
                 <div id="view-dashboard" class="hidden fade-in">
                     <div class="section-header anim-up">
                         <button onclick="retourAccueil()" class="back-btn">⬅️</button>
                         <div>
-                            <h1 class="section-title">Tableau de bord</h1>
-                            <p class="section-sub">Vue graphique de l'établissement</p>
+                            <h1 class="section-title">Vue d'ensemble</h1>
+                            <p class="section-sub">Tableau de bord de l'établissement</p>
                         </div>
-                    </div>
-
-                    <!-- Filtres -->
-                    <div class="tabs-pill anim-up delay-1" style="margin-bottom: 14px;">
-                        <button id="dash-tab-semaine" onclick="dashChargerPeriode('semaine')" class="tab-pill active">7 jours</button>
-                        <button id="dash-tab-mois" onclick="dashChargerPeriode('mois')" class="tab-pill">30 jours</button>
-                        <button id="dash-tab-trimestre" onclick="dashChargerPeriode('trimestre')" class="tab-pill">Trimestre</button>
+                        <button onclick="afficherDashboard()" class="bg-gray-100 text-gray-700 text-xs font-bold px-3 py-2 rounded-lg" style="margin-left: auto;">🔄 Actualiser</button>
                     </div>
 
                     <!-- KPI Cards -->
-                    <div id="dash-kpis" class="kpi-grid"></div>
+                    <div id="dash-kpis" class="kpi-grid anim-up delay-1"></div>
 
-                    <!-- Taux de recouvrement (cercle) -->
-                    <div id="dash-cercle-bloc" class="card-pro anim-up delay-2" style="margin-bottom: 14px; text-align: center;">
-                        <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin-bottom: 12px;">💰 Taux de recouvrement</p>
-                        <div id="dash-cercle-contenu"></div>
+                    <!-- Finances -->
+                    <div class="card-pro anim-up delay-2" style="margin-bottom: 14px;">
+                        <div class="card-title">
+                            <div class="icon-badge" style="background: linear-gradient(135deg, #dcfce7, #bbf7d0); color: #059669;">💰</div>
+                            <span>Finances (FCFA)</span>
+                        </div>
+                        <div id="dash-finances" class="text-center py-2"></div>
                     </div>
 
-                    <!-- Taux de présence (barres horizontales) -->
-                    <div class="card-pro anim-up delay-3" style="margin-bottom: 14px;">
-                        <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin-bottom: 12px;">📊 Présence par jour</p>
-                        <div id="dash-graph-presence"></div>
+                    <!-- Assiduité & Moyenne -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;" class="anim-up delay-3">
+                        <div class="card-pro" style="margin: 0; padding: 14px;">
+                            <div class="card-title" style="margin-bottom: 8px;">
+                                <div class="icon-badge" style="background: #fee2e2; color: #DC2626;">⚠️</div>
+                                <span style="font-size: 12px;">Absences (Auj.)</span>
+                            </div>
+                            <div id="dash-absences" class="text-center"></div>
+                        </div>
+                        <div class="card-pro" style="margin: 0; padding: 14px;">
+                            <div class="card-title" style="margin-bottom: 8px;">
+                                <div class="icon-badge" style="background: #dbeafe; color: #004AAD;">📚</div>
+                                <span style="font-size: 12px;">Moyenne École</span>
+                            </div>
+                            <div id="dash-moyenne" class="text-center"></div>
+                        </div>
                     </div>
 
-                    <!-- Notes par classe -->
+                    <!-- Classement des classes -->
                     <div class="card-pro anim-up delay-4" style="margin-bottom: 14px;">
-                        <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin-bottom: 12px;">📚 Moyenne par classe</p>
-                        <div id="dash-graph-notes"></div>
-                    </div>
-
-                    <!-- Absences par classe -->
-                    <div class="card-pro anim-up delay-5" style="margin-bottom: 14px;">
-                        <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin-bottom: 12px;">🚫 Absences par classe</p>
-                        <div id="dash-graph-absences"></div>
-                    </div>
-
-                    <!-- Top 5 profs actifs -->
-                    <div class="card-pro anim-up delay-6">
-                        <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin-bottom: 12px;">🏆 Top 5 profs (heures)</p>
-                        <div id="dash-graph-profs"></div>
+                        <div class="card-title">
+                            <div class="icon-badge" style="background: linear-gradient(135deg, #fef3c7, #fde68a); color: #D97706;">🏆</div>
+                            <span>Top 3 des classes</span>
+                        </div>
+                        <div id="dash-top-classes"></div>
                     </div>
                 </div>
 <!-- ═══════════════ RÉSEAU SOCIAL (FEED) ═══════════════ -->
@@ -1433,12 +1431,6 @@ window.CRENEAUX_EDT = window.CRENEAUX_EDT || [
         async function chargerBadgeEquipe() {
             const { count } = await supabaseClient.from('utilisateurs').select('*', { count: 'exact', head: true }).eq('ecole_id', monEcoleId).eq('role', 'staff');
             const badge = document.getElementById('badge-equipe');
-            if (badge) { if (count > 0) { badge.innerText = count; badge.classList.remove('hidden'); } else { badge.classList.add('hidden'); } }
-        }
-
-        async function chargerBadgeMdp() {
-            const { count } = await supabaseClient.from('demandes_mdp').select('*', { count: 'exact', head: true }).eq('ecole_id', monEcoleId).eq('statut', 'en_attente');
-            const badge = document.getElementById('badge-mdp');
             if (badge) { if (count > 0) { badge.innerText = count; badge.classList.remove('hidden'); } else { badge.classList.add('hidden'); } }
         }
 
@@ -1887,70 +1879,9 @@ window.CRENEAUX_EDT = window.CRENEAUX_EDT || [
             conteneur.innerHTML = html;
         }
 
-        // ════════════ DEMANDES MDP ════════════
-        async function afficherDemandesMdp() {
-            hideAllViews();
-            document.getElementById('view-demandes-mdp').classList.remove('hidden');
-            const { data: demandes } = await supabaseClient.from('demandes_mdp').select('*').eq('ecole_id', monEcoleId).order('date_demande', { ascending: false });
-            let html = '';
-            if (demandes && demandes.length > 0) {
-                for (const d of demandes) {
-                    const { data: u } = await supabaseClient.from('utilisateurs').select('prenom, nom, email, role, sous_role').eq('id', d.utilisateur_id).maybeSingle();
-                    if (!u) continue;
-                    const dateStr = new Date(d.date_demande).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-                    let roleLabel = u.role;
-                    if (u.role === 'staff' && u.sous_role) roleLabel = 'staff - ' + (LABELS_SOUS_ROLE[u.sous_role] || u.sous_role);
-                    let statutBadge = '';
-                    if (d.statut === 'en_attente') statutBadge = '<span class="bg-orange-100 text-edu-orange text-[10px] font-bold px-2 py-1 rounded">En attente</span>';
-                    else if (d.statut === 'traitee') statutBadge = '<span class="bg-green-100 text-edu-green text-[10px] font-bold px-2 py-1 rounded">Traitee</span>';
-                    else statutBadge = '<span class="bg-gray-100 text-gray-600 text-[10px] font-bold px-2 py-1 rounded">Refusee</span>';
-                    const initiale = (u.prenom ? u.prenom.charAt(0) : '?').toUpperCase();
-                    html += '<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100"><div class="flex items-center gap-3 mb-3"><div class="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold" style="background:linear-gradient(135deg,#EC4899,#8B5CF6);">' + initiale + '</div><div class="flex-1 min-w-0"><p class="text-sm font-bold text-gray-800 truncate">' + u.prenom + ' ' + u.nom + '</p><p class="text-[10px] text-gray-500 truncate">' + u.email + '</p><p class="text-[10px] text-edu-blue font-semibold uppercase">' + roleLabel + '</p></div>' + statutBadge + '</div><p class="text-[10px] text-gray-400 mb-3">📅 Demande du ' + dateStr + '</p>';
-                    if (d.statut === 'en_attente') {
-                        html += '<div class="flex gap-2"><button onclick="genererMdpTemporaire(' + d.id + ', ' + d.utilisateur_id + ', \'' + (u.prenom + ' ' + u.nom).replace(/'/g, "\\'") + '\')" class="flex-1 bg-edu-blue text-white font-bold py-2.5 rounded-xl text-xs">🔑 Generer mot de passe</button><button onclick="refuserDemandeMdp(' + d.id + ')" class="bg-red-50 text-edu-red font-bold py-2.5 px-3 rounded-xl text-xs">Refuser</button></div>';
-                    }
-                    html += '</div>';
-                }
-            } else {
-                html = '<div class="text-center py-10"><div class="text-6xl mb-3">✅</div><p class="text-gray-500 font-medium">Aucune demande</p><p class="text-xs text-gray-400 mt-1">Tout est a jour !</p></div>';
-            }
-            document.getElementById('liste-demandes-mdp').innerHTML = html;
-            chargerBadgeMdp();
-            window.scrollTo(0, 0);
-        }
+        
 
-        async function genererMdpTemporaire(demandeId, userId, nomComplet) {
-            const mdpTemp = window.genererMdpTemporaire();   // ← utilise la fonction globale
-            // ... reste inchangé ...
-            if (!confirm("Generer un mot de passe temporaire pour " + nomComplet + " ?\n\nLe mot de passe sera : " + mdpTemp)) return;
-            try {
-                const mdpTempHashe = await hashPassword(mdpTemp);
-                const { error: errMdp } = await supabaseClient.from('utilisateurs').update({ mot_de_passe: mdpTempHashe }).eq('id', userId);
-                if (errMdp) throw errMdp;
-                const { error: errD } = await supabaseClient.from('demandes_mdp').update({ statut: 'traitee', date_traitement: new Date().toISOString(), traite_par: currentUser.id }).eq('id', demandeId);
-                if (errD) throw errD;
-                await supabaseClient.from('notifications').insert([{ utilisateur_id: userId, titre: '🔑 Mot de passe reinitialise', contenu: 'Un mot de passe temporaire a ete genere. Contactez l\'administration.', type: 'message', lu: false, ecole_id: monEcoleId }]);
-                afficherPopupMdp(mdpTemp, nomComplet);
-                afficherDemandesMdp();
-            } catch (err) { alert("Erreur : " + err.message); }
-        }
-
-        function afficherPopupMdp(mdp, nomComplet) {
-            var overlay = document.createElement('div');
-            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
-            overlay.innerHTML = '<div style="background:white;border-radius:20px;padding:24px;max-width:380px;width:100%;text-align:center;font-family:Poppins,sans-serif;"><div style="font-size:48px;margin-bottom:8px;">🔑</div><h2 style="font-size:16px;font-weight:bold;color:#1f2937;margin:0 0 6px 0;">Mot de passe temporaire</h2><p style="font-size:12px;color:#6b7280;margin:0 0 16px 0;">Pour <b>' + nomComplet + '</b></p><div style="background:#f0f7ff;border:2px dashed #004AAD;border-radius:12px;padding:16px;margin-bottom:16px;"><p style="font-size:26px;font-weight:800;color:#004AAD;letter-spacing:3px;margin:0;font-family:monospace;">' + mdp + '</p></div><button id="btn-copy-mdp" style="background:#004AAD;color:white;border:none;border-radius:12px;padding:12px 16px;font-weight:bold;font-size:13px;cursor:pointer;width:100%;margin-bottom:8px;">📋 Copier</button><button id="btn-close-mdp" style="background:#f3f4f6;color:#374151;border:none;border-radius:12px;padding:12px 16px;font-weight:bold;font-size:13px;cursor:pointer;width:100%;">Fermer</button></div>';
-            document.body.appendChild(overlay);
-            document.getElementById('btn-copy-mdp').onclick = function() {
-                if (navigator.clipboard) navigator.clipboard.writeText(mdp).then(() => { document.getElementById('btn-copy-mdp').innerText = '✅ Copie !'; });
-            };
-            document.getElementById('btn-close-mdp').onclick = function() { overlay.remove(); };
-        }
-
-        async function refuserDemandeMdp(demandeId) {
-            if (!confirm("Refuser cette demande ?")) return;
-            await supabaseClient.from('demandes_mdp').update({ statut: 'refusee', date_traitement: new Date().toISOString(), traite_par: currentUser.id }).eq('id', demandeId);
-            afficherDemandesMdp();
-        }
+        
 
         // ════════════ CODE ACCES ════════════
         function afficherCodeAcces() {
@@ -2331,13 +2262,44 @@ window.CRENEAUX_EDT = window.CRENEAUX_EDT || [
 
         async function validerInscription(userId) {
             if (!confirm("Approuver cette inscription ?")) return;
-            const { error } = await supabaseClient.from('utilisateurs').update({ statut: 'actif' }).eq('id', userId);
-            if (error) { alert("Erreur : " + error.message); return; }
+            
+            // On ajoute .select() pour être sûr que la ligne a bien été modifiée
+            const { data, error } = await supabaseClient
+                .from('utilisateurs')
+                .update({ statut: 'actif' })
+                .eq('id', userId)
+                .select();
+
+            if (error) { 
+                alert("Erreur : " + error.message); 
+                return; 
+            }
+            
+            // Si data est vide, la sécurité RLS a bloqué l'action
+            if (!data || data.length === 0) {
+                alert("Erreur : Vous n'avez pas la permission de modifier cet utilisateur.");
+                return;
+            }
+
+            // Notification (optionnelle)
             const { data: user } = await supabaseClient.from('utilisateurs').select('prenom, nom, email').eq('id', userId).single();
-            if (user) { await supabaseClient.from('notifications').insert([{ utilisateur_id: userId, titre: 'Compte valide !', contenu: 'Bienvenue ' + user.prenom + ' !', type: 'annonce', lu: false, ecole_id: monEcoleId }]); }
-            alert("✅ Inscription approuvee !");
-            afficherDemandesInscription(); chargerBadgeDemandes(); chargerStats();
-Cache.invalidatePattern('admin_');
+            if (user) { 
+                await supabaseClient.from('notifications').insert([{ 
+                    utilisateur_id: userId, 
+                    titre: 'Compte valide !', 
+                    contenu: 'Bienvenue ' + user.prenom + ' !', 
+                    type: 'annonce', 
+                    lu: false, 
+                    ecole_id: monEcoleId 
+                }]); 
+            }
+            
+            // Message de succès et rafraîchissement
+            toast.success("✅ Inscription approuvée !");
+            afficherDemandesInscription(); 
+            chargerBadgeDemandes(); 
+            chargerStats();
+            if (window.Cache) Cache.invalidatePattern('admin_');
         }
 
         async function refuserInscription(userId) {
@@ -2380,7 +2342,9 @@ const JOURS_EDT = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
             const j = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
             return j[new Date().getDay()];
         }
-
+let modeSelectionEmploi = false;
+        let coursSelectionnes = new Set();
+let creneauxMasques = new Set();
         let mapNomsEnseignants = {};
 
         async function afficherGestionEmploi() {
@@ -2417,7 +2381,8 @@ const JOURS_EDT = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
             }
 
             const { data: cours } = await supabaseClient.from('emploi_du_temps').select('*').eq('classe_id', classeEnCours.id).order('heure_debut');
-            afficherTableauEmploi(cours, 'tableau-emploi', true);
+coursActuelsAdmin = cours || [];
+            afficherTableauEmploi(cours, 'tableau-emploi', true);            afficherTableauEmploi(cours, 'tableau-emploi', true);
         }
 
         function afficherTableauEmploi(cours, containerId, editable) {
@@ -2452,9 +2417,18 @@ const JOURS_EDT = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
             html += '</tr></thead><tbody>';
 
             creneaux.forEach((creneau, idx) => {
+                // On vérifie si la ligne est masquée AVANT de créer le <tr>
+                if (creneauxMasques.has(creneau.debut + '-' + creneau.fin)) return; 
+
                 const bgLigne = idx % 2 === 0 ? '#ffffff' : '#f9fafb';
                 html += '<tr style="background:' + bgLigne + ';">';
-                html += '<td style="padding:8px 6px;border:1px solid #e5e7eb;font-size:10px;font-weight:bold;color:#1f2937;text-align:center;background:#f3f4f6;">' + creneau.debut + '<br><span style="font-size:8px;color:#6b7280;">' + creneau.fin + '</span></td>';
+                
+                html += '<td style="padding:8px 6px;border:1px solid #e5e7eb;text-align:center;background:#f3f4f6;vertical-align:middle;">';
+                html += '<div style="font-size:10px;font-weight:bold;color:#1f2937;">' + creneau.debut + '<br><span style="font-size:8px;color:#6b7280;">' + creneau.fin + '</span></div>';
+                if (editable) {
+                    html += '<button onclick="supprimerLigneCreneau(\'' + creneau.debut + '\', \'' + creneau.fin + '\')" style="margin-top:4px;background:#fee2e2;border:none;border-radius:4px;padding:2px 6px;cursor:pointer;font-size:10px;" title="Vider cette ligne">🗑️</button>';
+                }
+                html += '</td>';
                 jours.forEach(jour => {
                     const c = cours ? cours.find(x => x.jour === jour && x.heure_debut && x.heure_fin && x.heure_debut.substring(0, 5) === creneau.debut && x.heure_fin.substring(0, 5) === creneau.fin) : null;
                     const estAujourdhui = jour === jourActuel;
@@ -2464,18 +2438,31 @@ const JOURS_EDT = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
 
                     if (c) {
                         const couleur = getCouleurMatiere(c.matiere);
-                        const onClick = editable ? 'onclick="ouvrirActionsCours(' + c.id + ')"' : '';
+                        let onClick = '';
+                        let borderSelection = '';
+
+                        if (editable) {
+                            if (modeSelectionEmploi) {
+                                onClick = 'onclick="toggleSelectionCours(' + c.id + ', this)"';
+                                if (coursSelectionnes.has(c.id)) {
+                                    borderSelection = 'border: 3px solid #EF4444; background-color: #fee2e2;'; 
+                                }
+                            } else {
+                                onClick = 'onclick="ouvrirActionsCours(' + c.id + ')"';
+                            }
+                        }
                         const cursor = editable ? 'cursor:pointer;' : '';
                         const nomProf = c.enseignant_id && mapNomsEnseignants[c.enseignant_id] ? mapNomsEnseignants[c.enseignant_id] : null;
+                        
                         html += '<td ' + onClick + ' style="padding:6px;' + borderStyle + 'vertical-align:top;' + cursor + '">';
-                        html += '<div style="background:' + couleur.bg + ';border-left:3px solid ' + couleur.border + ';padding:6px;border-radius:5px;min-height:50px;">';
+                        html += '<div style="background:' + couleur.bg + ';border-left:3px solid ' + couleur.border + ';padding:6px;border-radius:5px;min-height:50px;' + borderSelection + '">';
                         html += '<p style="font-size:10px;font-weight:bold;color:' + couleur.text + ';margin:0;line-height:1.2;">' + c.matiere + '</p>';
                         if (c.salle) html += '<p style="font-size:8px;color:#6b7280;margin:2px 0 0 0;">📍 ' + c.salle + '</p>';
                         if (nomProf) html += '<p style="font-size:8px;color:#7c3aed;margin:2px 0 0 0;">👤 ' + nomProf + '</p>';
                         html += '</div></td>';
                     } else {
-                        const onclick = editable ? 'onclick="ajouterCoursRapide(\'' + jour + '\', \'' + creneau.debut + '\', \'' + creneau.fin + '\')"' : '';
-                        const inner = editable
+                        const onclick = editable && !modeSelectionEmploi ? 'onclick="ajouterCoursRapide(\'' + jour + '\', \'' + creneau.debut + '\', \'' + creneau.fin + '\')"' : '';
+                        const inner = editable && !modeSelectionEmploi
                             ? '<div ' + onclick + ' style="min-height:50px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:1px dashed #e5e7eb;border-radius:5px;color:#d1d5db;font-size:16px;">+</div>'
                             : '<div style="min-height:50px;"></div>';
                         html += '<td style="padding:6px;' + borderStyle + 'vertical-align:top;">' + inner + '</td>';
@@ -6770,36 +6757,125 @@ CRENEAUX_APERCU.forEach((cr, idx) => {
 
         var dashPeriode = 'semaine';
 
-        function afficherDashboard() {
+        async function afficherDashboard() {
             hideAllViews();
             document.getElementById('view-dashboard').classList.remove('hidden');
-            dashChargerPeriode(dashPeriode);
             window.scrollTo(0, 0);
-        }
 
-        function dashChargerPeriode(periode) {
-            dashPeriode = periode;
-            ['semaine', 'mois', 'trimestre'].forEach(function(p) {
-                var tab = document.getElementById('dash-tab-' + p);
-                if (!tab) return;
-                if (p === periode) tab.classList.add('active');
-                else tab.classList.remove('active');
-            });
-
-            // Afficher skeletons pendant le chargement
+            // Afficher les skeletons
             document.getElementById('dash-kpis').innerHTML = skeleton.stats(4);
-            document.getElementById('dash-cercle-contenu').innerHTML = skeleton.cartes(1);
-            document.getElementById('dash-graph-presence').innerHTML = skeleton.lignes(4);
-            document.getElementById('dash-graph-notes').innerHTML = skeleton.lignes(4);
-            document.getElementById('dash-graph-absences').innerHTML = skeleton.lignes(4);
-            document.getElementById('dash-graph-profs').innerHTML = skeleton.lignes(4);
+            document.getElementById('dash-finances').innerHTML = '<div class="skeleton" style="height: 60px; border-radius: 10px;"></div>';
+            document.getElementById('dash-absences').innerHTML = '<div class="skeleton" style="height: 40px; border-radius: 10px;"></div>';
+            document.getElementById('dash-moyenne').innerHTML = '<div class="skeleton" style="height: 40px; border-radius: 10px;"></div>';
+            document.getElementById('dash-top-classes').innerHTML = skeleton.lignes(3);
 
-            dashChargerStats();
-            dashChargerCercle();
-            dashChargerPresence();
-            dashChargerNotes();
-            dashChargerAbsences();
-            dashChargerProfs();
+            try {
+                // On charge TOUT en parallèle pour que ce soit ultra rapide
+                const [
+                    resEleves, 
+                    resProfs, 
+                    resClasses, 
+                    resPaiements, 
+                    resAbsences,
+                    resNotes
+                ] = await Promise.all([
+                    supabaseClient.from('eleves').select('id, classe_id').eq('ecole_id', monEcoleId),
+                    supabaseClient.from('utilisateurs').select('*', { count: 'exact', head: true }).eq('ecole_id', monEcoleId).eq('role', 'enseignant'),
+                    supabaseClient.from('classes').select('id, nom, frais_scolarite').eq('ecole_id', monEcoleId),
+                    supabaseClient.from('paiements').select('montant, statut').eq('ecole_id', monEcoleId),
+                    supabaseClient.from('absences').select('id').eq('ecole_id', monEcoleId).eq('date_absence', new Date().toISOString().split('T')[0]),
+                    supabaseClient.from('notes').select('eleve_id, note, coefficient').eq('ecole_id', monEcoleId)
+                ]);
+
+                const eleves = resEleves.data || [];
+                const nbProfs = resProfs.count || 0;
+                const classes = resClasses.data || [];
+                const paiements = resPaiements.data || [];
+                const absences = resAbsences.data || [];
+                const notes = resNotes.data || [];
+
+                // ─── 1. KPI CARDS ───
+                var kpiHtml = '';
+                kpiHtml += '<div class="kpi-card"><div class="kpi-icon">🎓</div><div class="kpi-label">Élèves</div><div class="kpi-value">' + eleves.length + '</div></div>';
+                kpiHtml += '<div class="kpi-card"><div class="kpi-icon">🏫</div><div class="kpi-label">Classes</div><div class="kpi-value">' + classes.length + '</div></div>';
+                kpiHtml += '<div class="kpi-card"><div class="kpi-icon">👨🏾‍🏫</div><div class="kpi-label">Enseignants</div><div class="kpi-value">' + nbProfs + '</div></div>';
+                kpiHtml += '<div class="kpi-card"><div class="kpi-icon">💰</div><div class="kpi-label">Taux Recouv.</div><div class="kpi-value" style="font-size:18px;">--%</div></div>';
+                document.getElementById('dash-kpis').innerHTML = kpiHtml;
+
+                // ─── 2. FINANCES ───
+                var totalAttendu = 0;
+                var mapFrais = {};
+                classes.forEach(function(c) { mapFrais[c.id] = parseFloat(c.frais_scolarite || 0); });
+                eleves.forEach(function(e) { totalAttendu += (mapFrais[e.classe_id] || 0); });
+                
+                var totalEncaisse = 0;
+                paiements.forEach(function(p) { if (p.statut === 'paye') totalEncaisse += parseFloat(p.montant || 0); });
+                var pctRecouv = totalAttendu > 0 ? Math.round((totalEncaisse / totalAttendu) * 100) : 0;
+
+                // Mettre à jour le KPI du taux
+                document.querySelectorAll('.kpi-value')[3].innerText = pctRecouv + '%';
+
+                var finHtml = '<div class="flex justify-between items-end mb-2"><p class="text-xs text-gray-500">Recouvrement</p><p class="text-lg font-extrabold text-edu-green">' + pctRecouv + '%</p></div>';
+                finHtml += '<div style="width:100%;height:8px;background:#f3f4f6;border-radius:4px;overflow:hidden;margin-bottom:10px;"><div style="height:100%;width:' + pctRecouv + '%;background:#10B981;"></div></div>';
+                finHtml += '<div class="flex justify-between text-[10px] font-semibold"><span class="text-gray-600">Attendu : ' + totalAttendu.toLocaleString('fr-FR') + '</span><span class="text-edu-green">Encaissé : ' + totalEncaisse.toLocaleString('fr-FR') + '</span></div>';
+                document.getElementById('dash-finances').innerHTML = finHtml;
+
+                // ─── 3. ABSENCES ───
+                var absHtml = '<p style="font-size:28px;font-weight:900;color:' + (absences.length > 0 ? '#DC2626' : '#10B981') + ';margin:0;">' + absences.length + '</p>';
+                absHtml += '<p style="font-size:10px;color:#6b7280;margin-top:2px;">élèves absents</p>';
+                document.getElementById('dash-absences').innerHTML = absHtml;
+
+                // ─── 4. MOYENNE ÉCOLE ───
+                var totalPts = 0, totalCoefs = 0;
+                notes.forEach(function(n) {
+                    totalPts += parseFloat(n.note || 0) * (n.coefficient || 1);
+                    totalCoefs += (n.coefficient || 1);
+                });
+                var moyEcole = totalCoefs > 0 ? (totalPts / totalCoefs) : 0;
+                var colMoy = moyEcole >= 10 ? '#10B981' : '#DC2626';
+                var moyHtml = '<p style="font-size:28px;font-weight:900;color:' + colMoy + ';margin:0;">' + moyEcole.toFixed(2) + '</p>';
+                moyHtml += '<p style="font-size:10px;color:#6b7280;margin-top:2px;">sur 20</p>';
+                document.getElementById('dash-moyenne').innerHTML = moyHtml;
+
+                // ─── 5. TOP CLASSES ───
+                var statsClasse = {};
+                classes.forEach(function(c) { statsClasse[c.id] = { nom: c.nom, pts: 0, coefs: 0 }; });
+                var mapEleveClasse = {};
+                eleves.forEach(function(e) { mapEleveClasse[e.id] = e.classe_id; });
+
+                notes.forEach(function(n) {
+                    var cid = mapEleveClasse[n.eleve_id];
+                    if (cid && statsClasse[cid]) {
+                        statsClasse[cid].pts += parseFloat(n.note || 0) * (n.coefficient || 1);
+                        statsClasse[cid].coefs += (n.coefficient || 1);
+                    }
+                });
+
+                var classement = Object.values(statsClasse)
+                    .filter(function(c) { return c.coefs > 0; })
+                    .map(function(c) { return { nom: c.nom, moy: c.pts / c.coefs }; })
+                    .sort(function(a, b) { return b.moy - a.moy; })
+                    .slice(0, 3);
+
+                if (classement.length === 0) {
+                    document.getElementById('dash-top-classes').innerHTML = '<p class="text-xs text-gray-400 text-center py-2">Pas assez de notes pour établir un classement.</p>';
+                } else {
+                    var topHtml = '';
+                    var medailles = ['🥇', '🥈', '🥉'];
+                    classement.forEach(function(c, i) {
+                        topHtml += '<div class="list-row" style="margin-bottom:6px;padding:10px;">';
+                        topHtml += '<div style="font-size:20px;">' + medailles[i] + '</div>';
+                        topHtml += '<div class="list-content"><div class="list-title">' + c.nom + '</div></div>';
+                        topHtml += '<div style="font-size:14px;font-weight:800;color:#004AAD;">' + c.moy.toFixed(2) + '</div>';
+                        topHtml += '</div>';
+                    });
+                    document.getElementById('dash-top-classes').innerHTML = topHtml;
+                }
+
+            } catch (err) {
+                console.error("Erreur Dashboard:", err);
+                document.getElementById('dash-kpis').innerHTML = '<div class="alert-banner danger"><div class="alert-icon">❌</div><div class="alert-content"><div class="alert-title">Erreur de chargement</div><div class="alert-desc">' + err.message + '</div></div></div>';
+            }
         }
 
         function dashCalculerDates(periode) {
@@ -7032,7 +7108,92 @@ CRENEAUX_APERCU.forEach((cr, idx) => {
 
             await socialChargerFeed('feed-liste');
         }
+// ════════════ SUPPRESSION MULTIPLE DE COURS ════════════
+        function toggleModeSelectionEmploi() {
+            modeSelectionEmploi = !modeSelectionEmploi;
+            coursSelectionnes.clear();
+            
+            var btn = document.getElementById('btn-mode-select');
+            var barre = document.getElementById('barre-action-selection');
+            
+            if (modeSelectionEmploi) {
+                btn.innerText = 'Annuler';
+                btn.className = 'bg-gray-200 text-gray-700 text-[11px] font-bold px-3 py-2 rounded-lg';
+                barre.classList.remove('hidden');
+                majBoutonSelection();
+            } else {
+                btn.innerText = '☑️ Sélectionner';
+                btn.className = 'bg-purple-50 text-edu-purple text-[11px] font-bold px-3 py-2 rounded-lg border border-purple-100';
+                barre.classList.add('hidden');
+            }
+            // Rafraîchir le tableau
+            afficherEmploiClasse(classeEnCours.id, classeEnCours.nom);
+        }
 
+        function toggleSelectionCours(id, element) {
+            if (coursSelectionnes.has(id)) {
+                coursSelectionnes.delete(id);
+                element.style.border = 'none';
+                element.style.backgroundColor = getCouleurMatiere(element.querySelector('p').innerText).bg;
+            } else {
+                coursSelectionnes.add(id);
+                element.style.border = '3px solid #EF4444';
+                element.style.backgroundColor = '#fee2e2';
+            }
+            majBoutonSelection();
+        }
+
+        function majBoutonSelection() {
+            document.getElementById('nb-selection').innerText = coursSelectionnes.size;
+        }
+
+        async function supprimerCoursSelectionnes() {
+            if (coursSelectionnes.size === 0) return;
+            if (!confirm('Supprimer définitivement les ' + coursSelectionnes.size + ' cours sélectionnés ?')) return;
+
+            const idsASupprimer = Array.from(coursSelectionnes);
+            const { error } = await supabaseClient.from('emploi_du_temps').delete().in('id', idsASupprimer);
+            
+            if (error) { toast.error(error.message); return; }
+            
+            toast.success(coursSelectionnes.size + ' cours supprimés.');
+            modeSelectionEmploi = false;
+            document.getElementById('btn-mode-select').innerText = '☑️ Sélectionner';
+            document.getElementById('btn-mode-select').className = 'bg-purple-50 text-edu-purple text-[11px] font-bold px-3 py-2 rounded-lg border border-purple-100';
+            document.getElementById('barre-action-selection').classList.add('hidden');
+            afficherEmploiClasse(classeEnCours.id, classeEnCours.nom);
+        }
+
+        async function supprimerEmploiComplet(classeId) {
+            if (!confirm('⚠️ ATTENTION : Voulez-vous vraiment vider TOUT l\'emploi du temps de cette classe ?\n\nCette action supprimera tous les cours et est irréversible.')) return;
+            
+            const { error } = await supabaseClient.from('emploi_du_temps').delete().eq('classe_id', classeId);
+            if (error) { toast.error(error.message); return; }
+            
+            toast.success('Emploi du temps vidé avec succès.');
+            afficherEmploiClasse(classeId, classeEnCours.nom);
+        }
+// ════════════ SUPPRIMER UNE LIGNE ENTIÈRE ════════════
+        async function supprimerLigneCreneau(debut, fin) {
+            // On utilise la variable globale au lieu de 'cours'
+            const coursDeLaLigne = coursActuelsAdmin.filter(c => c.heure_debut.substring(0, 5) === debut && c.heure_fin.substring(0, 5) === fin);
+            
+            if (coursDeLaLigne.length > 0) {
+                if (!confirm('⚠️ Voulez-vous vraiment supprimer TOUS les cours de cette ligne (' + debut + ' - ' + fin + ') pour cette classe ?')) return;
+                
+                const ids = coursDeLaLigne.map(c => c.id);
+                const { error } = await supabaseClient.from('emploi_du_temps').delete().in('id', ids);
+                
+                if (error) { toast.error(error.message); return; }
+                toast.success('Cours de la ligne supprimés.');
+                afficherEmploiClasse(classeEnCours.id, classeEnCours.nom);
+            } else {
+                // Si la ligne est vide, on la cache juste de l'affichage
+                creneauxMasques.add(debut + '-' + fin);
+                afficherTableauEmploi(coursActuelsAdmin, 'tableau-emploi', true);
+                toast.info('Ligne vide masquée.');
+            }
+        }
         async function seDeconnecter() { 
     await supabaseClient.auth.signOut(); // Détruit le JWT de manière sécurisée
     sessionStorage.removeItem('eduLinkUser'); 

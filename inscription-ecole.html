@@ -142,6 +142,11 @@
 
                 if (errAuth) throw new Error("Erreur Auth : " + errAuth.message);
 
+                // NOUVEAU : On vérifie qu'on a bien une session active pour créer l'école
+                if (!authData.session) {
+                    throw new Error("Veuillez désactiver la confirmation par email dans Supabase pour que la création d'école fonctionne.");
+                }
+
                 // 2. Créer l'école
                 const { data: nouvelleEcole, error: errEcole } = await supabaseClient
                     .from('ecoles')
@@ -155,7 +160,11 @@
                     .select()
                     .single();
 
-                if (errEcole) throw new Error("Erreur ecole : " + errEcole.message);
+                if (errEcole) {
+    // Si l'école échoue, on supprime le compte utilisateur pour éviter un compte fantôme
+    await supabaseClient.auth.signOut(); 
+    throw new Error("Erreur ecole : " + errEcole.message);
+}
 
                 // 3. Créer le profil du Directeur
                 const { error: errAdmin } = await supabaseClient

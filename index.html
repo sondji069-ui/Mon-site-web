@@ -228,12 +228,28 @@
                     return;
                 }
 
+                // ⏳ On attend 500 millisecondes que Supabase Auth valide bien le JWT
+                await new Promise(r => setTimeout(r, 500));
+
                 // 2. Récupérer le profil depuis la table utilisateurs
                 const { data: user, error: userError } = await supabaseClient
                     .from('utilisateurs')
                     .select('*')
                     .eq('auth_id', authData.user.id)
                     .single();
+
+                if (userError || !user) {
+                    // On affiche la vraie erreur pour comprendre
+                    afficherMessage('Erreur : ' + (userError ? userError.message : 'Utilisateur non trouvé'), 'rouge');
+                    console.error("DEBUG LOGIN - Erreur :", userError);
+                    await supabaseClient.auth.signOut();
+                    resetBtn(btn, btnText);
+                    return;
+                }
+                
+                console.log("DEBUG LOGIN - Auth ID :", authData.user.id);
+                console.log("DEBUG LOGIN - User Data :", user);
+                console.log("DEBUG LOGIN - Error :", userError);
 
                 if (userError || !user) {
                     afficherMessage('Profil introuvable. Contactez votre école.', 'rouge');

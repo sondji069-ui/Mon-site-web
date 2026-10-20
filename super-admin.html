@@ -412,7 +412,8 @@
             const { count: nbClasses } = await supabaseClient.from('classes').select('*', { count: 'exact', head: true }).eq('ecole_id', ecoleId);
             const { count: nbStaff } = await supabaseClient.from('utilisateurs').select('*', { count: 'exact', head: true }).eq('ecole_id', ecoleId).eq('role', 'staff');
             const { count: nbParents } = await supabaseClient.from('utilisateurs').select('*', { count: 'exact', head: true }).eq('ecole_id', ecoleId).eq('role', 'parent');
-            const { data: admin } = await supabaseClient.from('utilisateurs').select('id, prenom, nom, email').eq('ecole_id', ecoleId).eq('role', 'admin').maybeSingle();
+            // On notifie le Super Admin (le rôle qui gère la plateforme)
+                const { data: admins } = await supabaseClient.from('utilisateurs').select('id').eq('role', 'super_admin');
 
             const isActif = ecole.actif !== false;
             const statutBadge = isActif ? '<span class="badge-actif text-[10px] font-bold px-3 py-1 rounded-full">ACTIVE</span>' : '<span class="badge-inactif text-[10px] font-bold px-3 py-1 rounded-full">DÉSACTIVÉE</span>';
@@ -539,14 +540,22 @@
         }
 
         async function resetMdpAdmin(userId, nomComplet) {
+            // 1. Générer le mot de passe sécurisé
             const nouveauMdp = window.genererMdpTemporaire();
-            // ... reste inchangé ...
-            if (!confirm("Générer un nouveau mot de passe pour " + nomComplet + " ?\n\nNouveau mdp : " + nouveauMdp + "\n\nL'utilisateur devra le changer à sa prochaine connexion.")) return;
+            
+            // 2. Demander confirmation
+            if (!confirm("Générer un nouveau mot de passe pour " + nomComplet + " ?\n\nVous devrez le copier et le coller dans Supabase (Authentication > Users).")) return;
+            
             try {
-                const hash = await hashPassword(nouveauMdp);
-                await appelerSuperAdmin('reset_password', { utilisateur_id: userId, nouveau_hash: hash });
+                // 3. On affiche la popup avec le mot de passe
                 afficherPopupMdp(nouveauMdp, nomComplet);
-            } catch (err) { alert("Erreur : " + err.message); }
+                
+                // (Optionnel) On pourrait créer une notification interne pour l'utilisateur
+                // await supabaseClient.from('notifications').insert([{...}]);
+                
+            } catch (err) { 
+                alert("Erreur : " + err.message); 
+            }
         }
 
         function afficherPopupMdp(mdp, nomComplet) {
