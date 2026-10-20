@@ -119,11 +119,17 @@ function filtrerConversations(filtre) {
             document.getElementById('view-thread').classList.add('hidden');
             document.getElementById('view-nouveau').classList.add('hidden');
 
-            const { data: messages } = await supabaseClient
+            const { data: messages, error: errMsg } = await supabaseClient
                 .from('messages')
                 .select('*')
                 .or(`expediteur_id.eq.${currentUser.id},destinataire_id.eq.${currentUser.id}`)
                 .order('date_envoi', { ascending: false });
+
+            if (errMsg) {
+                console.error("Erreur de chargement des messages :", errMsg);
+                document.getElementById('liste-conversations').innerHTML = '<p class="text-red-500 text-center py-4 text-xs">Erreur : ' + errMsg.message + '</p>';
+                return;
+            }
 
             if (!messages || messages.length === 0) {
                 document.getElementById('liste-conversations').innerHTML = '<p class="text-gray-500 text-center py-4">Aucune conversation.</p>';

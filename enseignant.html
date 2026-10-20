@@ -1483,7 +1483,26 @@
                 if (resIns.error) throw resIns.error;
 
                 msg.innerText = "✅ " + notesAEnregistrer.length + " note(s) enregistree(s) !"; msg.style.color = "green";
-                toast.success(notesAEnregistrer.length + ' note(s) enregistrée(s)');
+// ─── OPTIMISATION : Envoi groupé des notifications ───
+                var toutesNotifs = [];
+                var typeLabels = { devoir1: 'Devoir 1', devoir2: 'Devoir 2', devoir3: 'Devoir 3', composition: 'Composition' };
+                var typeLabel = typeLabels[typeEval] || 'Note';
+
+                for (const n of notesAEnregistrer) {
+                    var resE = await supabaseClient.from('eleves').select('parent_id, utilisateur_id, utilisateurs!utilisateur_id(prenom)').eq('id', n.eleve_id).single();
+                    if (resE.data) {
+                        if (resE.data.utilisateur_id) {
+                            toutesNotifs.push({ utilisateur_id: resE.data.utilisateur_id, titre: 'Nouvelle note', contenu: typeLabel + ' de ' + n.valeur + '/20 en ' + maMatiere, type: 'note', lu: false, ecole_id: monEcoleId });
+                        }
+                        if (resE.data.parent_id) {
+                            toutesNotifs.push({ utilisateur_id: resE.data.parent_id, titre: 'Nouvelle note pour ' + resE.data.utilisateurs.prenom, contenu: typeLabel + ' de ' + n.valeur + '/20 en ' + maMatiere, type: 'note', lu: false, ecole_id: monEcoleId });
+                        }
+                    }
+                }
+                if (toutesNotifs.length > 0) {
+                    await supabaseClient.from('notifications').insert(toutesNotifs);
+                }
+                // ─────────────────────────────────────────────────────                toast.success(notesAEnregistrer.length + ' note(s) enregistrée(s)');
                 setTimeout(function() { retourAccueil(); }, 1500);
             } catch (err) {
                 msg.innerText = "Erreur : " + err.message; msg.style.color = "red";
@@ -2123,6 +2142,12 @@
             document.getElementById('res-liste').innerHTML = skeleton.cartes(3);
 
             var res = await supabaseClient.from('ressources').select('*').eq('enseignant_id', enseignantId).order('date_creation', { ascending: false });
+
+            if (res.error) {
+                console.error("Erreur de lecture des ressources :", res.error);
+                document.getElementById('res-liste').innerHTML = '<div class="bg-red-50 p-4 rounded-xl text-red-600 text-xs">Erreur de chargement : ' + res.error.message + '</div>';
+                return;
+            }
 
             resListe = res.data || [];
             resFiltrerType(resFiltreType);

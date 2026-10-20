@@ -141,10 +141,7 @@
             <span style="flex: 1;">Paiements en attente</span>
             <span id="paiements-attente" style="font-size: 20px; font-weight: 800; color: #F59E0B;">0</span>
         </div>
-        <div class="progress on-light">
-            <div class="progress-fill" style="width: 65%; background: linear-gradient(90deg, #F59E0B, #FBBF24);"></div>
-        </div>
-        <p style="font-size: 10px; color: #6b7280; margin-top: 8px;">65% des frais de scolarité encaissés ce mois</p>
+        <p style="font-size: 11px; color: #6b7280; margin-top: 8px;">Consultez l'onglet "Paiements" pour voir le taux de recouvrement exact.</p>
     </div>
 
     <div class="divider anim-up delay-4">Actions critiques</div>
@@ -6823,18 +6820,51 @@ CRENEAUX_APERCU.forEach((cr, idx) => {
             return { debut: debut, fin: fin };
         }
 
-        async function dashChargerStats() {
-            var resE = await supabaseClient.from('eleves').select('*', { count: 'exact', head: true }).eq('ecole_id', monEcoleId);
-            var resC = await supabaseClient.from('classes').select('*', { count: 'exact', head: true }).eq('ecole_id', monEcoleId);
-            var resP = await supabaseClient.from('utilisateurs').select('*', { count: 'exact', head: true }).eq('ecole_id', monEcoleId).eq('role', 'enseignant');
-            var resA = await supabaseClient.from('utilisateurs').select('*', { count: 'exact', head: true }).eq('ecole_id', monEcoleId).eq('role', 'admin');
+        async function dashChargerNotes() {
+            var resC = await supabaseClient.from('classes').select('id, nom').eq('ecole_id', monEcoleId).order('nom');
+            var classes = resC.data || [];
+            if (classes.length === 0) {
+                document.getElementById('dash-graph-notes').innerHTML = '<div class="empty-state" style="padding: 20px;"><div class="empty-icon" style="font-size: 32px;">📚</div><div class="empty-title">Aucune classe</div></div>';
+                return;
+            }
 
-            var html = '';
-            html += '<div class="kpi-card"><div class="kpi-icon">🎓</div><div class="kpi-label">Élèves</div><div class="kpi-value">' + (resE.count || 0) + '</div><div class="kpi-trend up">▲ Actif</div></div>';
-            html += '<div class="kpi-card"><div class="kpi-icon">🏫</div><div class="kpi-label">Classes</div><div class="kpi-value">' + (resC.count || 0) + '</div><div class="kpi-trend neutral">Organisées</div></div>';
-            html += '<div class="kpi-card"><div class="kpi-icon">👨🏾‍🏫</div><div class="kpi-label">Enseignants</div><div class="kpi-value">' + (resP.count || 0) + '</div><div class="kpi-trend up">Actifs</div></div>';
-            html += '<div class="kpi-card"><div class="kpi-icon">👨🏾‍💼</div><div class="kpi-label">Admins</div><div class="kpi-value">' + (resA.count || 0) + '</div><div class="kpi-trend neutral">Direction</div></div>';
-            document.getElementById('dash-kpis').innerHTML = html;
+            // 1. Récupérer TOUS les élèves de l'école en 1 requête
+            var resEl = await supabaseClient.from('eleves').select('id, classe_id').eq('ecole_id', monEcoleId);
+            var eleves = resEl.data || [];
+            var eleveIds = eleves.map(e => e.id);
+            var mapClasseParEleve = {};
+            eleves.forEach(e => { mapClasseParEleve[e.id] = e.classe_id; });
+
+            if (eleveIds.length === 0) {
+                document.getElementById('dash-graph-notes').innerHTML = '<div class="empty-state" style="padding: 20px;"><div class="empty-icon" style="font-size: 32px;">📚</div><div class="empty-title">Aucun élève</div></div>';
+                return;
+            }
+
+            // 2. Récupérer TOUTES les notes en 1 requête
+            var resN = await supabaseClient.from('notes').select('eleve_id, note, coefficient').in('eleve_id', eleveIds);
+            var notes = resN.data || [];
+
+            // 3. Faire les calculs en mémoire (ultra rapide)
+            var statsParClasse = {};
+            classes.forEach(c => { statsParClasse[c.id] = { nom: c.nom, points: 0, coefs: 0 }; });
+
+            notes.forEach(n => {
+                var classeId = mapClasseParEleve[n.eleve_id];
+                if (classeId && statsParClasse[classeId]) {
+                    statsParClasse[classeId].points += parseFloat(n.note) * (n.coefficient || 1);
+                    statsParClasse[classeId].coefs += (n.coefficient || 1);
+                }
+            });
+
+            var data = [];
+            Object.keys(statsParClasse).forEach(id => {
+                var s = statsParClasse[id];
+                var moy = s.coefs > 0 ? (s.points / s.coefs) : 0;
+                data.push({ label: s.nom, valeur: parseFloat(moy.toFixed(2)), couleur: charts.couleurNote(moy) });
+            });
+
+            data.sort(function(a, b) { return b.valeur - a.valeur; });
+            document.getElementById('dash-graph-notes').innerHTML = charts.barres(data, { max: 20, suffixe: '' });
         }
 
         async function dashChargerCercle() {

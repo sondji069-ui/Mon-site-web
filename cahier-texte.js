@@ -42,7 +42,7 @@
         try {
             var q = ctxCahier.client
                 .from('cahier_texte')
-                .select('*, classes(nom), enseignants(utilisateurs!utilisateur_id(prenom, nom))')
+                .select('*') // <--- ON ENLÈVE LES JOINTURES POUR TESTER
                 .eq('ecole_id', ctxCahier.ecoleId)
                 .order('date_cours', { ascending: false })
                 .order('id', { ascending: false })

@@ -145,23 +145,13 @@
 
     </div>
 
-    <!-- ═══════════ SCRIPTS ═══════════ -->
-    <!-- L'ordre est STRICTEMENT important -->
-    
-    <!-- 1. Librairie Supabase (CDN Principal) -->
+    <!-- DÉPENDANCES EXTERNES -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- 1.b CDN de secours (si le premier échoue) -->
-    <script>
-        if (typeof window.supabase === 'undefined') {
-            document.write('<script src="https://unpkg.com/@supabase/supabase-js@2"><\/script>');
-        }
-    </script>
+    <!-- CONFIGURATION (Inclut Supabase client, XSS, etc.) -->
+    <script src="config.js"></script>
 
-    <!-- 2. Config -->
-    <script src="config.js?v=3"></script>
-
-    <!-- 3. Logique de connexion -->
+    <!-- LOGIQUE DE CONNEXION -->
     <script>
         var imagesFallback = [
             'https://images.pexels.com/photos/256541/pexels-photo-256541.jpeg?auto=compress&cs=tinysrgb&w=1200',
@@ -233,8 +223,7 @@
                 });
 
                 if (authError) {
-                    afficherMessage('Erreur : ' + authError.message, 'rouge');
-                    console.error("Erreur Auth complète :", authError); // Regarde dans la console F12
+                    afficherMessage('Email ou mot de passe incorrect.', 'rouge');
                     resetBtn(btn, btnText);
                     return;
                 }
@@ -261,18 +250,38 @@
                     return;
                 }
 
-                // 4. Vérifier si l'école est active (ton ancien code)
+                if (user.statut === 'refuse') {
+                    afficherMessage('Votre demande a été refusée. Contactez votre école.', 'rouge');
+                    await supabaseClient.auth.signOut();
+                    resetBtn(btn, btnText);
+                    return;
+                }
+
+                // 4. Vérifier si l'école est active
                 if (user.ecole_id && user.role !== 'super_admin') {
-                    const { data: ecole } = await supabaseClient.from('ecoles').select('actif, nom').eq('id', user.ecole_id).single();
-                    if (ecole && ecole.actif === false) {
-                        afficherMessage('L\'accès de votre école (' + ecole.nom + ') a été suspendu.', 'rouge');
-                        await supabaseClient.auth.signOut();
-                        resetBtn(btn, btnText);
-                        return;
+                    const { data: ecole } = await supabaseClient.from('ecoles').select('actif, nom, date_expiration').eq('id', user.ecole_id).single();
+                    if (ecole) {
+                        if (ecole.actif === false) {
+                            afficherMessage('L\'accès de votre école (' + ecole.nom + ') a été temporairement suspendu.', 'rouge');
+                            await supabaseClient.auth.signOut();
+                            resetBtn(btn, btnText);
+                            return;
+                        }
+                        if (ecole.date_expiration) {
+                            const expiration = new Date(ecole.date_expiration);
+                            const aujourdHui = new Date();
+                            aujourdHui.setHours(0, 0, 0, 0);
+                            if (expiration < aujourdHui) {
+                                afficherMessage('L\'abonnement de votre école a expiré.', 'rouge');
+                                await supabaseClient.auth.signOut();
+                                resetBtn(btn, btnText);
+                                return;
+                            }
+                        }
                     }
                 }
 
-                // 5. Session locale (juste pour l'affichage, le vrai JWT est géré par Supabase)
+                // 5. Session locale
                 EduLink.setSessionUser(user);
                 afficherMessage('Bienvenue ' + user.prenom + ' !', 'vert');
                 btnText.innerText = 'Connecté !';
@@ -288,6 +297,9 @@
 
                 if (fichierCible) {
                     setTimeout(function() { window.location.replace(urlBase + fichierCible); }, 700);
+                } else {
+                    afficherMessage('Rôle inconnu.', 'rouge');
+                    resetBtn(btn, btnText);
                 }
 
             } catch (err) {
@@ -301,7 +313,7 @@
         });
     </script>
 
-    <!-- 4. PWA (Ajout de ?v=2 anti-cache) -->
-    <script src="pwa.js?v=2"></script>
+    <!-- PWA -->
+    <script src="pwa.js"></script>
 </body>
 </html>
