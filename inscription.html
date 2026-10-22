@@ -229,29 +229,9 @@
 
     
 
-    async function verifyPassword(plainPassword, storedPassword) {
-        if (!storedPassword) return { ok: false, needsRehash: false };
-        if (storedPassword.startsWith(AUTH_PREFIX)) {
-            const hashCalcule = await hashPassword(plainPassword);
-            return { ok: hashCalcule === storedPassword, needsRehash: false };
-        }
-        if (storedPassword === plainPassword) {
-            return { ok: true, needsRehash: true };
-        }
-        return { ok: false, needsRehash: false };
-    }
+    
 
-    async function rehashSiNecessaire(supabaseClient, userId, plainPassword, needsRehash) {
-        if (!needsRehash) return;
-        try {
-            const newHash = await hashPassword(plainPassword);
-            await supabaseClient.from('utilisateurs').update({ mot_de_passe: newHash }).eq('id', userId);
-            console.log('🔐 Mot de passe migré vers PBKDF2');
-        } catch (e) {
-            console.warn('Rehash échoué (non bloquant) :', e);
-        }
-    }
-</script>
+    
 
     <!-- ============ SCRIPT PRINCIPAL ============ -->
     <script>
