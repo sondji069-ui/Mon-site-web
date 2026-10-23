@@ -311,6 +311,19 @@
                             <option value="2">Semestre 2</option>
                         </select>
                         <button onclick="enregistrerNote()" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl">Enregistrer</button>
+<!-- NOUVEAU : Enregistrement Audio -->
+                        <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 mt-4">
+                            <p class="text-xs font-bold text-edu-blue mb-2">🎙️ Ajouter un message vocal (Optionnel)</p>
+                            <div class="flex items-center gap-3">
+                                <button type="button" id="btn-record" onclick="toggleEnregistrement()" class="w-12 h-12 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg transition">
+                                    <span id="icon-record">⏺</span>
+                                </button>
+                                <div class="flex-1">
+                                    <p id="record-status" class="text-xs text-gray-600 font-semibold">Appuyez pour enregistrer</p>
+                                    <audio id="audio-preview" controls class="hidden w-full mt-2 h-10"></audio>
+                                </div>
+                            </div>
+                        </div>
                         <div id="message-note" class="text-center text-sm font-semibold"></div>
                     </div>
                 </div>
@@ -1423,7 +1436,25 @@
                 if (resE.data && resE.data.parent_id) {
                     await supabaseClient.from('notifications').insert([{ utilisateur_id: resE.data.parent_id, titre: 'Nouvelle note pour ' + resE.data.utilisateurs.prenom, contenu: typeLabel + ' de ' + v + '/20 en ' + maMatiere + ' (S' + semestre + ').', type: 'note', lu: false, ecole_id: monEcoleId }]);
                 }
-                msg.innerText = "Note enregistree !"; msg.style.color = "green";
+                msg.innerText = "Note enregistree !"; // NOUVEAU : Si un audio a été enregistré, on le lie à l'élève
+            if (audioUrlFinal) {
+                await supabaseClient.from('feedbacks_audio').insert([{
+                    ecole_id: monEcoleId,
+                    enseignant_id: enseignantId,
+                    eleve_id: parseInt(eleveId),
+                    matiere: maMatiere,
+                    audio_url: audioUrlFinal
+                }]);
+                
+                // Reset de l'interface audio
+                audioUrlFinal = null;
+                document.getElementById('audio-preview').classList.add('hidden');
+                document.getElementById('record-status').innerText = 'Appuyez pour enregistrer';
+                document.getElementById('btn-record').className = 'w-12 h-12 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg transition';
+                document.getElementById('icon-record').innerText = '⏺';
+                document.getElementById('record-status').style.color = '#4b5563';
+            }
+msg.style.color = "green";
                 toast.success('Note enregistrée');
             }
 
@@ -2719,6 +2750,97 @@
     sessionStorage.removeItem('eduLinkUser'); 
     window.location.href = 'index.html'; 
 }
+// ════════════ ENREGISTREMENT AUDIO ════════════
+        let mediaRecorder;
+        let audioChunks = [];
+        let audioUrlFinal = null;
+
+        async function toggleEnregistrement() {
+            const btn = document.getElementById('btn-record');
+            const icon = document.getElementById('icon-record');
+            const status = document.getElementById('record-status');
+            const preview = document.getElementById('audio-preview');
+
+            // 1. Vérifier si le navigateur supporte le micro
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                toast.error("Ton navigateur ne supporte pas l'enregistrement audio ou tu n'es pas en HTTPS.");
+                return;
+            }
+
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                // ARRÊTER L'ENREGISTREMENT
+                mediaRecorder.stop();
+                // On coupe physiquement l'accès au micro pour libérer la ressource
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                
+                btn.classList.replace('bg-red-500', 'bg-gray-400');
+                icon.innerText = '⏳';
+                status.innerText = 'Traitement...';
+                return;
+            }
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                
+                // Détecter le bon format audio (iOS utilise mp4, Android utilise webm)
+                let mimeType = 'audio/webm';
+                if (!MediaRecorder.isTypeSupported(mimeType)) {
+                    mimeType = 'audio/mp4';
+                }
+
+                mediaRecorder = new MediaRecorder(stream, { mimeType: mimeType });
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = event => {
+                    if (event.data.size > 0) audioChunks.push(event.data);
+                };
+
+                mediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(audioChunks, { type: mimeType });
+                    
+                    const urlLocal = URL.createObjectURL(audioBlob);
+                    preview.src = urlLocal;
+                    preview.classList.remove('hidden');
+
+                    status.innerText = 'Envoi en cours...';
+                    try {
+                        const extension = mimeType.includes('mp4') ? 'm4a' : 'webm';
+                        const file = new File([audioBlob], `feedback_${Date.now()}.${extension}`, { type: mimeType });
+                        
+                        const resultat = await EduStorage.uploaderFichier(file, 'feedbacks', {
+                            userId: monEcoleId,
+                            maxSizeMo: 5
+                        });
+                        audioUrlFinal = resultat.url;
+                        
+                        status.innerText = '✅ Message prêt à être enregistré';
+                        status.style.color = '#2EAD5E';
+                        btn.classList.replace('bg-gray-400', 'bg-green-500');
+                        icon.innerText = '✅';
+                    } catch (err) {
+                        status.innerText = 'Erreur upload : ' + err.message;
+                        status.style.color = '#EF4444';
+                        btn.classList.replace('bg-gray-400', 'bg-red-500');
+                        icon.innerText = '⏺';
+                    }
+                };
+
+                mediaRecorder.start();
+                btn.classList.replace('bg-red-500', 'bg-gray-800');
+                icon.innerText = '⏹';
+                status.innerText = 'Enregistrement en cours...';
+                preview.classList.add('hidden');
+                status.style.color = '#F59E0B';
+
+            } catch (err) {
+                console.error("Erreur micro:", err);
+                if (err.name === 'NotAllowedError') {
+                    toast.error("Tu as refusé l'accès au micro. Autorise-le dans les paramètres de ton navigateur.");
+                } else {
+                    toast.error("Impossible d'accéder au micro : " + err.message);
+                }
+            }
+        }
     </script>
 <script src="layout-pc.js"></script>
 </body>

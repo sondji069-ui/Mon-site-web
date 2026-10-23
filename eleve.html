@@ -138,6 +138,15 @@
                             <p style="font-size: 14px; font-weight: 800; color: #004AAD; margin-top: 4px;">Voir →</p>
                         </div>
                     </div>
+<!-- NOUVEAU : Bouton des feedbacks audio -->
+                    <button onclick="afficherFeedbacksAudio()" class="btn-float anim-up delay-3" style="background: linear-gradient(135deg, #8B5CF6, #6366F1); margin-bottom: 14px;">
+                        <div class="btn-icon">🎙️</div>
+                        <div class="btn-content">
+                            <div class="btn-title">Messages de mes profs</div>
+                            <div class="btn-desc">Écoute les conseils audio</div>
+                        </div>
+                        <div class="btn-arrow">→</div>
+                    </button>
 
                     <div class="divider anim-up delay-4">Mes outils</div>
 <button onclick="afficherReseau()" class="btn-float anim-up delay-4" style="background: linear-gradient(135deg, #EC4899, #8B5CF6); margin-bottom: 14px;">
@@ -215,7 +224,17 @@
                         <div class="btn-arrow">→</div>
                     </button>
                 </div>
+<!-- NOUVELLE PAGE : MESSAGES AUDIO ÉLÈVE -->
+                <div id="view-audio-eleve" class="hidden fade-in">
+                    <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
+                    <h1 class="text-lg font-bold text-gray-800 mb-2">🎙️ Messages de mes profs</h1>
+                    <p class="text-xs text-gray-500 mb-3">Écoute les explications et félicitations de tes enseignants.</p>
+                    <div id="liste-audio-eleve" class="space-y-3"></div>
+                </div>
+                <!-- FIN DE LA NOUVELLE PAGE -->
 
+                <!-- DEVOIRS -->
+                <div id="view-devoirs" class="hidden fade-in">
                 <!-- DEVOIRS -->
                 <div id="view-devoirs" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
@@ -1847,7 +1866,49 @@
 
             await socialChargerFeed('feed-liste');
         }
+// ════════════ FEEDBACKS AUDIO (ÉLÈVE) ════════════
+        async function afficherFeedbacksAudio() {
+            hideAllViews();
+            document.getElementById('view-audio-eleve').classList.remove('hidden');
+            const conteneur = document.getElementById('liste-audio-eleve');
+            conteneur.innerHTML = skeleton.lignes(3);
 
+            const res = await supabaseClient
+                .from('feedbacks_audio')
+                .select('*, enseignants(utilisateurs!utilisateur_id(prenom, nom))')
+                .eq('eleve_id', monEleveId)
+                .order('date_creation', { ascending: false });
+
+            const audios = res.data || [];
+
+            if (audios.length === 0) {
+                conteneur.innerHTML = '<div class="empty-state"><div class="empty-icon">🎙️</div><div class="empty-title">Aucun message</div><div class="empty-desc">Tes profs n\'ont pas encore laissé de message vocal</div></div>';
+                return;
+            }
+
+            let html = '';
+            audios.forEach(a => {
+                const profNom = a.enseignants && a.enseignants.utilisateurs 
+                    ? a.enseignants.utilisateurs.prenom + ' ' + a.enseignants.utilisateurs.nom 
+                    : 'Un professeur';
+                const dateStr = new Date(a.date_creation).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+                const bgClass = a.lu ? 'bg-gray-50' : 'bg-white border-l-4 border-purple-500';
+
+                html += `<div class="${bgClass} p-4 rounded-2xl shadow-sm border border-gray-100 mb-3">
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="w-8 h-8 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center text-sm">👨🏾‍🏫</div>
+                        <div>
+                            <p class="text-xs font-bold text-gray-800">${profNom}</p>
+                            <p class="text-[10px] text-gray-500">${a.matiere} • ${dateStr}</p>
+                        </div>
+                    </div>
+                    <audio controls src="${a.audio_url}" class="w-full h-10" onplay="marquerAudioLu(${a.id})"></audio>
+                </div>`;
+            });
+
+            conteneur.innerHTML = html;
+            window.scrollTo(0, 0);
+        }
         async function seDeconnecter() { 
     await supabaseClient.auth.signOut(); // Détruit le JWT de manière sécurisée
     sessionStorage.removeItem('eduLinkUser'); 
