@@ -159,14 +159,7 @@
     </div>
     <div class="btn-arrow">→</div>
 </button>
-<button onclick="afficherMesAudios()" class="btn-float anim-up delay-5" style="background: linear-gradient(135deg, #8B5CF6, #6366F1); margin-bottom: 10px;">
-                        <div class="btn-icon">🎙️</div>
-                        <div class="btn-content">
-                            <div class="btn-title">Mes messages vocaux</div>
-                            <div class="btn-desc">Gérer les audios envoyés</div>
-                        </div>
-                        <div class="btn-arrow">→</div>
-                    </button>
+
                     <div class="action-grid mb-4">
                         <div class="action-tile anim-up delay-5" onclick="afficherSaisieMasse()">
                             <div class="tile-icon" style="background: linear-gradient(135deg, #ede9fe, #ddd6fe); color: #7C3AED;">📋</div>
@@ -318,43 +311,9 @@
                             <option value="2">Semestre 2</option>
                         </select>
                         <button onclick="enregistrerNote()" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl">Enregistrer</button>
-<!-- NOUVEAU : Enregistrement Audio avec Aperçu et Chrono -->
-                        <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 mt-4">
-                            <p class="text-xs font-bold text-edu-blue mb-2">🎙️ Ajouter un message vocal (Optionnel)</p>
-                            
-                            <!-- État 1 : Prêt -->
-                            <div id="audio-state-idle" class="flex items-center gap-3">
-                                <button type="button" onclick="demarrerEnregistrement()" class="w-12 h-12 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg transition">⏺</button>
-                                <span class="text-xs text-gray-600 font-semibold">Appuyez pour enregistrer</span>
-                            </div>
-
-                            <!-- État 2 : En cours (avec chrono) -->
-                            <div id="audio-state-recording" class="hidden flex items-center gap-3">
-                                <button type="button" onclick="arreterEnregistrement()" class="w-12 h-12 bg-gray-800 text-white rounded-full flex items-center justify-center shadow-lg animate-pulse">⏹</button>
-                                <div class="flex items-center gap-2">
-                                    <div class="w-3 h-3 bg-red-500 rounded-full animate-ping"></div>
-                                    <span id="record-timer" class="text-sm text-red-500 font-bold">00:00</span>
-                                </div>
-                            </div>
-
-                            <!-- État 3 : Aperçu avant validation -->
-                            <div id="audio-state-preview" class="hidden">
-                                <audio id="audio-preview" controls class="w-full h-10 mb-3"></audio>
-                                <div class="flex gap-2">
-                                    <button onclick="annulerAudio()" class="flex-1 bg-gray-200 text-gray-700 font-bold py-2 rounded-lg text-xs">🗑️ Recommencer</button>
-                                    <button onclick="confirmerAudio()" id="btn-confirm-audio" class="flex-1 bg-green-500 text-white font-bold py-2 rounded-lg text-xs">✅ Garder ce message</button>
-                                </div>
-                            </div>
-
-                            <!-- État 4 : Validé (On garde le lecteur audio visible) -->
-                            <div id="audio-state-done" class="hidden">
-                                <audio id="audio-preview-final" controls class="w-full h-10 mb-2"></audio>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-xs text-green-600 font-bold flex items-center gap-1">✅ Prêt à être envoyé</span>
-                                    <button onclick="annulerAudio()" class="text-xs text-red-500 font-bold underline">🗑️ Supprimer</button>
-                                </div>
-                            </div>
-                        </div>
+                        <div id="message-note" class="text-center text-sm font-semibold"></div>
+                    </div>
+                </div>
 
                 <!-- NOTES MASSE -->
                 <div id="view-notes-masse" class="hidden fade-in">
@@ -552,13 +511,7 @@
                     </div>
                     <div id="mh-contenu"></div>
                 </div>
-<!-- MES AUDIOS -->
-                <div id="view-mes-audios" class="hidden fade-in">
-                    <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
-                    <h1 class="text-lg font-bold text-gray-800 mb-2">🎙️ Mes messages vocaux</h1>
-                    <p class="text-xs text-gray-500 mb-3">Historique des messages envoyés aux élèves.</p>
-                    <div id="liste-mes-audios" class="space-y-3"></div>
-                </div>
+
                 <!-- NOTIFICATIONS -->
 <!-- ═══════════════ RÉSEAU SOCIAL (FEED) ═══════════════ -->
                 <div id="view-reseau" class="hidden fade-in" style="padding-bottom: 80px;">
@@ -1425,32 +1378,10 @@
         async function afficherSaisieNotes() {
             document.getElementById('view-accueil').classList.add('hidden');
             document.getElementById('view-notes').classList.remove('hidden');
-            
-            // Sécurité pour éviter un crash si la div n'existe pas
-            var msgNote = document.getElementById('message-note');
-            if (msgNote) msgNote.innerText = '';
-
+            document.getElementById('message-note').innerText = '';
             var select = document.getElementById('select-eleve');
-            select.innerHTML = '<option value="">Chargement des élèves...</option>';
-
-            // Si la liste est vide (ex: l'enseignant a changé de classe), on la recharge
-            if ((!listeEleves || listeEleves.length === 0) && classeId) {
-                var resE = await supabaseClient.from('eleves').select('id, utilisateur_id, utilisateurs!utilisateur_id(prenom, nom)').eq('classe_id', classeId);
-                listeEleves = resE.data || [];
-            }
-
-            if (!listeEleves || listeEleves.length === 0) {
-                select.innerHTML = '<option value="">Aucun élève dans cette classe</option>';
-                return;
-            }
-
-            // Remplir le menu déroulant proprement
-            select.innerHTML = '<option value="">Sélectionnez un élève</option>';
-            listeEleves.forEach(function(e) {
-                var prenom = e.utilisateurs ? e.utilisateurs.prenom : 'Élève';
-                var nom = e.utilisateurs ? e.utilisateurs.nom : '';
-                select.innerHTML += '<option value="' + e.id + '">' + prenom + ' ' + nom + '</option>';
-            });
+            select.innerHTML = '<option value="">Selectionnez un eleve</option>';
+            listeEleves.forEach(function(e) { select.innerHTML += '<option value="' + e.id + '">' + e.utilisateurs.prenom + ' ' + e.utilisateurs.nom + '</option>'; });
         }
 
         async function enregistrerNote() {
@@ -1492,57 +1423,13 @@
                 if (resE.data && resE.data.parent_id) {
                     await supabaseClient.from('notifications').insert([{ utilisateur_id: resE.data.parent_id, titre: 'Nouvelle note pour ' + resE.data.utilisateurs.prenom, contenu: typeLabel + ' de ' + v + '/20 en ' + maMatiere + ' (S' + semestre + ').', type: 'note', lu: false, ecole_id: monEcoleId }]);
                 }
-                msg.innerText = "Note enregistree !"; // NOUVEAU : Si un audio a été enregistré, on le lie à l'élève
-            if (audioUrlFinal) {
-                await supabaseClient.from('feedbacks_audio').insert([{
-                    ecole_id: monEcoleId,
-                    enseignant_id: enseignantId,
-                    eleve_id: parseInt(eleveId),
-                    matiere: maMatiere,
-                    audio_url: audioUrlFinal
-                }]);
-                
-                // Reset de l'interface audio
-                audioUrlFinal = null;
-                document.getElementById('audio-preview').classList.add('hidden');
-                document.getElementById('record-status').innerText = 'Appuyez pour enregistrer';
-                document.getElementById('btn-record').className = 'w-12 h-12 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg transition';
-                document.getElementById('icon-record').innerText = '⏺';
-                document.getElementById('record-status').style.color = '#4b5563';
-            }
-msg.style.color = "green";
+                msg.innerText = "Note enregistree !"; msg.style.color = "green";
                 toast.success('Note enregistrée');
             }
 
             document.getElementById('valeur-note').value = '';
             document.getElementById('select-eleve').value = '';
-
-            // NOUVEAU : Si un audio a été enregistré, on le lie à l'élève
-            if (audioUrlFinal) {
-                const resAudio = await supabaseClient.from('feedbacks_audio').insert([{
-                    ecole_id: monEcoleId,
-                    enseignant_id: enseignantId,
-                    eleve_id: parseInt(eleveId),
-                    matiere: maMatiere,
-                    audio_url: audioUrlFinal
-                }]);
-                
-                if (resAudio.error) {
-                    console.error("Erreur audio:", resAudio.error);
-                    toast.error("Note ok, mais erreur audio : " + resAudio.error.message);
-                } else {
-                    toast.success("Note et message vocal enregistrés !");
-                }
-
-                // Reset de l'interface audio
-                audioUrlFinal = null;
-                document.getElementById('audio-preview').classList.add('hidden');
-                document.getElementById('record-status').innerText = 'Appuyez pour enregistrer';
-                document.getElementById('btn-record').className = 'w-12 h-12 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg transition';
-                document.getElementById('icon-record').innerText = '⏺';
-                document.getElementById('record-status').style.color = '#4b5563';
-            }
-        } // <-- Fin de la fonction enregistrerNote
+        }
 
         async function enregistrerNotesMasse() {
             var btn = document.getElementById('btn-masse');
@@ -2832,157 +2719,6 @@ msg.style.color = "green";
     sessionStorage.removeItem('eduLinkUser'); 
     window.location.href = 'index.html'; 
 }
-// ════════════ ENREGISTREMENT AUDIO (avec chrono et aperçu) ════════════
-        let mediaRecorder;
-        let audioChunks = [];
-        let audioBlobTemp = null;
-        let audioUrlFinal = null;
-        let timerInterval = null;
-        let secondesEnregistrees = 0;
-
-        async function demarrerEnregistrement() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                mediaRecorder = new MediaRecorder(stream);
-                audioChunks = [];
-                
-                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-                
-                mediaRecorder.onstop = () => {
-                    clearInterval(timerInterval);
-                    audioBlobTemp = new Blob(audioChunks, { type: 'audio/webm' });
-                    const url = URL.createObjectURL(audioBlobTemp);
-                    
-                    document.getElementById('audio-preview').src = url;
-                    document.getElementById('audio-preview-final').src = url;
-                    
-                    document.getElementById('audio-state-recording').classList.add('hidden');
-                    document.getElementById('audio-state-preview').classList.remove('hidden');
-                };
-                
-                mediaRecorder.start();
-                document.getElementById('audio-state-idle').classList.add('hidden');
-                document.getElementById('audio-state-recording').classList.remove('hidden');
-                
-                // Démarrer le chrono
-                secondesEnregistrees = 0;
-                document.getElementById('record-timer').innerText = '00:00';
-                timerInterval = setInterval(() => {
-                    secondesEnregistrees++;
-                    const m = String(Math.floor(secondesEnregistrees / 60)).padStart(2, '0');
-                    const s = String(secondesEnregistrees % 60).padStart(2, '0');
-                    document.getElementById('record-timer').innerText = m + ':' + s;
-                }, 1000);
-
-            } catch (err) {
-                toast.error("Impossible d'accéder au micro : " + err.message);
-            }
-        }
-
-        function arreterEnregistrement() {
-            if (mediaRecorder && mediaRecorder.state === 'recording') {
-                mediaRecorder.stop();
-            }
-        }
-
-        async function confirmerAudio() {
-            if (!audioBlobTemp) return;
-            const btn = document.getElementById('btn-confirm-audio');
-            btn.innerText = 'Envoi...';
-            btn.disabled = true;
-            
-            try {
-                const file = new File([audioBlobTemp], `feedback_${Date.now()}.webm`, { type: 'audio/webm' });
-                const resultat = await EduStorage.uploaderFichier(file, 'feedbacks', {
-                    userId: monEcoleId,
-                    maxSizeMo: 5
-                });
-                audioUrlFinal = resultat.url;
-                
-                document.getElementById('audio-state-preview').classList.add('hidden');
-                document.getElementById('audio-state-done').classList.remove('hidden');
-            } catch (err) {
-                toast.error("Erreur d'envoi : " + err.message);
-                btn.innerText = '✅ Garder ce message';
-                btn.disabled = false;
-            }
-        }
-
-        function annulerAudio() {
-            clearInterval(timerInterval);
-            audioBlobTemp = null;
-            audioUrlFinal = null;
-            document.getElementById('audio-preview').src = '';
-            document.getElementById('audio-preview-final').src = '';
-            
-            document.getElementById('audio-state-preview').classList.add('hidden');
-            document.getElementById('audio-state-done').classList.add('hidden');
-            document.getElementById('audio-state-recording').classList.add('hidden');
-            document.getElementById('audio-state-idle').classList.remove('hidden');
-        }
-// ════════════ GESTION DES AUDIOS (ENSEIGNANT) ════════════
-        async function afficherMesAudios() {
-            hideAllViews();
-            document.getElementById('view-mes-audios').classList.remove('hidden');
-            const conteneur = document.getElementById('liste-mes-audios');
-            conteneur.innerHTML = skeleton.lignes(3);
-
-            const res = await supabaseClient
-                .from('feedbacks_audio')
-                .select('*, eleves(utilisateurs!utilisateur_id(prenom, nom))')
-                .eq('enseignant_id', enseignantId)
-                .order('date_creation', { ascending: false });
-
-            const audios = res.data || [];
-
-            if (audios.length === 0) {
-                conteneur.innerHTML = '<div class="empty-state"><div class="empty-icon">🎙️</div><div class="empty-title">Aucun message envoyé</div></div>';
-                return;
-            }
-
-            let html = '';
-            audios.forEach(a => {
-                const eleveNom = a.eleves && a.eleves.utilisateurs ? a.eleves.utilisateurs.prenom + ' ' + a.eleves.utilisateurs.nom : 'Élève inconnu';
-                const dateStr = new Date(a.date_creation).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
-                const estLu = a.lu ? '✅ Écouté' : '🔴 Non écouté';
-                
-                html += `<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-3">
-                    <div class="flex justify-between items-start mb-2">
-                        <div>
-                            <p class="text-sm font-bold text-gray-800">${eleveNom}</p>
-                            <p class="text-[10px] text-gray-500">${a.matiere} • ${dateStr} • ${estLu}</p>
-                        </div>
-                        <button onclick="supprimerAudioFeedback(${a.id}, '${a.audio_url}')" class="bg-red-50 text-edu-red p-2 rounded-lg text-xs">🗑️</button>
-                    </div>
-                    <audio controls src="${a.audio_url}" class="w-full h-10"></audio>
-                </div>`;
-            });
-
-            conteneur.innerHTML = html;
-            window.scrollTo(0, 0);
-        }
-
-        async function supprimerAudioFeedback(id, url) {
-            if (!confirm("Supprimer définitivement ce message vocal ? (L'élève ne pourra plus l'écouter)")) return;
-
-            // 1. Supprimer de la base de données
-            const res = await supabaseClient.from('feedbacks_audio').delete().eq('id', id);
-            if (res.error) { toast.error(res.error.message); return; }
-
-            // 2. Supprimer le fichier de Cloudflare R2 (proprement)
-            try {
-                // On extrait le chemin du fichier depuis l'URL
-                const chemin = url.split('.r2.dev/')[1] || url.split('.supabase.co/storage/v1/object/public/')[1];
-                if (chemin) {
-                    await EduStorage.supprimer('feedbacks', chemin);
-                }
-            } catch (err) {
-                console.warn("Fichier supprimé de la base, mais pas de R2 :", err);
-            }
-
-            toast.success('Message supprimé');
-            afficherMesAudios();
-        }
     </script>
 <script src="layout-pc.js"></script>
 </body>
