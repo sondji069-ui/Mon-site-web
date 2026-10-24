@@ -1460,7 +1460,33 @@ msg.style.color = "green";
 
             document.getElementById('valeur-note').value = '';
             document.getElementById('select-eleve').value = '';
-        }
+
+            // NOUVEAU : Si un audio a été enregistré, on le lie à l'élève
+            if (audioUrlFinal) {
+                const resAudio = await supabaseClient.from('feedbacks_audio').insert([{
+                    ecole_id: monEcoleId,
+                    enseignant_id: enseignantId,
+                    eleve_id: parseInt(eleveId),
+                    matiere: maMatiere,
+                    audio_url: audioUrlFinal
+                }]);
+                
+                if (resAudio.error) {
+                    console.error("Erreur audio:", resAudio.error);
+                    toast.error("Note ok, mais erreur audio : " + resAudio.error.message);
+                } else {
+                    toast.success("Note et message vocal enregistrés !");
+                }
+
+                // Reset de l'interface audio
+                audioUrlFinal = null;
+                document.getElementById('audio-preview').classList.add('hidden');
+                document.getElementById('record-status').innerText = 'Appuyez pour enregistrer';
+                document.getElementById('btn-record').className = 'w-12 h-12 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg transition';
+                document.getElementById('icon-record').innerText = '⏺';
+                document.getElementById('record-status').style.color = '#4b5563';
+            }
+        } // <-- Fin de la fonction enregistrerNote
 
         async function enregistrerNotesMasse() {
             var btn = document.getElementById('btn-masse');
