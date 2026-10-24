@@ -187,7 +187,22 @@
                         <span id="badge-devoirs" class="hidden chip" style="background: white; color: #EA580C; font-weight: 800; min-width: 26px; justify-content: center;">0</span>
                         <div class="btn-arrow">→</div>
                     </button>
-
+<button onclick="afficherBoiteQuestions()" class="btn-float anim-up delay-6" style="background: linear-gradient(135deg, #F59E0B, #D97706); margin-bottom: 10px;">
+    <div class="btn-icon">🤫</div>
+    <div class="btn-content">
+        <div class="btn-title">Boîte à questions</div>
+        <div class="btn-desc">Pose tes questions anonymement</div>
+    </div>
+    <div class="btn-arrow">→</div>
+</button>
+<button onclick="afficherMurClasse()" class="btn-float anim-up delay-6" style="background: linear-gradient(135deg, #3B82F6, #2563EB); margin-bottom: 10px;">
+    <div class="btn-icon">💬</div>
+    <div class="btn-content">
+        <div class="btn-title">Mur de la classe</div>
+        <div class="btn-desc">Poser une question, discuter</div>
+    </div>
+    <div class="btn-arrow">→</div>
+</button>
                     <button onclick="testRessources()" class="btn-float anim-up delay-6" style="background: linear-gradient(135deg, #6366F1, #8B5CF6); margin-bottom: 10px;">
                         <div class="btn-icon">📚</div>
                         <div class="btn-content">
@@ -412,7 +427,47 @@
                     </div>
                     <div id="profil-social-contenu"></div>
                 </div>
+<!-- MUR DE CLASSE (ELEVE) -->
+<div id="view-mur-classe" class="hidden fade-in">
+    <div class="flex items-center gap-3 mb-3">
+        <button onclick="retourAccueil()" class="text-2xl">⬅️</button>
+        <div>
+            <h1 class="text-lg font-bold text-gray-800">💬 Mur de classe</h1>
+            <p id="mur-titre-classe" class="text-xs text-gray-500">Chargement...</p>
+        </div>
+    </div>
 
+    <!-- Zone des messages (hauteur fixe pour prendre tout l'écran) -->
+    <div id="mur-messages" class="space-y-3 mb-4" style="height: 55vh; overflow-y: auto; padding-right: 5px;">
+        <!-- Les messages s'afficheront ici -->
+    </div>
+
+    <!-- Zone de saisie -->
+    <div class="bg-white p-2 rounded-2xl shadow-lg border border-gray-100 flex gap-2 items-center">
+        <input type="text" id="mur-input" placeholder="Écris un message..." class="flex-1 px-4 py-3 bg-gray-50 rounded-xl border-none focus:outline-none text-sm" onkeydown="if(event.key==='Enter') envoyerMessageMur()">
+        <button onclick="envoyerMessageMur()" class="bg-edu-blue text-white w-12 h-12 rounded-xl flex items-center justify-center text-xl shadow-md">➤</button>
+    </div>
+</div>
+<!-- BOÎTE À QUESTIONS (ELEVE) -->
+<div id="view-boite-questions" class="hidden fade-in">
+    <div class="flex items-center gap-3 mb-3">
+        <button onclick="retourAccueil()" class="text-2xl">⬅️</button>
+        <div>
+            <h1 class="text-lg font-bold text-gray-800">🤫 Boîte à questions</h1>
+            <p class="text-xs text-gray-500">100% anonyme. N'aie pas peur de demander !</p>
+        </div>
+    </div>
+
+    <!-- Formulaire -->
+    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-4">
+        <textarea id="input-nouvelle-question" rows="2" placeholder="Quelle notion n'as-tu pas comprise ?" class="w-full px-4 py-3 bg-gray-50 rounded-xl border-none focus:outline-none text-sm mb-2"></textarea>
+        <button onclick="poserQuestionAnonyme()" class="w-full bg-edu-blue text-white font-bold py-2.5 rounded-xl text-sm">Envoyer anonymement</button>
+    </div>
+
+    <!-- Liste des questions -->
+    <p class="text-xs font-bold text-gray-500 uppercase mb-2">Les questions de la classe</p>
+    <div id="liste-questions-anonymes" class="space-y-3 mb-6"></div>
+</div>
                 <div id="view-notifications" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-3">🔔 Mes notifications</h1>
@@ -1817,6 +1872,15 @@
         }
 
         function retourAccueil() {
+            // ─── ON COUPE LE TEMPS RÉEL DU MUR ───
+            if (window.murChannel) {
+                supabaseClient.removeChannel(window.murChannel);
+                window.murChannel = null;
+            }
+
+            hideAllViews(); // (Le reste de ta fonction existante)
+            document.getElementById('view-accueil').classList.remove('hidden');
+            // ...
     hideAllViews();
     document.getElementById('view-accueil').classList.remove('hidden');
     chargerBadgeDevoirs();
@@ -1847,7 +1911,191 @@
 
             await socialChargerFeed('feed-liste');
         }
+// ════════════ MUR DE CLASSE ════════════
+        async function afficherMurClasse() {
+            if (!monClasseId) { 
+                toast.warning("Tu n'es pas encore assigné à une classe."); 
+                return; 
+            }
+            hideAllViews();
+            document.getElementById('view-mur-classe').classList.remove('hidden');
+            
+            var resC = await supabaseClient.from('classes').select('nom').eq('id', monClasseId).single();
+            if (resC.data) {
+                document.getElementById('mur-titre-classe').innerText = resC.data.nom;
+            }
+            
+            await chargerMessagesMur();
+// ─── ACTIVATION DU TEMPS RÉEL ───
+            if (window.murChannel) supabaseClient.removeChannel(window.murChannel);
+            window.murChannel = supabaseClient.channel('mur-classe-' + monClasseId) // (ou classeId pour le prof)
+                // Remplace : .on('postgres_changes', { event: 'INSERT', ...
+// Par :
+.on('postgres_changes', { event: '*', schema: 'public', table: 'messages_classe', filter: 'classe_id=eq.' + monClasseId }, payload => {
+    chargerMessagesMur();
+})
+                .subscribe();
+            window.scrollTo(0, 0);
+        }
+        async function chargerMessagesMur() {
+            var conteneur = document.getElementById('mur-messages');
+            conteneur.innerHTML = '<p class="text-center text-gray-500 text-sm mt-4">Chargement...</p>';
 
+            var res = await supabaseClient
+                .from('messages_classe')
+                .select('*, utilisateurs!auteur_id(prenom, nom, role)')
+                .eq('classe_id', monClasseId)
+                .order('date_envoi', { ascending: true });
+
+            if (res.error) { 
+                toast.error(res.error.message); 
+                return; 
+            }
+            
+            var messages = res.data || [];
+            if (messages.length === 0) {
+                conteneur.innerHTML = '<div class="text-center text-gray-400 text-sm mt-10">Aucun message. Sois le premier à écrire !</div>';
+                return;
+            }
+
+            var html = '';
+            
+            messages.forEach(function(m) {
+                var u = m.utilisateurs || {};
+                var estMoi = (m.auteur_id === currentUser.id);
+                var initiale = (u.prenom || '?').charAt(0).toUpperCase();
+                var dateStr = new Date(m.date_envoi).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                var roleLabel = (u.role === 'enseignant') ? '👨🏾‍🏫 Prof' : '👩🏾‍🎓 Élève';
+
+                // Vérifier si on a le droit de supprimer
+                var peutSupprimer = estMoi || currentUser.role === 'enseignant' || currentUser.role === 'admin';
+                var btnSuppr = peutSupprimer ? '<button onclick="supprimerMessageMur(' + m.id + ')" style="background:none; border:none; cursor:pointer; font-size:10px; margin-left:6px; opacity:0.5;">🗑️</button>' : '';
+
+                html += '<div class="flex gap-2 ' + (estMoi ? 'flex-row-reverse' : '') + '">';
+                html += '<div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center font-bold text-blue-700 text-xs flex-shrink-0">' + initiale + '</div>';
+                html += '<div class="max-w-[80%] ' + (estMoi ? 'text-right' : 'text-left') + '">';
+                html += '<p class="text-[10px] text-gray-500 mb-1">' + u.prenom + ' ' + u.nom + ' • ' + roleLabel + ' • ' + dateStr + btnSuppr + '</p>';
+                html += '<div class="px-4 py-2 rounded-2xl inline-block ' + (estMoi ? 'bg-edu-blue text-white rounded-tr-none' : 'bg-white text-gray-800 shadow-sm border border-gray-100 rounded-tl-none') + '">';
+                html += '<p class="text-sm m-0" style="white-space: pre-wrap;">' + echapperHtml(m.contenu) + '</p>';
+                html += '</div></div></div>';
+            });
+            conteneur.innerHTML = html;
+            conteneur.scrollTop = conteneur.scrollHeight; 
+        }
+
+        async function envoyerMessageMur() {
+            var input = document.getElementById('mur-input');
+            var texte = input.value.trim();
+            if (!texte) return;
+            
+            input.value = ''; 
+
+            var res = await supabaseClient.from('messages_classe').insert([{
+                ecole_id: monEcoleId,
+                classe_id: monClasseId,
+                auteur_id: currentUser.id,
+                contenu: texte
+            }]);
+
+            if (res.error) { 
+                toast.error("Erreur : " + res.error.message); 
+                return; 
+            }
+            await chargerMessagesMur();
+        }
+async function supprimerMessageMur(id) {
+            if (!confirm('Voulez-vous vraiment supprimer ce message ?')) return;
+            
+            var res = await supabaseClient.from('messages_classe').delete().eq('id', id);
+            if (res.error) {
+                toast.error("Erreur : " + res.error.message);
+                return;
+            }
+            await chargerMessagesMur();
+        }
+// ════════════ BOÎTE À QUESTIONS (ELEVE) ════════════
+        async function afficherBoiteQuestions() {
+            if (!monClasseId) { toast.warning("Tu n'es pas assigné à une classe."); return; }
+            hideAllViews();
+            document.getElementById('view-boite-questions').classList.remove('hidden');
+            await chargerQuestionsAnonymes();
+            window.scrollTo(0, 0);
+        }
+
+        async function chargerQuestionsAnonymes() {
+            var conteneur = document.getElementById('liste-questions-anonymes');
+            conteneur.innerHTML = '<p class="text-center text-gray-500 text-sm mt-4">Chargement...</p>';
+
+            // 1. Récupérer les questions de la classe
+            var resQ = await supabaseClient.from('questions_anonymes').select('*').eq('classe_id', monClasseId).order('date_creation', { ascending: false });
+            var questions = resQ.data || [];
+
+            // 2. Récupérer les likes de la classe
+            var resL = await supabaseClient.from('likes_questions').select('question_id, eleve_id');
+            var tousLikes = resL.data || [];
+
+            if (questions.length === 0) {
+                conteneur.innerHTML = '<div class="text-center text-gray-400 text-sm mt-4">Aucune question pour le moment. Sois le premier !</div>';
+                return;
+            }
+
+            var html = '';
+            questions.forEach(function(q) {
+                // Compter les likes pour cette question
+                var likesQuestion = tousLikes.filter(function(l) { return l.question_id === q.id; });
+                var nbLikes = likesQuestion.length;
+                var jAiLike = likesQuestion.some(function(l) { return l.eleve_id === monEleveId; });
+                
+                var couleurLike = jAiLike ? '#EF4444' : '#9ca3af';
+                var iconeLike = jAiLike ? '❤️' : '🤍';
+
+                html += '<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">';
+                html += '<p class="text-sm text-gray-800 font-medium mb-3">❓ ' + echapperHtml(q.contenu) + '</p>';
+                
+                // Si le prof a répondu
+                if (q.statut === 'repondue' && q.reponse) {
+                    html += '<div class="bg-green-50 border-l-2 border-green-400 p-2 mb-3 rounded-r-lg">';
+                    html += '<p class="text-[10px] font-bold text-green-700 mb-1">Réponse du prof :</p>';
+                    html += '<p class="text-xs text-gray-700">' + echapperHtml(q.reponse) + '</p>';
+                    html += '</div>';
+                }
+
+                html += '<div class="flex items-center justify-between mt-2 pt-2 border-t border-gray-50">';
+                html += '<button onclick="likerQuestion(' + q.id + ', ' + jAiLike + ')" class="flex items-center gap-1 bg-gray-50 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition">';
+                html += '<span>' + iconeLike + '</span>';
+                html += '<span class="text-xs font-bold" style="color: ' + couleurLike + '">' + nbLikes + '</span>';
+                html += '</button>';
+                html += '<span class="text-[9px] text-gray-400">Posée le ' + new Date(q.date_creation).toLocaleDateString('fr-FR') + '</span>';
+                html += '</div></div>';
+            });
+            conteneur.innerHTML = html;
+        }
+
+        async function poserQuestionAnonyme() {
+            var input = document.getElementById('input-nouvelle-question');
+            var texte = input.value.trim();
+            if (!texte) return;
+
+            input.value = '';
+            var res = await supabaseClient.from('questions_anonymes').insert([{
+                ecole_id: monEcoleId,
+                classe_id: monClasseId,
+                contenu: texte
+            }]);
+
+            if (res.error) { toast.error(res.error.message); return; }
+            toast.success("Question envoyée anonymement !");
+            await chargerQuestionsAnonymes();
+        }
+
+        async function likerQuestion(questionId, jAiDejaLike) {
+            if (jAiDejaLike) {
+                await supabaseClient.from('likes_questions').delete().eq('question_id', questionId).eq('eleve_id', monEleveId);
+            } else {
+                await supabaseClient.from('likes_questions').insert([{ question_id: questionId, eleve_id: monEleveId }]);
+            }
+            await chargerQuestionsAnonymes();
+        }
         async function seDeconnecter() { 
     await supabaseClient.auth.signOut(); // Détruit le JWT de manière sécurisée
     sessionStorage.removeItem('eduLinkUser'); 
