@@ -1904,6 +1904,19 @@
                     </div>
                     <audio controls src="${a.audio_url}" class="w-full h-10" onplay="marquerAudioLu(${a.id})"></audio>
                 </div>`;
+html += `<div class="${bgClass} p-4 rounded-2xl shadow-sm border border-gray-100 mb-3">
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center text-sm">👨🏾‍🏫</div>
+                            <div>
+                                <p class="text-xs font-bold text-gray-800">${profNom}</p>
+                                <p class="text-[10px] text-gray-500">${a.matiere} • ${dateStr}</p>
+                            </div>
+                        </div>
+                        <button onclick="cacherAudioEleve(${a.id})" class="text-gray-400 hover:text-red-500 text-xs">✕</button>
+                    </div>
+                    <audio controls src="${a.audio_url}" class="w-full h-10" onplay="marquerAudioLu(${a.id})"></audio>
+                </div>`;
             });
 
             conteneur.innerHTML = html;
@@ -1914,6 +1927,11 @@
     sessionStorage.removeItem('eduLinkUser'); 
     window.location.href = 'index.html'; 
 }
+async function cacherAudioEleve(id) {
+            if(!confirm("Masquer ce message de votre liste ?")) return;
+            await supabaseClient.from('feedbacks_audio').update({ lu: true }).eq('id', id); // ou supprime-le vraiment
+            afficherFeedbacksAudio();
+        }
     </script>
 <script src="layout-pc.js"></script>
 </body>

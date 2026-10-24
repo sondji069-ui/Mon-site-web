@@ -159,7 +159,14 @@
     </div>
     <div class="btn-arrow">→</div>
 </button>
-
+<button onclick="afficherMesAudios()" class="btn-float anim-up delay-5" style="background: linear-gradient(135deg, #8B5CF6, #6366F1); margin-bottom: 10px;">
+                        <div class="btn-icon">🎙️</div>
+                        <div class="btn-content">
+                            <div class="btn-title">Mes messages vocaux</div>
+                            <div class="btn-desc">Gérer les audios envoyés</div>
+                        </div>
+                        <div class="btn-arrow">→</div>
+                    </button>
                     <div class="action-grid mb-4">
                         <div class="action-tile anim-up delay-5" onclick="afficherSaisieMasse()">
                             <div class="tile-icon" style="background: linear-gradient(135deg, #ede9fe, #ddd6fe); color: #7C3AED;">📋</div>
@@ -311,22 +318,38 @@
                             <option value="2">Semestre 2</option>
                         </select>
                         <button onclick="enregistrerNote()" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl">Enregistrer</button>
-<!-- NOUVEAU : Enregistrement Audio -->
+<!-- NOUVEAU : Enregistrement Audio avec Aperçu -->
                         <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 mt-4">
                             <p class="text-xs font-bold text-edu-blue mb-2">🎙️ Ajouter un message vocal (Optionnel)</p>
-                            <div class="flex items-center gap-3">
-                                <button type="button" id="btn-record" onclick="toggleEnregistrement()" class="w-12 h-12 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg transition">
-                                    <span id="icon-record">⏺</span>
-                                </button>
-                                <div class="flex-1">
-                                    <p id="record-status" class="text-xs text-gray-600 font-semibold">Appuyez pour enregistrer</p>
-                                    <audio id="audio-preview" controls class="hidden w-full mt-2 h-10"></audio>
+                            
+                            <!-- État 1 : Prêt -->
+                            <div id="audio-state-idle" class="flex items-center gap-3">
+                                <button type="button" onclick="demarrerEnregistrement()" class="w-12 h-12 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg transition">⏺</button>
+                                <span class="text-xs text-gray-600 font-semibold">Appuyez pour enregistrer</span>
+                            </div>
+
+                            <!-- État 2 : En cours -->
+                            <div id="audio-state-recording" class="hidden flex items-center gap-3">
+                                <button type="button" onclick="arreterEnregistrement()" class="w-12 h-12 bg-gray-800 text-white rounded-full flex items-center justify-center shadow-lg animate-pulse">⏹</button>
+                                <span class="text-xs text-red-500 font-bold">Enregistrement en cours...</span>
+                            </div>
+
+                            <!-- État 3 : Aperçu (Écouter avant d'envoyer) -->
+                            <div id="audio-state-preview" class="hidden">
+                                <audio id="audio-preview" controls class="w-full h-10 mb-3"></audio>
+                                <div class="flex gap-2">
+                                    <button onclick="annulerAudio()" class="flex-1 bg-gray-200 text-gray-700 font-bold py-2 rounded-lg text-xs">🗑️ Recommencer</button>
+                                    <button onclick="confirmerAudio()" id="btn-confirm-audio" class="flex-1 bg-green-500 text-white font-bold py-2 rounded-lg text-xs">✅ Garder ce message</button>
                                 </div>
                             </div>
+
+                            <!-- État 4 : Validé -->
+                            <div id="audio-state-done" class="hidden flex items-center gap-3">
+                                <div class="w-10 h-10 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xl">✅</div>
+                                <span class="text-xs text-green-600 font-bold flex-1">Message vocal prêt !</span>
+                                <button onclick="annulerAudio()" class="text-xs text-red-500 font-bold underline">Supprimer</button>
+                            </div>
                         </div>
-                        <div id="message-note" class="text-center text-sm font-semibold"></div>
-                    </div>
-                </div>
 
                 <!-- NOTES MASSE -->
                 <div id="view-notes-masse" class="hidden fade-in">
@@ -524,7 +547,13 @@
                     </div>
                     <div id="mh-contenu"></div>
                 </div>
-
+<!-- MES AUDIOS -->
+                <div id="view-mes-audios" class="hidden fade-in">
+                    <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
+                    <h1 class="text-lg font-bold text-gray-800 mb-2">🎙️ Mes messages vocaux</h1>
+                    <p class="text-xs text-gray-500 mb-3">Historique des messages envoyés aux élèves.</p>
+                    <div id="liste-mes-audios" class="space-y-3"></div>
+                </div>
                 <!-- NOTIFICATIONS -->
 <!-- ═══════════════ RÉSEAU SOCIAL (FEED) ═══════════════ -->
                 <div id="view-reseau" class="hidden fade-in" style="padding-bottom: 80px;">
@@ -2776,96 +2805,138 @@ msg.style.color = "green";
     sessionStorage.removeItem('eduLinkUser'); 
     window.location.href = 'index.html'; 
 }
-// ════════════ ENREGISTREMENT AUDIO ════════════
+// ════════════ ENREGISTREMENT AUDIO (avec aperçu) ════════════
         let mediaRecorder;
         let audioChunks = [];
+        let audioBlobTemp = null;
         let audioUrlFinal = null;
 
-        async function toggleEnregistrement() {
-            const btn = document.getElementById('btn-record');
-            const icon = document.getElementById('icon-record');
-            const status = document.getElementById('record-status');
-            const preview = document.getElementById('audio-preview');
-
-            // 1. Vérifier si le navigateur supporte le micro
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                toast.error("Ton navigateur ne supporte pas l'enregistrement audio ou tu n'es pas en HTTPS.");
-                return;
-            }
-
-            if (mediaRecorder && mediaRecorder.state === 'recording') {
-                // ARRÊTER L'ENREGISTREMENT
-                mediaRecorder.stop();
-                // On coupe physiquement l'accès au micro pour libérer la ressource
-                mediaRecorder.stream.getTracks().forEach(track => track.stop());
-                
-                btn.classList.replace('bg-red-500', 'bg-gray-400');
-                icon.innerText = '⏳';
-                status.innerText = 'Traitement...';
-                return;
-            }
-
+        async function demarrerEnregistrement() {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                
-                // Détecter le bon format audio (iOS utilise mp4, Android utilise webm)
-                let mimeType = 'audio/webm';
-                if (!MediaRecorder.isTypeSupported(mimeType)) {
-                    mimeType = 'audio/mp4';
-                }
-
-                mediaRecorder = new MediaRecorder(stream, { mimeType: mimeType });
+                mediaRecorder = new MediaRecorder(stream);
                 audioChunks = [];
-
-                mediaRecorder.ondataavailable = event => {
-                    if (event.data.size > 0) audioChunks.push(event.data);
-                };
-
-                mediaRecorder.onstop = async () => {
-                    const audioBlob = new Blob(audioChunks, { type: mimeType });
+                
+                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                
+                mediaRecorder.onstop = () => {
+                    audioBlobTemp = new Blob(audioChunks, { type: 'audio/webm' });
+                    const url = URL.createObjectURL(audioBlobTemp);
+                    document.getElementById('audio-preview').src = url;
                     
-                    const urlLocal = URL.createObjectURL(audioBlob);
-                    preview.src = urlLocal;
-                    preview.classList.remove('hidden');
-
-                    status.innerText = 'Envoi en cours...';
-                    try {
-                        const extension = mimeType.includes('mp4') ? 'm4a' : 'webm';
-                        const file = new File([audioBlob], `feedback_${Date.now()}.${extension}`, { type: mimeType });
-                        
-                        const resultat = await EduStorage.uploaderFichier(file, 'feedbacks', {
-                            userId: monEcoleId,
-                            maxSizeMo: 5
-                        });
-                        audioUrlFinal = resultat.url;
-                        
-                        status.innerText = '✅ Message prêt à être enregistré';
-                        status.style.color = '#2EAD5E';
-                        btn.classList.replace('bg-gray-400', 'bg-green-500');
-                        icon.innerText = '✅';
-                    } catch (err) {
-                        status.innerText = 'Erreur upload : ' + err.message;
-                        status.style.color = '#EF4444';
-                        btn.classList.replace('bg-gray-400', 'bg-red-500');
-                        icon.innerText = '⏺';
-                    }
+                    document.getElementById('audio-state-recording').classList.add('hidden');
+                    document.getElementById('audio-state-preview').classList.remove('hidden');
                 };
-
+                
                 mediaRecorder.start();
-                btn.classList.replace('bg-red-500', 'bg-gray-800');
-                icon.innerText = '⏹';
-                status.innerText = 'Enregistrement en cours...';
-                preview.classList.add('hidden');
-                status.style.color = '#F59E0B';
-
+                document.getElementById('audio-state-idle').classList.add('hidden');
+                document.getElementById('audio-state-recording').classList.remove('hidden');
             } catch (err) {
-                console.error("Erreur micro:", err);
-                if (err.name === 'NotAllowedError') {
-                    toast.error("Tu as refusé l'accès au micro. Autorise-le dans les paramètres de ton navigateur.");
-                } else {
-                    toast.error("Impossible d'accéder au micro : " + err.message);
-                }
+                toast.error("Impossible d'accéder au micro : " + err.message);
             }
+        }
+
+        function arreterEnregistrement() {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+            }
+        }
+
+        async function confirmerAudio() {
+            if (!audioBlobTemp) return;
+            const btn = document.getElementById('btn-confirm-audio');
+            btn.innerText = 'Envoi...';
+            btn.disabled = true;
+            
+            try {
+                const file = new File([audioBlobTemp], `feedback_${Date.now()}.webm`, { type: 'audio/webm' });
+                const resultat = await EduStorage.uploaderFichier(file, 'feedbacks', {
+                    userId: monEcoleId,
+                    maxSizeMo: 5
+                });
+                audioUrlFinal = resultat.url;
+                
+                document.getElementById('audio-state-preview').classList.add('hidden');
+                document.getElementById('audio-state-done').classList.remove('hidden');
+            } catch (err) {
+                toast.error("Erreur d'envoi : " + err.message);
+                btn.innerText = '✅ Garder ce message';
+                btn.disabled = false;
+            }
+        }
+
+        function annulerAudio() {
+            audioBlobTemp = null;
+            audioUrlFinal = null;
+            document.getElementById('audio-preview').src = '';
+            
+            document.getElementById('audio-state-preview').classList.add('hidden');
+            document.getElementById('audio-state-done').classList.add('hidden');
+            document.getElementById('audio-state-recording').classList.add('hidden');
+            document.getElementById('audio-state-idle').classList.remove('hidden');
+        }
+// ════════════ GESTION DES AUDIOS (ENSEIGNANT) ════════════
+        async function afficherMesAudios() {
+            hideAllViews();
+            document.getElementById('view-mes-audios').classList.remove('hidden');
+            const conteneur = document.getElementById('liste-mes-audios');
+            conteneur.innerHTML = skeleton.lignes(3);
+
+            const res = await supabaseClient
+                .from('feedbacks_audio')
+                .select('*, eleves(utilisateurs!utilisateur_id(prenom, nom))')
+                .eq('enseignant_id', enseignantId)
+                .order('date_creation', { ascending: false });
+
+            const audios = res.data || [];
+
+            if (audios.length === 0) {
+                conteneur.innerHTML = '<div class="empty-state"><div class="empty-icon">🎙️</div><div class="empty-title">Aucun message envoyé</div></div>';
+                return;
+            }
+
+            let html = '';
+            audios.forEach(a => {
+                const eleveNom = a.eleves && a.eleves.utilisateurs ? a.eleves.utilisateurs.prenom + ' ' + a.eleves.utilisateurs.nom : 'Élève inconnu';
+                const dateStr = new Date(a.date_creation).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+                const estLu = a.lu ? '✅ Écouté' : '🔴 Non écouté';
+                
+                html += `<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-3">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <p class="text-sm font-bold text-gray-800">${eleveNom}</p>
+                            <p class="text-[10px] text-gray-500">${a.matiere} • ${dateStr} • ${estLu}</p>
+                        </div>
+                        <button onclick="supprimerAudioFeedback(${a.id}, '${a.audio_url}')" class="bg-red-50 text-edu-red p-2 rounded-lg text-xs">🗑️</button>
+                    </div>
+                    <audio controls src="${a.audio_url}" class="w-full h-10"></audio>
+                </div>`;
+            });
+
+            conteneur.innerHTML = html;
+            window.scrollTo(0, 0);
+        }
+
+        async function supprimerAudioFeedback(id, url) {
+            if (!confirm("Supprimer définitivement ce message vocal ? (L'élève ne pourra plus l'écouter)")) return;
+
+            // 1. Supprimer de la base de données
+            const res = await supabaseClient.from('feedbacks_audio').delete().eq('id', id);
+            if (res.error) { toast.error(res.error.message); return; }
+
+            // 2. Supprimer le fichier de Cloudflare R2 (proprement)
+            try {
+                // On extrait le chemin du fichier depuis l'URL
+                const chemin = url.split('.r2.dev/')[1] || url.split('.supabase.co/storage/v1/object/public/')[1];
+                if (chemin) {
+                    await EduStorage.supprimer('feedbacks', chemin);
+                }
+            } catch (err) {
+                console.warn("Fichier supprimé de la base, mais pas de R2 :", err);
+            }
+
+            toast.success('Message supprimé');
+            afficherMesAudios();
         }
     </script>
 <script src="layout-pc.js"></script>
