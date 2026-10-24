@@ -318,7 +318,7 @@
                             <option value="2">Semestre 2</option>
                         </select>
                         <button onclick="enregistrerNote()" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl">Enregistrer</button>
-<!-- NOUVEAU : Enregistrement Audio avec Aperçu -->
+<!-- NOUVEAU : Enregistrement Audio avec Aperçu et Chrono -->
                         <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 mt-4">
                             <p class="text-xs font-bold text-edu-blue mb-2">🎙️ Ajouter un message vocal (Optionnel)</p>
                             
@@ -328,13 +328,16 @@
                                 <span class="text-xs text-gray-600 font-semibold">Appuyez pour enregistrer</span>
                             </div>
 
-                            <!-- État 2 : En cours -->
+                            <!-- État 2 : En cours (avec chrono) -->
                             <div id="audio-state-recording" class="hidden flex items-center gap-3">
                                 <button type="button" onclick="arreterEnregistrement()" class="w-12 h-12 bg-gray-800 text-white rounded-full flex items-center justify-center shadow-lg animate-pulse">⏹</button>
-                                <span class="text-xs text-red-500 font-bold">Enregistrement en cours...</span>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-3 h-3 bg-red-500 rounded-full animate-ping"></div>
+                                    <span id="record-timer" class="text-sm text-red-500 font-bold">00:00</span>
+                                </div>
                             </div>
 
-                            <!-- État 3 : Aperçu (Écouter avant d'envoyer) -->
+                            <!-- État 3 : Aperçu avant validation -->
                             <div id="audio-state-preview" class="hidden">
                                 <audio id="audio-preview" controls class="w-full h-10 mb-3"></audio>
                                 <div class="flex gap-2">
@@ -343,11 +346,13 @@
                                 </div>
                             </div>
 
-                            <!-- État 4 : Validé -->
-                            <div id="audio-state-done" class="hidden flex items-center gap-3">
-                                <div class="w-10 h-10 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xl">✅</div>
-                                <span class="text-xs text-green-600 font-bold flex-1">Message vocal prêt !</span>
-                                <button onclick="annulerAudio()" class="text-xs text-red-500 font-bold underline">Supprimer</button>
+                            <!-- État 4 : Validé (On garde le lecteur audio visible) -->
+                            <div id="audio-state-done" class="hidden">
+                                <audio id="audio-preview-final" controls class="w-full h-10 mb-2"></audio>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs text-green-600 font-bold flex items-center gap-1">✅ Prêt à être envoyé</span>
+                                    <button onclick="annulerAudio()" class="text-xs text-red-500 font-bold underline">🗑️ Supprimer</button>
+                                </div>
                             </div>
                         </div>
 
@@ -1420,10 +1425,32 @@
         async function afficherSaisieNotes() {
             document.getElementById('view-accueil').classList.add('hidden');
             document.getElementById('view-notes').classList.remove('hidden');
-            document.getElementById('message-note').innerText = '';
+            
+            // Sécurité pour éviter un crash si la div n'existe pas
+            var msgNote = document.getElementById('message-note');
+            if (msgNote) msgNote.innerText = '';
+
             var select = document.getElementById('select-eleve');
-            select.innerHTML = '<option value="">Selectionnez un eleve</option>';
-            listeEleves.forEach(function(e) { select.innerHTML += '<option value="' + e.id + '">' + e.utilisateurs.prenom + ' ' + e.utilisateurs.nom + '</option>'; });
+            select.innerHTML = '<option value="">Chargement des élèves...</option>';
+
+            // Si la liste est vide (ex: l'enseignant a changé de classe), on la recharge
+            if ((!listeEleves || listeEleves.length === 0) && classeId) {
+                var resE = await supabaseClient.from('eleves').select('id, utilisateur_id, utilisateurs!utilisateur_id(prenom, nom)').eq('classe_id', classeId);
+                listeEleves = resE.data || [];
+            }
+
+            if (!listeEleves || listeEleves.length === 0) {
+                select.innerHTML = '<option value="">Aucun élève dans cette classe</option>';
+                return;
+            }
+
+            // Remplir le menu déroulant proprement
+            select.innerHTML = '<option value="">Sélectionnez un élève</option>';
+            listeEleves.forEach(function(e) {
+                var prenom = e.utilisateurs ? e.utilisateurs.prenom : 'Élève';
+                var nom = e.utilisateurs ? e.utilisateurs.nom : '';
+                select.innerHTML += '<option value="' + e.id + '">' + prenom + ' ' + nom + '</option>';
+            });
         }
 
         async function enregistrerNote() {
@@ -2805,11 +2832,13 @@ msg.style.color = "green";
     sessionStorage.removeItem('eduLinkUser'); 
     window.location.href = 'index.html'; 
 }
-// ════════════ ENREGISTREMENT AUDIO (avec aperçu) ════════════
+// ════════════ ENREGISTREMENT AUDIO (avec chrono et aperçu) ════════════
         let mediaRecorder;
         let audioChunks = [];
         let audioBlobTemp = null;
         let audioUrlFinal = null;
+        let timerInterval = null;
+        let secondesEnregistrees = 0;
 
         async function demarrerEnregistrement() {
             try {
@@ -2820,9 +2849,12 @@ msg.style.color = "green";
                 mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
                 
                 mediaRecorder.onstop = () => {
+                    clearInterval(timerInterval);
                     audioBlobTemp = new Blob(audioChunks, { type: 'audio/webm' });
                     const url = URL.createObjectURL(audioBlobTemp);
+                    
                     document.getElementById('audio-preview').src = url;
+                    document.getElementById('audio-preview-final').src = url;
                     
                     document.getElementById('audio-state-recording').classList.add('hidden');
                     document.getElementById('audio-state-preview').classList.remove('hidden');
@@ -2831,6 +2863,17 @@ msg.style.color = "green";
                 mediaRecorder.start();
                 document.getElementById('audio-state-idle').classList.add('hidden');
                 document.getElementById('audio-state-recording').classList.remove('hidden');
+                
+                // Démarrer le chrono
+                secondesEnregistrees = 0;
+                document.getElementById('record-timer').innerText = '00:00';
+                timerInterval = setInterval(() => {
+                    secondesEnregistrees++;
+                    const m = String(Math.floor(secondesEnregistrees / 60)).padStart(2, '0');
+                    const s = String(secondesEnregistrees % 60).padStart(2, '0');
+                    document.getElementById('record-timer').innerText = m + ':' + s;
+                }, 1000);
+
             } catch (err) {
                 toast.error("Impossible d'accéder au micro : " + err.message);
             }
@@ -2866,9 +2909,11 @@ msg.style.color = "green";
         }
 
         function annulerAudio() {
+            clearInterval(timerInterval);
             audioBlobTemp = null;
             audioUrlFinal = null;
             document.getElementById('audio-preview').src = '';
+            document.getElementById('audio-preview-final').src = '';
             
             document.getElementById('audio-state-preview').classList.add('hidden');
             document.getElementById('audio-state-done').classList.add('hidden');
