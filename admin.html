@@ -148,78 +148,61 @@
 
     <div class="divider anim-up delay-4">Gestion de l'école</div>
 
-    <div class="card-pro anim-up delay-4" style="padding: 0; margin-bottom: 14px; overflow: hidden;">
-        <button onclick="afficherReseau()" style="width: 100%; display: flex; align-items: center; gap: 12px; padding: 16px; background: transparent; border: none; border-bottom: 1px solid #f3f4f6; text-align: left; cursor: pointer;">
-            <div style="width: 40px; height: 40px; background: #fce7f3; color: #db2777; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px;">📱</div>
-            <div style="flex: 1;">
-                <p style="font-size: 13px; font-weight: 700; color: #1f2937; margin: 0;">Réseau social</p>
-                <p style="font-size: 11px; color: #6b7280; margin: 2px 0 0 0;">Communauté et publications</p>
-            </div>
-            <span style="color: #9ca3af; font-size: 18px;">›</span>
-        </button>
-
-        <button onclick="afficherDemandesInscription()" style="width: 100%; display: flex; align-items: center; gap: 12px; padding: 16px; background: transparent; border: none; border-bottom: 1px solid #f3f4f6; text-align: left; cursor: pointer;">
-            <div style="width: 40px; height: 40px; background: #fff7ed; color: #ea580c; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px;">📥</div>
-            <div style="flex: 1;">
-                <p style="font-size: 13px; font-weight: 700; color: #1f2937; margin: 0;">Demandes d'inscription</p>
-                <p style="font-size: 11px; color: #6b7280; margin: 2px 0 0 0;">Valider les nouveaux comptes</p>
-            </div>
-            <span id="badge-demandes" class="hidden chip" style="background: #ef4444; color: white; font-weight: 800; min-width: 26px; justify-content: center; border: none;">0</span>
-            <span style="color: #9ca3af; font-size: 18px; margin-left: 4px;">›</span>
-        </button>
-
+    <!-- Grille d'actions -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-6 anim-up delay-4">
         
-
-        <button onclick="afficherEquipe()" style="width: 100%; display: flex; align-items: center; gap: 12px; padding: 16px; background: transparent; border: none; border-bottom: 1px solid #f3f4f6; text-align: left; cursor: pointer;">
-            <div style="width: 40px; height: 40px; background: #f0fdfa; color: #0d9488; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px;">👥</div>
-            <div style="flex: 1;">
-                <p style="font-size: 13px; font-weight: 700; color: #1f2937; margin: 0;">Mon équipe</p>
-                <p style="font-size: 11px; color: #6b7280; margin: 2px 0 0 0;">Surveillants, censeurs...</p>
-            </div>
-            <span id="badge-equipe" class="hidden chip" style="background: #14b8a6; color: white; font-weight: 800; min-width: 26px; justify-content: center; border: none;">0</span>
-            <span style="color: #9ca3af; font-size: 18px; margin-left: 4px;">›</span>
+        <!-- Réseau social -->
+        <button onclick="afficherReseau()" class="card-pro" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px 10px; border-radius: 20px; cursor: pointer; transition: transform 0.2s; text-align: center;">
+            <div style="width: 48px; height: 48px; background: #fce7f3; color: #db2777; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 10px;">📱</div>
+            <p style="font-size: 12px; font-weight: 800; color: #1f2937; margin: 0;">Réseau social</p>
+            <p style="font-size: 9px; color: #6b7280; margin: 2px 0 0 0;">Communauté</p>
         </button>
 
-        <button onclick="afficherDashboardLive()" style="width: 100%; display: flex; align-items: center; gap: 12px; padding: 16px; background: transparent; border: none; text-align: left; cursor: pointer;">
-            <div style="width: 40px; height: 40px; background: #fef2f2; color: #dc2626; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px;">🔴</div>
-            <div style="flex: 1;">
-                <p style="font-size: 13px; font-weight: 700; color: #1f2937; margin: 0;">Vue en direct</p>
-                <p style="font-size: 11px; color: #6b7280; margin: 2px 0 0 0;">Cours en cours et profs actifs</p>
-            </div>
-            <span id="badge-live-count" class="hidden chip" style="background: #dc2626; color: white; font-weight: 800; min-width: 26px; justify-content: center; border: none;">0</span>
-            <span style="color: #9ca3af; font-size: 18px; margin-left: 4px;">›</span>
-        </button>
-    </div>
-
-    <div class="divider anim-up delay-5">Outils intelligents</div>
-
-    <div class="card-pro anim-up delay-5" style="padding: 0; margin-bottom: 14px; overflow: hidden;">
-        <button onclick="afficherGenerateurEmploi()" style="width: 100%; display: flex; align-items: center; gap: 12px; padding: 16px; background: transparent; border: none; border-bottom: 1px solid #f3f4f6; text-align: left; cursor: pointer;">
-            <div style="width: 40px; height: 40px; background: #eef2ff; color: #4f46e5; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px;">🤖</div>
-            <div style="flex: 1;">
-                <p style="font-size: 13px; font-weight: 700; color: #1f2937; margin: 0;">Générer emploi du temps</p>
-                <p style="font-size: 11px; color: #6b7280; margin: 2px 0 0 0;">Placement automatique intelligent</p>
-            </div>
-            <span style="color: #9ca3af; font-size: 18px;">›</span>
+        <!-- Demandes d'inscription -->
+        <button onclick="afficherDemandesInscription()" class="card-pro" style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px 10px; border-radius: 20px; cursor: pointer; transition: transform 0.2s; text-align: center;">
+            <div style="width: 48px; height: 48px; background: #fff7ed; color: #ea580c; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 10px;">📥</div>
+            <p style="font-size: 12px; font-weight: 800; color: #1f2937; margin: 0;">Inscriptions</p>
+            <p style="font-size: 9px; color: #6b7280; margin: 2px 0 0 0;">À valider</p>
+            <span id="badge-demandes" class="hidden chip" style="position: absolute; top: 10px; right: 10px; background: #ef4444; color: white; font-weight: 800; min-width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 10px;">0</span>
         </button>
 
-        <button onclick="afficherGestionSalles()" style="width: 100%; display: flex; align-items: center; gap: 12px; padding: 16px; background: transparent; border: none; border-bottom: 1px solid #f3f4f6; text-align: left; cursor: pointer;">
-            <div style="width: 40px; height: 40px; background: #ecfeff; color: #0891b2; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px;">🏫</div>
-            <div style="flex: 1;">
-                <p style="font-size: 13px; font-weight: 700; color: #1f2937; margin: 0;">Mes salles</p>
-                <p style="font-size: 11px; color: #6b7280; margin: 2px 0 0 0;">Gérer les salles et équipements</p>
-            </div>
-            <span style="color: #9ca3af; font-size: 18px;">›</span>
+        <!-- Équipe -->
+        <button onclick="afficherEquipe()" class="card-pro" style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px 10px; border-radius: 20px; cursor: pointer; transition: transform 0.2s; text-align: center;">
+            <div style="width: 48px; height: 48px; background: #f0fdfa; color: #0d9488; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 10px;">👥</div>
+            <p style="font-size: 12px; font-weight: 800; color: #1f2937; margin: 0;">Mon équipe</p>
+            <p style="font-size: 9px; color: #6b7280; margin: 2px 0 0 0;">Staff</p>
+            <span id="badge-equipe" class="hidden chip" style="position: absolute; top: 10px; right: 10px; background: #14b8a6; color: white; font-weight: 800; min-width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 10px;">0</span>
         </button>
 
-        <button onclick="afficherCodeAcces()" style="width: 100%; display: flex; align-items: center; gap: 12px; padding: 16px; background: transparent; border: none; text-align: left; cursor: pointer;">
-            <div style="width: 40px; height: 40px; background: #eff6ff; color: #2563eb; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px;">🎫</div>
-            <div style="flex: 1;">
-                <p style="font-size: 13px; font-weight: 700; color: #1f2937; margin: 0;">Code d'accès école</p>
-                <p style="font-size: 11px; color: #6b7280; margin: 2px 0 0 0;">Partager avec les futurs membres</p>
-            </div>
-            <span style="color: #9ca3af; font-size: 18px;">›</span>
+        <!-- Vue en direct -->
+        <button onclick="afficherDashboardLive()" class="card-pro" style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px 10px; border-radius: 20px; cursor: pointer; transition: transform 0.2s; text-align: center;">
+            <div style="width: 48px; height: 48px; background: #fef2f2; color: #dc2626; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 10px;">🔴</div>
+            <p style="font-size: 12px; font-weight: 800; color: #1f2937; margin: 0;">En direct</p>
+            <p style="font-size: 9px; color: #6b7280; margin: 2px 0 0 0;">Cours actuels</p>
+            <span id="badge-live-count" class="hidden chip" style="position: absolute; top: 10px; right: 10px; background: #dc2626; color: white; font-weight: 800; min-width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 10px;">0</span>
         </button>
+
+        <!-- Générateur -->
+        <button onclick="afficherGenerateurEmploi()" class="card-pro" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px 10px; border-radius: 20px; cursor: pointer; transition: transform 0.2s; text-align: center;">
+            <div style="width: 48px; height: 48px; background: #eef2ff; color: #4f46e5; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 10px;">🤖</div>
+            <p style="font-size: 12px; font-weight: 800; color: #1f2937; margin: 0;">Emploi du temps</p>
+            <p style="font-size: 9px; color: #6b7280; margin: 2px 0 0 0;">Auto</p>
+        </button>
+
+        <!-- Salles -->
+        <button onclick="afficherGestionSalles()" class="card-pro" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px 10px; border-radius: 20px; cursor: pointer; transition: transform 0.2s; text-align: center;">
+            <div style="width: 48px; height: 48px; background: #ecfeff; color: #0891b2; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 10px;">🏫</div>
+            <p style="font-size: 12px; font-weight: 800; color: #1f2937; margin: 0;">Mes salles</p>
+            <p style="font-size: 9px; color: #6b7280; margin: 2px 0 0 0;">Gestion</p>
+        </button>
+
+        <!-- Code d'accès -->
+        <button onclick="afficherCodeAcces()" class="card-pro" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px 10px; border-radius: 20px; cursor: pointer; transition: transform 0.2s; text-align: center;">
+            <div style="width: 48px; height: 48px; background: #eff6ff; color: #2563eb; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 10px;">🎫</div>
+            <p style="font-size: 12px; font-weight: 800; color: #1f2937; margin: 0;">Code école</p>
+            <p style="font-size: 9px; color: #6b7280; margin: 2px 0 0 0;">Partager</p>
+        </button>
+
     </div>
 <button onclick="afficherCahierTexteAdmin()" class="btn-float anim-up delay-7" style="background: linear-gradient(135deg, #0D9488, #14B8A6); margin-bottom: 14px;">
     <div class="btn-icon">📓</div>
@@ -6022,19 +6005,44 @@ let pv2Page = 0;
                 return;
             }
 
-            let html = '';
+            let html = '<div class="grid grid-cols-2 gap-3">'; // Utilisation d'une grille à 2 colonnes
+            
             const icones = { salle_classe: '🏫', labo: '🔬', informatique: '💻', gymnase: '⚽', amphitheatre: '🎭', bibliotheque: '📚' };
+            const labelsTypes = { salle_classe: 'Salle de classe', labo: 'Laboratoire', informatique: 'Informatique', gymnase: 'Gymnase', amphitheatre: 'Amphithéâtre', bibliotheque: 'Bibliothèque' };
+
             salles.forEach(s => {
                 const icon = icones[s.type] || '🏫';
-                html += '<div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3">';
-                html += '<div class="w-10 h-10 bg-cyan-100 rounded-full flex items-center justify-center text-xl flex-shrink-0">' + icon + '</div>';
-                html += '<div class="flex-1 min-w-0"><p class="text-xs font-bold text-gray-800">' + s.nom + '</p>';
-                html += '<p class="text-[10px] text-gray-500">Capacité : ' + (s.capacite || 0) + ' - ' + (s.type || '').replace('_', ' ') + '</p>';
-                if (s.equipements) html += '<p class="text-[10px] text-gray-400 truncate">' + s.equipements + '</p></div>';
-                html += '<button onclick="editerSalle(' + s.id + ')" class="bg-blue-50 text-edu-blue text-[10px] font-bold px-2 py-1 rounded">Modifier</button>';
-                html += '<button onclick="supprimerSalle(' + s.id + ')" class="bg-red-50 text-edu-red text-[10px] font-bold px-2 py-1 rounded">X</button>';
+                const labelType = labelsTypes[s.type] || 'Salle';
+                const equipements = s.equipements ? s.equipements.split(',').map(e => e.trim()).join(', ') : 'Aucun équipement';
+
+                html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 relative flex flex-col justify-between">';
+                
+                // En-tête de la carte (Icône + Boutons d'action)
+                html += '<div class="flex justify-between items-start mb-2">';
+                html += '<div class="w-12 h-12 bg-cyan-50 text-cyan-600 rounded-xl flex items-center justify-center text-2xl flex-shrink-0">' + icon + '</div>';
+                html += '<div class="flex gap-1">';
+                html += '<button onclick="editerSalle(' + s.id + ')" class="w-7 h-7 bg-blue-50 text-edu-blue rounded-lg flex items-center justify-center text-xs" title="Modifier">✏️</button>';
+                html += '<button onclick="supprimerSalle(' + s.id + ')" class="w-7 h-7 bg-red-50 text-edu-red rounded-lg flex items-center justify-center text-xs" title="Supprimer">🗑️</button>';
+                html += '</div></div>';
+                
+                // Infos de la salle
+                html += '<div class="mt-2">';
+                html += '<p class="text-sm font-bold text-gray-800 leading-tight mb-1">' + s.nom + '</p>';
+                html += '<p class="text-[10px] text-cyan-600 font-semibold mb-2">' + labelType + '</p>';
+                
+                // Badges d'infos (Capacité et Équipements)
+                html += '<div class="space-y-1">';
+                html += '<div class="flex items-center gap-1 text-[10px] text-gray-500"><span>👥</span> <span>' + (s.capacite || 0) + ' places</span></div>';
+                if (s.equipements) {
+                    html += '<div class="flex items-start gap-1 text-[10px] text-gray-500"><span>🔌</span> <span class="line-clamp-1" title="' + equipements + '">' + equipements + '</span></div>';
+                }
+                html += '</div>';
+                html += '</div>';
+                
                 html += '</div>';
             });
+            html += '</div>'; // Fermeture de la grille
+
             document.getElementById('liste-salles').innerHTML = html;
             window.scrollTo(0, 0);
         }
