@@ -2927,7 +2927,16 @@
             conteneur.innerHTML = html;
             conteneur.scrollTop = conteneur.scrollHeight; 
         }
-
+// Fonction pour déclencher l'Edge Function
+        async function envoyerPush(utilisateur_id, titre, contenu) {
+            try {
+                await supabaseClient.functions.invoke('send-push', {
+                    body: { utilisateur_id, titre, contenu }
+                });
+            } catch (err) {
+                console.log("Erreur push silencieuse :", err);
+            }
+        }
         async function envoyerMessageMur() {
             var input = document.getElementById('mur-input');
             var texte = input.value.trim();
@@ -2947,6 +2956,17 @@
                 return; 
             }
             await chargerMessagesMur();
+
+            // NOUVEAU : Envoyer une notification push à tous les élèves de la classe
+            var resEleves = await supabaseClient.from('eleves').select('utilisateur_id').eq('classe_id', classeId);
+            if (resEleves.data && resEleves.data.length > 0) {
+                // On envoie en arrière-plan, sans bloquer l'interface du prof
+                resEleves.data.forEach(function(eleve) {
+                    if (eleve.utilisateur_id) {
+                        envoyerPush(eleve.utilisateur_id, "💬 Nouveau message", "Le prof a écrit sur le mur de classe.");
+                    }
+                });
+            }
         }
 async function supprimerMessageMur(id) {
             if (!confirm('Voulez-vous vraiment supprimer ce message ?')) return;
