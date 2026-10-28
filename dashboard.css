@@ -46,7 +46,7 @@
 .ripple {
     position: absolute;
     border-radius: 50%;
-    background: #ffffff;
+    background: rgba(0, 74, 173, 0.15); /* Un bleu transparent, beaucoup plus visible */
     transform: scale(0);
     animation: rippleEffect 1.1s cubic-bezier(0.16, 1, 0.3, 1);
     pointer-events: none;
@@ -105,7 +105,8 @@
 .stat-card,
 .list-row,
 .list-btn,
-.tile-icon {
+.tile-icon 
+.card-pro {
     position: relative;
     overflow: hidden;
 }
@@ -2746,4 +2747,7 @@ body.dark-mode .file-info {
 body.dark-mode .upload-zone.story-video {
     background: linear-gradient(135deg, #831843, #9d174d);
     border-color: #EC4899;
+}
+body.dark-mode .ripple {
+    background: rgba(255, 255, 255, 0.2); /* Un blanc transparent pour le mode sombre */
 }

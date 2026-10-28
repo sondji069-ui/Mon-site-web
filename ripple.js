@@ -6,7 +6,7 @@
 (function() {
     'use strict';
 
-    var SELECTEURS_RIPPLE = '.btn-float, .action-tile, .stat-card, .list-row, .list-btn, .tile-icon';
+    var SELECTEURS_RIPPLE = '.btn-float, .action-tile, .stat-card, .list-row, .list-btn, .tile-icon, .card-pro';
     var DUREE_ANIMATION = 1200;
     var TAILLE_RIPPLE = 24;
 

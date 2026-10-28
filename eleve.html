@@ -53,6 +53,14 @@
     </style>
 </head>
 <body class="min-h-screen flex justify-center items-start pt-4 p-3">
+<body class="min-h-screen flex justify-center items-start pt-4 p-3">
+    
+    <!-- Bandeau Hors-ligne -->
+    <div id="bandeau-offline" class="hidden" style="position: fixed; top: 0; left: 0; right: 0; background: #F59E0B; color: white; text-align: center; padding: 8px; font-size: 12px; font-weight: bold; z-index: 99999; box-shadow: 0 2px 10px rgba(0,0,0,0.2);">
+        ⚠️ Mode hors-ligne : Affichage des données sauvegardées
+    </div>
+
+    <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col h-auto min-h-[600px]">
     <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col h-auto min-h-[600px]">
         <div id="page-dashboard" class="flex-1 flex-col flex">
             <div class="bg-gradient-to-br from-edu-blue via-blue-700 to-blue-800 text-white p-5 pb-8 relative">
@@ -139,97 +147,113 @@
                         </div>
                     </div>
 
-                    <div class="divider anim-up delay-4">Mes outils</div>
-<button onclick="afficherReseau()" class="btn-float anim-up delay-4" style="background: linear-gradient(135deg, #EC4899, #8B5CF6); margin-bottom: 14px;">
-                        <div class="btn-icon">📱</div>
-                        <div class="btn-content">
-                            <div class="btn-title">Réseau social</div>
-                            <div class="btn-desc">Actualités de l'école</div>
-                        </div>
-                        <div class="btn-arrow">→</div>
-                    </button>
-                    <div class="action-grid mb-4">
-                        <div class="action-tile anim-up delay-4" onclick="afficherBulletin()">
-                            <div class="tile-icon" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #004AAD;">📄</div>
-                            <div class="tile-label">Mon bulletin</div>
-                            <div class="tile-sub">Par semestre</div>
-                        </div>
-                        <div class="action-tile anim-up delay-4" onclick="afficherAbsences()">
-                            <div class="tile-icon" style="background: linear-gradient(135deg, #fee2e2, #fecaca); color: #DC2626;">🚫</div>
-                            <div class="tile-label">Mes absences</div>
-                            <div class="tile-sub">Historique</div>
-                        </div>
-                        <div class="action-tile anim-up delay-4" onclick="afficherEmploi()">
-                            <div class="tile-icon" style="background: linear-gradient(135deg, #ede9fe, #ddd6fe); color: #7C3AED;">📅</div>
-                            <div class="tile-label">Emploi du temps</div>
-                            <div class="tile-sub">Cette semaine</div>
-                        </div>
-                        <div class="action-tile anim-up delay-4" onclick="afficherAnnonces()">
-                            <div class="tile-icon" style="background: linear-gradient(135deg, #fef3c7, #fde68a); color: #D97706;">📢</div>
-                            <div class="tile-label">Annonces</div>
-                            <div class="tile-sub">École</div>
-                        </div>
-                        <div class="action-tile anim-up delay-4" onclick="afficherStatsEleve()">
-                            <div class="tile-icon" style="background: linear-gradient(135deg, #d1fae5, #a7f3d0); color: #059669;">📊</div>
-                            <div class="tile-label">Mes stats</div>
-                            <div class="tile-sub">Progression</div>
-                        </div>
-                    </div>
+<div class="divider anim-up delay-4">Mes outils</div>
 
-                    <div class="divider anim-up delay-5">Mes apprentissages</div>
+    <!-- NOUVELLE GRILLE BENTO (ELEVE) -->
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6 anim-up delay-4">
+        
+        <!-- Bulletin -->
+        <button onclick="afficherBulletin()" class="card-pro" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: 16px; border-radius: 24px; cursor: pointer; text-align: left; background: linear-gradient(145deg, #ffffff, #f8fafc); border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.03)'">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #eff6ff, #dbeafe); color: #2563eb; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 12px;">📄</div>
+            <div>
+                <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin: 0;">Mon bulletin</p>
+                <p style="font-size: 10px; color: #6b7280; margin: 2px 0 0 0;">Par semestre</p>
+            </div>
+        </button>
 
-                    <button onclick="afficherDevoirs()" class="btn-float anim-up delay-5" style="background: linear-gradient(135deg, #F59E0B, #EA580C); margin-bottom: 10px; position: relative;">
-                        <div class="btn-icon">📚</div>
-                        <div class="btn-content">
-                            <div class="btn-title">Mes devoirs</div>
-                            <div class="btn-desc" id="devoirs-resume">Voir les devoirs à faire</div>
-                        </div>
-                        <span id="badge-devoirs" class="hidden chip" style="background: white; color: #EA580C; font-weight: 800; min-width: 26px; justify-content: center;">0</span>
-                        <div class="btn-arrow">→</div>
-                    </button>
-<button onclick="afficherBoiteQuestions()" class="btn-float anim-up delay-6" style="background: linear-gradient(135deg, #F59E0B, #D97706); margin-bottom: 10px;">
-    <div class="btn-icon">🤫</div>
-    <div class="btn-content">
-        <div class="btn-title">Boîte à questions</div>
-        <div class="btn-desc">Pose tes questions anonymement</div>
+        <!-- Absences -->
+        <button onclick="afficherAbsences()" class="card-pro" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: 16px; border-radius: 24px; cursor: pointer; text-align: left; background: linear-gradient(145deg, #ffffff, #f8fafc); border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.03)'">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #fef2f2, #fee2e2); color: #dc2626; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 12px;">🚫</div>
+            <div>
+                <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin: 0;">Mes absences</p>
+                <p style="font-size: 10px; color: #6b7280; margin: 2px 0 0 0;">Historique</p>
+            </div>
+        </button>
+
+        <!-- Emploi du temps -->
+        <button onclick="afficherEmploi()" class="card-pro" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: 16px; border-radius: 24px; cursor: pointer; text-align: left; background: linear-gradient(145deg, #ffffff, #f8fafc); border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.03)'">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #ede9fe, #ddd6fe); color: #7c3aed; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 12px;">📅</div>
+            <div>
+                <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin: 0;">Emploi du temps</p>
+                <p style="font-size: 10px; color: #6b7280; margin: 2px 0 0 0;">Semaine</p>
+            </div>
+        </button>
+
+        <!-- Annonces -->
+        <button onclick="afficherAnnonces()" class="card-pro" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: 16px; border-radius: 24px; cursor: pointer; text-align: left; background: linear-gradient(145deg, #ffffff, #f8fafc); border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.03)'">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #fef3c7, #fde68a); color: #d97706; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 12px;">📢</div>
+            <div>
+                <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin: 0;">Annonces</p>
+                <p style="font-size: 10px; color: #6b7280; margin: 2px 0 0 0;">De l'école</p>
+            </div>
+        </button>
+
+        <!-- Stats -->
+        <button onclick="afficherStatsEleve()" class="card-pro" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: 16px; border-radius: 24px; cursor: pointer; text-align: left; background: linear-gradient(145deg, #ffffff, #f8fafc); border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.03)'">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #d1fae5, #a7f3d0); color: #059669; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 12px;">📊</div>
+            <div>
+                <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin: 0;">Mes stats</p>
+                <p style="font-size: 10px; color: #6b7280; margin: 2px 0 0 0;">Progression</p>
+            </div>
+        </button>
+
+        <!-- Devoirs -->
+        <button onclick="afficherDevoirs()" class="card-pro" style="position: relative; display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: 16px; border-radius: 24px; cursor: pointer; text-align: left; background: linear-gradient(145deg, #ffffff, #f8fafc); border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.03)'">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #ffedd5, #fed7aa); color: #ea580c; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 12px;">📚</div>
+            <div>
+                <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin: 0;">Devoirs</p>
+                <p style="font-size: 10px; color: #6b7280; margin: 2px 0 0 0;" id="devoirs-resume">À faire</p>
+            </div>
+            <span id="badge-devoirs" class="hidden" style="position: absolute; top: 16px; right: 16px; background: #ea580c; color: white; font-weight: 800; min-width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 10px; box-shadow: 0 2px 8px rgba(234, 88, 12, 0.4);">0</span>
+        </button>
+
+        <!-- Ressources -->
+        <button onclick="testRessources()" class="card-pro" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: 16px; border-radius: 24px; cursor: pointer; text-align: left; background: linear-gradient(145deg, #ffffff, #f8fafc); border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.03)'">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #e0e7ff, #c7d2fe); color: #4338ca; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 12px;">📁</div>
+            <div>
+                <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin: 0;">Ressources</p>
+                <p style="font-size: 10px; color: #6b7280; margin: 2px 0 0 0;">Leçons, exos</p>
+            </div>
+        </button>
+
+        <!-- Assistant IA -->
+        <button onclick="window.location.href='assistant-ia.html'" class="card-pro" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: 16px; border-radius: 24px; cursor: pointer; text-align: left; background: linear-gradient(145deg, #ffffff, #f8fafc); border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.03)'">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #fdf4ff, #fae8ff); color: #c026d3; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 12px;">🤖</div>
+            <div>
+                <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin: 0;">Assistant IA</p>
+                <p style="font-size: 10px; color: #6b7280; margin: 2px 0 0 0;">Aide aux devoirs</p>
+            </div>
+        </button>
+
+        <!-- Mur de classe -->
+        <button onclick="afficherMurClasse()" class="card-pro" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: 16px; border-radius: 24px; cursor: pointer; text-align: left; background: linear-gradient(145deg, #ffffff, #f8fafc); border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.03)'">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #f0f9ff, #e0f2fe); color: #0284c7; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 12px;">💬</div>
+            <div>
+                <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin: 0;">Mur de classe</p>
+                <p style="font-size: 10px; color: #6b7280; margin: 2px 0 0 0;">Discussion</p>
+            </div>
+        </button>
+
+        <!-- Boîte à questions -->
+        <button onclick="afficherBoiteQuestions()" class="card-pro" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: 16px; border-radius: 24px; cursor: pointer; text-align: left; background: linear-gradient(145deg, #ffffff, #f8fafc); border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.03)'">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #fefce8, #fef08a); color: #ca8a04; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 12px;">🤫</div>
+            <div>
+                <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin: 0;">Questions</p>
+                <p style="font-size: 10px; color: #6b7280; margin: 2px 0 0 0;">Anonyme</p>
+            </div>
+        </button>
+
+        <!-- Messagerie -->
+        <button onclick="window.location.href='messagerie.html'" class="card-pro" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: 16px; border-radius: 24px; cursor: pointer; text-align: left; background: linear-gradient(145deg, #ffffff, #f8fafc); border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.03)'">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #fce7f3, #fbcfe8); color: #db2777; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 12px;">✉️</div>
+            <div>
+                <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin: 0;">Messages</p>
+                <p style="font-size: 10px; color: #6b7280; margin: 2px 0 0 0;">Privé</p>
+            </div>
+        </button>
+
     </div>
-    <div class="btn-arrow">→</div>
-</button>
-<button onclick="afficherMurClasse()" class="btn-float anim-up delay-6" style="background: linear-gradient(135deg, #3B82F6, #2563EB); margin-bottom: 10px;">
-    <div class="btn-icon">💬</div>
-    <div class="btn-content">
-        <div class="btn-title">Mur de la classe</div>
-        <div class="btn-desc">Poser une question, discuter</div>
     </div>
-    <div class="btn-arrow">→</div>
-</button>
-                    <button onclick="testRessources()" class="btn-float anim-up delay-6" style="background: linear-gradient(135deg, #6366F1, #8B5CF6); margin-bottom: 10px;">
-                        <div class="btn-icon">📚</div>
-                        <div class="btn-content">
-                            <div class="btn-title">Mes ressources</div>
-                            <div class="btn-desc">Programmes, leçons, exercices</div>
-                        </div>
-                        <div class="btn-arrow">→</div>
-                    </button>
-
-                    <button onclick="window.location.href='assistant-ia.html'" class="btn-float anim-up delay-7" style="background: linear-gradient(135deg, #8B5CF6, #EC4899); margin-bottom: 10px;">
-                        <div class="btn-icon">🤖</div>
-                        <div class="btn-content">
-                            <div class="btn-title">Assistant IA</div>
-                            <div class="btn-desc">Pose tes questions de cours</div>
-                        </div>
-                        <div class="btn-arrow">→</div>
-                    </button>
-
-                    <button onclick="window.location.href='messagerie.html'" class="btn-float anim-up delay-8" style="background: linear-gradient(135deg, #EC4899, #DB2777);">
-                        <div class="btn-icon">💬</div>
-                        <div class="btn-content">
-                            <div class="btn-title">Messagerie</div>
-                            <div class="btn-desc">Discuter avec tes professeurs</div>
-                        </div>
-                        <div class="btn-arrow">→</div>
-                    </button>
-                </div>
 
                 <!-- DEVOIRS -->
                 <div id="view-devoirs" class="hidden fade-in">
@@ -724,7 +748,39 @@
             });
             afficherListeDevoirs();
         }
+async function afficherDevoirs() {
+            hideAllViews();
+            document.getElementById('view-devoirs').classList.remove('hidden');
+            if (!monClasseId || !monEleveId) return;
 
+            if (!navigator.onLine) {
+                var cache = lireLocal('devoirs');
+                if (cache) { afficherListeDevoirsHorsLigne(cache); return; }
+                document.getElementById('liste-devoirs-eleve').innerHTML = '<p class="text-gray-500 text-center py-4">Impossible de charger les devoirs sans réseau.</p>';
+                return;
+            }
+
+            document.getElementById('liste-devoirs-eleve').innerHTML = skeleton.devoirs(3);
+            var resD = await supabaseClient.from('devoirs').select('*').eq('classe_id', monClasseId).order('date_creation', { ascending: false });
+            tousDevoirs = resD.data || [];
+            var resF = await supabaseClient.from('devoirs_faits').select('devoir_id').eq('eleve_id', monEleveId);
+            mesDevoirsFaits = resF.data ? resF.data.map(function(f) { return f.devoir_id; }) : [];
+            
+            // Sauvegarde locale
+            sauvegarderLocal('devoirs', { tousDevoirs: tousDevoirs, faits: mesDevoirsFaits });
+
+            filtreDevoirs = 'tout';
+            // ... (garde le reste de ton code qui met à jour les onglets et appelle afficherListeDevoirs() ) ...
+            afficherListeDevoirs();
+        }
+
+        function afficherListeDevoirsHorsLigne(cache) {
+            tousDevoirs = cache.tousDevoirs;
+            mesDevoirsFaits = cache.faits;
+            // On désactive les boutons pour éviter de cliquer sans réseau
+            afficherListeDevoirs(); 
+            document.querySelectorAll('#liste-devoirs-eleve button').forEach(function(b) { b.style.display = 'none'; });
+        }
         function afficherListeDevoirs() {
             var aujourdHui = new Date(); aujourdHui.setHours(0, 0, 0, 0);
             var devoirsFiltres = tousDevoirs;
@@ -777,35 +833,50 @@
         // ════════════ MOYENNE + NOTE ════════════
         async function chargerMoyenne() {
             if (!monEleveId) return;
+            
+            if (!navigator.onLine) {
+                var cache = lireLocal('moyenne');
+                if (cache !== null) {
+                    document.getElementById('moy-generale').innerText = cache.moyenne;
+                    document.getElementById('barre-moyenne').style.width = cache.barre;
+                    document.getElementById('mention-eleve').innerText = 'Mention : ' + cache.mention;
+                }
+                return;
+            }
+
             var res = await supabaseClient.from('notes').select('note, coefficient').eq('eleve_id', monEleveId);
             var notes = res.data;
             if (!notes || notes.length === 0) { document.getElementById('moy-generale').innerText = "--"; return; }
             var tp = 0, tc = 0;
             notes.forEach(function(n) { tp += parseFloat(n.note) * n.coefficient; tc += n.coefficient; });
             var moyenne = tc > 0 ? (tp / tc) : 0;
+            
+            var mention = 'Insuffisant';
+            if (moyenne >= 16) mention = 'Felicitation'; else if (moyenne >= 14) mention = 'Tres bien'; else if (moyenne >= 12) mention = 'Bien'; else if (moyenne >= 10) mention = 'Passable';
+            
             document.getElementById('moy-generale').innerText = moyenne.toFixed(2);
             document.getElementById('barre-moyenne').style.width = ((moyenne / 20) * 100) + '%';
-            var mention = 'Insuffisant', couleur = '#EF4444';
-            if (moyenne >= 16) { mention = 'Felicitations'; couleur = '#10B981'; }
-            else if (moyenne >= 14) { mention = 'Tres bien'; couleur = '#10B981'; }
-            else if (moyenne >= 12) { mention = 'Bien'; couleur = '#10B981'; }
-            else if (moyenne >= 10) { mention = 'Passable'; couleur = '#F59E0B'; }
-            var mentionElement = document.getElementById('mention-eleve');
-            mentionElement.innerText = 'Mention : ' + mention;
+            document.getElementById('mention-eleve').innerText = 'Mention : ' + mention;
+
+            // On sauvegarde pour le hors-ligne
+            sauvegarderLocal('moyenne', { moyenne: moyenne.toFixed(2), barre: ((moyenne / 20) * 100) + '%', mention: mention });
         }
 
         async function chargerNote() {
             if (!monEleveId) return;
-            var res = await supabaseClient.from('notes').select('note').eq('eleve_id', monEleveId).order('date_evaluation', { ascending: false }).limit(1).maybeSingle();
-            document.getElementById('note-eleve').innerText = res.data ? res.data.note + "/20" : "--";
-        }
+            
+            if (!navigator.onLine) {
+                var cache = lireLocal('derniere_note');
+                if (cache) document.getElementById('note-eleve').innerText = cache;
+                return;
+            }
 
-        async function chargerBadgeNotifs() {
-            var res = await supabaseClient.from('notifications').select('*', { count: 'exact', head: true }).eq('utilisateur_id', currentUser.id).eq('lu', false);
-            var count = res.count;
-            var badge = document.getElementById('badge-notif');
-            if (count > 0) { badge.innerText = count; badge.classList.remove('hidden'); } else { badge.classList.add('hidden'); }
+            var res = await supabaseClient.from('notes').select('note').eq('eleve_id', monEleveId).order('date_evaluation', { ascending: false }).limit(1).maybeSingle();
+            var noteAff = res.data ? res.data.note + "/20" : "--";
+            document.getElementById('note-eleve').innerText = noteAff;
+            sauvegarderLocal('derniere_note', noteAff);
         }
+        
 
         // ═════════════════════════════════════════════════════════════
         //  STATISTIQUES ÉLÈVE — Graphiques personnels
@@ -1427,7 +1498,31 @@
             html += '</div>';
             conteneur.innerHTML = html;
         }
+async function afficherEmploi() {
+            hideAllViews();
+            document.getElementById('view-emploi').classList.remove('hidden');
+            
+            if (!navigator.onLine) {
+                var cache = lireLocal('emploi');
+                if (cache) {
+                    tousLesCours = cache;
+                    afficherEncadreAujourdhui();
+                    afficherTableauEmploi(tousLesCours, 'tableau-emploi-eleve');
+                    return;
+                }
+                document.getElementById('tableau-emploi-eleve').innerHTML = '<p class="text-center py-4 text-gray-500">Emploi du temps indisponible sans réseau.</p>';
+                return;
+            }
 
+            document.getElementById('tableau-emploi-eleve').innerHTML = skeleton.hero() + skeleton.cartes(2);
+            var res = await supabaseClient.from('emploi_du_temps').select('*').eq('classe_id', monClasseId).order('heure_debut');
+            tousLesCours = res.data || [];
+            
+            sauvegarderLocal('emploi', tousLesCours); // Sauvegarde locale
+
+            afficherEncadreAujourdhui();
+            afficherTableauEmploi(tousLesCours, 'tableau-emploi-eleve');
+        }
         function afficherTableauEmploi(cours, containerId) {
             var jours = JOURS_EDT;
             var jourActuel = getJourActuelEDT();
@@ -2095,6 +2190,26 @@ async function supprimerMessageMur(id) {
                 await supabaseClient.from('likes_questions').insert([{ question_id: questionId, eleve_id: monEleveId }]);
             }
             await chargerQuestionsAnonymes();
+        }
+// ════════════ GESTION DU MODE HORS-LIGNE ════════════
+        function verifierReseau() {
+            var bandeau = document.getElementById('bandeau-offline');
+            if (!navigator.onLine) {
+                bandeau.classList.remove('hidden');
+            } else {
+                bandeau.classList.add('hidden');
+            }
+        }
+        
+        window.addEventListener('online', verifierReseau);
+        window.addEventListener('offline', verifierReseau);
+        verifierReseau(); // Vérifier au chargement
+// Fonctions de cache local
+        function sauvegarderLocal(cle, data) {
+            try { localStorage.setItem('edulink_eleve_' + cle, JSON.stringify(data)); } catch(e) {}
+        }
+        function lireLocal(cle) {
+            try { var data = localStorage.getItem('edulink_eleve_' + cle); return data ? JSON.parse(data) : null; } catch(e) { return null; }
         }
         async function seDeconnecter() { 
     await supabaseClient.auth.signOut(); // Détruit le JWT de manière sécurisée

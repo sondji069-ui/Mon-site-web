@@ -55,6 +55,14 @@
     </style>
 </head>
 <body class="min-h-screen flex justify-center items-start pt-4 p-3">
+<body class="min-h-screen flex justify-center items-start pt-4 p-3">
+    
+    <!-- Bandeau Hors-ligne -->
+    <div id="bandeau-offline" class="hidden" style="position: fixed; top: 0; left: 0; right: 0; background: #F59E0B; color: white; text-align: center; padding: 8px; font-size: 12px; font-weight: bold; z-index: 99999; box-shadow: 0 2px 10px rgba(0,0,0,0.2);">
+        ⚠️ Mode hors-ligne : Certaines actions sont désactivées
+    </div>
+
+    <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col h-auto min-h-[600px]">
     <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col h-auto min-h-[600px]">
         <div id="page-dashboard" class="flex-1 flex-col flex">
             <div class="bg-gradient-to-br from-edu-green via-emerald-600 to-green-700 text-white p-5 pb-8 relative">
@@ -130,6 +138,14 @@
                             <div class="tile-sub">Dernière éval.</div>
                         </div>
                     </div>
+<button onclick="afficherSalleProfs()" class="btn-float anim-up delay-6" style="background: linear-gradient(135deg, #9333EA, #7E22CE); margin-bottom: 10px;">
+    <div class="btn-icon">👨🏾‍🏫</div>
+    <div class="btn-content">
+        <div class="btn-title">Salle des profs</div>
+        <div class="btn-desc">Discussion privée avec la direction</div>
+    </div>
+    <div class="btn-arrow">→</div>
+</button>
 <button onclick="afficherReseau()" class="btn-float anim-up delay-3" style="background: linear-gradient(135deg, #EC4899, #8B5CF6); margin-bottom: 14px;">
                         <div class="btn-icon">📱</div>
                         <div class="btn-content">
@@ -141,104 +157,112 @@
 
                     <div class="divider anim-up delay-4">Ma disponibilité</div>
 
-                    <button onclick="afficherMesDispos()" class="btn-float anim-up delay-4" style="background: linear-gradient(135deg, #6366F1, #8B5CF6); margin-bottom: 14px;">
-                        <div class="btn-icon">📅</div>
-                        <div class="btn-content">
-                            <div class="btn-title">Mes disponibilités</div>
-                            <div class="btn-desc">Indiquer quand vous n'êtes pas libre</div>
-                        </div>
-                        <div class="btn-arrow">→</div>
-                    </button>
+                    <div class="divider anim-up delay-4">Outils de gestion</div>
 
-                    <div class="divider anim-up delay-5">Gestion pédagogique</div>
-<button onclick="afficherCahierTexte()" class="btn-float anim-up delay-5" style="background: linear-gradient(135deg, #0D9488, #14B8A6); margin-bottom: 14px;">
-    <div class="btn-icon">📓</div>
-    <div class="btn-content">
-        <div class="btn-title">Cahier de texte</div>
-        <div class="btn-desc">Noter ce qui a été fait en classe</div>
-    </div>
-    <div class="btn-arrow">→</div>
-</button>
-<button onclick="afficherMurClasse()" class="btn-float anim-up delay-5" style="background: linear-gradient(135deg, #3B82F6, #2563EB); margin-bottom: 14px;">
-    <div class="btn-icon">💬</div>
-    <div class="btn-content">
-        <div class="btn-title">Mur de la classe</div>
-        <div class="btn-desc">Discuter avec les élèves</div>
-    </div>
-    <div class="btn-arrow">→</div>
-</button>
-<button onclick="afficherBoiteQuestionsEns()" class="btn-float anim-up delay-5" style="background: linear-gradient(135deg, #F59E0B, #D97706); margin-bottom: 14px;">
-    <div class="btn-icon">🤫</div>
-    <div class="btn-content">
-        <div class="btn-title">Boîte à questions</div>
-        <div class="btn-desc">Voir les incompréhensions des élèves</div>
-    </div>
-    <div class="btn-arrow">→</div>
-</button>
-                    <div class="action-grid mb-4">
-                        <div class="action-tile anim-up delay-5" onclick="afficherSaisieMasse()">
-                            <div class="tile-icon" style="background: linear-gradient(135deg, #ede9fe, #ddd6fe); color: #7C3AED;">📋</div>
-                            <div class="tile-label">Saisie en masse</div>
-                            <div class="tile-sub">Toute la classe</div>
-                        </div>
-                        <div class="action-tile anim-up delay-5" onclick="afficherNotesSaisies()">
-                            <div class="tile-icon" style="background: linear-gradient(135deg, #cffafe, #a5f3fc); color: #0891B2;">📝</div>
-                            <div class="tile-label">Notes saisies</div>
-                            <div class="tile-sub">Modifier</div>
-                        </div>
-                        <div class="action-tile anim-up delay-5" onclick="afficherDevoirs()">
-                            <div class="tile-icon" style="background: linear-gradient(135deg, #fef3c7, #fde68a); color: #D97706;">📚</div>
-                            <div class="tile-label">Mes devoirs</div>
-                            <div class="tile-sub">Créer</div>
-                        </div>
-                        <div class="action-tile anim-up delay-5" onclick="afficherMesRessources()">
-                            <div class="tile-icon" style="background: linear-gradient(135deg, #e0e7ff, #c7d2fe); color: #4338CA;">📚</div>
-                            <div class="tile-label">Ressources</div>
-                            <div class="tile-sub">Publier</div>
-                        </div>
-                        <div class="action-tile anim-up delay-5" onclick="afficherStatistiques()">
-                            <div class="tile-icon" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #2563EB;">📊</div>
-                            <div class="tile-label">Statistiques</div>
-                            <div class="tile-sub">Classe</div>
-                        </div>
-                        <div class="action-tile anim-up delay-5" onclick="afficherBadgesClasse()">
-                            <div class="tile-icon" style="background: linear-gradient(135deg, #fce7f3, #fbcfe8); color: #DB2777;">🏆</div>
-                            <div class="tile-label">Badges</div>
-                            <div class="tile-sub">Élèves</div>
-                        </div>
-                        <div class="action-tile anim-up delay-5" onclick="afficherRapportAbsences()">
-                            <div class="tile-icon" style="background: linear-gradient(135deg, #fee2e2, #fecaca); color: #DC2626;">📊</div>
-                            <div class="tile-label">Rapport absences</div>
-                            <div class="tile-sub">Périodes</div>
-                        </div>
-                        <div class="action-tile anim-up delay-5" onclick="afficherMesHeures()">
-                            <div class="tile-icon" style="background: linear-gradient(135deg, #ccfbf1, #99f6e4); color: #0D9488;">🕐</div>
-                            <div class="tile-label">Mes heures</div>
-                            <div class="tile-sub">Suivi</div>
-                        </div>
-                        <div class="action-tile anim-up delay-5" onclick="afficherEmploi()">
-                            <div class="tile-icon" style="background: linear-gradient(135deg, #e0e7ff, #c7d2fe); color: #4338CA;">📅</div>
-                            <div class="tile-label">Emploi du temps</div>
-                            <div class="tile-sub">Semaine</div>
-                        </div>
-                        <div class="action-tile anim-up delay-5" onclick="afficherAnnonces()">
-                            <div class="tile-icon" style="background: linear-gradient(135deg, #fef3c7, #fde68a); color: #D97706;">📢</div>
-                            <div class="tile-label">Annonces</div>
-                            <div class="tile-sub">École</div>
-                        </div>
-                    </div>
+    <!-- NOUVELLE GRILLE BENTO (ENSEIGNANT) -->
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6 anim-up delay-4">
+        
+        <!-- Dispos -->
+        <button onclick="afficherMesDispos()" class="card-pro" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: 16px; border-radius: 24px; cursor: pointer; text-align: left; background: linear-gradient(145deg, #ffffff, #f8fafc); border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.03)'">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #eef2ff, #e0e7ff); color: #4f46e5; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 12px;">📅</div>
+            <div>
+                <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin: 0;">Disponibilités</p>
+                <p style="font-size: 10px; color: #6b7280; margin: 2px 0 0 0;">Mes horaires</p>
+            </div>
+        </button>
 
-                    <div class="divider anim-up delay-6">Communication</div>
+        <!-- Cahier de texte -->
+        <button onclick="afficherCahierTexte()" class="card-pro" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: 16px; border-radius: 24px; cursor: pointer; text-align: left; background: linear-gradient(145deg, #ffffff, #f8fafc); border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.03)'">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #f0fdfa, #ccfbf1); color: #0d9488; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 12px;">📓</div>
+            <div>
+                <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin: 0;">Cahier de texte</p>
+                <p style="font-size: 10px; color: #6b7280; margin: 2px 0 0 0;">Notes de cours</p>
+            </div>
+        </button>
 
-                    <button onclick="window.location.href='messagerie.html'" class="btn-float anim-up delay-6" style="background: linear-gradient(135deg, #EC4899, #DB2777);">
-                        <div class="btn-icon">💬</div>
-                        <div class="btn-content">
-                            <div class="btn-title">Messagerie</div>
-                            <div class="btn-desc">Discuter avec parents et élèves</div>
-                        </div>
-                        <div class="btn-arrow">→</div>
-                    </button>
-                </div>
+        <!-- Saisie masse -->
+        <button onclick="afficherSaisieMasse()" class="card-pro" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: 16px; border-radius: 24px; cursor: pointer; text-align: left; background: linear-gradient(145deg, #ffffff, #f8fafc); border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.03)'">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #f3e8ff, #e9d5ff); color: #9333ea; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 12px;">📋</div>
+            <div>
+                <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin: 0;">Saisie en masse</p>
+                <p style="font-size: 10px; color: #6b7280; margin: 2px 0 0 0;">Notes classe</p>
+            </div>
+        </button>
+
+        <!-- Notes saisies -->
+        <button onclick="afficherNotesSaisies()" class="card-pro" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: 16px; border-radius: 24px; cursor: pointer; text-align: left; background: linear-gradient(145deg, #ffffff, #f8fafc); border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.03)'">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #ecfeff, #cffafe); color: #0891b2; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 12px;">📝</div>
+            <div>
+                <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin: 0;">Notes saisies</p>
+                <p style="font-size: 10px; color: #6b7280; margin: 2px 0 0 0;">Modifier</p>
+            </div>
+        </button>
+
+        <!-- Devoirs -->
+        <button onclick="afficherDevoirs()" class="card-pro" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: 16px; border-radius: 24px; cursor: pointer; text-align: left; background: linear-gradient(145deg, #ffffff, #f8fafc); border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.03)'">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #fef3c7, #fde68a); color: #d97706; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 12px;">📚</div>
+            <div>
+                <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin: 0;">Devoirs</p>
+                <p style="font-size: 10px; color: #6b7280; margin: 2px 0 0 0;">Créer</p>
+            </div>
+        </button>
+
+        <!-- Ressources -->
+        <button onclick="afficherMesRessources()" class="card-pro" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: 16px; border-radius: 24px; cursor: pointer; text-align: left; background: linear-gradient(145deg, #ffffff, #f8fafc); border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.03)'">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #e0e7ff, #c7d2fe); color: #4338ca; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 12px;">📁</div>
+            <div>
+                <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin: 0;">Ressources</p>
+                <p style="font-size: 10px; color: #6b7280; margin: 2px 0 0 0;">Publier</p>
+            </div>
+        </button>
+
+        <!-- Statistiques -->
+        <button onclick="afficherStatistiques()" class="card-pro" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: 16px; border-radius: 24px; cursor: pointer; text-align: left; background: linear-gradient(145deg, #ffffff, #f8fafc); border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.03)'">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #eff6ff, #dbeafe); color: #2563eb; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 12px;">📊</div>
+            <div>
+                <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin: 0;">Statistiques</p>
+                <p style="font-size: 10px; color: #6b7280; margin: 2px 0 0 0;">Performances</p>
+            </div>
+        </button>
+
+        <!-- Badges -->
+        <button onclick="afficherBadgesClasse()" class="card-pro" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: 16px; border-radius: 24px; cursor: pointer; text-align: left; background: linear-gradient(145deg, #ffffff, #f8fafc); border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.03)'">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #fce7f3, #fbcfe8); color: #db2777; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 12px;">🏆</div>
+            <div>
+                <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin: 0;">Badges</p>
+                <p style="font-size: 10px; color: #6b7280; margin: 2px 0 0 0;">Élèves</p>
+            </div>
+        </button>
+
+        <!-- Mur de classe -->
+        <button onclick="afficherMurClasse()" class="card-pro" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: 16px; border-radius: 24px; cursor: pointer; text-align: left; background: linear-gradient(145deg, #ffffff, #f8fafc); border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.03)'">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #f0f9ff, #e0f2fe); color: #0284c7; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 12px;">💬</div>
+            <div>
+                <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin: 0;">Mur de classe</p>
+                <p style="font-size: 10px; color: #6b7280; margin: 2px 0 0 0;">Chat élèves</p>
+            </div>
+        </button>
+
+        <!-- Boîte à questions -->
+        <button onclick="afficherBoiteQuestionsEns()" class="card-pro" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: 16px; border-radius: 24px; cursor: pointer; text-align: left; background: linear-gradient(145deg, #ffffff, #f8fafc); border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.03)'">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #fefce8, #fef08a); color: #ca8a04; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 12px;">🤫</div>
+            <div>
+                <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin: 0;">Questions</p>
+                <p style="font-size: 10px; color: #6b7280; margin: 2px 0 0 0;">Anonymes</p>
+            </div>
+        </button>
+        
+        <!-- Salle des profs -->
+        <button onclick="afficherSalleProfs()" class="card-pro" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: 16px; border-radius: 24px; cursor: pointer; text-align: left; background: linear-gradient(145deg, #ffffff, #f8fafc); border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.03)'">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #f3e8ff, #e9d5ff); color: #9333ea; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 12px;">👨🏾‍🏫</div>
+            <div>
+                <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin: 0;">Salle des profs</p>
+                <p style="font-size: 10px; color: #6b7280; margin: 2px 0 0 0;">Discussion staff</p>
+            </div>
+        </button>
+
+    </div>
+    </div>
 
                 <!-- DISPOS -->
                 <div id="view-mes-dispos" class="hidden fade-in">
@@ -629,6 +653,23 @@
         <!-- Les questions s'afficheront ici -->
     </div>
 </div>
+<!-- SALLE DES PROFS (ENSEIGNANT) -->
+<div id="view-salle-profs" class="hidden fade-in">
+    <div class="flex items-center gap-3 mb-3">
+        <button onclick="retourAccueil()" class="text-2xl">⬅️</button>
+        <div>
+            <h1 class="text-lg font-bold text-gray-800">👨🏾‍🏫 Salle des profs</h1>
+            <p class="text-xs text-gray-500">Espace privé (Admin + Enseignants)</p>
+        </div>
+    </div>
+
+    <div id="staff-messages" class="space-y-3 mb-4" style="height: 55vh; overflow-y: auto; padding-right: 5px;"></div>
+
+    <div class="bg-white p-2 rounded-2xl shadow-lg border border-gray-100 flex gap-2 items-center">
+        <input type="text" id="staff-input" placeholder="Écrire un message..." class="flex-1 px-4 py-3 bg-gray-50 rounded-xl border-none focus:outline-none text-sm" onkeydown="if(event.key==='Enter') envoyerMessageStaff()">
+        <button onclick="envoyerMessageStaff()" class="bg-edu-blue text-white w-12 h-12 rounded-xl flex items-center justify-center text-xl shadow-md">➤</button>
+    </div>
+</div>
                 <div id="view-notifications" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-3">🔔 Mes notifications</h1>
@@ -797,9 +838,25 @@
             document.getElementById('stat-matiere-label').innerText = aff.matiere;
             if (aff.classes) document.getElementById('classe-enseignant').innerText = aff.classes.nom;
 
+            // Si pas de réseau, on charge les élèves depuis le cache
+            if (!navigator.onLine) {
+                var cacheEleves = lireLocalEns('eleves_classe_' + classeId);
+                if (cacheEleves) {
+                    listeEleves = cacheEleves;
+                    document.getElementById('nb-eleves').innerText = listeEleves.length + " eleves";
+                    chargerProchainCoursEnseignant();
+                } else {
+                    toast.warning("Aucune donnée en cache pour cette classe.");
+                }
+                return;
+            }
+
+            // Si réseau, on charge depuis Supabase et on sauvegarde
             var resE = await supabaseClient.from('eleves').select('id, utilisateur_id, utilisateurs!utilisateur_id(prenom, nom)').eq('classe_id', classeId);
             listeEleves = resE.data || [];
             document.getElementById('nb-eleves').innerText = listeEleves.length + " eleves";
+
+            sauvegarderLocalEns('eleves_classe_' + classeId, listeEleves); // On sauvegarde
 
             chargerProchainCoursEnseignant();
         }
@@ -1154,6 +1211,14 @@
         }
 
         async function toggleAbsence(eleveId, btn) {
+            // Vérification hors-ligne
+            if (!navigator.onLine) {
+                toast.error("Impossible de faire l'appel sans connexion internet.");
+                return;
+            }
+            
+       
+            // ... (le reste de ton code existant) ...
             var estAbsent = btn.getAttribute('data-absent') === '1';
             var today = new Date().toISOString().split('T')[0];
             btn.disabled = true;
@@ -1865,11 +1930,30 @@
 
         // ════════════ EMPLOI ════════════
         async function afficherEmploi() {
-            document.getElementById('view-accueil').classList.add('hidden');
+            hideAllViews();
             document.getElementById('view-emploi').classList.remove('hidden');
+            
+            // Si pas de réseau, on charge depuis le cache
+            if (!navigator.onLine) {
+                var cacheEmploi = lireLocalEns('emploi_' + classeId);
+                if (cacheEmploi) {
+                    tousLesCoursEns = cacheEmploi;
+                    afficherEncadreAujourdhuiEns();
+                    afficherTableauEmploiEns(tousLesCoursEns);
+                    return;
+                } else {
+                    document.getElementById('tableau-emploi-enseignant').innerHTML = '<p class="text-center py-4 text-gray-500">Emploi du temps indisponible sans réseau.</p>';
+                    return;
+                }
+            }
+
+            // Si réseau, on charge depuis Supabase
             document.getElementById('tableau-emploi-enseignant').innerHTML = skeleton.hero() + skeleton.cartes(2);
             var res = await supabaseClient.from('emploi_du_temps').select('*').eq('classe_id', classeId).order('heure_debut');
             tousLesCoursEns = res.data || [];
+            
+            sauvegarderLocalEns('emploi_' + classeId, tousLesCoursEns); // On sauvegarde
+
             afficherEncadreAujourdhuiEns();
             afficherTableauEmploiEns(tousLesCoursEns);
             window.scrollTo(0, 0);
@@ -2994,6 +3078,90 @@ async function supprimerMessageMur(id) {
             if (res.error) { toast.error(res.error.message); return; }
             toast.success("Réponse modifiée !");
             await chargerQuestionsEns();
+        }
+// ════════════ SALLE DES PROFS (ADMIN) ════════════
+        async function afficherSalleProfs() {
+            hideAllViews();
+            document.getElementById('view-salle-profs').classList.remove('hidden');
+            await chargerMessagesStaff();
+            
+            if (window.staffChannel) supabaseClient.removeChannel(window.staffChannel);
+            window.staffChannel = supabaseClient.channel('staff-' + monEcoleId)
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'messages_staff', filter: 'ecole_id=eq.' + monEcoleId }, () => {
+                    chargerMessagesStaff();
+                }).subscribe();
+            window.scrollTo(0, 0);
+        }
+
+        async function chargerMessagesStaff() {
+            var conteneur = document.getElementById('staff-messages');
+            var res = await supabaseClient.from('messages_staff').select('*, utilisateurs!auteur_id(prenom, nom, role)').eq('ecole_id', monEcoleId).order('date_envoi', { ascending: true });
+            
+            var messages = res.data || [];
+            if (messages.length === 0) {
+                conteneur.innerHTML = '<div class="text-center text-gray-400 text-sm mt-10">Aucun message. Lancez la discussion !</div>';
+                return;
+            }
+
+            var html = '';
+            messages.forEach(function(m) {
+                var u = m.utilisateurs || {};
+                var estMoi = (m.auteur_id === currentUser.id);
+                var initiale = (u.prenom || '?').charAt(0).toUpperCase();
+                var dateStr = new Date(m.date_envoi).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                var roleLabel = (u.role === 'admin') ? '👨🏾‍💼 Direction' : '👨🏾‍🏫 Prof';
+                var peutSuppr = estMoi || currentUser.role === 'admin';
+                var btnSuppr = peutSuppr ? '<button onclick="supprimerMessageStaff(' + m.id + ')" style="background:none; border:none; cursor:pointer; font-size:10px; margin-left:6px; opacity:0.5;">🗑️</button>' : '';
+
+                html += '<div class="flex gap-2 ' + (estMoi ? 'flex-row-reverse' : '') + '">';
+                html += '<div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center font-bold text-purple-700 text-xs flex-shrink-0">' + initiale + '</div>';
+                html += '<div class="max-w-[80%] ' + (estMoi ? 'text-right' : 'text-left') + '">';
+                html += '<p class="text-[10px] text-gray-500 mb-1">' + u.prenom + ' • ' + roleLabel + ' • ' + dateStr + btnSuppr + '</p>';
+                html += '<div class="px-4 py-2 rounded-2xl inline-block ' + (estMoi ? 'bg-edu-blue text-white rounded-tr-none' : 'bg-white text-gray-800 shadow-sm border border-gray-100 rounded-tl-none') + '">';
+                html += '<p class="text-sm m-0" style="white-space: pre-wrap;">' + echapperHtml(m.contenu) + '</p>';
+                html += '</div></div></div>';
+            });
+            conteneur.innerHTML = html;
+            conteneur.scrollTop = conteneur.scrollHeight;
+        }
+
+        async function envoyerMessageStaff() {
+            var input = document.getElementById('staff-input');
+            var texte = input.value.trim();
+            if (!texte) return;
+            input.value = '';
+
+            await supabaseClient.from('messages_staff').insert([{
+                ecole_id: monEcoleId,
+                auteur_id: currentUser.id,
+                contenu: texte
+            }]);
+            await chargerMessagesStaff();
+        }
+
+        async function supprimerMessageStaff(id) {
+            if (!confirm('Supprimer ce message ?')) return;
+            await supabaseClient.from('messages_staff').delete().eq('id', id);
+            await chargerMessagesStaff();
+        }
+// ════════════ GESTION DU MODE HORS-LIGNE (ENSEIGNANT) ════════════
+        function verifierReseau() {
+            var bandeau = document.getElementById('bandeau-offline');
+            if (!navigator.onLine) {
+                bandeau.classList.remove('hidden');
+            } else {
+                bandeau.classList.add('hidden');
+            }
+        }
+        window.addEventListener('online', verifierReseau);
+        window.addEventListener('offline', verifierReseau);
+        verifierReseau();
+
+        function sauvegarderLocalEns(cle, data) {
+            try { localStorage.setItem('edulink_ens_' + cle, JSON.stringify(data)); } catch(e) {}
+        }
+        function lireLocalEns(cle) {
+            try { var data = localStorage.getItem('edulink_ens_' + cle); return data ? JSON.parse(data) : null; } catch(e) { return null; }
         }
         async function seDeconnecter() { 
     await supabaseClient.auth.signOut(); // Détruit le JWT de manière sécurisée
