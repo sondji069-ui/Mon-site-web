@@ -7356,18 +7356,17 @@ CRENEAUX_APERCU.forEach((cr, idx) => {
 
                 if (error) throw error;
                 
-                console.log("Réponse Supabase :", data);
-
                 if (data && data.succes > 0) {
-                    toast.success("Notification envoyée ! Vérifie ton écran d'accueil.");
-                } else if (data && data.succes === 0) {
-                    toast.warning("Aucun appareil trouvé. As-tu cliqué sur 'Activer les notifications' ?");
+                    toast.success("Notification envoyée !");
+                } else if (data && data.erreurs && data.erreurs.length > 0) {
+                    // AFFICHER L'ERREUR EXACTE D'APPLE
+                    var errStr = JSON.stringify(data.erreurs[0]);
+                    alert("Erreur d'Apple : " + errStr);
                 } else {
-                    toast.error("Erreur de l'Edge Function : " + (data.error || "Inconnue"));
+                    toast.warning("Aucun appareil trouvé en base.");
                 }
             } catch (err) {
-                console.error(err);
-                toast.error("Erreur réseau : " + err.message);
+                toast.error("Erreur : " + err.message);
             }
         }
         async function seDeconnecter() { 
