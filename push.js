@@ -2,7 +2,7 @@
 // EDU-LINK — Web Push (notifications navigateur)
 // ==========================================
 
-const VAPID_PUBLIC_KEY = 'BPUV8Yqd8ZKhdZ58GK8rJvHAvV_tUDy7slEpT5V-OtwCEd6-2j8hlDmHixCyVZOuOyHvhH8rATL6wlp5N5aEqLo';
+const VAPID_PUBLIC_KEY = 'BAOFtGAJhV-iYNEGQf-ASYYGwgJmBjQ5wbcxRvY1Sn63GB2pw91cqpVkuUS5YCnPccy3fcpRUdkx7UnMyNslhEs';
 
 // Convertir la cle publique base64 en Uint8Array
 function urlBase64ToUint8Array(base64String) {
