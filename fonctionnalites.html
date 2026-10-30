@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDU-LINK - Dossier de Présentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { 
+            theme: { 
+                extend: { 
+                    colors: { 'edu-blue': '#004AAD', 'edu-green': '#2EAD5E', 'edu-pink': '#EC4899', 'edu-orange': '#F59E0B', 'edu-dark': '#0B1121', 'edu-gold': '#FBBF24', 'edu-purple': '#8B5CF6' }, 
+                    fontFamily: { sans: ['Poppins', 'sans-serif'] }
+                } 
+            } 
+        }
+    </script>
+    <style>
+        body { background-color: #f8fafc; overflow-x: hidden; scroll-behavior: smooth; }
+        .bg-grid-slate { background-size: 40px 40px; background-image: linear-gradient(to right, rgba(148, 163, 184, 0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(148, 163, 184, 0.08) 1px, transparent 1px); }
+        .text-gradient-blue { background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-image: linear-gradient(135deg, #004AAD 0%, #3B82F6 100%); }
+        .text-gradient-green { background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-image: linear-gradient(135deg, #2EAD5E 0%, #10B981 100%); }
+        .text-gradient-pink { background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-image: linear-gradient(135deg, #EC4899 0%, #F43F5E 100%); }
+        
+        .glass { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.5); }
+        .hover-lift { transition: transform 0.4s, box-shadow 0.4s; }
+        .hover-lift:hover { transform: translateY(-8px); box-shadow: 0 30px 60px -15px rgba(0,0,0,0.15); }
+
+        /* Scroll Animation */
+        .reveal { opacity: 0; transform: translateY(40px); transition: all 0.8s; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        
+        /* Mockups styles */
+        .mockup-window { border-radius: 12px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.05); background: #fff; }
+        .mockup-header { padding: 12px 16px; background: #f8fafc; display: flex; gap: 6px; border-bottom: 1px solid #e2e8f0; }
+        .mockup-dot { width: 10px; height: 10px; border-radius: 50%; }
+        
+        /* ══════════════════════════════════════════════════════════ */
+        /* ⚠️ RÈGLES SPÉCIALES POUR LE FORMAT PDF (IMPRESSION) ⚠️ */
+        /* ══════════════════════════════════════════════════════════ */
+        @media print {
+            @page { size: A4 landscape; margin: 10mm; } /* Format paysage pour les présentations */
+            body { 
+                background: white !important; 
+                -webkit-print-color-adjust: exact; 
+                print-color-adjust: exact; 
+            }
+            nav, footer, .no-print { display: none !important; }
+            
+            /* Forcer l'affichage des blocs cachés par l'animation */
+            .reveal { opacity: 1 !important; transform: none !important; }
+            
+            /* Sauts de page */
+            .page-break { page-break-before: always; }
+            
+            /* Ajustements de couleurs pour l'impression */
+            .bg-edu-dark { background: #0B1121 !important; color: white !important; }
+            .bg-gray-50 { background: #f8fafc !important; }
+            .shadow-xl, .shadow-2xl { box-shadow: none !important; border: 1px solid #e2e8f0 !important; }
+        }
+    </style>
+</head>
+<body class="font-sans text-gray-800 antialiased bg-grid-slate">
+
+    <!-- NAVBAR (Cachée en PDF) -->
+    <nav class="fixed w-full top-0 z-50 glass shadow-sm no-print">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-black text-edu-dark tracking-tighter flex items-center gap-2">
+                <span class="bg-edu-blue text-white p-1.5 rounded-lg text-lg leading-none shadow-md">📖</span> EDU-LINK
+            </a>
+            <div class="flex gap-4 items-center">
+                <a href="demo.html" class="bg-edu-blue text-white text-sm font-black px-6 py-3 rounded-xl hover:bg-blue-800 transition shadow-lg">Essai Gratuit</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- PAGE 1 : COUVERTURE -->
+    <header class="relative pt-32 pb-20 px-6 max-w-7xl mx-auto z-10 min-h-screen flex flex-col justify-center">
+        <div class="text-center">
+            <div class="inline-flex items-center gap-2 bg-white border border-gray-200 text-edu-blue font-black text-xs px-5 py-2.5 rounded-full uppercase tracking-widest mb-8 shadow-sm">
+                Dossier de Présentation Officiel
+            </div>
+            
+            <h1 class="text-6xl md:text-8xl font-black text-edu-dark leading-[1.05] mb-8 tracking-tighter">
+                L'école de demain<br>se pilote <span class="text-gradient-blue">aujourd'hui.</span>
+            </h1>
+            
+            <p class="text-xl md:text-2xl text-gray-500 mb-12 max-w-3xl mx-auto font-medium leading-relaxed">
+                Ne laissez plus l'administratif ruiner votre passion pour l'éducation. EDU-LINK connecte la Direction, les Profs, les Élèves et les Parents dans un écosystème <b class="text-edu-dark">sécurisé, fluide et hors-ligne.</b>
+            </p>
+
+            <!-- Mockup Central -->
+            <div class="relative mx-auto max-w-4xl mt-10">
+                <div class="mockup-window bg-white rounded-2xl overflow-hidden shadow-2xl border border-gray-200">
+                    <div class="mockup-header">
+                        <div class="mockup-dot bg-red-400"></div>
+                        <div class="mockup-dot bg-yellow-400"></div>
+                        <div class="mockup-dot bg-green-400"></div>
+                        <div class="ml-4 bg-white rounded-md text-[10px] text-gray-400 px-4 py-1 flex items-center w-64 border border-gray-100">🔒 edulink.sn/admin/dashboard</div>
+                    </div>
+                    <div class="flex h-[300px]">
+                        <div class="w-56 bg-gray-50 border-r border-gray-100 p-4 hidden md:block">
+                            <div class="space-y-1">
+                                <div class="bg-edu-blue/10 text-edu-blue font-bold text-xs px-4 py-3 rounded-lg flex items-center gap-3"><span>🏠</span> Accueil</div>
+                                <div class="text-gray-500 font-medium text-xs px-4 py-3 rounded-lg flex items-center gap-3"><span>🎓</span> Élèves</div>
+                                <div class="text-gray-500 font-medium text-xs px-4 py-3 rounded-lg flex items-center gap-3"><span>👨🏾‍🏫</span> Enseignants</div>
+                            </div>
+                        </div>
+                        <div class="flex-1 p-6 bg-gray-50/50">
+                            <div class="grid grid-cols-3 gap-3 mb-6">
+                                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100"><p class="text-[10px] text-gray-500 font-bold uppercase mb-1">Élèves</p><p class="text-2xl font-black text-gray-800">1 248</p></div>
+                                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100"><p class="text-[10px] text-gray-500 font-bold uppercase mb-1">Encaissé</p><p class="text-2xl font-black text-edu-green">45M</p></div>
+                                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100"><p class="text-[10px] text-gray-500 font-bold uppercase mb-1">Absents</p><p class="text-2xl font-black text-edu-orange">14</p></div>
+                            </div>
+                            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 h-32 flex items-end gap-2 pb-2">
+                                <div class="w-full bg-blue-100 rounded-t-sm h-[40%]"></div>
+                                <div class="w-full bg-blue-100 rounded-t-sm h-[60%]"></div>
+                                <div class="w-full bg-blue-100 rounded-t-sm h-[30%]"></div>
+                                <div class="w-full bg-edu-blue rounded-t-sm h-[80%]"></div>
+                                <div class="w-full bg-blue-100 rounded-t-sm h-[50%]"></div>
+                                <div class="w-full bg-blue-100 rounded-t-sm h-[70%]"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- PAGE 2 : LE PROBLÈME (Saut de page en PDF) -->
+    <section class="py-32 bg-edu-dark text-white relative overflow-hidden page-break">
+        <div class="max-w-6xl mx-auto px-6 relative z-10">
+            <div class="text-center mb-20">
+                <span class="text-red-400 font-bold uppercase tracking-widest text-sm mb-2 block">Le constat est sans appel</span>
+                <h2 class="text-4xl md:text-6xl font-black mb-6">Combien vous coûte<br>le désordre actuel ?</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white/5 p-8 rounded-3xl border border-white/10">
+                    <div class="w-14 h-14 bg-red-500/20 text-red-400 rounded-2xl flex items-center justify-center text-2xl mb-6">⏳</div>
+                    <p class="text-5xl font-black text-white mb-2">15h</p>
+                    <p class="font-bold text-lg text-red-400 mb-2">Perdues chaque mois</p>
+                    <p class="text-sm text-gray-400">Calculs de moyennes sur Excel, impression des bulletins. Du temps que vous ne passez pas sur le terrain.</p>
+                </div>
+                <div class="bg-white/5 p-8 rounded-3xl border border-white/10">
+                    <div class="w-14 h-14 bg-orange-500/20 text-orange-400 rounded-2xl flex items-center justify-center text-2xl mb-6">💸</div>
+                    <p class="text-5xl font-black text-white mb-2">30%</p>
+                    <p class="font-bold text-lg text-orange-400 mb-2">D'impayés involontaires</p>
+                    <p class="text-sm text-gray-400">Sans relance automatique, les parents oublient de payer. L'argent rentre moins vite.</p>
+                </div>
+                <div class="bg-white/5 p-8 rounded-3xl border border-white/10">
+                    <div class="w-14 h-14 bg-edu-pink/20 text-edu-pink rounded-2xl flex items-center justify-center text-2xl mb-6">📵</div>
+                    <p class="text-5xl font-black text-white mb-2">J+3</p>
+                    <p class="font-bold text-lg text-edu-pink mb-2">Pour prévenir un parent</p>
+                    <p class="text-sm text-gray-400">Un élève est absent aujourd'hui. Le parent l'apprend 3 jours plus tard, ou jamais.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PAGE 3 : LA JOURNÉE TYPE (Saut de page en PDF) -->
+    <section class="max-w-7xl mx-auto px-6 py-32 page-break">
+        <div class="text-center mb-24">
+            <span class="text-edu-blue font-bold uppercase tracking-widest text-sm mb-2 block">L'expérience utilisateur</span>
+            <h2 class="text-4xl md:text-6xl font-black text-edu-dark mb-6">La journée type avec EDU-LINK.</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-12 h-12 bg-blue-50 text-edu-blue rounded-2xl flex items-center justify-center text-2xl">👨🏾‍💼</div>
+                    <h3 class="font-black text-xl text-edu-blue">08h00 : L'Admin ouvre l'école</h3>
+                </div>
+                <p class="text-gray-600 text-sm leading-relaxed">Le directeur ouvre EDU-LINK. Il voit en direct : 2 profs absents (il trouve des remplaçants en 2 clics), 18 paiements reçus cette nuit sur Wave, et 0 conflit d'emploi du temps pour la semaine.</p>
+            </div>
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-12 h-12 bg-green-50 text-edu-green rounded-2xl flex items-center justify-center text-2xl">👩🏾‍🏫</div>
+                    <h3 class="font-black text-xl text-edu-green">10h00 : Le prof fait cours</h3>
+                </div>
+                <p class="text-gray-600 text-sm leading-relaxed">Le professeur fait l'appel sur son téléphone. Aïssatou est absente. En 1 seconde, le téléphone de son parent sonne avec une notification. Le prof saisit ensuite une nouvelle note pour Moussa : 16/20.</p>
+            </div>
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-12 h-12 bg-orange-50 text-edu-orange rounded-2xl flex items-center justify-center text-2xl">👩🏾‍🎓</div>
+                    <h3 class="font-black text-xl text-edu-orange">15h00 : L'élève révise</h3>
+                </div>
+                <p class="text-gray-600 text-sm leading-relaxed">De retour à la maison, l'élève a un doute. Il pose une question anonymement sur la Boîte à questions. 3 autres élèves "likent" la question pour montrer qu'ils ont le même doute.</p>
+            </div>
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-12 h-12 bg-pink-50 text-edu-pink rounded-2xl flex items-center justify-center text-2xl">👨‍👩‍👧</div>
+                    <h3 class="font-black text-xl text-edu-pink">18h00 : Le parent vérifie</h3>
+                </div>
+                <p class="text-gray-600 text-sm leading-relaxed">Le parent reçoit une notification : "Votre enfant a eu 16/20 en Maths". Il ouvre l'app, voit son classement, et remarque que le prof a répondu à la question anonyme sur le mur de classe.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- PAGE 4 : LES MODULES (Saut de page en PDF) -->
+    <section class="py-32 bg-gray-50 page-break">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-20">
+                <h2 class="text-4xl md:text-6xl font-black text-edu-dark mb-6">Chaque détail a été pensé.</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white rounded-3xl p-8 border border-gray-100">
+                    <h3 class="text-2xl font-black mb-4 flex items-center gap-2"><span class="text-edu-blue">🔍</span> CRM Élève Ultime</h3>
+                    <p class="text-gray-600 text-sm mb-4">Recherche instantanée. Fiche à 360° : notes, absences, conduite (🌟/⚠️) et paiements. Export PDF en 1 clic.</p>
+                </div>
+                <div class="bg-white rounded-3xl p-8 border border-gray-100">
+                    <h3 class="text-2xl font-black mb-4 flex items-center gap-2"><span class="text-edu-orange">🔔</span> Notifications Push</h3>
+                    <p class="text-gray-600 text-sm mb-4">Le téléphone des parents sonne même si l'application est fermée. Fonctionne sur iOS et Android.</p>
+                </div>
+                <div class="bg-white rounded-3xl p-8 border border-gray-100">
+                    <h3 class="text-2xl font-black mb-4 flex items-center gap-2"><span class="text-edu-green">📴</span> Mode Hors-Ligne</h3>
+                    <p class="text-gray-600 text-sm mb-4">Les profs font l'appel et saisissent les notes sans réseau. Tout se synchronise au retour de la connexion.</p>
+                </div>
+                <div class="bg-white rounded-3xl p-8 border border-gray-100">
+                    <h3 class="text-2xl font-black mb-4 flex items-center gap-2"><span class="text-edu-purple">🤖</span> Emploi du temps (IA)</h3>
+                    <p class="text-gray-600 text-sm mb-4">L'algorithme place les cours sans conflit de salles ou de professeurs en 2 secondes.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PAGE 5 : INNOVATIONS (Saut de page en PDF) -->
+    <section class="py-32 bg-white page-break">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-20">
+                <h2 class="text-4xl md:text-6xl font-black text-edu-dark mb-6">Nos Innovations Exclusives.</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <div class="bg-yellow-50 rounded-3xl p-8 border border-yellow-100">
+                    <h3 class="text-2xl font-black mb-4">🤫 Boîte à Questions Anonyme</h3>
+                    <p class="text-gray-600 text-sm mb-4">Les élèves timides posent des questions sans donner leur nom. Les autres likent. Le prof répond aux plus populaires. Un outil pédagogique révolutionnaire.</p>
+                </div>
+                <div class="bg-gray-900 text-white rounded-3xl p-8">
+                    <h3 class="text-2xl font-black mb-4">📱 Réseau Social (EDU-Feed)</h3>
+                    <p class="text-gray-400 text-sm mb-4">Remplacez les groupes WhatsApp ingérables. Un espace privé et modéré pour partager les annonces et les réussites des élèves.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PAGE 6 : CONCLUSION (Saut de page en PDF) -->
+    <footer class="py-32 text-center px-6 relative overflow-hidden bg-edu-blue text-white page-break">
+        <div class="max-w-4xl mx-auto relative z-10">
+            <h2 class="text-5xl md:text-7xl font-black mb-8 leading-tight">Prêt à faire passer votre école<br>dans une autre dimension ?</h2>
+            <p class="text-2xl text-blue-100 mb-12">Testez gratuitement pendant 2 mois. Configuration offerte. Sans engagement.</p>
+            <div class="bg-white text-edu-blue text-xl font-black px-16 py-6 rounded-2xl inline-block shadow-2xl">
+                www.edu-link.sn
+            </div>
+            <p class="mt-8 text-sm text-blue-200">Contactez-nous pour planifier votre démonstration.</p>
+        </div>
+    </footer>
+
+    <!-- Script pour animation au scroll (inutile pour le PDF mais garde l'aspect vivant sur le web) -->
+    <script>
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) { entry.target.classList.add('active'); }
+            });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>
