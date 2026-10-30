@@ -508,7 +508,7 @@
             monEcoleId = currentUser.ecole_id;
             afficherAvatarHeader();
             initTheme();
-            document.getElementById('welcome-message').innerText = "Mme " + currentUser.nom;
+            document.getElementById('welcome-message').innerText = (currentUser.genre === 'F' ? "Mme " : "M. ") + currentUser.nom;
             if (monEcoleId) {
                 var resEcole = await supabaseClient.from('ecoles').select('nom, signature_url').eq('id', monEcoleId).single();
                 if (resEcole.data) {

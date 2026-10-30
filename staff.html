@@ -418,7 +418,7 @@
             afficherAvatarHeader();
             initTheme();
             await chargerMesClassesStaff();
-            document.getElementById('welcome-message').innerText = currentUser.prenom + ' ' + currentUser.nom;
+            document.getElementById('welcome-message').innerText = (currentUser.genre === 'F' ? "Mme " : "M. ") + currentUser.nom;
 
             var infoRole = LABELS_SOUS_ROLE[currentUser.sous_role] || LABELS_SOUS_ROLE.autre;
             document.getElementById('role-affiche').innerText = infoRole.label;

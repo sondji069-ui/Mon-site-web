@@ -161,6 +161,8 @@
                         <label class="block text-xs font-bold text-gray-700 mb-1">Email *</label>
                         <input type="email" id="email" placeholder="votre@email.com" class="champ w-full px-4 py-3 rounded-xl border border-gray-300 text-sm">
                     </div>
+<div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Sexe *</label>
                     <div>
                         <label class="block text-xs font-bold text-gray-700 mb-1">Telephone</label>
                         <input type="tel" id="telephone" placeholder="+221 ..." class="champ w-full px-4 py-3 rounded-xl border border-gray-300 text-sm">
@@ -213,7 +215,11 @@
                         </div>
                     </div>
                 </div>
-
+<select id="genre" class="champ w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-sm">
+                            <option value="M">Homme (M.)</option>
+                            <option value="F">Femme (Mme)</option>
+                        </select>
+                    </div>
                 <button onclick="creerCompte()" id="btn-inscription" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl mt-4 flex items-center justify-center gap-2">
                     <span id="btn-text">Creer mon compte</span>
                 </button>
@@ -458,13 +464,14 @@
 
                 // 2. Créer le profil dans la table utilisateurs (sans mot de passe, avec l'auth_id)
                 const { data: nouvelUtilisateur, error: errUser } = await supabaseClient.from('utilisateurs').insert([{
-                    auth_id: authData.user.id, // <-- Le lien magique
+                    auth_id: authData.user.id,
                     ecole_id: ecoleValidee.id,
                     role: roleChoisi,
                     prenom: prenom,
                     nom: nom,
                     email: email,
                     telephone: telephone || null,
+                    genre: document.getElementById('genre').value,
                     statut: 'en_attente'
                 }]).select().single();
 
@@ -492,11 +499,14 @@
                 }
 
                 if (roleChoisi === 'enseignant') {
-                    await supabaseClient.from('enseignants').insert([{
+                    const { error: errEns } = await supabaseClient.from('enseignants').insert([{
                         utilisateur_id: nouvelUtilisateur.id,
                         specialite: ensSpecialite || null,
                         date_embauche: new Date().toISOString().split('T')[0]
                     }]);
+                    if (errEns) {
+                        console.warn("Fiche enseignant non créée à l'inscription (elle sera créée à la validation) :", errEns);
+                    }
                 }
 
                 const { data: admins } = await supabaseClient.from('utilisateurs').select('id').eq('ecole_id', ecoleValidee.id).eq('role', 'admin');

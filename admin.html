@@ -82,10 +82,19 @@
                 </div>
             </div>
 
-            <div class="flex-1 overflow-y-auto -mt-4 pt-6 px-4 pb-6">
-                <!-- ═══════════════ ACCUEIL ═══════════════ -->
+            <div id="conteneur-scroll" class="flex-1 overflow-y-auto -mt-4 pt-6 px-4 pb-6">
+                
                 <!-- ═══════════════ ACCUEIL — VERSION PRO ═══════════════ -->
 <div id="view-accueil" class="hidden">
+<!-- BARRE DE RECHERCHE GLOBALE -->
+    <div class="anim-up delay-1" style="margin-bottom: 20px; position: relative; z-index: 50;">
+        <div style="background: white; border-radius: 16px; padding: 4px 12px; display: flex; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e5e7eb;">
+            <span style="font-size: 20px; margin-right: 10px;">🔍</span>
+            <input type="text" id="recherche-globale" oninput="rechercheGlobaleEleve(this.value)" placeholder="Rechercher un élève (nom, matricule...)" style="width: 100%; padding: 12px 0; border: none; outline: none; font-size: 14px; background: transparent;">
+        </div>
+        <!-- Résultats de recherche -->
+        <div id="resultats-recherche-globale" class="hidden" style="position: absolute; top: 100%; left: 0; right: 0; background: white; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-top: 8px; max-height: 300px; overflow-y: auto; border: 1px solid #e5e7eb;"></div>
+    </div>
     <button onclick="activerNotificationsPush(supabaseClient, currentUser)" id="btn-push" class="btn-float anim-up" style="background: linear-gradient(135deg, #F59E0B, #EA580C); margin-bottom: 14px;">
         <div class="btn-icon">🔔</div>
         <div class="btn-content">
@@ -761,12 +770,12 @@
 
                 <!-- ═══════════════ FICHE ELEVE ═══════════════ -->
                 <div id="view-fiche-eleve" class="hidden fade-in">
-                    <button onclick="afficherGestionEleves()" class="text-2xl mb-3">Retour</button>
-                    <div id="fiche-eleve-contenu"></div>
-                </div>
+    <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
+    <div id="fiche-eleve-contenu"></div>
+</div>
 <!-- ═══════════════ EMPLOI ENSEIGNANTS (LISTE) ═══════════════ -->
                 <div id="view-emploi-enseignants" class="hidden fade-in">
-                    <button onclick="retourAccueil()" class="text-2xl mb-3">Retour</button>
+                    <button onclick="retourFicheEleve()" class="text-2xl mb-3">Retour</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-2">Emploi du temps par enseignant</h1>
                     <p class="text-xs text-gray-500 mb-3">Vue globale de chaque enseignant (toutes classes confondues).</p>
                     <div id="emp-ens-conflits-resume" class="mb-3"></div>
@@ -1345,7 +1354,7 @@ window.CRENEAUX_EDT = window.CRENEAUX_EDT || [
             monEcoleId = currentUser.ecole_id;
             afficherAvatarHeader();
             initTheme();
-            document.getElementById('welcome-message').innerText = "M. " + currentUser.nom;
+            document.getElementById('welcome-message').innerText = (currentUser.genre === 'F' ? "Mme " : "M. ") + currentUser.nom;
             if (monEcoleId) {
                 const { data: ecole } = await supabaseClient.from('ecoles').select('nom,logo_url,signature_url,code_acces').eq('id', monEcoleId).single();
                 if (ecole) {
@@ -1442,18 +1451,14 @@ window.CRENEAUX_EDT = window.CRENEAUX_EDT || [
         }
 
         function hideAllViews() {
+            // On mémorise la position de défilement de la bonne div
             var accueil = document.getElementById('view-accueil');
-            var conteneurScroll = document.querySelector('#page-dashboard > .flex-1');
+            var scrollContainer = document.getElementById('conteneur-scroll');
             
-            if (accueil && !accueil.classList.contains('hidden')) {
-                // On sauvegarde le scroll du body (mobile) ET du conteneur (PC)
-                var posMobile = window.scrollY || document.documentElement.scrollTop || 0;
-                var posPc = conteneurScroll ? conteneurScroll.scrollTop : 0;
-                
-                // On garde la plus grande des deux positions
-                window._scrollAccueilPosition = Math.max(posMobile, posPc);
+            if (accueil && !accueil.classList.contains('hidden') && scrollContainer) {
+                window._scrollAccueil = scrollContainer.scrollTop;
             }
-            document.querySelectorAll('[id^="view-"]').forEach(function(el) { el.classList.add('hidden'); });
+            document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
         }
 
         function retourAccueil() {
@@ -1465,28 +1470,17 @@ window.CRENEAUX_EDT = window.CRENEAUX_EDT || [
             chargerBadgeDemandes();
             chargerBadgeEquipe();
             chargerBadgeMdp();
-            
-            var pos = window._scrollAccueilPosition || 0;
-            var conteneur = document.querySelector('#page-dashboard > .flex-1');
 
-            if (pos > 0) {
-                // 1. On scrolle immédiatement
-                window.scrollTo(0, pos);
-                if (conteneur) conteneur.scrollTop = pos;
-                
-                // 2. On force le scroll après le rendu des données
-                setTimeout(function() {
-                    window.scrollTo(0, pos);
-                    if (conteneur) conteneur.scrollTop = pos;
-                }, 100);
-                
-                // 3. Une dernière sécurité au cas où les images/stats mettent du temps à charger
-                setTimeout(function() {
-                    window.scrollTo(0, pos);
-                    if (conteneur) conteneur.scrollTop = pos;
-                }, 300);
-            }
+            // On restaure la position (avec un délai pour laisser le temps au DOM de s'afficher)
+            var pos = window._scrollAccueil || 0;
+            setTimeout(function() {
+                var scrollContainer = document.getElementById('conteneur-scroll');
+                if (scrollContainer) {
+                    scrollContainer.scrollTop = pos;
+                }
+            }, 50);
         }
+        
 // ═════════════════════════════════════════════════════════════
         //  DASHBOARD LIVE — Vue temps réel
         // ═════════════════════════════════════════════════════════════
@@ -4128,174 +4122,153 @@ if (window.Cache) Cache.invalidatePattern('admin_');
         }
 
         // ════════════ FICHE ELEVE COMPLETE ════════════
-        async function afficherFicheEleve(eleveId) {
+async function afficherFicheEleve(eleveId) {
+            // On mémorise d'où l'on vient
+            var vueActuelle = document.querySelector('[id^="view-"]:not(.hidden)');
+            if (vueActuelle) window._vuePrecedenteFiche = vueActuelle.id;
+
             hideAllViews();
             document.getElementById('view-fiche-eleve').classList.remove('hidden');
             const conteneur = document.getElementById('fiche-eleve-contenu');
             conteneur.innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
 
-            const { data: eleve } = await supabaseClient.from('eleves').select('*, utilisateurs!utilisateur_id(prenom, nom, email, telephone), classes(nom, frais_scolarite)').eq('id', eleveId).single();
-            if (!eleve) { conteneur.innerHTML = '<p class="text-red-500 text-center py-6">Eleve introuvable.</p>'; return; }
-
-            const { data: notes } = await supabaseClient.from('notes').select('*').eq('eleve_id', eleveId).order('trimestre').order('matiere');
-            const { data: absences } = await supabaseClient.from('absences').select('*').eq('eleve_id', eleveId).order('date_absence', { ascending: false });
-            const { data: paiements } = await supabaseClient.from('paiements').select('*').eq('eleve_id', eleveId).order('date_paiement', { ascending: false });
-
-            let parent = null;
-            if (eleve.parent_id) {
-                const { data: p } = await supabaseClient.from('utilisateurs').select('prenom, nom, email, telephone').eq('id', eleve.parent_id).single();
-                parent = p;
-            }
-
-            const prenom = eleve.utilisateurs.prenom;
-            const nom = eleve.utilisateurs.nom;
-            const initiale = prenom.charAt(0).toUpperCase();
-            const classeNom = eleve.classes ? eleve.classes.nom : 'Sans classe';
-            const frais = eleve.classes && eleve.classes.frais_scolarite ? parseFloat(eleve.classes.frais_scolarite) : 0;
-
-            const totalPaye = (paiements || []).filter(p => p.statut === 'paye').reduce((s, p) => s + parseFloat(p.montant), 0);
-            const solde = frais - totalPaye;
-
-            let moyGen = null;
-            if (notes && notes.length > 0) {
-                let tp = 0, tc = 0;
-                notes.forEach(n => { tp += parseFloat(n.note) * n.coefficient; tc += n.coefficient; });
-                moyGen = tc > 0 ? tp / tc : null;
-            }
-
-            let html = '';
-
-            html += '<div class="bg-gradient-to-br from-edu-blue to-blue-700 text-white rounded-2xl shadow-lg p-4 mb-3">';
-            html += '<div class="flex items-center gap-3 mb-3">';
-            html += '<div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl font-bold">' + initiale + '</div>';
-            html += '<div class="flex-1 min-w-0"><p class="text-base font-bold truncate">' + prenom + ' ' + nom + '</p>';
-            html += '<p class="text-[11px] opacity-90">' + (eleve.matricule || '') + ' - ' + classeNom + '</p>';
-            html += '<p class="text-[10px] opacity-80 truncate">' + eleve.utilisateurs.email + '</p></div></div>';
-            html += '<div class="grid grid-cols-3 gap-2 text-center">';
-            html += '<div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-90">Moyenne</p><p class="text-sm font-bold mt-0.5">' + (moyGen !== null ? moyGen.toFixed(2) : '--') + '</p></div>';
-            html += '<div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-90">Absences</p><p class="text-sm font-bold mt-0.5">' + (absences ? absences.length : 0) + '</p></div>';
-            html += '<div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-90">Solde</p><p class="text-sm font-bold mt-0.5">' + solde.toLocaleString('fr-FR') + '</p></div>';
-            html += '</div></div>';
-
-            html += '<div class="grid grid-cols-3 gap-2 mb-3">';
-            html += '<button onclick="editerEleve(' + eleveId + ')" class="bg-blue-50 text-edu-blue font-bold py-2.5 rounded-xl text-xs">Modifier</button>';
-            html += '<button onclick="pv2OuvrirFormPaiement(' + eleveId + ')" class="bg-green-50 text-edu-green font-bold py-2.5 rounded-xl text-xs">Paiement</button>';
-            html += '<button onclick="ficheElevePDF()" class="bg-gray-100 text-gray-700 font-bold py-2.5 rounded-xl text-xs">PDF</button>';
-            html += '</div>';
-
-            html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">';
-            html += '<p class="text-sm font-bold text-gray-800 mb-2">Informations</p>';
-            html += '<div class="text-xs space-y-1">';
-            html += '<p><span class="text-gray-500">Naissance :</span> <b>' + (eleve.date_naissance ? new Date(eleve.date_naissance).toLocaleDateString('fr-FR') : 'N/A') + '</b></p>';
-            html += '<p><span class="text-gray-500">Telephone :</span> <b>' + (eleve.utilisateurs.telephone || 'N/A') + '</b></p>';
-            html += '<p><span class="text-gray-500">Parent :</span> <b>' + (parent ? parent.prenom + ' ' + parent.nom : 'Non renseigne') + '</b></p>';
-            if (parent && parent.telephone) html += '<p><span class="text-gray-500">Tel parent :</span> <b>' + parent.telephone + '</b></p>';
-            html += '</div></div>';
-
-            html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">';
-            html += '<p class="text-sm font-bold text-gray-800 mb-2">Paiements (' + (paiements ? paiements.length : 0) + ')</p>';
-            if (!paiements || paiements.length === 0) {
-                html += '<p class="text-xs text-gray-400 text-center py-2">Aucun paiement.</p>';
-            } else {
-                paiements.forEach(p => {
-                    const d = new Date(p.date_paiement).toLocaleDateString('fr-FR');
-                    const col = p.statut === 'paye' ? 'text-edu-green' : 'text-edu-orange';
-                    html += '<div class="flex justify-between py-1.5 border-b border-gray-100 last:border-b-0 text-xs">';
-                    html += '<div><p class="font-bold text-gray-800">' + p.type_paiement + '</p><p class="text-[10px] text-gray-500">' + d + ' - ' + p.methode + '</p></div>';
-                    html += '<p class="font-extrabold ' + col + '">' + parseFloat(p.montant).toLocaleString('fr-FR') + ' F</p></div>';
-                });
-            }
-            html += '</div>';
-
-            html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">';
-            html += '<p class="text-sm font-bold text-gray-800 mb-2">Notes (' + (notes ? notes.length : 0) + ')</p>';
-            if (!notes || notes.length === 0) {
-                html += '<p class="text-xs text-gray-400 text-center py-2">Aucune note.</p>';
-            } else {
-                const parMatiere = {};
-                notes.forEach(n => {
-                    if (!parMatiere[n.matiere]) parMatiere[n.matiere] = [];
-                    parMatiere[n.matiere].push(n);
-                });
-                Object.keys(parMatiere).sort().forEach(mat => {
-                    const notesMat = parMatiere[mat];
-                    let tp = 0, tc = 0;
-                    notesMat.forEach(n => { tp += parseFloat(n.note) * n.coefficient; tc += n.coefficient; });
-                    const moy = tc > 0 ? tp / tc : 0;
-                    const col = moy >= 10 ? '#2EAD5E' : '#EF4444';
-                    html += '<div class="mb-2 pb-2 border-b border-gray-100 last:border-b-0">';
-                    html += '<div class="flex justify-between items-center mb-1">';
-                    html += '<p class="text-xs font-bold text-gray-800">' + mat + '</p>';
-                    html += '<p class="text-xs font-bold" style="color:' + col + '">' + moy.toFixed(2) + '/20</p></div>';
-                    html += '<div class="flex flex-wrap gap-1">';
-                    notesMat.forEach(n => {
-                        html += '<span class="bg-gray-100 text-[10px] text-gray-700 px-2 py-0.5 rounded">T' + n.trimestre + ' : ' + parseFloat(n.note).toFixed(2) + '/' + n.coefficient + '</span>';
-                    });
-                    html += '</div></div>';
-                });
-            }
-            html += '</div>';
-
-            html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">';
-            html += '<p class="text-sm font-bold text-gray-800 mb-2">Absences (' + (absences ? absences.length : 0) + ')</p>';
-            if (!absences || absences.length === 0) {
-                html += '<p class="text-xs text-gray-400 text-center py-2">Aucune absence.</p>';
-            } else {
-                absences.slice(0, 20).forEach(a => {
-                    const d = new Date(a.date_absence).toLocaleDateString('fr-FR');
-                    const badge = a.justifiee ? '<span class="text-edu-green text-[10px] font-bold">Justifiee</span>' : '<span class="text-edu-red text-[10px] font-bold">Non justifiee</span>';
-                    html += '<div class="flex justify-between py-1.5 border-b border-gray-100 last:border-b-0 text-xs">';
-                    html += '<div><p class="font-bold text-gray-800">' + (a.matiere || 'Cours') + '</p><p class="text-[10px] text-gray-500">' + d + '</p></div>';
-                    html += badge + '</div>';
-                });
-                if (absences.length > 20) html += '<p class="text-[10px] text-gray-400 text-center mt-2">... ' + (absences.length - 20) + ' autres</p>';
-            }
-            html += '</div>';
-
-            conteneur.innerHTML = html;
-            window.scrollTo(0, 0);
-        }
-
-        async function ficheElevePDF() {
-            const conteneur = document.getElementById('fiche-eleve-contenu');
-            if (!conteneur) return;
-
-            let iframe = null;
             try {
-                const htmlInterne = '<div style="background:white;padding:20px;border:2px solid #004AAD;border-radius:12px;font-family:Arial,sans-serif;">'
-                    + '<div style="text-align:center;border-bottom:2px solid #004AAD;padding-bottom:12px;margin-bottom:16px;">'
-                    + '<h1 style="font-size:18px;font-weight:bold;color:#004AAD;margin:4px 0;">EDU-LINK</h1>'
-                    + '<p style="font-size:10px;color:#6b7280;margin:0;">' + (monEcoleNom || 'Etablissement') + '</p>'
-                    + '<p style="font-size:14px;font-weight:bold;color:#1f2937;margin-top:8px;">FICHE ELEVE</p>'
-                    + '</div>'
-                    + '<div style="font-family:Arial,sans-serif;color:#1f2937;">' + conteneur.innerHTML + '</div>'
-                    + '<p style="text-align:center;font-size:8px;color:#9ca3af;margin-top:14px;">Document genere par EDU-LINK</p>'
-                    + '</div>';
+                // 1. Infos de base
+                const { data: eleve, error: errElv } = await supabaseClient.from('eleves').select('*, utilisateurs!utilisateur_id(prenom, nom, email, telephone), classes(nom, frais_scolarite)').eq('id', eleveId).single();
+                if (errElv || !eleve) throw new Error("Élève introuvable.");
 
-                iframe = document.createElement('iframe');
-                iframe.style.cssText = 'position:fixed;top:0;left:0;width:800px;height:1100px;opacity:0;pointer-events:none;z-index:-1;border:none;';
-                document.body.appendChild(iframe);
-                const doc = iframe.contentDocument || iframe.contentWindow.document;
-                doc.open();
-                doc.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{margin:0;padding:20px;background:#ffffff;font-family:Arial,sans-serif;} .bg-white{background:#fff !important;} .text-white{color:#fff !important;} .bg-gradient-to-br{background:linear-gradient(135deg,#004AAD 0%,#1e40af 100%) !important;}</style></head><body>' + htmlInterne + '</body></html>');
-                doc.close();
-                await new Promise(r => setTimeout(r, 500));
+                // 2. Notes
+                const { data: notes } = await supabaseClient.from('notes').select('*').eq('eleve_id', eleveId).order('semestre').order('matiere');
+                
+                // 3. Absences
+                const { data: absences } = await supabaseClient.from('absences').select('*').eq('eleve_id', eleveId).order('date_absence', { ascending: false });
+                
+                // 4. Paiements
+                const { data: paiements } = await supabaseClient.from('paiements').select('*').eq('eleve_id', eleveId).order('date_paiement', { ascending: false });
 
-                const nomFichier = 'Fiche_Eleve_' + new Date().toISOString().split('T')[0] + '.pdf';
-                const options = { margin: 10, filename: nomFichier, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', width: 800, windowWidth: 800, scrollX: 0, scrollY: 0 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-                const pdfBlob = await html2pdf().set(options).from(doc.body).outputPdf('blob');
-                const fichier = new File([pdfBlob], nomFichier, { type: 'application/pdf' });
-                document.body.removeChild(iframe); iframe = null;
-
-                if (navigator.canShare && navigator.canShare({ files: [fichier] })) {
-                    await navigator.share({ files: [fichier], title: 'Fiche eleve' });
-                } else {
-                    const url = URL.createObjectURL(pdfBlob);
-                    window.open(url, '_blank');
+                // 5. Parent
+                let parent = null;
+                if (eleve.parent_id) {
+                    const { data: p } = await supabaseClient.from('utilisateurs').select('prenom, nom, email, telephone').eq('id', eleve.parent_id).single();
+                    parent = p;
                 }
+
+                // 6. Conduite (Sécurisé : si la table n'existe pas, on met un tableau vide)
+                let conduite = [];
+                try {
+                    const { data: cond } = await supabaseClient.from('conduite').select('*').eq('eleve_id', eleveId).order('date_incident', { ascending: false });
+                    if (cond) conduite = cond;
+                } catch (e) {
+                    console.log("Table conduite non trouvée ou erreur:", e);
+                }
+
+                // --- CONSTRUCTION DE L'INTERFACE ---
+                const prenom = eleve.utilisateurs.prenom;
+                const nom = eleve.utilisateurs.nom;
+                const initiale = prenom.charAt(0).toUpperCase();
+                const classeNom = eleve.classes ? eleve.classes.nom : 'Sans classe';
+                const frais = eleve.classes && eleve.classes.frais_scolarite ? parseFloat(eleve.classes.frais_scolarite) : 0;
+                const totalPaye = (paiements || []).filter(p => p.statut === 'paye').reduce((s, p) => s + parseFloat(p.montant), 0);
+                const solde = frais - totalPaye;
+
+                let moyGen = null;
+                if (notes && notes.length > 0) {
+                    let tp = 0, tc = 0;
+                    notes.forEach(n => { tp += parseFloat(n.note) * n.coefficient; tc += n.coefficient; });
+                    moyGen = tc > 0 ? tp / tc : null;
+                }
+
+                let html = '';
+
+                // En-tête
+                
+                html += '<div class="bg-gradient-to-br from-edu-blue to-blue-700 text-white rounded-2xl shadow-lg p-4 mb-3">';
+                html += '<div class="flex items-center gap-3 mb-3"><div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl font-bold">' + initiale + '</div>';
+                html += '<div class="flex-1 min-w-0"><p class="text-base font-bold truncate">' + prenom + ' ' + nom + '</p>';
+                html += '<p class="text-[11px] opacity-90">' + (eleve.matricule || '') + ' - ' + classeNom + '</p>';
+                html += '<p class="text-[10px] opacity-80 truncate">' + eleve.utilisateurs.email + '</p></div></div>';
+                html += '<div class="grid grid-cols-3 gap-2 text-center">';
+                html += '<div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-90">Moyenne</p><p class="text-sm font-bold mt-0.5">' + (moyGen !== null ? moyGen.toFixed(2) : '--') + '</p></div>';
+                html += '<div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-90">Absences</p><p class="text-sm font-bold mt-0.5">' + (absences ? absences.length : 0) + '</p></div>';
+                html += '<div class="bg-white bg-opacity-20 rounded-xl p-2"><p class="text-[9px] opacity-90">Solde</p><p class="text-sm font-bold mt-0.5">' + solde.toLocaleString('fr-FR') + '</p></div>';
+                html += '</div></div>';
+
+                // Boutons d'action
+                html += '<div class="grid grid-cols-3 gap-2 mb-3">';
+                html += '<button onclick="editerEleve(' + eleveId + ')" class="bg-blue-50 text-edu-blue font-bold py-2.5 rounded-xl text-xs">Modifier</button>';
+                html += '<button onclick="pv2OuvrirFormPaiement(' + eleveId + ')" class="bg-green-50 text-edu-green font-bold py-2.5 rounded-xl text-xs">Paiement</button>';
+                html += '<button onclick="ficheElevePDF()" class="bg-gray-100 text-gray-700 font-bold py-2.5 rounded-xl text-xs">PDF</button>';
+                html += '</div>';
+
+                // Informations
+                html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">';
+                html += '<p class="text-sm font-bold text-gray-800 mb-2">Informations</p>';
+                html += '<div class="text-xs space-y-1">';
+                html += '<p><span class="text-gray-500">Naissance :</span> <b>' + (eleve.date_naissance ? new Date(eleve.date_naissance).toLocaleDateString('fr-FR') : 'N/A') + '</b></p>';
+                html += '<p><span class="text-gray-500">Parent :</span> <b>' + (parent ? parent.prenom + ' ' + parent.nom : 'Non renseigne') + '</b></p>';
+                if (parent && parent.telephone) html += '<p><span class="text-gray-500">Tel parent :</span> <b>' + parent.telephone + '</b></p>';
+                html += '</div></div>';
+
+                // CONDUITE (Nouveau bloc)
+                html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">';
+                html += '<p class="text-sm font-bold text-gray-800 mb-2">🛡️ Conduite & Comportement</p>';
+                if (conduite.length === 0) {
+                    html += '<p class="text-xs text-gray-400 text-center py-2">Aucun incident enregistré.</p>';
+                } else {
+                    conduite.forEach(function(c) {
+                        var isPos = c.type === 'positif';
+                        var bgColor = isPos ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200';
+                        var icon = isPos ? '🌟' : '⚠️';
+                        var dateStr = new Date(c.date_incident).toLocaleDateString('fr-FR');
+                        html += '<div class="' + bgColor + ' border p-2 rounded-lg mb-2">';
+                        html += '<div class="flex justify-between items-start mb-1">';
+                        html += '<p class="text-xs font-bold ' + (isPos ? 'text-green-800' : 'text-red-800') + '">' + icon + ' ' + c.description + '</p>';
+                        html += '<span class="text-[9px] text-gray-500">' + dateStr + '</span></div></div>';
+                    });
+                }
+                html += '</div>';
+
+                // Notes
+                html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">';
+                html += '<p class="text-sm font-bold text-gray-800 mb-2">📝 Notes (' + (notes ? notes.length : 0) + ')</p>';
+                if (!notes || notes.length === 0) {
+                    html += '<p class="text-xs text-gray-400 text-center py-2">Aucune note.</p>';
+                } else {
+                    const parMatiere = {};
+                    notes.forEach(n => { if (!parMatiere[n.matiere]) parMatiere[n.matiere] = []; parMatiere[n.matiere].push(n); });
+                    Object.keys(parMatiere).sort().forEach(mat => {
+                        const notesMat = parMatiere[mat];
+                        let tp = 0, tc = 0;
+                        notesMat.forEach(n => { tp += parseFloat(n.note) * n.coefficient; tc += n.coefficient; });
+                        const moy = tc > 0 ? tp / tc : 0;
+                        const col = moy >= 10 ? '#2EAD5E' : '#EF4444';
+                        html += '<div class="mb-2 pb-2 border-b border-gray-100 last:border-b-0"><div class="flex justify-between items-center mb-1"><p class="text-xs font-bold text-gray-800">' + mat + '</p><p class="text-xs font-bold" style="color:' + col + '">' + moy.toFixed(2) + '/20</p></div>';
+                        html += '<div class="flex flex-wrap gap-1">';
+                        notesMat.forEach(n => { html += '<span class="bg-gray-100 text-[10px] text-gray-700 px-2 py-0.5 rounded">' + (n.type_evaluation || 'Note') + ' : ' + parseFloat(n.note).toFixed(2) + '</span>'; });
+                        html += '</div></div>';
+                    });
+                }
+                html += '</div>';
+
+                // Absences
+                html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">';
+                html += '<p class="text-sm font-bold text-gray-800 mb-2">🚫 Absences (' + (absences ? absences.length : 0) + ')</p>';
+                if (!absences || absences.length === 0) {
+                    html += '<p class="text-xs text-gray-400 text-center py-2">Aucune absence.</p>';
+                } else {
+                    absences.slice(0, 10).forEach(a => {
+                        var d = new Date(a.date_absence).toLocaleDateString('fr-FR');
+                        var badge = a.justifiee ? '<span class="text-edu-green text-[10px] font-bold">Justifiee</span>' : '<span class="text-edu-red text-[10px] font-bold">Non justifiee</span>';
+                        html += '<div class="flex justify-between py-1.5 border-b border-gray-100 last:border-b-0 text-xs"><div><p class="font-bold text-gray-800">' + (a.matiere || 'Cours') + '</p><p class="text-[10px] text-gray-500">' + d + '</p></div>' + badge + '</div>';
+                    });
+                }
+                html += '</div>';
+
+                conteneur.innerHTML = html;
+                window.scrollTo(0, 0);
+
             } catch (err) {
-                if (iframe && document.body.contains(iframe)) document.body.removeChild(iframe);
-                alert('Erreur : ' + err.message);
+                conteneur.innerHTML = '<div class="bg-red-50 text-red-600 p-4 rounded-xl text-sm">Erreur lors du chargement : ' + err.message + '</div>';
             }
         }
 
@@ -7360,6 +7333,66 @@ CRENEAUX_APERCU.forEach((cr, idx) => {
                 }
             } catch (err) {
                 toast.error("Erreur : " + err.message);
+            }
+        }
+// ════════════ RECHERCHE GLOBALE ════════════
+        async function rechercheGlobaleEleve(terme) {
+            var conteneur = document.getElementById('resultats-recherche-globale');
+            if (!terme || terme.length < 2) { conteneur.classList.add('hidden'); return; }
+            
+            conteneur.classList.remove('hidden');
+            conteneur.innerHTML = '<p style="padding: 15px; text-align: center; color: #6b7280; font-size: 12px;">Recherche...</p>';
+
+            var res = await supabaseClient.from('eleves')
+                .select('id, matricule, utilisateurs!utilisateur_id(prenom, nom), classes(nom)')
+                .eq('ecole_id', monEcoleId)
+                .or(`matricule.ilike.%${terme}%`)
+                .limit(5);
+            
+            // Si aucun résultat par matricule, on cherche par nom (nécessite une jointure)
+            if (!res.data || res.data.length === 0) {
+                var resU = await supabaseClient.from('utilisateurs').select('id').or(`prenom.ilike.%${terme}%,nom.ilike.%${terme}%`).eq('ecole_id', monEcoleId).eq('role', 'eleve');
+                if (resU.data && resU.data.length > 0) {
+                    var ids = resU.data.map(u => u.id);
+                    var resE = await supabaseClient.from('eleves').select('id, matricule, utilisateurs!utilisateur_id(prenom, nom), classes(nom)').in('utilisateur_id', ids);
+                    res.data = resE.data;
+                }
+            }
+
+            if (!res.data || res.data.length === 0) {
+                conteneur.innerHTML = '<p style="padding: 15px; text-align: center; color: #9ca3af; font-size: 12px;">Aucun élève trouvé.</p>';
+                return;
+            }
+
+            var html = '';
+            res.data.forEach(function(e) {
+                var u = e.utilisateurs || {};
+                var c = e.classes || {};
+                // On appelle une fonction propre
+                html += '<div onclick="ouvrirFicheDepuisRecherche(' + e.id + ')" style="padding: 12px 15px; border-bottom: 1px solid #f3f4f6; cursor: pointer; display: flex; align-items: center; gap: 10px;">';
+                html += '<div style="width: 30px; height: 30px; background: #dbeafe; color: #1e40af; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold;">' + (u.prenom ? u.prenom.charAt(0) : '?') + '</div>';
+                html += '<div><p style="font-size: 13px; font-weight: bold; margin: 0; color: #1f2937;">' + (u.prenom || '') + ' ' + (u.nom || '') + '</p>';
+                html += '<p style="font-size: 10px; color: #6b7280; margin: 0;">' + (e.matricule || '') + ' - ' + (c.nom || 'Sans classe') + '</p></div></div>';
+            });
+            conteneur.innerHTML = html;
+        }
+function ouvrirFicheDepuisRecherche(id) {
+            document.getElementById('resultats-recherche-globale').classList.add('hidden');
+            document.getElementById('recherche-globale').value = '';
+            afficherFicheEleve(id);
+        }
+function retourFicheEleve() {
+            hideAllViews();
+            var vuePrecedente = window._vuePrecedenteFiche || 'view-accueil';
+            
+            if (vuePrecedente === 'view-accueil') {
+                retourAccueil();
+            } else {
+                document.getElementById(vuePrecedente).classList.remove('hidden');
+                // Si on revient à la liste des élèves, on la recharge
+                if (vuePrecedente === 'view-liste-eleves') {
+                    afficherGestionEleves();
+                }
             }
         }
         async function seDeconnecter() { 

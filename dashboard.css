@@ -2751,3 +2751,32 @@ body.dark-mode .upload-zone.story-video {
 body.dark-mode .ripple {
     background: rgba(255, 255, 255, 0.2); /* Un blanc transparent pour le mode sombre */
 }
+/* ═══════════════════════════════════════════════════════════════
+   CORRECTION MODE SOMBRE POUR LA GRILLE BENTO (Styles inline)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Rendre les titres et les chiffres lisibles (blancs) */
+body.dark-mode .card-pro [style*="color: #1f2937"],
+body.dark-mode .card-pro [style*="color: #111827"],
+body.dark-mode .card-pro [style*="color: #374151"],
+body.dark-mode .card-pro p[style*="color"],
+body.dark-mode .card-pro div[style*="color"] {
+    color: #f8fafc !important;
+}
+
+/* Rendre les sous-titres (Profs, Communauté, etc.) lisibles (gris clair) */
+body.dark-mode .card-pro [style*="color: #6b7280"],
+body.dark-mode .card-pro [style*="color: #4b5563"] {
+    color: #94a3b8 !important;
+}
+
+/* Corriger le fond des cartes qui utilisent un dégradé blanc en inline */
+body.dark-mode .card-pro[style*="linear-gradient(145deg, #ffffff"] {
+    background: #1a2332 !important;
+    border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Corriger le bloc "Paiements en attente" */
+body.dark-mode .card-pro [id="paiements-attente"] {
+    color: #fbbf24 !important; /* Garder l'orange */
+}

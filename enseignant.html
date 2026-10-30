@@ -138,14 +138,7 @@
                             <div class="tile-sub">Dernière éval.</div>
                         </div>
                     </div>
-<button onclick="afficherSalleProfs()" class="btn-float anim-up delay-6" style="background: linear-gradient(135deg, #9333EA, #7E22CE); margin-bottom: 10px;">
-    <div class="btn-icon">👨🏾‍🏫</div>
-    <div class="btn-content">
-        <div class="btn-title">Salle des profs</div>
-        <div class="btn-desc">Discussion privée avec la direction</div>
-    </div>
-    <div class="btn-arrow">→</div>
-</button>
+
 <button onclick="afficherReseau()" class="btn-float anim-up delay-3" style="background: linear-gradient(135deg, #EC4899, #8B5CF6); margin-bottom: 14px;">
                         <div class="btn-icon">📱</div>
                         <div class="btn-content">
@@ -154,8 +147,6 @@
                         </div>
                         <div class="btn-arrow">→</div>
                     </button>
-
-                    <div class="divider anim-up delay-4">Ma disponibilité</div>
 
                     <div class="divider anim-up delay-4">Outils de gestion</div>
 
@@ -260,7 +251,14 @@
                 <p style="font-size: 10px; color: #6b7280; margin: 2px 0 0 0;">Discussion staff</p>
             </div>
         </button>
-
+<!-- Messagerie -->
+        <button onclick="window.location.href='messagerie.html'" class="card-pro" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: 16px; border-radius: 24px; cursor: pointer; text-align: left; background: linear-gradient(145deg, #ffffff, #f8fafc); border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.03)'">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #fce7f3, #fbcfe8); color: #db2777; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 12px;">✉️</div>
+            <div>
+                <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin: 0;">Messagerie</p>
+                <p style="font-size: 10px; color: #6b7280; margin: 2px 0 0 0;">Messages privés</p>
+            </div>
+        </button>
     </div>
     </div>
 
@@ -678,7 +676,30 @@
             </div>
         </div>
     </div>
-
+<!-- MODAL CONDUITE (ENSEIGNANT) -->
+<div id="modal-conduite" class="hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 99999; display: none; align-items: center; justify-content: center; padding: 20px;">
+    <div class="bg-white rounded-2xl p-5 w-full max-w-md shadow-2xl">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-bold text-gray-800">🛡️ Signaler un incident</h2>
+            <button onclick="fermerModalConduite()" class="text-gray-400 text-xl font-bold">&times;</button>
+        </div>
+        
+        <p id="conduite-nom-eleve" class="text-xs text-edu-blue font-bold mb-4 bg-blue-50 p-2 rounded-lg">Élève : ...</p>
+        
+        <input type="hidden" id="conduite-eleve-id">
+        
+        <label class="block text-xs font-bold text-gray-700 mb-2">Type d'incident :</label>
+        <div class="flex gap-2 mb-4">
+            <button onclick="choisirTypeConduite('positif')" id="btn-type-positif" class="flex-1 py-2 rounded-xl border-2 border-gray-200 text-sm font-bold text-gray-500 transition">🌟 Félicitation</button>
+            <button onclick="choisirTypeConduite('negatif')" id="btn-type-negatif" class="flex-1 py-2 rounded-xl border-2 border-gray-200 text-sm font-bold text-gray-500 transition">⚠️ Avertissement</button>
+        </div>
+        
+        <label class="block text-xs font-bold text-gray-700 mb-2">Description :</label>
+        <textarea id="conduite-description" rows="3" placeholder="Ex: A aidé un camarade / Bavardage en classe..." class="w-full px-3 py-2 border rounded-xl text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-edu-blue"></textarea>
+        
+        <button onclick="sauvegarderConduite()" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl text-sm shadow-md">Enregistrer</button>
+    </div>
+</div>
     <script src="badges.js" charset="UTF-8"></script>
 <script src="pwa.js"></script>
     <script src="push.js"></script>
@@ -774,7 +795,7 @@
             monEcoleId = currentUser.ecole_id;
             afficherAvatarHeader();
             initTheme();
-            document.getElementById('welcome-message').innerText = "Mme " + currentUser.nom;
+            document.getElementById('welcome-message').innerText = (currentUser.genre === 'F' ? "Mme " : "M. ") + currentUser.nom;
             if (monEcoleId) {
                 var resEcole = await supabaseClient.from('ecoles').select('nom, signature_url').eq('id', monEcoleId).single();
                 if (resEcole.data) {
@@ -1196,14 +1217,19 @@
                 var boutonTexte = estAbsent ? '❌ Absent' : '✅ Présent';
                 var boutonBg = estAbsent ? 'linear-gradient(135deg, #EF4444, #B91C1C)' : 'linear-gradient(135deg, #10B981, #047857)';
 
-                html += '<div class="list-row" data-eleve-row="' + e.id + '" style="--accent: ' + statutColor + ';">';
+                html += '<div class="list-row" data-eleve-row="' + e.id + '" style="--accent: ' + statutColor + '; display: flex; justify-content: space-between; align-items: center;">';
+                html += '<div style="display: flex; align-items: center; gap: 10px;">';
                 html += '<div class="list-avatar ' + bgClass + '">' + initiale + '</div>';
                 html += '<div class="list-content">';
                 html += '<div class="list-title">' + e.utilisateurs.prenom + ' ' + e.utilisateurs.nom + '</div>';
                 html += '<div class="list-subtitle badge-statut-eleve" style="color: ' + statutColor + '; font-weight: 700;">' + statutTexte + '</div>';
-                html += '</div>';
+                html += '</div></div>';
+                html += '<div style="display: flex; gap: 6px; align-items: center;">';
+                // LE NOUVEAU BOUTON CONDUITE
+                html += '<button onclick="ouvrirModalConduite(' + e.id + ', \'' + e.utilisateurs.prenom + ' ' + e.utilisateurs.nom + '\')" style="background: #fef3c7; color: #d97706; border: none; padding: 8px; border-radius: 10px; font-size: 14px; cursor: pointer;" title="Signaler un incident">🛡️</button>';
+                // LE BOUTON APPEL
                 html += '<button onclick="toggleAbsence(' + e.id + ', this)" data-absent="' + (estAbsent ? '1' : '0') + '" style="background: ' + boutonBg + '; color: white; border: none; padding: 10px 14px; border-radius: 12px; font-size: 11px; font-weight: 800; cursor: pointer; box-shadow: 0 3px 10px rgba(0,0,0,0.15);">' + boutonTexte + '</button>';
-                html += '</div>';
+                html += '</div></div>';
             });
             html += '</div>';
 
@@ -3182,6 +3208,59 @@ async function supprimerMessageMur(id) {
         }
         function lireLocalEns(cle) {
             try { var data = localStorage.getItem('edulink_ens_' + cle); return data ? JSON.parse(data) : null; } catch(e) { return null; }
+        }
+// ════════════ CONDUITE (ENSEIGNANT) ════════════
+        var typeConduiteSelectionne = null;
+
+        function ouvrirModalConduite(eleveId, nomEleve) {
+            document.getElementById('modal-conduite').style.display = 'flex'; // On affiche
+            document.getElementById('conduite-eleve-id').value = eleveId;
+            document.getElementById('conduite-nom-eleve').innerText = "Élève : " + nomEleve;
+            document.getElementById('conduite-description').value = '';
+            
+            // Réinitialiser les boutons
+            typeConduiteSelectionne = null;
+            document.getElementById('btn-type-positif').className = 'flex-1 py-2 rounded-xl border-2 border-gray-200 text-sm font-bold text-gray-500 transition';
+            document.getElementById('btn-type-negatif').className = 'flex-1 py-2 rounded-xl border-2 border-gray-200 text-sm font-bold text-gray-500 transition';
+        }
+
+        function fermerModalConduite() {
+            document.getElementById('modal-conduite').style.display = 'none'; // On cache
+        }
+
+        function choisirTypeConduite(type) {
+            typeConduiteSelectionne = type;
+            var btnPos = document.getElementById('btn-type-positif');
+            var btnNeg = document.getElementById('btn-type-negatif');
+
+            if (type === 'positif') {
+                btnPos.className = 'flex-1 py-2 rounded-xl border-2 border-green-500 bg-green-50 text-green-700 text-sm font-bold transition';
+                btnNeg.className = 'flex-1 py-2 rounded-xl border-2 border-gray-200 text-sm font-bold text-gray-500 transition';
+            } else {
+                btnNeg.className = 'flex-1 py-2 rounded-xl border-2 border-red-500 bg-red-50 text-red-700 text-sm font-bold transition';
+                btnPos.className = 'flex-1 py-2 rounded-xl border-2 border-gray-200 text-sm font-bold text-gray-500 transition';
+            }
+        }
+
+        async function sauvegarderConduite() {
+            var eleveId = document.getElementById('conduite-eleve-id').value;
+            var desc = document.getElementById('conduite-description').value.trim();
+
+            if (!typeConduiteSelectionne) { toast.warning("Choisissez le type d'incident."); return; }
+            if (!desc) { toast.warning("Écrivez une description."); return; }
+
+            var res = await supabaseClient.from('conduite').insert([{
+                ecole_id: monEcoleId,
+                eleve_id: parseInt(eleveId),
+                auteur_id: currentUser.id,
+                type: typeConduiteSelectionne,
+                description: desc
+            }]);
+
+            if (res.error) { toast.error(res.error.message); return; }
+            
+            toast.success("Incident enregistré !");
+            fermerModalConduite(); // On ferme
         }
         async function seDeconnecter() { 
     await supabaseClient.auth.signOut(); // Détruit le JWT de manière sécurisée
