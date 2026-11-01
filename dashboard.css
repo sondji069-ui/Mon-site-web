@@ -2875,3 +2875,11 @@ body.dark-mode #page-dashboard .grid .card-pro:hover {
     animation: pulse-red 2s infinite;
     border: 2px solid white; /* Pour bien le détacher de la cloche */
 }
+/* Correctifs mode sombre pour la Fiche Classe */
+body.dark-mode .bg-indigo-50 { background-color: rgba(79, 70, 229, 0.15) !important; border-color: rgba(79, 70, 229, 0.3) !important; }
+body.dark-mode .bg-emerald-50 { background-color: rgba(16, 185, 129, 0.15) !important; border-color: rgba(16, 185, 129, 0.3) !important; }
+body.dark-mode .bg-purple-50 { background-color: rgba(139, 92, 246, 0.15) !important; border-color: rgba(139, 92, 246, 0.3) !important; }
+
+body.dark-mode .text-indigo-700 { color: #a5b4fc !important; }
+body.dark-mode .text-emerald-700 { color: #6ee7b7 !important; }
+body.dark-mode .text-purple-700 { color: #c4b5fd !important; }

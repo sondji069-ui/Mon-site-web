@@ -80,6 +80,11 @@
                         <button onclick="seDeconnecter()" class="w-9 h-9 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-lg hover:bg-opacity-30 transition">🚪</button>
                     </div>
                 </div>
+<!-- Horloge PC (cachée sur mobile) -->
+<div id="horloge-pc" class="hidden lg:flex flex-col items-end mr-4">
+    <span id="heure-pc" style="font-size: 18px; font-weight: 800; color: white;">00:00:00</span>
+    <span id="date-pc" style="font-size: 11px; opacity: 0.8;">Chargement...</span>
+</div>
             </div>
 
             <div id="conteneur-scroll" class="flex-1 overflow-y-auto -mt-4 pt-6 px-4 pb-6">
@@ -144,7 +149,16 @@
             <p id="dash-total-classes" style="font-size: 22px; font-weight: 900; color: #1f2937; margin-top: 2px;">—</p>
         </div>
     </div>
-
+<!-- NOUVELLE COURBE DE TENDANCE -->
+                    <div class="card-pro anim-up delay-3" style="margin-bottom: 14px; padding: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin: 0;">📈 Évolution par classe</p>
+                            <span style="font-size: 10px; color: #6b7280; font-weight: 600;">Moyenne générale</span>
+                        </div>
+                        <div id="graphique-courbe-dashboard" style="width: 100%; height: 60px;">
+                            <p style="text-align: center; color: #9ca3af; font-size: 11px; margin-top: 20px;">Chargement...</p>
+                        </div>
+                    </div>
     <!-- Bloc Paiements en attente -->
     <div class="card-pro anim-up delay-3" style="margin-bottom: 14px; display: flex; align-items: center; gap: 12px;">
         <div style="width: 44px; height: 44px; background: #fffbeb; color: #d97706; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">💰</div>
@@ -342,6 +356,7 @@
                     <h1 class="text-lg font-bold text-gray-800 mb-2">Paiements</h1>
                     <p class="text-xs text-gray-500 mb-3">Vue globale des encaissements.</p>
                     <div id="pv2-stats" class="mb-3"></div>
+<div id="pv2-attente-validation" class="mb-4"></div>
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 mb-3 space-y-2">
                         <input type="text" id="pv2-recherche" oninput="pv2Filtrer()" placeholder="Rechercher un eleve (nom, matricule)" class="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs">
                         <div class="grid grid-cols-2 gap-2">
@@ -1391,6 +1406,8 @@ window.CRENEAUX_EDT = window.CRENEAUX_EDT || [
             document.getElementById('view-accueil').classList.remove('hidden');
             chargerDashboardJour();
             chargerStats();
+
+chargerCourbeTendance();
             chargerBadgeNotifs();
             chargerBadgeDemandes();
             chargerBadgeEquipe();
@@ -1435,7 +1452,65 @@ window.CRENEAUX_EDT = window.CRENEAUX_EDT || [
 
             afficherStats(stats);
         }
+// ════════════ COURBE DE TENDANCE ════════════
+        async function chargerCourbeTendance() {
+            var conteneur = document.getElementById('graphique-courbe-dashboard');
+            if (!conteneur) return;
 
+            // 1. Récupérer les classes de l'école
+            var resClasses = await supabaseClient.from('classes').select('id, nom').eq('ecole_id', monEcoleId).order('nom');
+            var classes = resClasses.data || [];
+            
+            if (classes.length === 0) {
+                conteneur.innerHTML = '<p style="text-align: center; color: #9ca3af; font-size: 11px; margin-top: 20px;">Aucune donnée.</p>';
+                return;
+            }
+
+            var labels = [];
+            var moyennes = [];
+
+            // 2. Calculer la moyenne pour chaque classe
+            for (var i = 0; i < classes.length; i++) {
+                var c = classes[i];
+                // On récupère les élèves de la classe
+                var resEleves = await supabaseClient.from('eleves').select('id').eq('classe_id', c.id);
+                var eleveIds = (resEleves.data || []).map(e => e.id);
+                
+                var moyClasse = 0;
+                if (eleveIds.length > 0) {
+                    // On récupère toutes les notes de ces élèves
+                    var resNotes = await supabaseClient.from('notes').select('note, coefficient').in('eleve_id', eleveIds);
+                    if (resNotes.data && resNotes.data.length > 0) {
+                        var tp = 0, tc = 0;
+                        resNotes.data.forEach(n => {
+                            tp += parseFloat(n.note) * (n.coefficient || 1);
+                            tc += (n.coefficient || 1);
+                        });
+                        if (tc > 0) moyClasse = tp / tc;
+                    }
+                }
+                // On garde les noms courts pour l'affichage
+                labels.push(c.nom.substring(0, 6) + (c.nom.length > 6 ? '...' : ''));
+                moyennes.push(parseFloat(moyClasse.toFixed(2)));
+            }
+
+            // 3. Générer le graphique avec la fonction de `charts.js`
+            if (typeof charts !== 'undefined') {
+                var couleurCourbe = '#10B981'; // Vert
+                var graphSvg = charts.sparkline(moyennes, couleurCourbe);
+                
+                // On ajoute les labels (noms des classes) sous la courbe
+                var labelsHtml = '<div style="display: flex; justify-content: space-between; margin-top: 4px;">';
+                labels.forEach(function(lbl) {
+                    labelsHtml += '<span style="font-size: 9px; color: #9ca3af; font-weight: 600;">' + lbl + '</span>';
+                });
+                labelsHtml += '</div>';
+
+                conteneur.innerHTML = graphSvg + labelsHtml;
+            } else {
+                conteneur.innerHTML = '<p style="text-align: center; color: #ef4444; font-size: 11px;">Erreur: charts.js non chargé.</p>';
+            }
+        }
         function afficherStats(stats) {
             var elTotalElv = document.getElementById('total-eleves');
             var elTotalProfs = document.getElementById('total-profs');
@@ -3418,12 +3493,13 @@ let elvPage = 0;         // page actuelle (0, 1, 2...)
                 return;
             }
 
-            var html = '';
+            var htmlMobile = '<div class="lg:hidden space-y-3">'; // VUE MOBILE
+            var htmlPc = '<div class="hidden lg:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"><table class="w-full text-left border-collapse"><thead class="bg-gray-50 border-b border-gray-100"><tr><th class="p-4 text-xs font-bold text-gray-500 uppercase">Élève</th><th class="p-4 text-xs font-bold text-gray-500 uppercase">Matricule</th><th class="p-4 text-xs font-bold text-gray-500 uppercase">Classe</th><th class="p-4 text-xs font-bold text-gray-500 uppercase">Statut</th><th class="p-4 text-xs font-bold text-gray-500 uppercase text-right">Actions</th></tr></thead><tbody>'; // VUE PC
 
             liste.forEach(function(e) {
-                var prenom = e.utilisateurs ? echapperHtml(e.utilisateurs.prenom) : '?';
-                var nom = e.utilisateurs ? echapperHtml(e.utilisateurs.nom) : '?';
-                var email = e.utilisateurs ? echapperHtml(e.utilisateurs.email) : '';
+                var prenom = e.utilisateurs ? e.utilisateurs.prenom : '?';
+                var nom = e.utilisateurs ? e.utilisateurs.nom : '?';
+                var email = e.utilisateurs ? e.utilisateurs.email : '';
                 var statutUser = e.utilisateurs ? e.utilisateurs.statut : 'actif';
                 var classeNom = e.classes ? e.classes.nom : 'Sans classe';
                 var initiale = prenom.charAt(0).toUpperCase();
@@ -3433,27 +3509,27 @@ let elvPage = 0;         // page actuelle (0, 1, 2...)
                 else if (statutUser === 'en_attente') badgeStatut = '<span class="bg-orange-100 text-edu-orange text-[9px] font-bold px-2 py-0.5 rounded">EN ATTENTE</span>';
                 else badgeStatut = '<span class="bg-red-100 text-edu-red text-[9px] font-bold px-2 py-0.5 rounded">' + statutUser.toUpperCase() + '</span>';
 
-                html += '<div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition" onclick="afficherFicheEleve(' + e.id + ')">';
-                html += '<div class="flex items-center gap-3 mb-2">';
-                html += '<div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0" style="background:linear-gradient(135deg,#004AAD,#2EAD5E);">' + initiale + '</div>';
-                html += '<div class="flex-1 min-w-0">';
-                html += '<div class="flex items-center gap-1 mb-0.5"><p class="text-xs font-bold text-gray-800 truncate">' + prenom + ' ' + nom + '</p>' + badgeStatut + '</div>';
-                html += '<p class="text-[10px] text-gray-500">' + (e.matricule || '') + ' - ' + classeNom + '</p>';
-                html += '<p class="text-[10px] text-gray-400 truncate">' + email + '</p>';
-                html += '</div></div>';
-                html += '<div class="flex gap-2 justify-end">';
-                html += '<button onclick="event.stopPropagation(); editerEleve(' + e.id + ')" class="bg-blue-50 text-edu-blue text-[10px] font-bold px-3 py-1 rounded-lg">Modifier</button>';
-                html += '<button onclick="event.stopPropagation(); supprimerEleve(' + e.id + ', ' + e.utilisateur_id + ')" class="bg-red-50 text-edu-red text-[10px] font-bold px-3 py-1 rounded-lg">Supprimer</button>';
-                html += '</div></div>';
+                // --- HTML MOBILE ---
+                htmlMobile += '<div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition" onclick="afficherFicheEleve(' + e.id + ')">';
+                htmlMobile += '<div class="flex items-center gap-3 mb-2">';
+                htmlMobile += '<div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0" style="background:linear-gradient(135deg,#004AAD,#2EAD5E);">' + initiale + '</div>';
+                htmlMobile += '<div class="flex-1 min-w-0"><div class="flex items-center gap-1 mb-0.5"><p class="text-xs font-bold text-gray-800 truncate">' + prenom + ' ' + nom + '</p>' + badgeStatut + '</div><p class="text-[10px] text-gray-500">' + (e.matricule || '') + ' - ' + classeNom + '</p><p class="text-[10px] text-gray-400 truncate">' + email + '</p></div></div>';
+                htmlMobile += '<div class="flex gap-2 justify-end"><button onclick="event.stopPropagation(); editerEleve(' + e.id + ')" class="bg-blue-50 text-edu-blue text-[10px] font-bold px-3 py-1 rounded-lg">Modifier</button></div></div>';
+
+                // --- HTML PC (TABLEAU) ---
+                htmlPc += '<tr class="border-b border-gray-50 hover:bg-gray-50 transition">';
+                htmlPc += '<td class="p-4"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs" style="background:linear-gradient(135deg,#004AAD,#2EAD5E);">' + initiale + '</div><div><p class="text-sm font-bold text-gray-800">' + prenom + ' ' + nom + '</p><p class="text-[10px] text-gray-500">' + email + '</p></div></div></td>';
+                htmlPc += '<td class="p-4 text-sm font-semibold text-gray-600">' + (e.matricule || '') + '</td>';
+                htmlPc += '<td class="p-4 text-sm text-gray-600">' + classeNom + '</td>';
+                htmlPc += '<td class="p-4">' + badgeStatut + '</td>';
+                htmlPc += '<td class="p-4 text-right"><button onclick="afficherFicheEleve(' + e.id + ')" class="text-blue-600 hover:text-blue-800 text-xs font-bold mr-3">Fiche</button><button onclick="editerEleve(' + e.id + ')" class="text-gray-500 hover:text-gray-700 text-xs font-bold">Modifier</button></td>';
+                htmlPc += '</tr>';
             });
 
-            // Bouton "Afficher plus"
-            if (liste.length < total && !document.getElementById('recherche-eleves').value.trim() && !document.getElementById('elv-filtre-statut').value) {
-                var restants = total - liste.length;
-                html += '<button onclick="elvChargerPlus()" id="btn-elv-plus" class="w-full bg-blue-50 text-edu-blue font-bold py-3 rounded-2xl text-xs border border-blue-100">⬇️ Afficher ' + Math.min(50, restants) + ' de plus (' + restants + ' restant' + (restants > 1 ? 's' : '') + ')</button>';
-            }
+            htmlMobile += '</div>';
+            htmlPc += '</tbody></table></div>';
 
-            conteneur.innerHTML = html;
+            conteneur.innerHTML = htmlMobile + htmlPc;
         }
 
         async function elvChargerPlus() {
@@ -5537,20 +5613,32 @@ let pv2Page = 0;
             document.getElementById('view-paiements-v2').classList.remove('hidden');
             document.getElementById('pv2-liste').innerHTML = skeleton.lignes(6);
             document.getElementById('pv2-stats').innerHTML = '';
-            await pv2ChargerDonnees();
-            pv2RemplirSelectClasses();
-            pv2Filtrer();
+            
+            try {
+                await pv2ChargerDonnees();
+                pv2RemplirSelectClasses();
+                pv2Filtrer();
+                await chargerPaiementsEnAttente(); // On charge les validations
+            } catch (err) {
+                console.error("Erreur de chargement des paiements :", err);
+                // Afficher l'erreur à l'écran pour comprendre
+                document.getElementById('pv2-liste').innerHTML = '<div class="bg-red-50 p-4 rounded-xl border border-red-200 text-red-600 text-sm font-bold">Erreur : ' + err.message + '</div>';
+                toast.error("Erreur : " + err.message);
+            }
             window.scrollTo(0, 0);
         }
 
         async function pv2ChargerDonnees() {
-            const { data: classes } = await supabaseClient.from('classes').select('id, nom, frais_scolarite').eq('ecole_id', monEcoleId).order('nom');
+            const { data: classes, error: errC } = await supabaseClient.from('classes').select('id, nom, frais_scolarite').eq('ecole_id', monEcoleId).order('nom');
+            if (errC) throw errC;
             pv2ToutesClasses = classes || [];
 
-            const { data: eleves } = await supabaseClient.from('eleves').select('id, matricule, classe_id, utilisateur_id, utilisateurs!utilisateur_id(prenom, nom), classes(nom, frais_scolarite)').eq('ecole_id', monEcoleId);
+            const { data: eleves, error: errE } = await supabaseClient.from('eleves').select('id, matricule, classe_id, utilisateur_id, utilisateurs!utilisateur_id(prenom, nom), classes(nom, frais_scolarite)').eq('ecole_id', monEcoleId);
+            if (errE) throw errE;
             pv2TousEleves = eleves || [];
 
-            const { data: paiements } = await supabaseClient.from('paiements').select('id, eleve_id, montant, type_paiement, statut, methode, date_paiement').eq('ecole_id', monEcoleId).order('date_paiement', { ascending: false });
+            const { data: paiements, error: errP } = await supabaseClient.from('paiements').select('id, eleve_id, montant, type_paiement, statut, methode, date_paiement, preuve_url').eq('ecole_id', monEcoleId).order('date_paiement', { ascending: false });
+            if (errP) throw errP;
             pv2TousPaiements = paiements || [];
 
             pv2CalculerSoldes();
@@ -7427,124 +7515,104 @@ function retourFicheEleve() {
         }
 // ════════════ FICHE CLASSE (ADMIN) ════════════
         // ════════════ FICHE CLASSE (ADMIN) ════════════
+        var ongletFicheClasseActif = 'vue';
+        var dataFicheClasse = {};
+
         async function afficherFicheClasse(classeId) {
             hideAllViews();
             document.getElementById('view-fiche-classe').classList.remove('hidden');
             const conteneur = document.getElementById('fiche-classe-contenu');
-            conteneur.innerHTML = '<p class="text-center text-gray-500 py-6">Chargement de la fiche...</p>';
+            conteneur.innerHTML = '<p class="text-center text-gray-500 py-6">Chargement...</p>';
 
-            // 1. Infos de la classe
             const { data: classe } = await supabaseClient.from('classes').select('*').eq('id', classeId).single();
-            if (!classe) { conteneur.innerHTML = '<p class="text-red-500">Classe introuvable.</p>'; return; }
-
-            // 2. Élèves de la classe (CORRIGÉ : plus de .order('nom'))
-            const { data: eleves, error: errEleves } = await supabaseClient
-                .from('eleves')
-                .select('id, matricule, utilisateurs!utilisateur_id(prenom, nom)')
-                .eq('classe_id', classeId);
+            if (!classe) return;
             
-            if (errEleves) console.error("Erreur chargement élèves:", errEleves);
-
-            // On trie les élèves par nom de famille en JavaScript
-            var elevesTries = [];
-            if (eleves && eleves.length > 0) {
-                elevesTries = eleves.sort((a, b) => {
-                    const nomA = a.utilisateurs ? (a.utilisateurs.nom || '') : '';
-                    const nomB = b.utilisateurs ? (b.utilisateurs.nom || '') : '';
-                    return nomA.localeCompare(nomB);
-                });
-            }
-            
-            // 3. Profs de la classe (via affectations)
+            // ✅ CORRECTION 1 : On enlève le .order('nom') qui causait le bug
+            const { data: eleves } = await supabaseClient.from('eleves').select('id, matricule, utilisateurs!utilisateur_id(prenom, nom)').eq('classe_id', classeId);
             const { data: affs } = await supabaseClient.from('affectations').select('matiere, enseignants!inner(utilisateurs!utilisateur_id(prenom, nom))').eq('classe_id', classeId);
-            const profs = affs || [];
-
-            // 4. Calcul de la moyenne de la classe
+            
             let moyClasse = 0;
-            if (elevesTries.length > 0) {
-                const eleveIds = elevesTries.map(e => e.id);
-                const { data: notes } = await supabaseClient.from('notes').select('note, coefficient').in('eleve_id', eleveIds);
+            if (eleves && eleves.length > 0) {
+                const { data: notes } = await supabaseClient.from('notes').select('note, coefficient').in('eleve_id', eleves.map(e => e.id));
                 if (notes && notes.length > 0) {
-                    let tp = 0, tc = 0;
-                    notes.forEach(n => { tp += parseFloat(n.note) * (n.coefficient || 1); tc += (n.coefficient || 1); });
-                    if (tc > 0) { moyClasse = tp / tc; }
+                    let tp = 0, tc = 0; notes.forEach(n => { tp += parseFloat(n.note) * (n.coefficient || 1); tc += (n.coefficient || 1); });
+                    if (tc > 0) moyClasse = tp / tc;
                 }
             }
 
-            let html = '';
-
-            // Bloc En-tête
-            html += `<div class="bg-gradient-to-br from-indigo-600 to-purple-700 text-white rounded-2xl shadow-lg p-5 mb-4">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="w-14 h-14 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-3xl">🏫</div>
-                    <div class="flex-1">
-                        <h2 class="text-xl font-extrabold">${classe.nom}</h2>
-                        <p class="text-xs opacity-90">Niveau : ${classe.niveau || 'Non défini'}</p>
-                        <p class="text-xs opacity-90">Frais : ${(classe.frais_scolarite || 0).toLocaleString('fr-FR')} FCFA</p>
-                    </div>
-                </div>
-                <div class="grid grid-cols-3 gap-2 text-center">
-                    <div class="bg-white bg-opacity-20 rounded-xl p-2">
-                        <p class="text-[9px] uppercase opacity-80">Élèves</p>
-                        <p class="text-lg font-bold">${elevesTries.length}</p>
-                    </div>
-                    <div class="bg-white bg-opacity-20 rounded-xl p-2">
-                        <p class="text-[9px] uppercase opacity-80">Moyenne</p>
-                        <p class="text-lg font-bold">${moyClasse > 0 ? moyClasse.toFixed(2) : '--'}</p>
-                    </div>
-                    <div class="bg-white bg-opacity-20 rounded-xl p-2">
-                        <p class="text-[9px] uppercase opacity-80">Profs</p>
-                        <p class="text-lg font-bold">${profs.length}</p>
-                    </div>
-                </div>
-            </div>`;
-
-            // Bloc Équipe pédagogique
-            html += `<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-4">
-                <p class="text-sm font-bold text-gray-800 mb-3">👨🏾‍🏫 Équipe pédagogique</p>`;
-            if (profs.length === 0) {
-                html += `<p class="text-xs text-gray-400 italic">Aucun professeur affecté à cette classe.</p>`;
-            } else {
-                profs.forEach(p => {
-                    const nomProf = p.enseignants && p.enseignants.utilisateurs ? p.enseignants.utilisateurs.prenom + ' ' + p.enseignants.utilisateurs.nom : '?';
-                    html += `<div class="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
-                        <span class="text-xs font-semibold text-gray-700">${nomProf}</span>
-                        <span class="text-[10px] bg-blue-50 text-edu-blue font-bold px-2 py-1 rounded">${p.matiere}</span>
-                    </div>`;
-                });
-            }
-            html += `</div>`;
-
-            // Bloc Liste des élèves
-            html += `<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-4">
-                <p class="text-sm font-bold text-gray-800 mb-3">🎓 Liste des élèves (${elevesTries.length})</p>`;
-            if (elevesTries.length === 0) {
-                html += `<p class="text-xs text-gray-400 italic">Aucun élève dans cette classe.</p>`;
-            } else {
-                elevesTries.forEach(e => {
-                    const prenom = e.utilisateurs ? e.utilisateurs.prenom : '?';
-                    const nom = e.utilisateurs ? e.utilisateurs.nom : '?';
-                    const initiale = prenom.charAt(0).toUpperCase();
-                    html += `<div onclick="afficherFicheEleve(${e.id})" class="flex items-center gap-3 py-2 border-b border-gray-100 last:border-b-0 cursor-pointer hover:bg-gray-50 rounded px-2 transition">
-                        <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center text-xs flex-shrink-0">${initiale}</div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-xs font-bold text-gray-800 truncate">${prenom} ${nom}</p>
-                            <p class="text-[10px] text-gray-500">${e.matricule || ''}</p>
-                        </div>
-                        <span class="text-gray-400">›</span>
-                    </div>`;
-                });
-            }
-            html += `</div>`;
-
-            // Boutons d'action
-            html += `<div class="grid grid-cols-2 gap-2">
-                <button onclick="afficherEmploiClasse(${classeId}, '${classe.nom.replace(/'/g, "\\'")}')" class="bg-blue-50 text-edu-blue font-bold py-3 rounded-xl text-xs">📅 Emploi du temps</button>
-                <button onclick="editerClasse(${classeId})" class="bg-gray-100 text-gray-700 font-bold py-3 rounded-xl text-xs">✏️ Modifier la classe</button>
-            </div>`;
-
-            conteneur.innerHTML = html;
+            dataFicheClasse = { classe, eleves: eleves || [], profs: affs || [], moyClasse };
+            ongletFicheClasseActif = 'vue';
+            rendreFicheClasse();
             window.scrollTo(0, 0);
+        }
+
+        function changerOngletFicheClasse(onglet) {
+            ongletFicheClasseActif = onglet;
+            rendreFicheClasse();
+        }
+
+        function rendreFicheClasse() {
+            const c = document.getElementById('fiche-classe-contenu');
+            const d = dataFicheClasse;
+            
+            let html = '';
+            html += `<div class="bg-gradient-to-br from-indigo-600 to-purple-700 text-white rounded-t-2xl shadow-lg p-6 pb-2">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-14 h-14 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-3xl">🏫</div>
+                    <div class="flex-1"><h2 class="text-2xl font-extrabold">${d.classe.nom}</h2><p class="text-sm opacity-90">Niveau : ${d.classe.niveau || 'Non défini'} • Frais : ${(d.classe.frais_scolarite || 0).toLocaleString('fr-FR')} FCFA</p></div>
+                </div>
+            </div>`;
+
+            html += `<div class="flex bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-gray-700 px-4 gap-6">
+                <button onclick="changerOngletFicheClasse('vue')" class="py-3 text-sm font-bold border-b-2 ${ongletFicheClasseActif === 'vue' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500'}">Vue d'ensemble</button>
+                <button onclick="changerOngletFicheClasse('eleves')" class="py-3 text-sm font-bold border-b-2 ${ongletFicheClasseActif === 'eleves' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500'}">Élèves (${d.eleves.length})</button>
+                <button onclick="changerOngletFicheClasse('equipe')" class="py-3 text-sm font-bold border-b-2 ${ongletFicheClasseActif === 'equipe' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500'}">Équipe (${d.profs.length})</button>
+            </div>`;
+
+            html += `<div class="bg-white dark:bg-slate-800 rounded-b-2xl shadow-sm border border-t-0 border-gray-100 dark:border-gray-700 p-6 mb-4 min-h-[300px]">`;
+
+            if (ongletFicheClasseActif === 'vue') {
+                // ✅ CORRECTION 2 : On utilise des couleurs qui s'adaptent au mode sombre
+                html += `<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div style="background: rgba(99, 102, 241, 0.1); padding: 16px; border-radius: 12px; text-align: center; border: 1px solid rgba(99, 102, 241, 0.2);">
+                        <p style="font-size: 10px; color: #6366f1; font-weight: 800; text-transform: uppercase;">Élèves</p>
+                        <p style="font-size: 28px; font-weight: 900; color: #6366f1; margin: 0;">${d.eleves.length}</p>
+                    </div>
+                    <div style="background: rgba(16, 185, 129, 0.1); padding: 16px; border-radius: 12px; text-align: center; border: 1px solid rgba(16, 185, 129, 0.2);">
+                        <p style="font-size: 10px; color: #10b981; font-weight: 800; text-transform: uppercase;">Moyenne</p>
+                        <p style="font-size: 28px; font-weight: 900; color: #10b981; margin: 0;">${d.moyClasse > 0 ? d.moyClasse.toFixed(2) : '--'}</p>
+                    </div>
+                    <div style="background: rgba(139, 92, 246, 0.1); padding: 16px; border-radius: 12px; text-align: center; border: 1px solid rgba(139, 92, 246, 0.2);">
+                        <p style="font-size: 10px; color: #8b5cf6; font-weight: 800; text-transform: uppercase;">Profs</p>
+                        <p style="font-size: 28px; font-weight: 900; color: #8b5cf6; margin: 0;">${d.profs.length}</p>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="afficherEmploiClasse(${d.classe.id}, '${d.classe.nom.replace(/'/g, "\\'")}')" class="bg-blue-50 text-edu-blue font-bold py-3 rounded-xl text-xs flex-1 dark:bg-blue-900 dark:text-blue-200">📅 Emploi du temps</button>
+                    <button onclick="editerClasse(${d.classe.id})" class="bg-gray-100 text-gray-700 font-bold py-3 rounded-xl text-xs flex-1 dark:bg-slate-700 dark:text-slate-200">✏️ Modifier</button>
+                </div>`;
+            } 
+            else if (ongletFicheClasseActif === 'eleves') {
+                html += `<div class="space-y-2">`;
+                if (d.eleves.length === 0) html += `<p class="text-xs text-gray-400 italic">Aucun élève dans cette classe.</p>`;
+                d.eleves.forEach(e => {
+                    const prenom = e.utilisateurs ? e.utilisateurs.prenom : '?'; const nom = e.utilisateurs ? e.utilisateurs.nom : '?';
+                    html += `<div onclick="afficherFicheEleve(${e.id})" class="flex justify-between items-center p-3 border border-gray-100 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-700 cursor-pointer"><div><p class="text-sm font-bold text-gray-800 dark:text-gray-100">${prenom} ${nom}</p><p class="text-[10px] text-gray-500">${e.matricule}</p></div><span class="text-gray-400">›</span></div>`;
+                });
+                html += `</div>`;
+            }
+            else if (ongletFicheClasseActif === 'equipe') {
+                html += `<div class="space-y-2">`;
+                if (d.profs.length === 0) html += `<p class="text-xs text-gray-400 italic">Aucun professeur affecté.</p>`;
+                d.profs.forEach(p => {
+                    const nomProf = p.enseignants && p.enseignants.utilisateurs ? p.enseignants.utilisateurs.prenom + ' ' + p.enseignants.utilisateurs.nom : '?';
+                    html += `<div class="flex justify-between items-center p-3 border border-gray-100 dark:border-gray-700 rounded-xl"><p class="text-sm font-bold text-gray-800 dark:text-gray-100">${nomProf}</p><span class="text-xs bg-blue-50 text-edu-blue font-bold px-2 py-1 rounded dark:bg-blue-900 dark:text-blue-200">${p.matiere}</span></div>`;
+                });
+                html += `</div>`;
+            }
+
+            html += `</div>`;
+            c.innerHTML = html;
         }
 // ════════════ FICHE ENSEIGNANT (ADMIN) ════════════
         async function afficherFicheEnseignant(ensId, userId) {
@@ -7663,6 +7731,112 @@ async function testerBilanParent() {
                 alert("Erreur : " + err.message);
             }
         }
+// ════════════ HORLOGE PC ════════════
+function majHorloge() {
+    var elHeure = document.getElementById('heure-pc');
+    var elDate = document.getElementById('date-pc');
+    if (!elHeure || !elDate) return;
+    
+    var now = new Date();
+    elHeure.innerText = now.toLocaleTimeString('fr-FR');
+    var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    elDate.innerText = now.toLocaleDateString('fr-FR', options);
+}
+setInterval(majHorloge, 1000);
+majHorloge();
+// ════════════ VALIDATION DES PAIEMENTS (ADMIN) ════════════
+        async function chargerPaiementsEnAttente() {
+            var conteneur = document.getElementById('pv2-attente-validation');
+            if (!conteneur) return;
+
+            var res = await supabaseClient.from('paiements')
+                .select('*, eleves!inner(matricule, utilisateurs!utilisateur_id(prenom, nom), classes(nom))')
+                .eq('ecole_id', monEcoleId)
+                .eq('statut', 'en_attente')
+                .order('date_paiement', { ascending: false });
+
+            var liste = res.data || [];
+            if (liste.length === 0) { conteneur.innerHTML = ''; return; }
+
+            var html = '<p class="text-sm font-bold text-orange-600 mb-2">⚠️ ' + liste.length + ' paiement(s) à valider</p>';
+            
+            liste.forEach(function(p) {
+                var eleveNom = p.eleves && p.eleves.utilisateurs ? p.eleves.utilisateurs.prenom + ' ' + p.eleves.utilisateurs.nom : '?';
+                html += '<div class="bg-orange-50 border border-orange-200 p-3 rounded-xl mb-2 shadow-sm">';
+                html += '<div class="flex justify-between items-center mb-2">';
+                html += '<div><p class="text-xs font-bold text-gray-800">' + eleveNom + '</p><p class="text-[10px] text-gray-600">' + parseFloat(p.montant).toLocaleString('fr-FR') + ' FCFA via ' + p.methode + '</p></div>';
+                if (p.preuve_url) {
+                    html += '<button onclick="ouvrirRecuParId(' + p.id + ')" class="bg-white text-edu-blue text-[10px] font-bold px-2 py-1 rounded border border-blue-200">Voir le reçu</button>';
+                }
+async function ouvrirRecuParId(paiementId) {
+            // On va chercher le lien dans la base de données pour être sûr qu'il soit propre
+            var res = await supabaseClient.from('paiements').select('preuve_url').eq('id', paiementId).single();
+            if (res.data && res.data.preuve_url) {
+                afficherRecu(res.data.preuve_url);
+            } else {
+                alert("⚠️ Le reçu est introuvable dans la base de données.");
+            }
+        }
+                html += '</div>';
+                html += '<div class="flex gap-2">';
+                html += '<button onclick="validerPaiement(' + p.id + ')" class="flex-1 bg-edu-green text-white text-[10px] font-bold py-2 rounded-lg">✅ Valider</button>';
+                html += '<button onclick="refuserPaiement(' + p.id + ')" class="flex-1 bg-white text-red-500 border border-red-200 text-[10px] font-bold py-2 rounded-lg">❌ Refuser</button>';
+                html += '</div></div>';
+            });
+            conteneur.innerHTML = html;
+        }
+
+        async function validerPaiement(id) {
+            if (!confirm("Confirmer que vous avez bien reçu cet argent ?")) return;
+            await supabaseClient.from('paiements').update({ statut: 'paye' }).eq('id', id);
+            toast.success("Paiement validé !");
+            chargerPaiementsEnAttente();
+
+function afficherRecu(url) {
+            if (!url || url === 'null' || url === 'undefined') {
+                alert("⚠️ Aucun reçu n'a été joint à ce paiement.");
+                return;
+            }
+            
+            var modal = document.getElementById('modal-recu');
+            var img = document.getElementById('image-recu');
+            
+            // On affiche la modale avec un message de chargement
+            modal.style.display = 'flex';
+            img.src = ''; 
+            img.alt = "Chargement de l'image...";
+            
+            // On charge l'image
+            img.src = url;
+            
+            // Si l'image ne charge pas, on affiche une erreur claire
+            img.onerror = function() {
+                img.alt = "❌ Impossible de charger l'image. Vérifiez le lien.";
+                img.style.background = "#fee2e2";
+                img.style.padding = "20px";
+                img.style.color = "#991b1b";
+                img.style.fontSize = "14px";
+                img.style.textAlign = "center";
+                img.style.width = "300px";
+                img.style.height = "100px";
+            };
+            
+            img.onload = function() {
+                img.style.background = "transparent";
+                img.style.padding = "0";
+                img.style.width = "auto";
+                img.style.height = "auto";
+            };
+        }
+            pv2ChargerDonnees(); // Rafraîchir les stats
+        }
+
+        async function refuserPaiement(id) {
+            if (!confirm("Refuser ce paiement ? (Le parent devra recommencer)")) return;
+            await supabaseClient.from('paiements').update({ statut: 'echoue' }).eq('id', id);
+            toast.error("Paiement refusé.");
+            chargerPaiementsEnAttente();
+        }
         async function seDeconnecter() { 
     await supabaseClient.auth.signOut(); // Détruit le JWT de manière sécurisée
     sessionStorage.removeItem('eduLinkUser'); 
@@ -7681,5 +7855,12 @@ async function testerBilanParent() {
 <script src="image-utils.js"></script>
 <script src="storage.js"></script>
 <script src="layout-pc.js"></script>
+<!-- MODAL POUR AFFICHER LE REÇU -->
+<div id="modal-recu" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 99999; align-items: center; justify-content: center; padding: 20px;">
+    <div style="position: relative; max-width: 100%; max-height: 100%;">
+        <button onclick="document.getElementById('modal-recu').style.display='none'" style="position: absolute; top: -40px; right: 0; background: white; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 20px; font-weight: bold; cursor: pointer; color: black;">&times;</button>
+        <img id="image-recu" src="" alt="Reçu" style="max-width: 100%; max-height: 80vh; border-radius: 12px; object-fit: contain;">
+    </div>
+</div>
 </body>
 </html>

@@ -172,7 +172,14 @@
 
     <!-- NOUVELLE GRILLE BENTO (PARENT) -->
     <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6 anim-up delay-4">
-        
+<!-- Bouton Payer -->
+        <button onclick="ouvrirModalPaiement()" class="card-pro" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: 16px; border-radius: 24px; cursor: pointer; text-align: left; background: linear-gradient(145deg, #ffffff, #f8fafc); border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.03)'">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #dcfce7, #bbf7d0); color: #16a34a; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 12px;">💳</div>
+            <div>
+                <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin: 0;">Payer l'école</p>
+                <p style="font-size: 10px; color: #6b7280; margin: 2px 0 0 0;">Wave, OM, Espèces</p>
+            </div>
+        </button>        
         <!-- Réseau social -->
         <button onclick="afficherReseau()" class="card-pro" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: 16px; border-radius: 24px; cursor: pointer; text-align: left; background: linear-gradient(145deg, #ffffff, #f8fafc); border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.03)'">
             <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #fce7f3, #fbcfe8); color: #db2777; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 12px;">📱</div>
@@ -1741,6 +1748,75 @@ async function chargerDerniereAnnonceDefilante() {
                 texte.innerText = "📢 DERNIÈRE ANNONCE : " + res.data.titre + " • Cliquez sur 'Annonces' pour en savoir plus.";
             }
         }
+// ════════════ DÉCLARATION DE PAIEMENT (PARENT) ════════════
+        function ouvrirModalPaiement() {
+            if (listeEnfants.length === 0) { toast.warning("Aucun enfant lié."); return; }
+            
+            var sel = document.getElementById('pay-enfant');
+            sel.innerHTML = '';
+            listeEnfants.forEach(function(e) {
+                sel.innerHTML += '<option value="' + e.id + '">' + e.prenom + ' ' + e.nom + ' - ' + e.classe + '</option>';
+            });
+            
+            document.getElementById('pay-montant').value = '';
+            document.getElementById('pay-recu').value = '';
+            document.getElementById('pay-message').innerText = '';
+            
+            // ✅ CORRECTION ICI : On force l'affichage en flex
+            document.getElementById('modal-paiement-parent').style.display = 'flex';
+        }
+
+        async function envoyerDeclarationPaiement() {
+            var eleveId = document.getElementById('pay-enfant').value;
+            var montant = document.getElementById('pay-montant').value;
+            var methode = document.getElementById('pay-methode').value;
+            var fileInput = document.getElementById('pay-recu');
+            var msg = document.getElementById('pay-message');
+            var btn = document.getElementById('btn-pay-valider');
+
+            if (!eleveId || !montant || parseFloat(montant) <= 0) { msg.innerText = "Saisissez un montant valide."; msg.style.color = "red"; return; }
+
+            btn.disabled = true; btn.innerText = "Envoi en cours..."; msg.innerText = '';
+
+            try {
+                var preuveUrl = null;
+
+                // 1. Upload de l'image si présente
+                if (fileInput.files.length > 0) {
+                    var file = fileInput.files[0];
+                    var resUpload = await EduStorage.uploaderImage(file, 'recus', {
+                        maxWidth: 800, maxHeight: 800, quality: 0.7, maxSizeKo: 150, userId: currentUser.id
+                    });
+                    preuveUrl = resUpload.url;
+                }
+
+                // 2. Insertion dans la base
+                var res = await supabaseClient.from('paiements').insert([{
+                    ecole_id: monEcoleId,
+                    eleve_id: parseInt(eleveId),
+                    montant: parseFloat(montant),
+                    type_paiement: 'Scolarite',
+                    methode: methode,
+                    statut: 'en_attente', // En attente de validation par l'admin
+                    preuve_url: preuveUrl
+                }]);
+
+                if (res.error) throw res.error;
+
+                msg.innerText = "✅ Déclaration envoyée ! En attente de validation.";
+                msg.style.color = "#2EAD5E";
+                btn.innerText = "Envoyé !";
+                // ✅ CORRECTION ICI : On cache avec 'none'
+                setTimeout(function() {
+                    document.getElementById('modal-paiement-parent').style.display = 'none';
+                    btn.disabled = false; btn.innerText = "📤 Envoyer la déclaration";
+                }, 2000);
+
+            } catch (err) {
+                msg.innerText = "Erreur : " + err.message; msg.style.color = "red";
+                btn.disabled = false; btn.innerText = "📤 Envoyer la déclaration";
+            }
+        }
         async function seDeconnecter() { 
     await supabaseClient.auth.signOut(); // Détruit le JWT de manière sécurisée
     sessionStorage.removeItem('eduLinkUser'); 
@@ -1748,5 +1824,54 @@ async function chargerDerniereAnnonceDefilante() {
 }
     </script>
 <script src="layout-pc.js"></script>
+<!-- MODAL PAIEMENT PARENT -->
+<div id="modal-paiement-parent" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: white; border-radius: 20px; padding: 24px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); display: flex; flex-direction: column; gap: 12px;">
+        
+        <!-- En-tête -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <h2 style="font-size: 18px; font-weight: bold; color: #1f2937; margin: 0;">💳 Déclarer un paiement</h2>
+            <button onclick="document.getElementById('modal-paiement-parent').style.display='none'" style="background: transparent; border: none; font-size: 24px; color: #9ca3af; cursor: pointer; padding: 0;">&times;</button>
+        </div>
+        
+        <!-- Enfant -->
+        <div>
+            <label style="display: block; font-size: 12px; font-weight: bold; color: #4b5563; margin-bottom: 4px;">Pour quel enfant ?</label>
+            <select id="pay-enfant" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #d1d5db; background: #f9fafb; color: #1f2937; font-size: 14px; outline: none;">
+                <!-- Rempli par JS -->
+            </select>
+        </div>
+
+        <!-- Montant -->
+        <div>
+            <label style="display: block; font-size: 12px; font-weight: bold; color: #4b5563; margin-bottom: 4px;">Montant (FCFA)</label>
+            <input type="number" id="pay-montant" placeholder="Ex: 50000" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #d1d5db; background: #f9fafb; color: #1f2937; font-size: 14px; outline: none;">
+        </div>
+
+        <!-- Méthode -->
+        <div>
+            <label style="display: block; font-size: 12px; font-weight: bold; color: #4b5563; margin-bottom: 4px;">Méthode</label>
+            <select id="pay-methode" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #d1d5db; background: #f9fafb; color: #1f2937; font-size: 14px; outline: none;">
+                <option value="wave">Wave</option>
+                <option value="orange_money">Orange Money</option>
+                <option value="especes">Espèces</option>
+            </select>
+        </div>
+
+        <!-- Reçu -->
+        <div>
+            <label style="display: block; font-size: 12px; font-weight: bold; color: #4b5563; margin-bottom: 4px;">Capture d'écran du reçu (optionnel)</label>
+            <input type="file" id="pay-recu" accept="image/*" style="width: 100%; padding: 8px; border-radius: 10px; border: 1px solid #d1d5db; background: #f9fafb; color: #1f2937; font-size: 12px;">
+        </div>
+
+        <!-- Bouton d'envoi -->
+        <button onclick="envoyerDeclarationPaiement()" id="btn-pay-valider" style="width: 100%; background: #16a34a; color: white; font-weight: bold; padding: 14px; border-radius: 12px; border: none; font-size: 14px; cursor: pointer; margin-top: 8px; box-shadow: 0 4px 10px rgba(22, 163, 74, 0.3);">
+            📤 Envoyer la déclaration
+        </button>
+        
+        <!-- Message d'erreur/succès -->
+        <div id="pay-message" style="text-align: center; font-size: 12px; font-weight: bold; margin-top: 4px;"></div>
+    </div>
+</div>
 </body>
 </html>
