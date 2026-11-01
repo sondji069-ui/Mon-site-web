@@ -379,5 +379,10 @@
             if (typeof toast !== 'undefined') toast.error('Erreur : ' + err.message);
         }
     };
-
+// Fonction pour mettre à jour les filtres depuis l'extérieur
+    window.cahierSetFiltres = function(classeId, debut, fin) {
+        ctxCahier.filtreClasse = classeId || '';
+        ctxCahier.filtreDebut = debut || '';
+        ctxCahier.filtreFin = fin || '';
+    };
 })();

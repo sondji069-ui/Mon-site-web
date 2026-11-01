@@ -80,7 +80,18 @@
                     </div>
                 </div>
             </div>
-
+<!-- Bandeau Annonces Défilantes -->
+<div id="bandeau-annonces-marquee" class="hidden" style="background: #F59E0B; color: white; padding: 6px 0; font-size: 11px; font-weight: 700; overflow: hidden; white-space: nowrap; border-bottom: 1px solid #D97706; position: relative;">
+    <div id="annonce-defilante" style="display: inline-block; padding-left: 100%; animation: defilement 20s linear infinite;">
+        Chargement des annonces...
+    </div>
+</div>
+<style>
+    @keyframes defilement {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-100%); }
+    }
+</style>
             <div class="flex-1 overflow-y-auto -mt-4 pt-6 px-4 pb-6">
 
                 <!-- ACCUEIL -->
@@ -107,16 +118,32 @@
                         <p id="mention-eleve" class="hero-stat-sub">Mention : --</p>
                     </div>
 
-                    <div id="carte-badges" class="hidden card-pro anim-up delay-2" onclick="afficherMesBadges()" style="background: linear-gradient(135deg, #FCD34D 0%, #F59E0B 100%); border: none; cursor: pointer; margin-bottom: 14px; position: relative; overflow: hidden;">
-                        <div style="position: absolute; top: -30px; right: -30px; width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,0.15);"></div>
-                        <div class="flex items-center justify-between mb-3" style="position: relative; z-index: 1;">
+                    <!-- NOUVELLE CARTE DE JOUEUR GAMIFIÉE -->
+                    <div id="carte-joueur" class="anim-up delay-2" onclick="afficherMesBadges()" style="background: linear-gradient(135deg, #1e293b, #0f172a); border-radius: 24px; padding: 20px; margin-bottom: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; overflow: hidden; cursor: pointer; border: 1px solid rgba(255,255,255,0.1);">
+                        <!-- Effet de brillance en fond -->
+                        <div style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%); pointer-events: none;"></div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2;">
                             <div>
-                                <p style="font-size: 13px; font-weight: 800; color: white; letter-spacing: 0.3px;">🏆 Mes récompenses</p>
-                                <p id="badges-compteur" style="font-size: 11px; color: rgba(255,255,255,0.9); margin-top: 2px;">...</p>
+                                <p style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px;">Mon profil</p>
+                                <h2 id="player-rank-name" style="font-size: 24px; font-weight: 900; color: white; margin: 2px 0 0 0; text-shadow: 0 0 10px rgba(255,255,255,0.3);">Bronze</h2>
+                                <p id="player-xp" style="font-size: 11px; color: #cbd5e1; margin-top: 2px;">0 / 500 XP</p>
                             </div>
-                            <div style="font-size: 32px;">🌟</div>
+                            
+                            <!-- Anneau de progression -->
+                            <div style="position: relative; width: 70px; height: 70px;">
+                                <svg viewBox="0 0 36 36" style="width: 100%; height: 100%; transform: rotate(-90deg);">
+                                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="4" />
+                                    <path id="player-ring" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#F59E0B" stroke-width="4" stroke-dasharray="100, 100" stroke-linecap="round" style="transition: stroke-dasharray 1s ease;" />
+                                </svg>
+                                <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 20px;" id="player-rank-icon">🥉</div>
+                            </div>
                         </div>
-                        <div id="badges-top3" class="flex gap-2" style="position: relative; z-index: 1;"></div>
+
+                        <!-- Badges résumés -->
+                        <div style="margin-top: 16px; position: relative; z-index: 2;">
+                            <div id="badges-top3" class="flex gap-2"></div>
+                        </div>
                     </div>
 
                     <div id="carte-prochain-cours" class="hidden card-pro anim-up delay-2" style="margin-bottom: 14px; background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%); border-left: 4px solid #2EAD5E;">
@@ -627,8 +654,55 @@
 
         async function chargerBadges() {
             if (!monEleveId) return;
+            
+            // 1. Calculer les badges comme avant
             badgesActuels = await calculerBadgesEleve(supabaseClient, monEleveId, monClasseId, trimestreBadges);
-            afficherCarteBadgesAccueil('carte-badges', badgesActuels);
+            var nbBadges = Object.keys(badgesActuels).length;
+
+            // 2. Récupérer les données pour l'XP (Moyenne + Devoirs faits)
+            var resNotes = await supabaseClient.from('notes').select('note, coefficient').eq('eleve_id', monEleveId);
+            var notes = resNotes.data || [];
+            var tp = 0, tc = 0;
+            notes.forEach(function(n) { tp += parseFloat(n.note) * n.coefficient; tc += n.coefficient; });
+            var moyenne = tc > 0 ? (tp / tc) : 0;
+
+            var resDevoirs = await supabaseClient.from('devoirs_faits').select('id', { count: 'exact', head: true }).eq('eleve_id', monEleveId);
+            var nbDevoirsFaits = resDevoirs.count || 0;
+
+            // 3. Calcul de l'XP (Moyenne * 100 + Devoirs * 20 + Badges * 50)
+            var xpTotal = Math.round((moyenne * 100) + (nbDevoirsFaits * 20) + (nbBadges * 50));
+
+            // 4. Déterminer le rang (Niveau)
+            var rangNom = "Bronze", rangIcon = "🥉", couleur = "#CD7F32";
+            var xpMax = 500;
+
+            if (xpTotal >= 2000) { rangNom = "Diamant"; rangIcon = "💎"; couleur = "#00FFFF"; xpMax = 5000; }
+            else if (xpTotal >= 1000) { rangNom = "Or"; rangIcon = "🥇"; couleur = "#F59E0B"; xpMax = 2000; }
+            else if (xpTotal >= 500) { rangNom = "Argent"; rangIcon = "🥈"; couleur = "#94A3B8"; xpMax = 1000; }
+
+            // 5. Mettre à jour l'interface
+            document.getElementById('player-rank-name').innerText = rangNom;
+            document.getElementById('player-rank-name').style.color = couleur;
+            document.getElementById('player-rank-icon').innerText = rangIcon;
+            document.getElementById('player-xp').innerText = xpTotal + ' / ' + xpMax + ' XP';
+            
+            // Calculer le pourcentage pour l'anneau (max 100)
+            var pourcentage = Math.min(100, (xpTotal / xpMax) * 100);
+            var ring = document.getElementById('player-ring');
+            ring.style.stroke = couleur;
+            ring.setAttribute('stroke-dasharray', pourcentage + ', 100');
+
+            // 6. Afficher les 3 premiers badges en bas
+            var obtenus = obtenirBadgesObtenus(badgesActuels);
+            var top3 = obtenus.slice(0, 3);
+            var el = document.getElementById('badges-top3');
+            if (top3.length === 0) {
+                el.innerHTML = '<p style="font-size: 10px; color: #64748b; font-style: italic;">Aucun badge pour le moment. Continue tes efforts !</p>';
+            } else {
+                el.innerHTML = top3.map(function(b) {
+                    return '<div style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 6px 12px; display: flex; align-items: center; gap: 6px;"><span style="font-size: 16px;">' + b.emoji + '</span><span style="font-size: 10px; font-weight: 700; color: white;">' + b.label + '</span></div>';
+                }).join('');
+            }
         }
 
         async function afficherMesBadges() {
@@ -2211,6 +2285,51 @@ async function supprimerMessageMur(id) {
         function lireLocal(cle) {
             try { var data = localStorage.getItem('edulink_eleve_' + cle); return data ? JSON.parse(data) : null; } catch(e) { return null; }
         }
+async function chargerDerniereAnnonceDefilante() {
+            // On récupère la toute dernière annonce
+            var res = await supabaseClient.from('annonces').select('titre').eq('ecole_id', monEcoleId).order('date_publication', { ascending: false }).limit(1).maybeSingle();
+            
+            var bandeau = document.getElementById('bandeau-annonces-marquee');
+            var texte = document.getElementById('annonce-defilante');
+            
+            if (res.data && res.data.titre) {
+                bandeau.classList.remove('hidden');
+                texte.innerText = "📢 DERNIÈRE ANNONCE : " + res.data.titre + " • Cliquez sur 'Annonces' pour en savoir plus.";
+            }
+        }
+async function verifierAnnonceUrgente() {
+            var ilYa24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+            
+            var res = await supabaseClient.from('annonces')
+                .select('*')
+                .eq('ecole_id', monEcoleId)
+                .eq('est_urgente', true)
+                .gte('date_publication', ilYa24h)
+                .order('date_publication', { ascending: false })
+                .limit(1)
+                .maybeSingle();
+
+            var dejaVue = sessionStorage.getItem('annonce_urgente_vue_' + (res.data ? res.data.id : ''));
+            
+            if (res.data && !dejaVue) {
+                document.getElementById('urgent-titre').innerText = res.data.titre;
+                document.getElementById('urgent-contenu').innerText = res.data.contenu;
+                
+                var modal = document.getElementById('modal-annonce-urgente');
+                modal.classList.remove('hidden'); 
+                modal.style.display = 'flex'; // Force l'affichage
+                modal.dataset.annonceId = res.data.id;
+            }
+        }
+
+        function fermerAnnonceUrgente() {
+            var modal = document.getElementById('modal-annonce-urgente');
+            var id = modal.dataset.annonceId;
+            sessionStorage.setItem('annonce_urgente_vue_' + id, 'true');
+            
+            modal.classList.add('hidden'); 
+            modal.style.display = 'none'; // Force la disparition
+        }
         async function seDeconnecter() { 
     await supabaseClient.auth.signOut(); // Détruit le JWT de manière sécurisée
     sessionStorage.removeItem('eduLinkUser'); 
@@ -2218,5 +2337,15 @@ async function supprimerMessageMur(id) {
 }
     </script>
 <script src="layout-pc.js"></script>
+<!-- POPUP ANNONCE URGENTE -->
+<div id="modal-annonce-urgente" class="hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: white; border-radius: 24px; padding: 24px; max-width: 400px; width: 100%; text-align: center; animation: fadeInScale 0.4s ease-out; position: relative; border-top: 8px solid #EF4444;">
+        <div style="font-size: 50px; margin-bottom: 10px; animation: pulse-red 2s infinite; border-radius: 50%; width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">🚨</div>
+        <h2 style="font-size: 18px; font-weight: 900; color: #EF4444; margin-bottom: 8px;">ANNONCE IMPORTANTE</h2>
+        <h3 id="urgent-titre" style="font-size: 16px; font-weight: 800; color: #1f2937; margin-bottom: 12px;">...</h3>
+        <p id="urgent-contenu" style="font-size: 13px; color: #4b5563; line-height: 1.5; margin-bottom: 20px;">...</p>
+        <button onclick="fermerAnnonceUrgente()" style="width: 100%; background: #EF4444; color: white; font-weight: bold; padding: 14px; border-radius: 12px; border: none; font-size: 14px; cursor: pointer; box-shadow: 0 4px 12px rgba(239,68,68,0.3);">J'ai bien compris</button>
+    </div>
+</div>
 </body>
 </html>

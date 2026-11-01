@@ -85,7 +85,18 @@
                     </div>
                 </div>
             </div>
-
+<!-- Bandeau Annonces Défilantes -->
+<div id="bandeau-annonces-marquee" class="hidden" style="background: #F59E0B; color: white; padding: 6px 0; font-size: 11px; font-weight: 700; overflow: hidden; white-space: nowrap; border-bottom: 1px solid #D97706; position: relative;">
+    <div id="annonce-defilante" style="display: inline-block; padding-left: 100%; animation: defilement 20s linear infinite;">
+        Chargement des annonces...
+    </div>
+</div>
+<style>
+    @keyframes defilement {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-100%); }
+    }
+</style>
             <div id="conteneur-scroll" class="flex-1 overflow-y-auto -mt-4 pt-6 px-4 pb-6">
 
                 <!-- ACCUEIL PRO -->
@@ -622,6 +633,13 @@
 
                     <!-- Filtres -->
                     <div class="card-pro anim-up delay-1" style="margin-bottom: 14px; padding: 12px;">
+                        <label style="font-size: 11px; font-weight: 700; color: #6b7280; display: block; margin-bottom: 6px; text-transform: uppercase;">Filtrer par</label>
+                        
+                        <!-- NOUVEAU : Filtre par classe -->
+                        <select id="cahier-filtre-classe" onchange="cahierAppliquerFiltres()" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #d1d5db; font-size: 12px; background: white; margin-bottom: 8px;">
+                            <option value="">Toutes mes classes</option>
+                        </select>
+
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
                             <input type="date" id="cahier-filtre-debut" onchange="cahierAppliquerFiltres()" style="padding: 8px; border-radius: 8px; border: 1px solid #d1d5db; font-size: 12px;">
                             <input type="date" id="cahier-filtre-fin" onchange="cahierAppliquerFiltres()" style="padding: 8px; border-radius: 8px; border: 1px solid #d1d5db; font-size: 12px;">
@@ -901,33 +919,30 @@
             hideAllViews();
             document.getElementById('view-cahier-texte').classList.remove('hidden');
 
-            // Initialiser le contexte du cahier de texte
-            cahierInit(supabaseClient, currentUser, monEcoleId, enseignantId);
+            // Remplir le select des classes
+            var sel = document.getElementById('cahier-filtre-classe');
+            if (sel) {
+                sel.innerHTML = '<option value="">Toutes mes classes</option>';
+                mesAffectations.forEach(function(a) {
+                    var classeNom = a.classes ? a.classes.nom : '?';
+                    sel.innerHTML += '<option value="' + a.classe_id + '">' + classeNom + ' - ' + a.matiere + '</option>';
+                });
+            }
 
-            // Charger les entrées
+            cahierInit(supabaseClient, currentUser, monEcoleId, enseignantId);
             cahierCharger('liste-cahier-texte');
             window.scrollTo(0, 0);
         }
 
         function cahierAppliquerFiltres() {
+            var classeId = document.getElementById('cahier-filtre-classe').value;
             var debut = document.getElementById('cahier-filtre-debut').value;
             var fin = document.getElementById('cahier-filtre-fin').value;
-            // On recharge avec les filtres passés dans le contexte
-            cahierInit(supabaseClient, currentUser, monEcoleId, enseignantId);
-            // Récupérer le contexte et appliquer les filtres via les variables globales du module
-            var ctxGlobal = window.cahierSetFiltres ? null : null;
-            // Simple : on recharge avec filtre via le conteneur
-            if (typeof window.cahierFiltrer === 'function') {
-                window.cahierFiltrer({ debut: debut, fin: fin });
-            } else {
-                // Fallback : recharger directement
-                cahierChargerAvecDates(debut, fin);
+            
+            // On met à jour les filtres dans le fichier cahier-texte.js
+            if (window.cahierSetFiltres) {
+                window.cahierSetFiltres(classeId, debut, fin);
             }
-        }
-
-        function cahierResetFiltres() {
-            document.getElementById('cahier-filtre-debut').value = '';
-            document.getElementById('cahier-filtre-fin').value = '';
             cahierCharger('liste-cahier-texte');
         }
 
@@ -1190,9 +1205,45 @@
 
         // ════════════ APPEL ════════════
         async function afficherAppel() {
+            var conteneur = document.getElementById('liste-appel');
+            
+            // ─── VÉRIFICATION DE L'EMPLOI DU TEMPS ───
+            var jours = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+            var maintenant = new Date();
+            var jourActuel = jours[maintenant.getDay()];
+            var heureActuelleMin = maintenant.getHours() * 60 + maintenant.getMinutes();
+
+            // On récupère les cours du prof pour cette classe aujourd'hui
+            var resCours = await supabaseClient.from('emploi_du_temps')
+                .select('*')
+                .eq('classe_id', classeId)
+                .eq('jour', jourActuel)
+                .eq('matiere', maMatiere);
+
+            var coursTrouve = null;
+            if (resCours.data && resCours.data.length > 0) {
+                coursTrouve = resCours.data.find(function(c) {
+                    var p1 = c.heure_debut.split(':').map(Number);
+                    var p2 = c.heure_fin.split(':').map(Number);
+                    var debut = p1[0] * 60 + p1[1];
+                    var fin = p2[0] * 60 + p2[1];
+                    // On autorise l'appel 15 min avant le début et jusqu'à 15 min après la fin
+                    return (heureActuelleMin >= (debut - 15) && heureActuelleMin <= (fin + 15));
+                });
+            }
+
+            if (!coursTrouve) {
+                // On bloque l'accès si on n'est pas dans le créneau horaire
+                hideAllViews();
+                document.getElementById('view-accueil').classList.remove('hidden');
+                toast.error("Vous n'avez pas cours actuellement en " + maMatiere + ".");
+                return;
+            }
+            // ──────────────────────────────────────────
+
+            // Si on est dans le créneau, on affiche l'appel normalement
             document.getElementById('view-accueil').classList.add('hidden');
             document.getElementById('view-appel').classList.remove('hidden');
-            var conteneur = document.getElementById('liste-appel');
             conteneur.innerHTML = skeleton.lignes(6);
 
             var today = new Date().toISOString().split('T')[0];
@@ -1214,8 +1265,9 @@
 
             html += '<div class="hero-stat" style="--from: #059669; --to: #047857; margin-bottom: 14px;">';
             html += '<div class="hero-stat-icon">✅</div>';
-            html += '<div class="hero-stat-label">Appel du jour</div>';
-            html += '<p style="font-size: 16px; font-weight: 800; margin-top: 6px; text-transform: capitalize; position: relative; z-index: 2;">' + dateAffichee + '</p>';
+            html += '<div class="hero-stat-label">Appel en cours</div>';
+            html += '<p style="font-size: 18px; font-weight: 900; margin-top: 6px; text-transform: uppercase; position: relative; z-index: 2;">' + maMatiere + '</p>';
+            html += '<p style="font-size: 11px; opacity: 0.9; position: relative; z-index: 2; text-transform: capitalize;">' + dateAffichee + '</p>';
             html += '<div class="stat-inline" style="margin-top: 12px; position: relative; z-index: 2;">';
             html += '<div class="stat-mini" style="background: rgba(255,255,255,0.2);"><div class="label" style="color: white; opacity: 0.85;">Présents</div><div class="value" style="color: white;">' + nbPresents + '</div></div>';
             html += '<div class="stat-mini" style="background: rgba(255,255,255,0.2);"><div class="label" style="color: white; opacity: 0.85;">Absents</div><div class="value" style="color: white;"><span id="compteur-absents">' + nbAbsents + '</span></div></div>';
@@ -1280,9 +1332,18 @@
                     var avatar = row.querySelector('.list-avatar');
                     if (avatar) { avatar.className = 'list-avatar green'; }
                 } else {
+                    // On récupère l'heure actuelle au format HH:MM
+                    var maintenant = new Date();
+                    var heureActuelle = maintenant.getHours().toString().padStart(2, '0') + ':' + maintenant.getMinutes().toString().padStart(2, '0');
+
                     var resIns = await supabaseClient.from('absences').insert([{
-                        eleve_id: eleveId, date_absence: today, matiere: maMatiere,
-                        justifiee: false, heure_debut: '08:00', heure_fin: '10:00', ecole_id: monEcoleId
+                        eleve_id: eleveId, 
+                        date_absence: today, 
+                        matiere: maMatiere,
+                        justifiee: false, 
+                        heure_debut: heureActuelle, // On met la vraie heure
+                        heure_fin: heureActuelle,   // On met la même heure (ou on peut calculer +2h)
+                        ecole_id: monEcoleId
                     }]);
                     if (resIns.error) throw resIns.error;
                     btn.setAttribute('data-absent', '1');
@@ -1297,11 +1358,18 @@
 
                     var resE = await supabaseClient.from('eleves').select('parent_id, utilisateurs!utilisateur_id(prenom)').eq('id', eleveId).single();
                     if (resE.data && resE.data.parent_id) {
+                        // 1. On met la notification dans la cloche
                         await supabaseClient.from('notifications').insert([{
                             utilisateur_id: resE.data.parent_id, titre: 'Absence constatée',
                             contenu: 'Votre enfant ' + resE.data.utilisateurs.prenom + ' a été marqué absent en ' + maMatiere + '.',
                             type: 'absence', lu: false, ecole_id: monEcoleId
                         }]);
+                        // 2. On envoie la vraie notification push sur le téléphone
+                        await envoyerNotificationPush(
+                            resE.data.parent_id, 
+                            'Absence constatée', 
+                            'Votre enfant ' + resE.data.utilisateurs.prenom + ' a été marqué absent en ' + maMatiere + '.'
+                        );
                     }
                 }
                 majCompteurAbsents();
@@ -1574,9 +1642,11 @@
                 var resE = await supabaseClient.from('eleves').select('parent_id, utilisateur_id, utilisateurs!utilisateur_id(prenom)').eq('id', eleveId).single();
                 if (resE.data && resE.data.utilisateur_id) {
                     await supabaseClient.from('notifications').insert([{ utilisateur_id: resE.data.utilisateur_id, titre: 'Nouvelle note', contenu: typeLabel + ' de ' + v + '/20 en ' + maMatiere + ' (S' + semestre + ').', type: 'note', lu: false, ecole_id: monEcoleId }]);
+                    await envoyerNotificationPush(resE.data.utilisateur_id, 'Nouvelle note', typeLabel + ' de ' + v + '/20 en ' + maMatiere);
                 }
                 if (resE.data && resE.data.parent_id) {
                     await supabaseClient.from('notifications').insert([{ utilisateur_id: resE.data.parent_id, titre: 'Nouvelle note pour ' + resE.data.utilisateurs.prenom, contenu: typeLabel + ' de ' + v + '/20 en ' + maMatiere + ' (S' + semestre + ').', type: 'note', lu: false, ecole_id: monEcoleId }]);
+                    await envoyerNotificationPush(resE.data.parent_id, 'Nouvelle note pour ' + resE.data.utilisateurs.prenom, typeLabel + ' de ' + v + '/20 en ' + maMatiere);
                 }
                 msg.innerText = "Note enregistree !"; msg.style.color = "green";
                 toast.success('Note enregistrée');
@@ -2116,13 +2186,38 @@
         async function pointerCours(emploiId, btn) {
             var cours = tousLesCoursEns.find(function(c) { return c.id === emploiId; });
             if (!cours) return;
+
+            // ─── VÉRIFICATION DE L'HEURE (Fenêtre de pointage) ───
+            var maintenant = new Date();
+            var heureActuelle = maintenant.getHours() * 60 + maintenant.getMinutes();
+
+            var p1 = cours.heure_debut.split(':').map(Number);
+            var debutCours = p1[0] * 60 + p1[1];
+
+            var p2 = cours.heure_fin.split(':').map(Number);
+            var finCours = p2[0] * 60 + p2[1];
+
+            // Marges autorisées (15 minutes)
+            var margeAvant = 15; 
+            var margeApres = 15; 
+
+            if (heureActuelle < (debutCours - margeAvant)) {
+                var hDebut = cours.heure_debut.substring(0, 5);
+                toast.warning("C'est trop tôt ! Vous ne pouvez pointer qu'à partir de " + hDebut + " (moins 15 min).");
+                return;
+            }
+
+            if (heureActuelle > (finCours + margeApres)) {
+                toast.error("La fenêtre de pointage est fermée. Vous ne pouvez plus marquer ce cours.");
+                return;
+            }
+            // ─────────────────────────────────────────────────────
+
             var today = new Date().toISOString().split('T')[0];
             btn.disabled = true;
             btn.innerText = '⏳';
 
-            var p1 = cours.heure_debut.split(':').map(Number);
-            var p2 = cours.heure_fin.split(':').map(Number);
-            var dureeMin = (p2[0] * 60 + p2[1]) - (p1[0] * 60 + p1[1]);
+            var dureeMin = finCours - debutCours;
 
             try {
                 var res = await supabaseClient.from('pointages').insert([{
@@ -2138,7 +2233,7 @@
                     btn.className = 'bg-green-500 text-white px-3 py-1 rounded-lg text-xs font-bold';
                     btn.innerText = '✅ Pointe';
                     btn.disabled = true;
-                    toast.success('Cours pointé');
+                    toast.success('Cours pointé avec succès');
                     return;
                 }
             } catch (err) {
@@ -3277,6 +3372,67 @@ async function supprimerMessageMur(id) {
             toast.success("Incident enregistré !");
             fermerModalConduite(); // On ferme
         }
+// ════════════ ENVOI DE NOTIFICATION PUSH ════════════
+        async function envoyerNotificationPush(destinataireId, titre, contenu) {
+            if (!destinataireId) return;
+            try {
+                // On appelle l'Edge Function sans bloquer l'interface
+                await supabaseClient.functions.invoke('send-push', {
+                    body: {
+                        utilisateur_id: destinataireId,
+                        titre: titre,
+                        contenu: contenu
+                    }
+                });
+            } catch (err) {
+                console.error("Erreur envoi push (non bloquant) :", err);
+            }
+        }
+async function chargerDerniereAnnonceDefilante() {
+            // On récupère la toute dernière annonce
+            var res = await supabaseClient.from('annonces').select('titre').eq('ecole_id', monEcoleId).order('date_publication', { ascending: false }).limit(1).maybeSingle();
+            
+            var bandeau = document.getElementById('bandeau-annonces-marquee');
+            var texte = document.getElementById('annonce-defilante');
+            
+            if (res.data && res.data.titre) {
+                bandeau.classList.remove('hidden');
+                texte.innerText = "📢 DERNIÈRE ANNONCE : " + res.data.titre + " • Cliquez sur 'Annonces' pour en savoir plus.";
+            }
+        }
+async function verifierAnnonceUrgente() {
+            var ilYa24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+            
+            var res = await supabaseClient.from('annonces')
+                .select('*')
+                .eq('ecole_id', monEcoleId)
+                .eq('est_urgente', true)
+                .gte('date_publication', ilYa24h)
+                .order('date_publication', { ascending: false })
+                .limit(1)
+                .maybeSingle();
+
+            var dejaVue = sessionStorage.getItem('annonce_urgente_vue_' + (res.data ? res.data.id : ''));
+            
+            if (res.data && !dejaVue) {
+                document.getElementById('urgent-titre').innerText = res.data.titre;
+                document.getElementById('urgent-contenu').innerText = res.data.contenu;
+                
+                var modal = document.getElementById('modal-annonce-urgente');
+                modal.classList.remove('hidden'); 
+                modal.style.display = 'flex'; // Force l'affichage
+                modal.dataset.annonceId = res.data.id;
+            }
+        }
+
+        function fermerAnnonceUrgente() {
+            var modal = document.getElementById('modal-annonce-urgente');
+            var id = modal.dataset.annonceId;
+            sessionStorage.setItem('annonce_urgente_vue_' + id, 'true');
+            
+            modal.classList.add('hidden'); 
+            modal.style.display = 'none'; // Force la disparition
+        }
         async function seDeconnecter() { 
     await supabaseClient.auth.signOut(); // Détruit le JWT de manière sécurisée
     sessionStorage.removeItem('eduLinkUser'); 
@@ -3284,5 +3440,15 @@ async function supprimerMessageMur(id) {
 }
     </script>
 <script src="layout-pc.js"></script>
+<!-- POPUP ANNONCE URGENTE -->
+<div id="modal-annonce-urgente" class="hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: white; border-radius: 24px; padding: 24px; max-width: 400px; width: 100%; text-align: center; animation: fadeInScale 0.4s ease-out; position: relative; border-top: 8px solid #EF4444;">
+        <div style="font-size: 50px; margin-bottom: 10px; animation: pulse-red 2s infinite; border-radius: 50%; width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">🚨</div>
+        <h2 style="font-size: 18px; font-weight: 900; color: #EF4444; margin-bottom: 8px;">ANNONCE IMPORTANTE</h2>
+        <h3 id="urgent-titre" style="font-size: 16px; font-weight: 800; color: #1f2937; margin-bottom: 12px;">...</h3>
+        <p id="urgent-contenu" style="font-size: 13px; color: #4b5563; line-height: 1.5; margin-bottom: 20px;">...</p>
+        <button onclick="fermerAnnonceUrgente()" style="width: 100%; background: #EF4444; color: white; font-weight: bold; padding: 14px; border-radius: 12px; border: none; font-size: 14px; cursor: pointer; box-shadow: 0 4px 12px rgba(239,68,68,0.3);">J'ai bien compris</button>
+    </div>
+</div>
 </body>
 </html>
