@@ -7687,28 +7687,13 @@ async function verifierAnnonceUrgente() {
         }
 async function testerBilanParent() {
             toast.info("Génération du bilan en cours...");
-            
-            // NOUVELLE URL avec le nouveau nom
-            const url = 'https://abwguixclmxtzvlsmbby.supabase.co/functions/v1/bilan-hebdo';
-            const anonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFid2d1aXhjbG14dHp2bHNtYmJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4OTg1OTMsImV4cCI6MjEwNjQ3NDU5M30.8MiG5YdoMIY69KYfBdlXHIB9Zisd5miX3slaCoqVcjM';
-
             try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'apikey': anonKey,
-                        'Authorization': 'Bearer ' + anonKey
-                    },
-                    body: JSON.stringify({})
+                // On appelle send-push (qui marche !) avec l'action spéciale 'bilan_hebdomadaire'
+                const { data, error } = await supabaseClient.functions.invoke('send-push', {
+                    body: { action: 'bilan_hebdomadaire' }
                 });
 
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error("Code " + response.status + " : " + JSON.stringify(data));
-                }
-
+                if (error) throw error;
                 toast.success("Bilan envoyé à " + data.messagesEnvoyes + " parent(s) !");
             } catch (err) {
                 alert("Erreur : " + err.message);
