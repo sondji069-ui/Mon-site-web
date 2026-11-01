@@ -7688,16 +7688,29 @@ async function verifierAnnonceUrgente() {
 async function testerBilanParent() {
             toast.info("Génération du bilan en cours...");
             try {
-                const { data, error } = await supabaseClient.functions.invoke('send-weekly-report');
-                if (error) throw error;
-                
-                if (data && data.succes) {
-                    toast.success("Bilan envoyé à " + data.messagesEnvoyes + " parent(s) !");
-                } else {
-                    toast.error("Erreur : " + (data.error || "Inconnue"));
+                // On utilise fetch directement pour voir la vraie erreur
+                const response = await fetch(supabaseClient.supabaseUrl + '/functions/v1/send-weekly-report', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + supabaseClient.supabaseKey,
+                        'apikey': supabaseClient.supabaseKey
+                    },
+                    body: JSON.stringify({})
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    // Si Supabase renvoie une erreur, on l'affiche
+                    throw new Error("Code " + response.status + " : " + JSON.stringify(data));
                 }
+
+                toast.success("Bilan envoyé à " + data.messagesEnvoyes + " parent(s) !");
             } catch (err) {
-                toast.error("Erreur réseau : " + err.message);
+                console.error("Erreur détaillée :", err);
+                // On affiche l'erreur dans une alerte pour que tu puisses la lire
+                alert("Erreur de communication :\n\n" + err.message);
             }
         }
         async function seDeconnecter() { 
