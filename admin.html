@@ -307,10 +307,6 @@
             <div class="tile-icon" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #004AAD;">📢</div>
             <div class="tile-label">Annonces</div>
             <div class="tile-sub">Publier</div>
-<label class="flex items-center gap-2 text-xs font-bold text-gray-700 mt-3 mb-2 cursor-pointer">
-    <input type="checkbox" id="annonce-urgente-check" class="w-4 h-4 text-red-500 rounded">
-    <span class="text-red-500">🚨 Marquer comme URGENTE (Popup plein écran)</span>
-</label>
         </div>
         <div class="action-tile anim-up delay-8" onclick="afficherSignature()">
             <div class="tile-icon" style="background: linear-gradient(135deg, #dcfce7, #bbf7d0); color: #059669;">🖋️</div>
@@ -7652,39 +7648,7 @@ function retourFicheEleve() {
             conteneur.innerHTML = html;
             window.scrollTo(0, 0);
         }
-async function verifierAnnonceUrgente() {
-            var ilYa24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-            
-            var res = await supabaseClient.from('annonces')
-                .select('*')
-                .eq('ecole_id', monEcoleId)
-                .eq('est_urgente', true)
-                .gte('date_publication', ilYa24h)
-                .order('date_publication', { ascending: false })
-                .limit(1)
-                .maybeSingle();
 
-            var dejaVue = sessionStorage.getItem('annonce_urgente_vue_' + (res.data ? res.data.id : ''));
-            
-            if (res.data && !dejaVue) {
-                document.getElementById('urgent-titre').innerText = res.data.titre;
-                document.getElementById('urgent-contenu').innerText = res.data.contenu;
-                
-                var modal = document.getElementById('modal-annonce-urgente');
-                modal.classList.remove('hidden'); 
-                modal.style.display = 'flex'; // Force l'affichage
-                modal.dataset.annonceId = res.data.id;
-            }
-        }
-
-        function fermerAnnonceUrgente() {
-            var modal = document.getElementById('modal-annonce-urgente');
-            var id = modal.dataset.annonceId;
-            sessionStorage.setItem('annonce_urgente_vue_' + id, 'true');
-            
-            modal.classList.add('hidden'); 
-            modal.style.display = 'none'; // Force la disparition
-        }
 async function testerBilanParent() {
             toast.info("Génération du bilan en cours...");
             try {
@@ -7717,15 +7681,5 @@ async function testerBilanParent() {
 <script src="image-utils.js"></script>
 <script src="storage.js"></script>
 <script src="layout-pc.js"></script>
-<!-- POPUP ANNONCE URGENTE -->
-<div id="modal-annonce-urgente" class="hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 20px;">
-    <div style="background: white; border-radius: 24px; padding: 24px; max-width: 400px; width: 100%; text-align: center; animation: fadeInScale 0.4s ease-out; position: relative; border-top: 8px solid #EF4444;">
-        <div style="font-size: 50px; margin-bottom: 10px; animation: pulse-red 2s infinite; border-radius: 50%; width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">🚨</div>
-        <h2 style="font-size: 18px; font-weight: 900; color: #EF4444; margin-bottom: 8px;">ANNONCE IMPORTANTE</h2>
-        <h3 id="urgent-titre" style="font-size: 16px; font-weight: 800; color: #1f2937; margin-bottom: 12px;">...</h3>
-        <p id="urgent-contenu" style="font-size: 13px; color: #4b5563; line-height: 1.5; margin-bottom: 20px;">...</p>
-        <button onclick="fermerAnnonceUrgente()" style="width: 100%; background: #EF4444; color: white; font-weight: bold; padding: 14px; border-radius: 12px; border: none; font-size: 14px; cursor: pointer; box-shadow: 0 4px 12px rgba(239,68,68,0.3);">J'ai bien compris</button>
-    </div>
-</div>
 </body>
 </html>
