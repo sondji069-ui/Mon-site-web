@@ -7687,14 +7687,18 @@ async function verifierAnnonceUrgente() {
         }
 async function testerBilanParent() {
             toast.info("Génération du bilan en cours...");
+            
+            // On force l'URL complète pour éviter les erreurs de chemin
+            const url = 'https://abwguixclmxtzvlsmbby.supabase.co/functions/v1/send-weekly-report';
+            const anonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFid2d1aXhjbG14dHp2bHNtYmJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4OTg1OTMsImV4cCI6MjEwNjQ3NDU5M30.8MiG5YdoMIY69KYfBdlXHIB9Zisd5miX3slaCoqVcjM';
+
             try {
-                // On utilise fetch directement pour voir la vraie erreur
-                const response = await fetch(supabaseClient.supabaseUrl + '/functions/v1/send-weekly-report', {
+                const response = await fetch(url, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + supabaseClient.supabaseKey,
-                        'apikey': supabaseClient.supabaseKey
+                        'apikey': anonKey,
+                        'Authorization': 'Bearer ' + anonKey
                     },
                     body: JSON.stringify({})
                 });
@@ -7702,15 +7706,12 @@ async function testerBilanParent() {
                 const data = await response.json();
 
                 if (!response.ok) {
-                    // Si Supabase renvoie une erreur, on l'affiche
                     throw new Error("Code " + response.status + " : " + JSON.stringify(data));
                 }
 
                 toast.success("Bilan envoyé à " + data.messagesEnvoyes + " parent(s) !");
             } catch (err) {
-                console.error("Erreur détaillée :", err);
-                // On affiche l'erreur dans une alerte pour que tu puisses la lire
-                alert("Erreur de communication :\n\n" + err.message);
+                alert("Erreur : " + err.message);
             }
         }
         async function seDeconnecter() { 
