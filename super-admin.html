@@ -125,15 +125,7 @@
                         <div class="flex-1 text-left"><p class="text-sm font-bold text-gray-800">Journal d'audit</p><p class="text-[10px] text-gray-400">Historique des actions</p></div>
                         <span class="text-xl text-gray-300">→</span>
                     </button>
-<button onclick="afficherDemandesMdp()" class="bouton-action w-full bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3 mb-3 relative">
-                        <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center text-2xl">🔑</div>
-                        <div class="flex-1 text-left">
-                            <p class="text-sm font-bold text-gray-800">Demandes de mot de passe</p>
-                            <p class="text-[10px] text-gray-400">Réinitialiser un accès</p>
-                        </div>
-                        <span id="badge-demandes-mdp" class="hidden absolute top-4 right-10 bg-red-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">0</span>
-                        <span class="text-xl text-gray-300">→</span>
-                    </button>
+
                     <div class="bg-white rounded-2xl shadow-lg p-4 mb-3">
                         <div class="flex items-center justify-between mb-2">
                             <div class="flex items-center gap-2">
@@ -240,15 +232,6 @@
                 </div>
 
                 <!-- ==================== AUDIT ==================== -->
-<!-- ==================== DEMANDES MDP ==================== -->
-                <div id="view-demandes-mdp" class="hidden fade-in">
-                    <div class="flex items-center gap-3 mb-3">
-                        <button onclick="retourAccueil()" class="text-2xl">⬅️</button>
-                        <h1 class="text-lg font-bold text-gray-800 flex-1">🔑 Demandes de mot de passe</h1>
-                    </div>
-                    <p class="text-xs text-gray-500 mb-3">Générez un mot de passe temporaire pour les utilisateurs bloqués.</p>
-                    <div id="liste-demandes-mdp" class="space-y-3"></div>
-                </div>
                 <div id="view-audit" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-2">📜 Journal d'audit</h1>
@@ -315,7 +298,6 @@
             document.getElementById('welcome-message').innerText = currentUser.prenom + ' ' + currentUser.nom;
             document.getElementById('view-accueil').classList.remove('hidden');
             chargerStatsGlobales();
-chargerBadgeDemandesMdp();
         });
 
         async function chargerStatsGlobales() {
@@ -349,7 +331,7 @@ chargerBadgeDemandesMdp();
         }
 
         function hideAllViews() {
-            ['view-accueil', 'view-ecoles', 'view-ecole-detail', 'view-plans', 'view-form-plan', 'view-utilisateurs', 'view-audit', 'view-demandes-mdp'].forEach(id => {
+            ['view-accueil', 'view-ecoles', 'view-ecole-detail', 'view-plans', 'view-form-plan', 'view-utilisateurs', 'view-audit'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -429,18 +411,9 @@ chargerBadgeDemandesMdp();
             const { count: nbProfs } = await supabaseClient.from('utilisateurs').select('*', { count: 'exact', head: true }).eq('ecole_id', ecoleId).eq('role', 'enseignant');
             const { count: nbClasses } = await supabaseClient.from('classes').select('*', { count: 'exact', head: true }).eq('ecole_id', ecoleId);
             const { count: nbStaff } = await supabaseClient.from('utilisateurs').select('*', { count: 'exact', head: true }).eq('ecole_id', ecoleId).eq('role', 'staff');
-            const { count: nbParents } = await supabaseClient.from('utilisateurs')
-    .select('*', { count: 'exact', head: true })
-    .eq('ecole_id', ecoleId).eq('role', 'parent');
-
-// ⬇️ NOUVEAU : récupérer LE directeur de cette école
-const { data: admin } = await supabaseClient
-    .from('utilisateurs')
-    .select('id, prenom, nom, email')
-    .eq('ecole_id', ecoleId)
-    .eq('role', 'admin')
-    .limit(1)
-    .maybeSingle();
+            const { count: nbParents } = await supabaseClient.from('utilisateurs').select('*', { count: 'exact', head: true }).eq('ecole_id', ecoleId).eq('role', 'parent');
+            // On notifie le Super Admin (le rôle qui gère la plateforme)
+                const { data: admins } = await supabaseClient.from('utilisateurs').select('id').eq('role', 'super_admin');
 
             const isActif = ecole.actif !== false;
             const statutBadge = isActif ? '<span class="badge-actif text-[10px] font-bold px-3 py-1 rounded-full">ACTIVE</span>' : '<span class="badge-inactif text-[10px] font-bold px-3 py-1 rounded-full">DÉSACTIVÉE</span>';
@@ -762,79 +735,6 @@ const { data: admin } = await supabaseClient
         }
 
         function seDeconnecter() { sessionStorage.removeItem('eduLinkUser'); window.location.href = 'index.html'; }
-// ============ DEMANDES MOT DE PASSE ============
-        async function afficherDemandesMdp() {
-            hideAllViews();
-            document.getElementById('view-demandes-mdp').classList.remove('hidden');
-            const conteneur = document.getElementById('liste-demandes-mdp');
-            conteneur.innerHTML = '<p class="text-gray-500 text-center py-6">Chargement...</p>';
-
-            // On récupère les demandes en attente avec les infos de l'utilisateur
-            const { data: demandes } = await supabaseClient
-                .from('demandes_mdp')
-                .select('*, utilisateurs!inner(id, prenom, nom, email, role, ecole_id, ecoles(nom))')
-                .eq('statut', 'en_attente')
-                .order('date_demande', { ascending: false });
-
-            if (!demandes || demandes.length === 0) {
-                conteneur.innerHTML = '<div class="bg-white p-8 rounded-2xl shadow-sm text-center"><div class="text-5xl mb-2">🎉</div><p class="text-gray-500 text-sm">Aucune demande en attente.</p></div>';
-                return;
-            }
-
-            let html = '';
-            demandes.forEach(d => {
-                const u = d.utilisateurs;
-                const ecoleNom = u.ecoles ? u.ecoles.nom : 'Sans école';
-                const dateStr = new Date(d.date_demande || d.date_creation).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-
-                html += `<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-                    <div class="flex justify-between items-start mb-2">
-                        <div>
-                            <p class="text-sm font-bold text-gray-800">${u.prenom} ${u.nom}</p>
-                            <p class="text-[11px] text-gray-500">${u.email}</p>
-                            <p class="text-[10px] text-edu-indigo font-semibold mt-1">🏫 ${ecoleNom} • ${u.role}</p>
-                        </div>
-                        <span class="text-[9px] text-gray-400">${dateStr}</span>
-                    </div>
-                    <button onclick="genererNouveauMdp(${u.id}, '${u.prenom} ${u.nom}')" class="w-full bg-amber-50 text-edu-orange text-xs font-bold py-2 rounded-lg border border-amber-200 mt-2">
-                        🔑 Générer un nouveau mot de passe
-                    </button>
-                </div>`;
-            });
-            conteneur.innerHTML = html;
-            window.scrollTo(0, 0);
-        }
-
-        async function genererNouveauMdp(userId, nomComplet) {
-            if (!confirm("Générer un nouveau mot de passe pour " + nomComplet + " ?")) return;
-
-            // 1. On génère un mot de passe (ex: EDU-X7B9Q2)
-            const mdpTemporaire = window.genererMdpTemporaire();
-
-            try {
-                // 2. On appelle l'Edge Function via le SDK (plus stable sur iOS)
-                const { data, error } = await supabaseClient.functions.invoke('reset-password', {
-                    body: { 
-                        user_id: userId, 
-                        new_password: mdpTemporaire 
-                    }
-                });
-
-                if (error) throw new Error(error.message || "Erreur réseau");
-                if (data && data.error) throw new Error(data.error);
-
-                // 3. On affiche le mot de passe dans la popup
-                afficherPopupMdp(mdpTemporaire, nomComplet);
-                
-                // 4. On rafraîchit la liste
-                afficherDemandesMdp();
-                chargerBadgeDemandesMdp();
-
-            } catch (err) {
-                console.error("Erreur Reset MDP:", err);
-                alert("Erreur : " + err.message);
-            }
-        }
     </script>
 <script src="pwa.js"></script>
 </body>

@@ -112,8 +112,7 @@
 
                 if (errDemande) throw errDemande;
 
-                // On notifie les Super Admins (gestionnaires de la plateforme)
-                const { data: admins } = await supabaseClient.from('utilisateurs').select('id').eq('role', 'super_admin');
+                const { data: admins } = await supabaseClient.from('utilisateurs').select('id').eq('ecole_id', user.ecole_id).eq('role', 'admin');
 
                 if (admins && admins.length > 0) {
                     const notifs = admins.map(a => ({
