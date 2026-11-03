@@ -2506,14 +2506,39 @@ let creneauxMasques = new Set();
         async function afficherGestionEmploi() {
             hideAllViews();
             document.getElementById('view-emploi-classes').classList.remove('hidden');
-            const { data: classes } = await supabaseClient.from('classes').select('*').eq('ecole_id', monEcoleId).order('nom');
+            document.getElementById('liste-classes-emploi').innerHTML = skeleton.lignes(4); // Loading
+
+            // 1. Requêtes parallèles
+            const [resClasses, resCours] = await Promise.all([
+                supabaseClient.from('classes').select('id, nom').eq('ecole_id', monEcoleId).order('nom'),
+                supabaseClient.from('emploi_du_temps').select('classe_id').eq('ecole_id', monEcoleId)
+            ]);
+
+            const classes = resClasses.data || [];
+            const cours = resCours.data || [];
+
+            // 2. Comptage en mémoire
+            const countParClasse = {};
+            cours.forEach(c => {
+                countParClasse[c.classe_id] = (countParClasse[c.classe_id] || 0) + 1;
+            });
+
             let html = '';
-            if (classes && classes.length > 0) {
-                for (const c of classes) {
-                    const { count } = await supabaseClient.from('emploi_du_temps').select('*', { count: 'exact', head: true }).eq('classe_id', c.id);
-                    html += '<div onclick="afficherEmploiClasse(' + c.id + ', \'' + c.nom.replace(/'/g, "\\'") + '\')" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3 cursor-pointer hover:shadow-md transition"><div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-2xl">🏫</div><div class="flex-1"><p class="text-sm font-bold text-gray-800">' + c.nom + '</p><p class="text-[10px] text-gray-500">' + (count || 0) + ' cours</p></div><span class="text-xl text-gray-400">→</span></div>';
-                }
-            } else html = '<p class="text-gray-500 text-center py-4">Aucune classe.</p>';
+            if (classes.length > 0) {
+                classes.forEach(c => {
+                    const nbCours = countParClasse[c.id] || 0;
+                    html += `<div onclick="afficherEmploiClasse(${c.id}, '${c.nom.replace(/'/g, "\\'")}')" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3 cursor-pointer hover:shadow-md transition">
+                        <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-2xl">🏫</div>
+                        <div class="flex-1">
+                            <p class="text-sm font-bold text-gray-800">${echapperHtml(c.nom)}</p>
+                            <p class="text-[10px] text-gray-500">${nbCours} cours planifiés</p>
+                        </div>
+                        <span class="text-xl text-gray-400">→</span>
+                    </div>`;
+                });
+            } else {
+                html = '<p class="text-gray-500 text-center py-4">Aucune classe.</p>';
+            }
             document.getElementById('liste-classes-emploi').innerHTML = html;
         }
 
@@ -3114,14 +3139,47 @@ coursActuelsAdmin = cours || [];
         async function afficherGestionClasses() {
             hideAllViews();
             document.getElementById('view-liste-classes').classList.remove('hidden');
-            const { data: classes } = await supabaseClient.from('classes').select('*').eq('ecole_id', monEcoleId).order('nom');
+            document.getElementById('liste-classes-admin').innerHTML = skeleton.lignes(4); // Loading
+
+            // 1. On fait les 2 requêtes EN MÊME TEMPS (gain de temps)
+            const [resClasses, resEleves] = await Promise.all([
+                supabaseClient.from('classes').select('*').eq('ecole_id', monEcoleId).order('nom'),
+                supabaseClient.from('eleves').select('classe_id').eq('ecole_id', monEcoleId)
+            ]);
+
+            const classes = resClasses.data || [];
+            const eleves = resEleves.data || [];
+
+            // 2. On compte les élèves en mémoire (0 requête réseau supplémentaire)
+            const countParClasse = {};
+            eleves.forEach(e => {
+                countParClasse[e.classe_id] = (countParClasse[e.classe_id] || 0) + 1;
+            });
+
             let html = '';
-            if (classes && classes.length > 0) {
-                for (const c of classes) {
-                    const { count } = await supabaseClient.from('eleves').select('*', { count: 'exact', head: true }).eq('classe_id', c.id);
-                    html += '<div onclick="afficherFicheClasse(' + c.id + ')" data-search="' + c.nom + ' ' + (c.niveau || '') + '" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition"><div class="flex items-center gap-3 mb-2"><div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-xl">🏫</div><div class="flex-1"><p class="text-sm font-bold text-gray-800">' + c.nom + '</p><p class="text-[10px] text-gray-500">' + (c.niveau || '') + ' - ' + (count || 0) + ' eleves - ' + (c.frais_scolarite || 0) + ' FCFA</p></div><span class="text-xl text-gray-400">→</span></div><div class="flex gap-2 justify-end"><button onclick="event.stopPropagation(); editerClasse(' + c.id + ')" class="bg-blue-50 text-edu-blue text-xs font-bold px-3 py-1 rounded-lg">Modifier</button><button onclick="event.stopPropagation(); supprimerClasse(' + c.id + ', \'' + c.nom + '\')" class="bg-red-50 text-edu-red text-xs font-bold px-3 py-1 rounded-lg">Supprimer</button></div></div>';
-                }
-            } else html = '<p class="text-gray-500 text-center py-4">Aucune classe.</p>';
+            if (classes.length > 0) {
+                classes.forEach(c => {
+                    const nbEleves = countParClasse[c.id] || 0;
+                    const frais = (c.frais_scolarite || 0).toLocaleString('fr-FR');
+                    
+                    html += `<div onclick="afficherFicheClasse(${c.id})" data-search="${echapperHtml(c.nom)} ${echapperHtml(c.niveau || '')}" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-xl">🏫</div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-bold text-gray-800">${echapperHtml(c.nom)}</p>
+                                <p class="text-[10px] text-gray-500">${echapperHtml(c.niveau || '')} • ${nbEleves} élèves • ${frais} FCFA</p>
+                            </div>
+                            <span class="text-xl text-gray-400">→</span>
+                        </div>
+                        <div class="flex gap-2 justify-end">
+                            <button onclick="event.stopPropagation(); editerClasse(${c.id})" class="bg-blue-50 text-edu-blue text-xs font-bold px-3 py-1 rounded-lg">Modifier</button>
+                            <button onclick="event.stopPropagation(); supprimerClasse(${c.id}, '${c.nom.replace(/'/g, "\\'")}')" class="bg-red-50 text-edu-red text-xs font-bold px-3 py-1 rounded-lg">Supprimer</button>
+                        </div>
+                    </div>`;
+                });
+            } else {
+                html = '<p class="text-gray-500 text-center py-4">Aucune classe.</p>';
+            }
             document.getElementById('liste-classes-admin').innerHTML = html;
         }
 

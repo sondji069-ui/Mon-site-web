@@ -1960,10 +1960,10 @@ async function afficherEmploi() {
                 html += '<div class="text-2xl flex-shrink-0">' + emoji + '</div>';
                 html += '<div class="flex-1 min-w-0">';
                 html += '<div class="flex items-center gap-2 mb-1">';
-                html += '<p class="text-xs font-bold text-gray-800 truncate flex-1">' + r.titre + '</p>';
-                html += '<span class="' + couleur + ' text-[9px] font-bold px-2 py-0.5 rounded">' + label + '</span>';
-                html += '</div>';
-                html += '<p class="text-[10px] text-gray-500">' + r.matiere + ' - ' + dateStr + '</p>';
+                html += '<p class="text-xs font-bold text-gray-800 truncate flex-1">' + echapperHtml(r.titre) + '</p>';
+html += '<span class="' + couleur + ' text-[9px] font-bold px-2 py-0.5 rounded">' + label + '</span>';
+html += '</div>';
+html += '<p class="text-[10px] text-gray-500">' + echapperHtml(r.matiere) + ' - ' + dateStr + '</p>';
                 html += '</div></div>';
                 html += '<button onclick="resElvVoir(' + r.id + ')" class="w-full bg-blue-50 text-edu-blue text-xs font-bold py-2 rounded-lg">Voir</button>';
                 html += '</div>';
