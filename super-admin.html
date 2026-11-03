@@ -411,9 +411,18 @@
             const { count: nbProfs } = await supabaseClient.from('utilisateurs').select('*', { count: 'exact', head: true }).eq('ecole_id', ecoleId).eq('role', 'enseignant');
             const { count: nbClasses } = await supabaseClient.from('classes').select('*', { count: 'exact', head: true }).eq('ecole_id', ecoleId);
             const { count: nbStaff } = await supabaseClient.from('utilisateurs').select('*', { count: 'exact', head: true }).eq('ecole_id', ecoleId).eq('role', 'staff');
-            const { count: nbParents } = await supabaseClient.from('utilisateurs').select('*', { count: 'exact', head: true }).eq('ecole_id', ecoleId).eq('role', 'parent');
-            // On notifie le Super Admin (le rôle qui gère la plateforme)
-                const { data: admins } = await supabaseClient.from('utilisateurs').select('id').eq('role', 'super_admin');
+            const { count: nbParents } = await supabaseClient.from('utilisateurs')
+    .select('*', { count: 'exact', head: true })
+    .eq('ecole_id', ecoleId).eq('role', 'parent');
+
+// ⬇️ NOUVEAU : récupérer LE directeur de cette école
+const { data: admin } = await supabaseClient
+    .from('utilisateurs')
+    .select('id, prenom, nom, email')
+    .eq('ecole_id', ecoleId)
+    .eq('role', 'admin')
+    .limit(1)
+    .maybeSingle();
 
             const isActif = ecole.actif !== false;
             const statutBadge = isActif ? '<span class="badge-actif text-[10px] font-bold px-3 py-1 rounded-full">ACTIVE</span>' : '<span class="badge-inactif text-[10px] font-bold px-3 py-1 rounded-full">DÉSACTIVÉE</span>';

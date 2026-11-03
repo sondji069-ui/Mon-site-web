@@ -58,17 +58,14 @@
                 box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
             }
 
-            /* Header du chat plus aéré */
             body > div.bg-white > div:first-child {
                 padding: 20px 28px !important;
             }
 
-            /* Zone de messages : plus large */
             #chat-container {
                 padding: 24px 28px !important;
             }
 
-            /* Bulles de message plus larges */
             #chat-container .message-ia,
             #chat-container .message-user {
                 max-width: 70% !important;
@@ -76,7 +73,6 @@
                 line-height: 1.5 !important;
             }
 
-            /* Zone de saisie plus grande */
             body > div.bg-white > div:last-child {
                 padding: 16px 28px !important;
             }
@@ -86,7 +82,6 @@
                 padding: 12px 16px !important;
             }
 
-            /* Scrollbar discrète */
             #chat-container::-webkit-scrollbar { width: 8px; }
             #chat-container::-webkit-scrollbar-thumb {
                 background: rgba(0, 74, 173, 0.25);
@@ -107,10 +102,21 @@
             <button onclick="retourEspace()" class="text-2xl">⬅️</button>
             <div class="flex-1">
                 <h1 class="text-base font-bold">🤖 Assistant IA</h1>
-                <p class="text-[10px] opacity-90">Pose-moi tes questions de cours</p>
+                <p class="text-[10px] opacity-90">Propulsé par Google Gemini</p>
             </div>
             <button onclick="effacerConversation()" class="text-xs bg-white bg-opacity-20 px-2 py-1 rounded-lg">Nouvelle</button>
         </div>
+
+        <!-- Bandeau Contexte (Mode révision) -->
+        <div id="bandeau-contexte-ia" class="hidden" style="background: linear-gradient(135deg, #f3e8ff, #e9d5ff); border-bottom: 1px solid #d8b4fe; padding: 10px 16px; display: flex; align-items: center; gap: 10px; z-index: 10;">
+            <div style="font-size: 20px;">📚</div>
+            <div style="flex: 1; min-width: 0;">
+                <p style="font-size: 10px; color: #7e22ce; font-weight: 800; text-transform: uppercase; margin: 0;">Mode révision activé</p>
+                <p id="titre-contexte-ia" style="font-size: 12px; font-weight: 700; color: #4c1d95; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">...</p>
+            </div>
+            <button onclick="quitterContexte()" style="background: white; border: none; border-radius: 8px; padding: 6px 10px; font-size: 10px; font-weight: bold; color: #7e22ce; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">Quitter</button>
+        </div>
+
         <div id="chat-container" class="flex-1 overflow-y-auto p-4 space-y-3">
             <div class="flex items-start gap-2">
                 <div class="w-8 h-8 bg-edu-blue rounded-full flex items-center justify-center text-sm flex-shrink-0">🤖</div>
@@ -126,17 +132,20 @@
                 <button onclick="poserSuggestion(4)" class="bg-white border border-gray-300 text-xs px-3 py-1 rounded-full">📚 Revisions</button>
             </div>
         </div>
+        
         <div class="p-3 border-t border-gray-200 bg-white">
             <div class="flex gap-2">
                 <textarea id="input-message" rows="1" placeholder="Pose ta question..." class="flex-1 px-3 py-2 rounded-xl border border-gray-300 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-edu-blue" onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();envoyerMessage();}"></textarea>
                 <button onclick="envoyerMessage()" id="btn-envoyer" class="bg-edu-blue text-white px-4 rounded-xl font-bold">➤</button>
             </div>
-            <p class="text-[9px] text-gray-400 text-center mt-2">L IA peut faire des erreurs. Verifie toujours avec ton professeur.</p>
+            <p class="text-[9px] text-gray-400 text-center mt-2">L'IA peut faire des erreurs. Vérifie toujours avec ton professeur.</p>
         </div>
     </div>
 
     <script>
-        var OPENROUTER_API_KEY = '';
+        // ═══════════ CONFIGURATION GOOGLE GEMINI ═══════════
+        // 👉 COLLE TA CLÉ API GOOGLE GEMINI ICI (elle commence par AIza...)
+        var GEMINI_API_KEY = 'AQ.Ab8RN6Ly2mky5r0mxKmn-By1xh3y_fGlcHfyUi9c7veCY2BYXg';
 
         var sessionUser = sessionStorage.getItem('eduLinkUser');
         if (!sessionUser) { window.location.href = 'index.html'; }
@@ -144,23 +153,7 @@
 
         var historique = [];
         var enCours = false;
-        var modeleQuiMarche = null;
-
-        var MODELES_GRATUITS = [
-            'deepseek/deepseek-r1:free',
-            'deepseek/deepseek-chat-v3-0324:free',
-            'deepseek/deepseek-chat:free',
-            'qwen/qwq-32b:free',
-            'qwen/qwen-2.5-72b-instruct:free',
-            'qwen/qwen-2.5-7b-instruct:free',
-            'google/gemini-2.0-flash-thinking-exp:free',
-            'google/gemini-2.0-flash-exp:free',
-            'mistralai/mistral-small-24b-instruct-2501:free',
-            'mistralai/mistral-nemo:free',
-            'meta-llama/llama-3.2-3b-instruct:free',
-            'meta-llama/llama-3.2-11b-vision-instruct:free',
-            'microsoft/phi-3-medium-128k-instruct:free'
-        ];
+        var contexteCoursActuel = null;
 
         var suggestionsTexte = {
             1: 'Explique-moi le theoreme de Pythagore simplement',
@@ -169,6 +162,29 @@
             4: 'Donne-moi 3 conseils pour mieux reviser'
         };
 
+        // ═══════════ GESTION DU CONTEXTE (Mode Révision) ═══════════
+        function chargerContexteIA() {
+            var data = localStorage.getItem('ia_contexte_cours');
+            if (data) {
+                contexteCoursActuel = JSON.parse(data);
+                document.getElementById('bandeau-contexte-ia').classList.remove('hidden');
+                document.getElementById('titre-contexte-ia').innerText = contexteCoursActuel.titre + ' (' + contexteCoursActuel.matiere + ')';
+                
+                ajouterMessage('ia', "Bonjour ! J'ai bien lu ton cours sur **" + contexteCoursActuel.titre + "**. Pose-moi n'importe quelle question, je te répondrai uniquement en me basant sur ce texte !");
+                
+                // Optionnel : on peut le supprimer pour ne pas le garder éternellement
+                localStorage.removeItem('ia_contexte_cours');
+            }
+        }
+
+        function quitterContexte() {
+            contexteCoursActuel = null;
+            localStorage.removeItem('ia_contexte_cours');
+            document.getElementById('bandeau-contexte-ia').classList.add('hidden');
+            if (typeof toast !== 'undefined') toast.info("Mode conversation libre rétabli.");
+        }
+
+        // ═══════════ LOGIQUE DE CHAT ═══════════
         function retourEspace() {
             var pages = { eleve: 'eleve.html', enseignant: 'enseignant.html', parent: 'parent.html', admin: 'admin.html', staff: 'staff.html', super_admin: 'super-admin.html' };
             window.location.href = pages[currentUser.role] || 'index.html';
@@ -178,6 +194,9 @@
             if (!confirm('Effacer la conversation ?')) return;
             historique = [];
             document.getElementById('chat-container').innerHTML = '<div class="flex items-start gap-2"><div class="w-8 h-8 bg-edu-blue rounded-full flex items-center justify-center text-sm flex-shrink-0">🤖</div><div class="message-ia p-3 rounded-2xl rounded-tl-none max-w-[80%] text-sm"><p class="font-bold text-edu-blue mb-1">Conversation reinitialisee</p><p>Pose ta nouvelle question !</p></div></div>';
+            if (contexteCoursActuel) {
+                ajouterMessage('ia', "Je reste en mode révision sur le cours : " + contexteCoursActuel.titre);
+            }
         }
 
         function poserSuggestion(num) {
@@ -197,7 +216,9 @@
             if (role === 'user') {
                 html = '<div class="flex items-start gap-2 justify-end"><div class="message-user p-3 rounded-2xl rounded-tr-none max-w-[80%] text-sm">' + escapeHtml(contenu) + '</div><div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-sm flex-shrink-0">👤</div></div>';
             } else {
-                html = '<div class="flex items-start gap-2"><div class="w-8 h-8 bg-edu-blue rounded-full flex items-center justify-center text-sm flex-shrink-0">🤖</div><div class="message-ia p-3 rounded-2xl rounded-tl-none max-w-[80%] text-sm" style="white-space: pre-wrap;">' + escapeHtml(contenu) + '</div></div>';
+                // On gère le gras (Markdown simple) pour les réponses de l'IA
+                var contenuFormate = escapeHtml(contenu).replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+                html = '<div class="flex items-start gap-2"><div class="w-8 h-8 bg-edu-blue rounded-full flex items-center justify-center text-sm flex-shrink-0">🤖</div><div class="message-ia p-3 rounded-2xl rounded-tl-none max-w-[80%] text-sm" style="white-space: pre-wrap;">' + contenuFormate + '</div></div>';
             }
             container.innerHTML += html;
             container.scrollTop = container.scrollHeight;
@@ -205,7 +226,7 @@
 
         function ajouterChargement(texte) {
             var container = document.getElementById('chat-container');
-            container.innerHTML += '<div class="flex items-start gap-2" id="chargement-ia"><div class="w-8 h-8 bg-edu-blue rounded-full flex items-center justify-center text-sm flex-shrink-0">🤖</div><div class="message-ia p-3 rounded-2xl rounded-tl-none text-sm">' + (texte || '⏳ Reponse en cours...') + '</div></div>';
+            container.innerHTML += '<div class="flex items-start gap-2" id="chargement-ia"><div class="w-8 h-8 bg-edu-blue rounded-full flex items-center justify-center text-sm flex-shrink-0">🤖</div><div class="message-ia p-3 rounded-2xl rounded-tl-none text-sm">' + (texte || '⏳ Réflexion en cours...') + '</div></div>';
             container.scrollTop = container.scrollHeight;
         }
 
@@ -214,31 +235,15 @@
             if (c) c.remove();
         }
 
-        async function essayerModele(modele, messages) {
-            var response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + OPENROUTER_API_KEY
-                },
-                body: JSON.stringify({
-                    model: modele,
-                    messages: messages,
-                    temperature: 0.7,
-                    max_tokens: 800
-                })
-            });
-            return await response.json();
-        }
-
+        // ═══════════ APPEL À L'API GOOGLE GEMINI ═══════════
         async function envoyerMessage() {
             if (enCours) return;
             var input = document.getElementById('input-message');
             var texte = input.value.trim();
-            if (!texte) { alert('Ecrivez une question.'); return; }
+            if (!texte) return;
 
-            if (OPENROUTER_API_KEY === '') {
-                alert('La cle API OpenRouter n est pas configuree. Ouvrez le fichier assistant-ia.html et collez votre cle.');
+            if (GEMINI_API_KEY === '') {
+                alert('La clé API Google Gemini n\'est pas configurée. Ouvrez le fichier assistant-ia.html et collez votre clé.');
                 return;
             }
 
@@ -249,51 +254,85 @@
             if (sugg) sugg.style.display = 'none';
 
             ajouterMessage('user', texte);
-            ajouterChargement('⏳ Recherche d un modele disponible...');
+            ajouterChargement('⏳ Connexion à Gemini...');
 
-            var messages = [
-                { role: 'system', content: 'Tu es un assistant pedagogique pour des eleves de lycee au Senegal. Tu reponds de maniere claire, simple, bienveillante et pedagogique. Tu expliques les notions avec des exemples concrets. Tu reponds toujours en francais.' },
-                { role: 'user', content: texte }
-            ];
-
-            var listeAEssayer = MODELES_GRATUITS.slice();
-            if (modeleQuiMarche) {
-                listeAEssayer = [modeleQuiMarche].concat(listeAEssayer);
-            }
-
-            var data = null;
-            var erreurs = [];
-
-            for (var j = 0; j < listeAEssayer.length; j++) {
-                try {
-                    document.getElementById('chargement-ia').innerHTML = '<div class="w-8 h-8 bg-edu-blue rounded-full flex items-center justify-center text-sm flex-shrink-0">🤖</div><div class="message-ia p-3 rounded-2xl rounded-tl-none text-sm">⏳ Test du modele ' + (j + 1) + '...</div>';
-                    var resultat = await essayerModele(listeAEssayer[j], messages);
-                    if (resultat && resultat.choices && resultat.choices[0] && resultat.choices[0].message) {
-                        data = resultat;
-                        modeleQuiMarche = listeAEssayer[j];
-                        break;
-                    } else if (resultat && resultat.error) {
-                        erreurs.push(listeAEssayer[j] + ' -> ' + (resultat.error.message || 'erreur'));
-                    }
-                } catch (e) {
-                    erreurs.push(listeAEssayer[j] + ' -> ' + e.message);
+            try {
+                // 1. Préparation du prompt Système (Contexte ou Général)
+                var systemPrompt = "Tu es un assistant pédagogique pour des élèves de lycée au Sénégal. Tu réponds de manière claire, simple, bienveillante et pédagogique. Tu expliques les notions avec des exemples concrets. Tu réponds toujours en français.";
+                
+                if (contexteCoursActuel) {
+                    systemPrompt = "Tu es un tuteur strict. Tu dois répondre aux questions de l'élève UNIQUEMENT en te basant sur le texte du cours fourni ci-dessous. Si la réponse ne s'y trouve pas, dis poliment : 'Je ne trouve pas cette information dans ton cours.' Ne donne pas de connaissances extérieures.\n\nTexte du cours :\n" + contexteCoursActuel.texte;
                 }
-            }
 
-            retirerChargement();
+                // 2. Préparation du Payload pour Gemini
+                var payload = {
+                    system_instruction: {
+                        parts: [{ text: systemPrompt }]
+                    },
+                    contents: [
+                        {
+                            role: "user",
+                            parts: [{ text: texte }]
+                        }
+                    ],
+                    generationConfig: {
+                        temperature: 0.7,
+                        maxOutputTokens: 500 // Réduit à 500 pour une réponse plus rapide
+                    }
+                };
 
-            if (data && data.choices && data.choices[0] && data.choices[0].message) {
-                var reponse = data.choices[0].message.content;
-                ajouterMessage('ia', reponse);
-                historique.push({ role: 'user', content: texte });
-                historique.push({ role: 'assistant', content: reponse });
-            } else {
-                var msgErreur = '😔 Aucun modele gratuit n a repondu.\n\nSolution : allez sur openrouter.ai et ajoutez 1 ou 2 euros de credit. Ensuite, ca marchera immediatement avec les modeles pas chers (0,01 euro par question).\n\nDetails :\n' + erreurs.slice(0, 3).join('\n');
-                ajouterMessage('ia', msgErreur);
+                // 3. Appel de l'API Gemini Flash (le plus rapide et gratuit)
+                var url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=' + GEMINI_API_KEY;
+                
+                // Ajout d'un timeout pour éviter que ça bloque
+                var controller = new AbortController();
+                var timeoutId = setTimeout(function() { controller.abort(); }, 15000);
+
+                // Ajout d'un timeout plus long (60 secondes pour les réseaux lents)
+                var controller = new AbortController();
+                var timeoutId = setTimeout(function() { controller.abort(); }, 60000);
+
+                // On augmente le timeout à 90 secondes pour les réseaux lents et les longs textes
+                var controller = new AbortController();
+                var timeoutId = setTimeout(function() { controller.abort(); }, 90000);
+
+                var response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+
+                var data = await response.json();
+
+                retirerChargement();
+
+                // 4. Traitement de la réponse
+                if (data.candidates && data.candidates.length > 0 && data.candidates[0].content) {
+                    var reponse = data.candidates[0].content.parts[0].text;
+                    ajouterMessage('ia', reponse);
+                } else if (data.error) {
+                    ajouterMessage('ia', "❌ Erreur de l'API : " + data.error.message);
+                } else {
+                    ajouterMessage('ia', "❌ Je n'ai pas pu générer de réponse. Vérifie ta clé API.");
+                }
+
+            } catch (err) {
+                retirerChargement();
+                if (err.name === 'AbortError') {
+                    ajouterMessage('ia', "⏳ Le serveur de Google met trop de temps à répondre (ou le texte du cours est très long). Réessaie dans un instant ou pose une question plus courte.");
+                } else {
+                    ajouterMessage('ia', "❌ Erreur réseau : " + err.message);
+                }
             }
 
             enCours = false;
         }
+
+        // Lancer la vérification du contexte au chargement de la page
+        window.addEventListener('load', chargerContexteIA);
     </script>
     <script src="pwa.js"></script>
     <script src="theme.js"></script>

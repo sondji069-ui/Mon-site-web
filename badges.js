@@ -25,9 +25,9 @@ function echapperHtml(texte) {
         .replace(/'/g, '&#39;');
 }
 
-async function calculerBadgesEleve(supabaseClient, eleveId, classeId, trimestre) {
+async function calculerBadgesEleve(supabaseClient, eleveId, classeId, semestre) {
     const badges = {};
-    const { data: notes } = await supabaseClient.from('notes').select('note, coefficient').eq('eleve_id', eleveId).eq('semestre', trimestre);
+    const { data: notes } = await supabaseClient.from('notes').select('note, coefficient').eq('eleve_id', eleveId).eq('semestre', semestre);
     let totalPoints = 0, totalCoef = 0, nbNotes = 0;
     (notes || []).forEach(n => { totalPoints += parseFloat(n.note) * n.coefficient; totalCoef += n.coefficient; nbNotes++; });
     const maMoyenne = totalCoef > 0 ? totalPoints / totalCoef : 0;
@@ -35,7 +35,7 @@ async function calculerBadgesEleve(supabaseClient, eleveId, classeId, trimestre)
     if (nbNotes > 0 && classeId) {
         const { data: eleves } = await supabaseClient.from('eleves').select('id').eq('classe_id', classeId);
         const ids = (eleves || []).map(e => e.id);
-        const { data: toutesNotes } = await supabaseClient.from('notes').select('eleve_id, note, coefficient').in('eleve_id', ids).eq('semestre', trimestre);
+        const { data: toutesNotes } = await supabaseClient.from('notes').select('eleve_id, note, coefficient').in('eleve_id', ids).eq('semestre', semestre);
         const moyennes = {};
         (toutesNotes || []).forEach(n => {
             if (!moyennes[n.eleve_id]) moyennes[n.eleve_id] = { p: 0, c: 0 };
@@ -59,8 +59,8 @@ async function calculerBadgesEleve(supabaseClient, eleveId, classeId, trimestre)
         }
     }
     let progression = false;
-    if (trimestre > 1) {
-        const { data: notesPrec } = await supabaseClient.from('notes').select('note, coefficient').eq('eleve_id', eleveId).eq('semestre', trimestre - 1);
+    if (semestre > 1) {
+        const { data: notesPrec } = await supabaseClient.from('notes').select('note, coefficient').eq('eleve_id', eleveId).eq('semestre', semestre - 1);
         let tp = 0, tc = 0;
         (notesPrec || []).forEach(n => { tp += parseFloat(n.note) * n.coefficient; tc += n.coefficient; });
         const moyPrec = tc > 0 ? tp / tc : 0;
@@ -79,13 +79,13 @@ async function calculerBadgesEleve(supabaseClient, eleveId, classeId, trimestre)
     return badges;
 }
 
-async function calculerBadgesClasse(supabaseClient, eleveIds, classeId, trimestre) {
+async function calculerBadgesClasse(supabaseClient, eleveIds, classeId, semestre) {
     const resultats = {};
     if (!eleveIds || eleveIds.length === 0) return resultats;
-    const { data: notesTrim } = await supabaseClient.from('notes').select('eleve_id, note, coefficient').in('eleve_id', eleveIds).eq('semestre', trimestre);
+    const { data: notesTrim } = await supabaseClient.from('notes').select('eleve_id, note, coefficient').in('eleve_id', eleveIds).eq('semestre', semestre);
     let notesPrec = [];
-    if (trimestre > 1) {
-        const { data } = await supabaseClient.from('notes').select('eleve_id, note, coefficient').in('eleve_id', eleveIds).eq('semestre', trimestre - 1);
+    if (semestre > 1) {
+        const { data } = await supabaseClient.from('notes').select('eleve_id, note, coefficient').in('eleve_id', eleveIds).eq('semestre', semestre - 1);
         notesPrec = data || [];
     }
     const { data: absences } = await supabaseClient.from('absences').select('eleve_id, justifiee').in('eleve_id', eleveIds);
@@ -134,7 +134,7 @@ async function calculerBadgesClasse(supabaseClient, eleveIds, classeId, trimestr
         const nbAbsNonJust = absencesNonJustParEleve[eleveId] || 0;
         const faits = devoirsFaitsParEleve[eleveId] || 0;
         let progression = false;
-        if (trimestre > 1) {
+        if (semestre > 1) {
             const dp = notesPrecParEleve[eleveId];
             if (dp && dp.c > 0) {
                 const moyPrec = dp.p / dp.c;
@@ -174,7 +174,7 @@ function afficherCarteBadgesAccueil(containerId, badges) {
     if (el) el.innerHTML = htmlBadges;
 }
 
-function afficherVueBadges(containerId, badges, trimestre) {
+function afficherVueBadges(containerId, badges, semestre) {
     const container = document.getElementById(containerId);
     if (!container) return;
     const html = BADGES_DEFINITIONS.map(b => {

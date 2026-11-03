@@ -53,14 +53,12 @@
     </style>
 </head>
 <body class="min-h-screen flex justify-center items-start pt-4 p-3">
-<body class="min-h-screen flex justify-center items-start pt-4 p-3">
     
     <!-- Bandeau Hors-ligne -->
     <div id="bandeau-offline" class="hidden" style="position: fixed; top: 0; left: 0; right: 0; background: #F59E0B; color: white; text-align: center; padding: 8px; font-size: 12px; font-weight: bold; z-index: 99999; box-shadow: 0 2px 10px rgba(0,0,0,0.2);">
         ⚠️ Mode hors-ligne : Affichage des données sauvegardées
     </div>
 
-    <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col h-auto min-h-[600px]">
     <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col h-auto min-h-[600px]">
         <div id="page-dashboard" class="flex-1 flex-col flex">
             <div class="bg-gradient-to-br from-edu-blue via-blue-700 to-blue-800 text-white p-5 pb-8 relative">
@@ -269,7 +267,14 @@
                 <p style="font-size: 10px; color: #6b7280; margin: 2px 0 0 0;">Anonyme</p>
             </div>
         </button>
-
+<!-- Mes Documents -->
+        <button onclick="afficherMesDocuments()" class="card-pro" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: 16px; border-radius: 24px; cursor: pointer; text-align: left; background: linear-gradient(145deg, #ffffff, #f8fafc); border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.03)'">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #f1f5f9, #e2e8f0); color: #475569; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 12px;">📁</div>
+            <div>
+                <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin: 0;">Mes documents</p>
+                <p style="font-size: 10px; color: #6b7280; margin: 2px 0 0 0;">Archives & demandes</p>
+            </div>
+        </button>
         <!-- Messagerie -->
         <button onclick="window.location.href='messagerie.html'" class="card-pro" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: 16px; border-radius: 24px; cursor: pointer; text-align: left; background: linear-gradient(145deg, #ffffff, #f8fafc); border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.03)'">
             <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #fce7f3, #fbcfe8); color: #db2777; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 12px;">✉️</div>
@@ -299,10 +304,10 @@
                 <div id="view-badges" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-2">🏆 Mes récompenses</h1>
-                    <p class="text-xs text-gray-500 mb-3">Vois les badges obtenus ce trimestre.</p>
+                    <p class="text-xs text-gray-500 mb-3">Vois les badges obtenus ce semestre.</p>
                     <div class="grid grid-cols-2 gap-2 mb-4">
-                        <button id="tab-badges-s1" onclick="changerTrimestreBadges(1)" class="py-2 rounded-xl font-bold text-xs bg-edu-blue text-white">Semestre 1</button>
-                        <button id="tab-badges-s2" onclick="changerTrimestreBadges(2)" class="py-2 rounded-xl font-bold text-xs bg-gray-100 text-gray-600">Semestre 2</button>
+                        <button id="tab-badges-s1" onclick="changerSemestreBadges(1)" class="py-2 rounded-xl font-bold text-xs bg-edu-blue text-white">Semestre 1</button>
+                        <button id="tab-badges-s2" onclick="changerSemestreBadges(2)" class="py-2 rounded-xl font-bold text-xs bg-gray-100 text-gray-600">Semestre 2</button>
                     </div>
                     <div id="liste-badges" class="space-y-3"></div>
                 </div>
@@ -369,8 +374,8 @@
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-3">📄 Mon bulletin</h1>
                     <div class="grid grid-cols-2 gap-2 mb-4">
-                        <button id="tab-t1" onclick="changerTrimestre(1)" class="py-2 rounded-xl font-bold text-xs bg-edu-blue text-white">Semestre 1</button>
-                        <button id="tab-t2" onclick="changerTrimestre(2)" class="py-2 rounded-xl font-bold text-xs bg-gray-100 text-gray-600">Semestre 2</button>
+                        <button id="tab-s1" onclick="changerSemestre(1)" class="py-2 rounded-xl font-bold text-xs bg-edu-blue text-white">Semestre 1</button>
+                        <button id="tab-s2" onclick="changerSemestre(2)" class="py-2 rounded-xl font-bold text-xs bg-gray-100 text-gray-600">Semestre 2</button>
                     </div>
                     <div id="contenu-bulletin"></div>
                 </div>
@@ -519,6 +524,19 @@
     <p class="text-xs font-bold text-gray-500 uppercase mb-2">Les questions de la classe</p>
     <div id="liste-questions-anonymes" class="space-y-3 mb-6"></div>
 </div>
+<!-- MES ARCHIVES (ELEVE) -->
+<div id="view-mes-documents" class="hidden fade-in">
+    <div class="flex items-center gap-3 mb-3">
+        <button onclick="retourAccueil()" class="text-2xl">⬅️</button>
+        <div>
+            <h1 class="text-lg font-bold text-gray-800">📁 Mes archives</h1>
+            <p class="text-xs text-gray-500">Bulletins et documents officiels</p>
+        </div>
+    </div>
+    
+    <!-- On garde juste la liste des archives -->
+    <div id="docs-archives" class="space-y-3"></div>
+</div>
                 <div id="view-notifications" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-3">🔔 Mes notifications</h1>
@@ -603,7 +621,7 @@
         if (!sessionUser) { window.location.href = 'index.html'; }
         var parsedUser = JSON.parse(sessionUser);
         var currentUser = null, monEcoleId = null, monEleveId = null, monClasseId = null;
-        var trimestreActuel = 1, filtreAbsences = 'tout', toutesAbsences = [];
+        var semestreActuel = 1; filtreAbsences = 'tout', toutesAbsences = [];
         var filtreNotifs = 'toutes', toutesNotifs = [];
         var tousDevoirs = [], mesDevoirsFaits = [], filtreDevoirs = 'tout';
         var tousLesCours = [];
@@ -650,13 +668,13 @@
 
         // ════════════ BADGES ════════════
         var badgesActuels = {};
-        var trimestreBadges = 1;
+        var semestreBadges = 1;
 
         async function chargerBadges() {
             if (!monEleveId) return;
             
             // 1. Calculer les badges comme avant
-            badgesActuels = await calculerBadgesEleve(supabaseClient, monEleveId, monClasseId, trimestreBadges);
+            badgesActuels = await calculerBadgesEleve(supabaseClient, monEleveId, monClasseId, semestreBadges);
             var nbBadges = Object.keys(badgesActuels).length;
 
             // 2. Récupérer les données pour l'XP (Moyenne + Devoirs faits)
@@ -709,17 +727,17 @@
             hideAllViews();
             document.getElementById('view-badges').classList.remove('hidden');
             document.getElementById('liste-badges').innerHTML = skeleton.cartes(4);
-            badgesActuels = await calculerBadgesEleve(supabaseClient, monEleveId, monClasseId, trimestreBadges);
-            afficherVueBadges('liste-badges', badgesActuels, trimestreBadges);
+            badgesActuels = await calculerBadgesEleve(supabaseClient, monEleveId, monClasseId, semestreBadges);
+            afficherVueBadges('liste-badges', badgesActuels, semestreBadges);
             majTabsBadges();
             window.scrollTo(0, 0);
         }
 
-        async function changerTrimestreBadges(t) {
-            trimestreBadges = t;
+        async function changerSemestreBadges(t) {
+            semestreBadges = t;
             document.getElementById('liste-badges').innerHTML = skeleton.cartes(4);
-            badgesActuels = await calculerBadgesEleve(supabaseClient, monEleveId, monClasseId, trimestreBadges);
-            afficherVueBadges('liste-badges', badgesActuels, trimestreBadges);
+            badgesActuels = await calculerBadgesEleve(supabaseClient, monEleveId, monClasseId, semestreBadges);
+            afficherVueBadges('liste-badges', badgesActuels, semestreBadges);
             majTabsBadges();
         }
 
@@ -727,7 +745,7 @@
             [1, 2].forEach(function(i) {
                 var tab = document.getElementById('tab-badges-s' + i);
                 if (!tab) return;
-                if (i === trimestreBadges) tab.className = 'py-2 rounded-xl font-bold text-xs bg-edu-blue text-white';
+                if (i === semestreBadges) tab.className = 'py-2 rounded-xl font-bold text-xs bg-edu-blue text-white';
                 else tab.className = 'py-2 rounded-xl font-bold text-xs bg-gray-100 text-gray-600';
             });
         }
@@ -1022,14 +1040,14 @@ async function afficherDevoirs() {
             var moyS2 = parSemestre[2] && parSemestre[2].c > 0 ? parSemestre[2].p / parSemestre[2].c : null;
 
             var compHtml = '';
-            var pct1 = moyS1 !== null ? Math.round((moyS1 / 20) * 100) : 0;
+            var pcs1 = moyS1 !== null ? Math.round((moyS1 / 20) * 100) : 0;
             var col1 = moyS1 !== null && typeof charts !== 'undefined' ? charts.couleurNote(moyS1) : (moyS1 !== null && moyS1 >= 10 ? '#2EAD5E' : '#94a3b8');
             var col1Hex = moyS1 !== null ? col1 : '#94a3b8';
 
             compHtml += '<div style="text-align: center; flex: 1;">';
             compHtml += '<p style="font-size: 10px; color: #6b7280; margin: 0 0 8px 0; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Semestre 1</p>';
             if (typeof charts !== 'undefined') {
-                compHtml += charts.cercle(pct1, col1Hex, moyS1 !== null ? moyS1.toFixed(2) : '--', '/20');
+                compHtml += charts.cercle(pcs1, col1Hex, moyS1 !== null ? moyS1.toFixed(2) : '--', '/20');
             } else {
                 compHtml += '<div style="font-size: 24px; font-weight: 900; color: ' + col1Hex + ';">' + (moyS1 !== null ? moyS1.toFixed(2) : '--') + '</div>';
             }
@@ -1196,11 +1214,11 @@ async function afficherDevoirs() {
             hideAllViews();
             document.getElementById('view-bulletin').classList.remove('hidden');
             document.getElementById('contenu-bulletin').innerHTML = skeleton.cartes(3);
-            trimestreActuel = 1; await chargerBulletin();
+            semestreActuel = 1; await chargerBulletin();
         }
 
-        async function changerTrimestre(n) {
-            trimestreActuel = n;
+        async function changerSemestre(n) {
+            semestreActuel = n;
             [1, 2].forEach(function(i) {
                 var tab = document.getElementById('tab-t' + i);
                 if (!tab) return;
@@ -1214,7 +1232,7 @@ async function afficherDevoirs() {
         async function chargerBulletin() {
             var resE = await supabaseClient.from('eleves').select('*, classes(nom)').eq('utilisateur_id', currentUser.id).single();
             var eleve = resE.data;
-            var resN = await supabaseClient.from('notes').select('matiere, note, coefficient, type_evaluation').eq('eleve_id', eleve.id).eq('semestre', trimestreActuel);
+            var resN = await supabaseClient.from('notes').select('matiere, note, coefficient, type_evaluation').eq('eleve_id', eleve.id).eq('semestre', semestreActuel);
 // Calcul du rang sécurisé
             var monRang = '-';
             try {
@@ -1222,7 +1240,7 @@ async function afficherDevoirs() {
                     var resElvClasse = await supabaseClient.from('eleves').select('id').eq('classe_id', monClasseId);
                     if (resElvClasse.data && resElvClasse.data.length > 0) {
                         var idsClasse = resElvClasse.data.map(function(e) { return e.id; });
-                        var resNotesClasse = await supabaseClient.from('notes').select('eleve_id, note, coefficient').in('eleve_id', idsClasse).eq('semestre', trimestreActuel);
+                        var resNotesClasse = await supabaseClient.from('notes').select('eleve_id, note, coefficient').in('eleve_id', idsClasse).eq('semestre', semestreActuel);
                         
                         if (resNotesClasse.data && resNotesClasse.data.length > 0) {
                             var moyennes = {};
@@ -1256,7 +1274,7 @@ async function afficherDevoirs() {
             var idsClasse = resElvClasse.data.map(function(e) { return e.id; });
             var moyClasse = 0;
             if (idsClasse.length > 0) {
-                var resNotesClasse = await supabaseClient.from('notes').select('note, coefficient').in('eleve_id', idsClasse).eq('semestre', trimestreActuel);
+                var resNotesClasse = await supabaseClient.from('notes').select('note, coefficient').in('eleve_id', idsClasse).eq('semestre', semestreActuel);
                 if (resNotesClasse.data && resNotesClasse.data.length > 0) {
                     var cPts = 0, cCfs = 0;
                     resNotesClasse.data.forEach(function(n) {
@@ -1346,7 +1364,7 @@ async function afficherDevoirs() {
                 + '<p style="font-size: 13px; color: #64748b; margin: 6px 0 0 0; font-weight: 600;">' + ecoleNom + '</p>'
                 + '<div style="display: inline-block; margin-top: 14px; padding: 8px 24px; background: linear-gradient(135deg, #004AAD, #0066CC); color: white; border-radius: 8px;">'
                 + '<p style="font-size: 14px; font-weight: 800; margin: 0; letter-spacing: 1px;">BULLETIN SCOLAIRE</p>'
-                + '<p style="font-size: 11px; margin: 2px 0 0 0; opacity: 0.9;">Semestre ' + trimestreActuel + ' • Année 2024-2025</p>'
+                + '<p style="font-size: 11px; margin: 2px 0 0 0; opacity: 0.9;">Semestre ' + semestreActuel + ' • Année 2024-2025</p>'
                 + '</div>'
                 + '</div>'
 
@@ -1425,7 +1443,7 @@ async function afficherDevoirs() {
                 + '</div>'
                 + '<button onclick="telechargerPDF()" id="btn-pdf" class="btn-float" style="background: linear-gradient(135deg, #004AAD, #1E40AF); margin-top: 16px;">'
                 + '<div class="btn-icon">📥</div>'
-                + '<div class="btn-content"><div class="btn-title">Télécharger en PDF</div><div class="btn-desc">Bulletin Semestre ' + trimestreActuel + '</div></div>'
+                + '<div class="btn-content"><div class="btn-title">Télécharger en PDF</div><div class="btn-desc">Bulletin Semestre ' + semestreActuel + '</div></div>'
                 + '<div class="btn-arrow">→</div>'
                 + '</button>'
                 + '<div id="message-pdf" class="text-center text-sm font-semibold mt-2"></div>';
@@ -1443,7 +1461,7 @@ async function afficherDevoirs() {
             try {
                 var bulletinOriginal = document.getElementById('bulletin-pdf');
                 var htmlInterne = bulletinOriginal.outerHTML;
-                var nomFichier = 'Bulletin_T' + trimestreActuel + '_' + currentUser.prenom + '_' + currentUser.nom + '.pdf';
+                var nomFichier = 'Bulletin_T' + semestreActuel + '_' + currentUser.prenom + '_' + currentUser.nom + '.pdf';
 
                 iframe = document.createElement('iframe');
                 iframe.style.cssText = 'position:fixed;top:0;left:0;width:800px;height:1100px;opacity:0;pointer-events:none;z-index:-1;border:none;';
@@ -1465,6 +1483,45 @@ async function afficherDevoirs() {
                 var fichier = new File([pdfBlob], nomFichier, { type: 'application/pdf' });
                 document.body.removeChild(iframe); iframe = null;
 
+// ─── ARCHIVAGE AUTOMATIQUE (SANS DOUBLONS) ───
+                try {
+                    var titreBulletin = 'Mon Bulletin Individuel - Semestre ' + semestreActuel;
+                    
+                    var resCheck = await supabaseClient.from('documents')
+                        .select('id')
+                        .eq('eleve_id', monEleveId)
+                        .eq('titre', titreBulletin);
+
+                    if (!resCheck.data || resCheck.data.length === 0) {
+                        toast.info("Archivage du bulletin...");
+                        
+                        var resUpload = await EduStorage.uploaderFichier(fichier, 'archives_eleves', {
+                            maxSizeMo: 10,
+                            userId: monEleveId
+                        });
+
+                        // 3. On enregistre dans la base
+                        var resInsert = await supabaseClient.from('documents').insert([{
+                            ecole_id: monEcoleId,
+                            eleve_id: monEleveId,
+                            titre: titreBulletin,
+                            type: 'archive',
+                            fichier_url: resUpload.url,
+                            annee_scolaire: '2024-2025', 
+                            statut: 'valide'
+                        }]);
+                        
+                        // LA CORRECTION EST ICI : On vérifie s'il y a une erreur
+                        if (resInsert.error) throw resInsert.error;
+                        
+                        toast.success("Bulletin ajouté à vos archives !");
+                    }
+                } catch (archiveErr) {
+                    console.error("Erreur d'archivage :", archiveErr);
+                }
+                // ──────────────────────────────────────────────────────────
+
+                
                 if (navigator.canShare && navigator.canShare({ files: [fichier] })) {
                     await navigator.share({ files: [fichier], title: 'Bulletin scolaire' });
                     msg.innerText = "Bulletin partage !"; msg.style.color = "green";
@@ -1921,8 +1978,7 @@ async function afficherEmploi() {
             hideAllViews();
             document.getElementById('view-ressource-detail-eleve').classList.remove('hidden');
 
-            var typeLabel = 'Lecon';
-            var typeEmoji = '📄';
+            var typeLabel = 'Lecon'; var typeEmoji = '📄';
             if (r.type === 'programme') { typeLabel = 'Programme'; typeEmoji = '📋'; }
             else if (r.type === 'exercice') { typeLabel = 'Exercice'; typeEmoji = '✏️'; }
 
@@ -1942,23 +1998,115 @@ async function afficherEmploi() {
 
             if (r.texte_direct) {
                 html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">';
-                html += '<p class="text-xs font-bold text-gray-700 mb-2">Contenu</p>';
+                html += '<p class="text-xs font-bold text-gray-700 mb-2">Contenu du cours</p>';
                 html += '<p class="text-xs text-gray-700" style="white-space:pre-wrap;">' + r.texte_direct + '</p>';
                 html += '</div>';
             }
 
             if (r.fichier_base64) {
+                var estPDF = r.fichier_base64.toLowerCase().includes('.pdf');
+                
                 html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">';
-                html += '<p class="text-xs font-bold text-gray-700 mb-2">Fichier joint</p>';
-                html += '<p class="text-xs text-gray-600 mb-2">' + (r.fichier_nom || 'fichier') + '</p>';
-                html += '<button onclick="telechargerFichierBase64(' + r.id + ')" class="w-full block text-center bg-edu-blue text-white font-bold py-3 rounded-xl text-xs">📥 Telecharger</button>';
+                html += '<div class="flex justify-between items-center mb-3">';
+                html += '<p class="text-xs font-bold text-gray-700 truncate pr-2">📄 ' + (r.fichier_nom || 'Document joint') + '</p>';
+                html += '<button onclick="telechargerFichierBase64(' + r.id + ')" class="bg-blue-50 text-edu-blue text-[10px] font-bold px-3 py-1.5 rounded-lg flex-shrink-0">📥 Télécharger</button>';
                 html += '</div>';
+
+                if (estPDF) {
+                    // Utilisation du lecteur Google Docs pour un défilement parfait sur mobile
+                    var googleViewerUrl = 'https://docs.google.com/viewer?url=' + encodeURIComponent(r.fichier_base64) + '&embedded=true';
+                    
+                    html += '<div style="width: 100%; height: 70vh; border-radius: 12px; overflow: hidden; border: 1px solid #e5e7eb; background: #f3f4f6;">';
+                    html += '<iframe src="' + googleViewerUrl + '" style="width: 100%; height: 100%; border: none;"></iframe>';
+                    html += '</div>';
+                    html += '<p class="text-[9px] text-gray-400 text-center mt-2 italic">Tu peux lire et faire défiler toutes les pages ici.</p>';
+                }
+ else if (r.fichier_base64.match(/\.(jpeg|jpg|gif|png)$/i)) {
+                    html += '<img src="' + r.fichier_base64 + '" style="width: 100%; border-radius: 12px; border: 1px solid #e5e7eb;">';
+                } else {
+                    html += '<p class="text-xs text-gray-500 italic">Ce format ne peut pas être lu directement. Clique sur Télécharger.</p>';
+                }
+                html += '</div>';
+            }
+
+            // LE BOUTON IA
+            if (r.texte_direct || (r.fichier_base64 && r.fichier_base64.toLowerCase().endsWith('.pdf'))) {
+                html += `<button onclick="demanderIAContexte(${r.id})" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold py-3 rounded-xl mt-3 shadow-lg flex items-center justify-center gap-2">
+                    <span style="font-size: 18px;">🤖</span> Demander à l'IA sur ce cours
+                </button>`;
             }
 
             document.getElementById('reselv-detail-contenu').innerHTML = html;
             window.scrollTo(0, 0);
         }
+async function demanderIAContexte(idRessource) {
+            // 1. On retrouve la ressource
+            var r = resElvListe.find(function(x) { return x.id == idRessource; });
+            if (!r) { toast.error("Ressource introuvable."); return; }
 
+            // 2. On prépare les variables
+            var matiere = r.matiere;
+            var titre = r.titre;
+
+            // CAS 1 : Texte direct
+            if (r.texte_direct && r.texte_direct.trim() !== '') {
+                sauvegarderContexteEtRediriger(matiere, titre, r.texte_direct);
+                return;
+            }
+
+            // CAS 3 : PDF
+            if (r.fichier_base64 && r.fichier_base64.toLowerCase().endsWith('.pdf')) {
+                
+                // Vérification que la bibliothèque PDF est bien chargée
+                if (typeof pdfjsLib === 'undefined') {
+                    toast.error("Le lecteur PDF n'est pas chargé (vérifiez votre connexion).");
+                    return;
+                }
+
+                toast.info("Lecture du PDF en cours, veuillez patienter...");
+                
+                try {
+                    var pdf = await pdfjsLib.getDocument(r.fichier_base64).promise;
+                    var texteExtrait = "";
+                    var maxPages = Math.min(pdf.numPages, 10);
+
+                    for (var i = 1; i <= maxPages; i++) {
+                        var page = await pdf.getPage(i);
+                        var textContent = await page.getTextContent();
+                        var strings = textContent.items.map(function(item) { return item.str; });
+                        texteExtrait += strings.join(' ') + "\n";
+                    }
+
+                    if (texteExtrait.trim() === '') {
+                        toast.warning("Ce PDF ne contient pas de texte lisible.");
+                        return;
+                    }
+
+                    if (texteExtrait.length > 8000) {
+                        texteExtrait = texteExtrait.substring(0, 8000) + "... [Texte tronqué car trop long]";
+                    }
+
+                    sauvegarderContexteEtRediriger(matiere, titre, texteExtrait);
+
+                } catch (err) {
+                    console.error("Erreur lecture PDF:", err);
+                    toast.error("Impossible de lire ce PDF. Détail : " + err.message);
+                }
+                return;
+            }
+
+            toast.warning("Ce document ne contient pas de texte.");
+        }
+
+        // Petite fonction utilitaire pour éviter de répéter le code
+        function sauvegarderContexteEtRediriger(matiere, titre, texte) {
+            localStorage.setItem('ia_contexte_cours', JSON.stringify({
+                matiere: matiere,
+                titre: titre,
+                texte: texte
+            }));
+            window.location.href = 'assistant-ia.html';
+        }
         async function telechargerFichierBase64(idRessource) {
             try {
                 var r = resElvListe.find(function(x) { return x.id === idRessource; });
@@ -2297,6 +2445,112 @@ async function chargerDerniereAnnonceDefilante() {
                 texte.innerText = "📢 DERNIÈRE ANNONCE : " + res.data.titre + " • Cliquez sur 'Annonces' pour en savoir plus.";
             }
         }
+// ════════════ MES DOCUMENTS (ELEVE) ════════════
+        async function afficherMesDocuments() {
+            if (!monEleveId) return;
+            hideAllViews();
+            document.getElementById('view-mes-documents').classList.remove('hidden');
+            window.scrollTo(0, 0);
+
+            var conteneurArchives = document.getElementById('docs-archives');
+            conteneurArchives.innerHTML = '<p class="text-center text-gray-500 text-sm">Chargement...</p>';
+
+            var idEleve = parseInt(monEleveId);
+
+            // On récupère uniquement les archives
+            var res = await supabaseClient.from('documents')
+                .select('*')
+                .eq('eleve_id', idEleve)
+                .eq('type', 'archive')
+                .order('date_creation', { ascending: false });
+
+            if (res.error) {
+                conteneurArchives.innerHTML = '<p class="text-red-500 text-sm">Erreur de chargement.</p>';
+                return;
+            }
+
+            var archives = res.data || [];
+            
+            if (archives.length === 0) {
+                conteneurArchives.innerHTML = '<div class="bg-white p-8 rounded-2xl shadow-sm text-center"><div class="text-5xl mb-2">📂</div><p class="text-gray-500 text-sm">Aucune archive disponible pour le moment.</p><p class="text-[10px] text-gray-400 mt-1">Vos bulletins apparaîtront ici.</p></div>';
+            } else {
+                var htmlA = '';
+                archives.forEach(d => {
+                    htmlA += '<div class="bg-white p-3 rounded-xl shadow-sm border border-gray-100 flex justify-between items-center mb-2">';
+                    htmlA += '<div><p class="text-xs font-bold text-gray-800">' + echapperHtml(d.titre) + '</p><p class="text-[10px] text-gray-500">' + (d.annee_scolaire || '') + '</p></div>';
+                    
+                    if (d.fichier_url && d.fichier_url !== 'null') {
+                        htmlA += '<button onclick="ouvrirFichierSecurise(\'' + d.fichier_url + '\', \'' + (d.titre || 'Archive').replace(/'/g, "\\'") + '\')" class="bg-blue-50 text-edu-blue text-[10px] font-bold px-3 py-1.5 rounded-lg">📥 Télécharger</button>';
+                    } else {
+                        htmlA += '<span class="text-[10px] text-red-400 italic">Fichier introuvable</span>';
+                    }
+                    htmlA += '</div>';
+                });
+                conteneurArchives.innerHTML = htmlA;
+            }
+        }
+
+        async function uploaderDocumentEleve(docId) {
+            var fileInput = document.getElementById('doc-file-' + docId);
+            if (!fileInput.files || fileInput.files.length === 0) { toast.warning("Sélectionnez un fichier."); return; }
+            
+            var file = fileInput.files[0];
+            toast.info("Envoi en cours...");
+
+            try {
+                var resUpload = await EduStorage.uploaderFichier(file, 'documents_eleves', {
+                    maxSizeMo: 5,
+                    userId: monEleveId
+                });
+
+                var res = await supabaseClient.from('documents').update({
+                    fichier_url: resUpload.url,
+                    statut: 'en_attente' // Le statut repasse en attente pour que l'admin valide le nouveau fichier
+                }).eq('id', docId);
+
+                if (res.error) throw res.error;
+                toast.success("Document envoyé ! En attente de validation.");
+                afficherMesDocuments();
+            } catch (err) {
+                toast.error("Erreur : " + err.message);
+            }
+        }
+async function ouvrirFichierSecurise(url, nomFichier) {
+            if (!url) { toast.warning("Aucun fichier disponible."); return; }
+            
+            toast.info("Préparation du fichier...");
+
+            try {
+                // 1. S'assurer que le fichier a bien l'extension .pdf
+                var nomFinal = (nomFichier || 'document');
+                if (!nomFinal.toLowerCase().endsWith('.pdf')) {
+                    nomFinal += '.pdf';
+                }
+
+                // 2. Télécharger le fichier
+                var response = await fetch(url);
+                if (!response.ok) throw new Error("Fichier inaccessible");
+                var blob = await response.blob();
+                
+                // 3. FORCER le type MIME en PDF pour iOS
+                var fichier = new File([blob], nomFinal, { type: 'application/pdf' });
+
+                // 4. Partage natif iOS
+                if (navigator.canShare && navigator.canShare({ files: [fichier] })) {
+                    await navigator.share({ files: [fichier], title: nomFinal });
+                    return;
+                }
+
+                // 5. Fallback PC : ouverture directe
+                var urlBlob = URL.createObjectURL(fichier);
+                window.open(urlBlob, '_blank');
+                setTimeout(function() { URL.revokeObjectURL(urlBlob); }, 60000);
+
+            } catch (err) {
+                console.error(err);
+                window.open(url, '_blank');
+            }
+        }
         async function seDeconnecter() { 
     await supabaseClient.auth.signOut(); // Détruit le JWT de manière sécurisée
     sessionStorage.removeItem('eduLinkUser'); 
@@ -2304,5 +2558,11 @@ async function chargerDerniereAnnonceDefilante() {
 }
     </script>
 <script src="layout-pc.js"></script>
+<!-- Bibliothèque pour lire le texte des PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+<script>
+    // Configuration du "worker" (nécessaire pour que PDF.js fonctionne)
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+</script>
 </body>
 </html>

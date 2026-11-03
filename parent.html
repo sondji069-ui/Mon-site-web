@@ -285,8 +285,8 @@
                     <h1 class="text-lg font-bold text-gray-800 mb-2">🏆 Badges de mes enfants</h1>
                     <p class="text-xs text-gray-500 mb-3">Récompenses obtenues par vos enfants.</p>
                     <div class="grid grid-cols-2 gap-2 mb-4">
-                        <button id="tab-badges-s1" onclick="changerTrimestreBadgesParent(1)" class="py-2 rounded-xl font-bold text-xs bg-edu-blue text-white">Semestre 1</button>
-                        <button id="tab-badges-s2" onclick="changerTrimestreBadgesParent(2)" class="py-2 rounded-xl font-bold text-xs bg-gray-100 text-gray-600">Semestre 2</button>
+                        <button id="tab-badges-s1" onclick="changerSemestreBadgesParent(1)" class="py-2 rounded-xl font-bold text-xs bg-edu-blue text-white">Semestre 1</button>
+                        <button id="tab-badges-s2" onclick="changerSemestreBadgesParent(2)" class="py-2 rounded-xl font-bold text-xs bg-gray-100 text-gray-600">Semestre 2</button>
                     </div>
                     <div id="liste-badges-enfants" class="space-y-3"></div>
                 </div>
@@ -328,8 +328,8 @@
                     <button onclick="retourAccueil()" class="text-2xl mb-3">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-3">📄 Bulletin</h1>
                     <div class="grid grid-cols-2 gap-2 mb-4">
-                        <button id="tab-t1" onclick="changerTrimestre(1)" class="py-2 rounded-xl font-bold text-xs bg-edu-blue text-white">Semestre 1</button>
-                        <button id="tab-t2" onclick="changerTrimestre(2)" class="py-2 rounded-xl font-bold text-xs bg-gray-100 text-gray-600">Semestre 2</button>
+                        <button id="tab-s1" onclick="changerSemestre(1)" class="py-2 rounded-xl font-bold text-xs bg-edu-blue text-white">Semestre 1</button>
+                        <button id="tab-s2" onclick="changerSemestre(2)" class="py-2 rounded-xl font-bold text-xs bg-gray-100 text-gray-600">Semestre 2</button>
                     </div>
                     <div id="contenu-bulletin"></div>
                 </div>
@@ -498,7 +498,7 @@
         if (!sessionUser) { window.location.href = 'index.html'; }
         var parsedUser = JSON.parse(sessionUser);
         var currentUser = null, monEcoleId = null, listeEnfants = [];
-        var trimestreActuel = 1, filtreAbsences = 'tout', toutesAbsences = [];
+        var semestreActuel = 1, filtreAbsences = 'tout', toutesAbsences = [];
 // ═══════════ MÉMORISATION SCROLL ACCUEIL ═══════════
         var _dernierScrollAccueil = 0;
         window.addEventListener('scroll', function() {
@@ -510,7 +510,7 @@
 
         // ═══════════ FIN ═══════════
         var signatureEcole = null;
-        var trimestreBadgesParent = 1;
+        var semestreBadgesParent = 1;
 
         function afficherAvatarHeader() {
             var btn = document.getElementById('avatar-header');
@@ -813,7 +813,7 @@ function dessinerCourbeSVG(data, conteneur) {
             var total = 0;
             for (var i = 0; i < listeEnfants.length; i++) {
                 var enfant = listeEnfants[i];
-                var b = await calculerBadgesEleve(supabaseClient, enfant.id, enfant.classe_id, trimestreBadgesParent);
+                var b = await calculerBadgesEleve(supabaseClient, enfant.id, enfant.classe_id, semestreBadgesParent);
                 total += Object.keys(b).length;
             }
             if (total > 0) { badge.innerText = total; badge.classList.remove('hidden'); }
@@ -829,8 +829,8 @@ function dessinerCourbeSVG(data, conteneur) {
             window.scrollTo(0, 0);
         }
 
-        async function changerTrimestreBadgesParent(t) {
-            trimestreBadgesParent = t;
+        async function changerSemestreBadgesParent(t) {
+            semestreBadgesParent = t;
             majTabsBadgesParent();
             document.getElementById('liste-badges-enfants').innerHTML = skeleton.cartes(3);
             await chargerBadgesEnfants();
@@ -840,7 +840,7 @@ function dessinerCourbeSVG(data, conteneur) {
             [1, 2].forEach(function(i) {
                 var tab = document.getElementById('tab-badges-s' + i);
                 if (!tab) return;
-                if (i === trimestreBadgesParent) tab.className = 'py-2 rounded-xl font-bold text-xs bg-edu-blue text-white';
+                if (i === semestreBadgesParent) tab.className = 'py-2 rounded-xl font-bold text-xs bg-edu-blue text-white';
                 else tab.className = 'py-2 rounded-xl font-bold text-xs bg-gray-100 text-gray-600';
             });
         }
@@ -852,14 +852,14 @@ function dessinerCourbeSVG(data, conteneur) {
             var html = '';
             for (var i = 0; i < listeEnfants.length; i++) {
                 var enfant = listeEnfants[i];
-                var badges = await calculerBadgesEleve(supabaseClient, enfant.id, enfant.classe_id, trimestreBadgesParent);
+                var badges = await calculerBadgesEleve(supabaseClient, enfant.id, enfant.classe_id, semestreBadgesParent);
                 var obtenus = obtenirBadgesObtenus(badges);
                 var nb = obtenus.length;
                 var initiale = enfant.prenom.charAt(0).toUpperCase();
 
                 var badgesHtml = '';
                 if (nb === 0) {
-                    badgesHtml = '<p class="text-[10px] text-gray-400 italic">Aucun badge ce trimestre</p>';
+                    badgesHtml = '<p class="text-[10px] text-gray-400 italic">Aucun badge ce semestre</p>';
                 } else {
                     badgesHtml = '<div class="flex flex-wrap gap-2 mt-1">' + obtenus.map(function(b) {
                         return '<div class="flex flex-col items-center" style="min-width:44px;"><span class="text-2xl">' + b.emoji + '</span><span class="text-[8px] font-bold text-center leading-tight mt-0.5" style="color:' + b.couleur + ';">' + b.label + '</span></div>';
@@ -1193,11 +1193,11 @@ function dessinerCourbeSVG(data, conteneur) {
             document.getElementById('view-accueil').classList.add('hidden');
             document.getElementById('view-bulletin').classList.remove('hidden');
             document.getElementById('contenu-bulletin').innerHTML = skeleton.cartes(3);
-            trimestreActuel = 1; await chargerBulletin();
+            semestreActuel = 1; await chargerBulletin();
         }
 
-        async function changerTrimestre(n) {
-            trimestreActuel = n;
+        async function changerSemestre(n) {
+            semestreActuel = n;
             [1, 2].forEach(function(i) {
                 var tab = document.getElementById('tab-t' + i);
                 if (!tab) return;
@@ -1214,7 +1214,7 @@ function dessinerCourbeSVG(data, conteneur) {
             var enfant = listeEnfants.find(function(e) { return e.id == eleveId; });
             var resEl = await supabaseClient.from('eleves').select('*, classes(nom)').eq('id', eleveId).single();
             var eleve = resEl.data;
-            var resN = await supabaseClient.from('notes').select('matiere, note, coefficient, type_evaluation').eq('eleve_id', eleveId).eq('semestre', trimestreActuel);
+            var resN = await supabaseClient.from('notes').select('matiere, note, coefficient, type_evaluation').eq('eleve_id', eleveId).eq('semestre', semestreActuel);
 // Récupérer les absences
             var resAbs = await supabaseClient.from('absences').select('*').eq('eleve_id', eleveId);
             var mesAbsences = resAbs.data || [];
@@ -1228,7 +1228,7 @@ function dessinerCourbeSVG(data, conteneur) {
             var idsClasse = resElvClasse.data.map(function(e) { return e.id; });
             var monRang = '-';
             if (idsClasse.length > 0) {
-                var resNotesClasse = await supabaseClient.from('notes').select('eleve_id, note, coefficient').in('eleve_id', idsClasse).eq('semestre', trimestreActuel);
+                var resNotesClasse = await supabaseClient.from('notes').select('eleve_id, note, coefficient').in('eleve_id', idsClasse).eq('semestre', semestreActuel);
                 if (resNotesClasse.data && resNotesClasse.data.length > 0) {
                     var moyennes = {};
                     resNotesClasse.data.forEach(function(n) {
@@ -1247,7 +1247,7 @@ function dessinerCourbeSVG(data, conteneur) {
             var idsClasse = resElvClasse.data.map(function(e) { return e.id; });
             var moyClasse = 0;
             if (idsClasse.length > 0) {
-                var resNotesClasse = await supabaseClient.from('notes').select('note, coefficient').in('eleve_id', idsClasse).eq('semestre', trimestreActuel);
+                var resNotesClasse = await supabaseClient.from('notes').select('note, coefficient').in('eleve_id', idsClasse).eq('semestre', semestreActuel);
                 if (resNotesClasse.data && resNotesClasse.data.length > 0) {
                     var cPts = 0, cCfs = 0;
                     resNotesClasse.data.forEach(function(n) {
@@ -1347,7 +1347,7 @@ function dessinerCourbeSVG(data, conteneur) {
                 + '<p style="font-size: 13px; color: #64748b; margin: 6px 0 0 0; font-weight: 600;">' + ecoleNom + '</p>'
                 + '<div style="display: inline-block; margin-top: 14px; padding: 8px 24px; background: linear-gradient(135deg, #004AAD, #0066CC); color: white; border-radius: 8px;">'
                 + '<p style="font-size: 14px; font-weight: 800; margin: 0; letter-spacing: 1px;">BULLETIN SCOLAIRE</p>'
-                + '<p style="font-size: 11px; margin: 2px 0 0 0; opacity: 0.9;">Semestre ' + trimestreActuel + ' • Année 2024-2025</p>'
+                + '<p style="font-size: 11px; margin: 2px 0 0 0; opacity: 0.9;">Semestre ' + semestreActuel + ' • Année 2024-2025</p>'
                 + '</div>'
                 + '</div>'
 
@@ -1426,7 +1426,7 @@ function dessinerCourbeSVG(data, conteneur) {
                 + '</div>'
                 + '<button onclick="telechargerPDF()" id="btn-pdf" class="btn-float" style="background: linear-gradient(135deg, #004AAD, #1E40AF); margin-top: 16px;">'
                 + '<div class="btn-icon">📥</div>'
-                + '<div class="btn-content"><div class="btn-title">Télécharger en PDF</div><div class="btn-desc">Bulletin Semestre ' + trimestreActuel + '</div></div>'
+                + '<div class="btn-content"><div class="btn-title">Télécharger en PDF</div><div class="btn-desc">Bulletin Semestre ' + semestreActuel + '</div></div>'
                 + '<div class="btn-arrow">→</div>'
                 + '</button>'
                 + '<div id="message-pdf" class="text-center text-sm font-semibold mt-2"></div>';
@@ -1445,7 +1445,7 @@ function dessinerCourbeSVG(data, conteneur) {
                 var eleveId = document.getElementById('select-enfant-bulletin').value;
                 var enfant = listeEnfants.find(function(e) { return e.id == eleveId; });
                 var htmlInterne = document.getElementById('bulletin-pdf').outerHTML;
-                var nomFichier = 'Bulletin_T' + trimestreActuel + '_' + enfant.prenom + '_' + enfant.nom + '.pdf';
+                var nomFichier = 'Bulletin_T' + semestreActuel + '_' + enfant.prenom + '_' + enfant.nom + '.pdf';
 
                 iframe = document.createElement('iframe');
                 iframe.style.cssText = 'position:fixed;top:0;left:0;width:800px;height:1100px;opacity:0;pointer-events:none;z-index:-1;border:none;';

@@ -232,7 +232,14 @@
             <p style="font-size: 12px; font-weight: 800; color: #1f2937; margin: 0;">Mes salles</p>
             <p style="font-size: 9px; color: #6b7280; margin: 2px 0 0 0;">Gestion</p>
         </button>
-
+<!-- Gestion Documents -->
+        <button onclick="afficherDocumentsAdmin()" class="card-pro" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: 16px; border-radius: 24px; cursor: pointer; text-align: left; background: linear-gradient(145deg, #ffffff, #f8fafc); border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.03)'">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #fef2f2, #fee2e2); color: #dc2626; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 12px;">📁</div>
+            <div>
+                <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin: 0;">Documents</p>
+                <p style="font-size: 10px; color: #6b7280; margin: 2px 0 0 0;">Demandes & Archives</p>
+            </div>
+        </button>
         <!-- Code d'accès -->
         <button onclick="afficherCodeAcces()" class="card-pro" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px 10px; border-radius: 20px; cursor: pointer; transition: transform 0.2s; text-align: center;">
             <div style="width: 48px; height: 48px; background: #eff6ff; color: #2563eb; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 10px;">🎫</div>
@@ -609,6 +616,7 @@
                         <select id="paiement-statut" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white"><option value="paye">Paye</option><option value="en_attente">En attente</option></select>
                         <button onclick="sauvegarderPaiement()" class="w-full bg-edu-green text-white font-bold py-3 rounded-xl">Encaisser</button>
                         <div id="message-paiement" class="text-center text-sm font-semibold"></div>
+
                     </div>
                 </div>
 
@@ -837,7 +845,7 @@
                             <option value="jour">Aujourd'hui</option>
                             <option value="semaine">Cette semaine</option>
                             <option value="mois" selected>Ce mois</option>
-                            <option value="trimestre">Ce trimestre</option>
+                            <option value="semestre">Ce semestre</option>
                             <option value="annee">Cette annee</option>
                         </select>
                     </div>
@@ -852,7 +860,7 @@
                     <p class="text-xs text-gray-500 mb-3">Vue globale et comparaison entre classes.</p>
 
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 mb-3 space-y-2">
-                        <select id="stats-trimestre" onchange="statsGlobalesCharger()" class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white text-xs">
+                        <select id="stats-semestre" onchange="statsGlobalesCharger()" class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white text-xs">
                             <option value="1">Semestre 1</option>
                             <option value="2">Semestre 2</option>
                         </select>
@@ -876,7 +884,7 @@
                             <option value="moyenne">Moyenne faible (moins de 8/20)</option>
                             <option value="absences">Absences non justifiees (5+)</option>
                         </select>
-                        <select id="alerte-trimestre" onchange="chargerAlertes()" class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white text-xs">
+                        <select id="alerte-semestre" onchange="chargerAlertes()" class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white text-xs">
                             <option value="1">Semestre 1</option>
                             <option value="2">Semestre 2</option>
                         </select>
@@ -1307,6 +1315,20 @@
                     <button onclick="afficherGestionEnseignants()" class="text-2xl mb-3">Retour</button>
                     <div id="fiche-enseignant-contenu"></div>
                 </div>
+<!-- ARCHIVES (ADMIN) -->
+<div id="view-documents-admin" class="hidden fade-in">
+    <div class="flex items-center gap-3 mb-3">
+        <button onclick="retourAccueil()" class="text-2xl">⬅️</button>
+        <div class="flex-1">
+            <h1 class="text-lg font-bold text-gray-800">📁 Archives de l'école</h1>
+            <p class="text-xs text-gray-500">Tous les bulletins générés</p>
+        </div>
+    </div>
+
+    <!-- Plus de tabs, juste la liste -->
+    <div id="liste-docs-admin" class="space-y-3"></div>
+</div>
+
                 <div id="view-notifications" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-4">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-4">Notifications</h1>
@@ -1325,6 +1347,7 @@
     </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
+<script src="auth.js"></script>
 
     <!-- ═══════════════ SCRIPT PRINCIPAL ═══════════════ -->
     <script>
@@ -2221,20 +2244,15 @@ chargerCourbeTendance();
             try {
                 if (userId) {
                     const upd = { prenom, nom, email, sous_role: sousRole, telephone: telephone || null, permissions: staffPermissionsTemp };
-                    if (password) upd.mot_de_passe = await hashPassword(password);
-                    const { error } = await supabaseClient.from('utilisateurs').update(upd).eq('id', userId);
-                    if (error) throw error;
+                    await supabaseClient.from('utilisateurs').update(upd).eq('id', userId);
                 } else {
-                    const { data: existant } = await supabaseClient.from('utilisateurs').select('id').eq('email', email).maybeSingle();
-                    if (existant) { msg.innerText = "Cet email est deja utilise."; msg.style.color = "#EF4444"; btn.disabled = false; btn.innerText = "Enregistrer"; return; }
-                    const passwordHashe = await hashPassword(password);
-                    const { error } = await supabaseClient.from('utilisateurs').insert([{
-                        ecole_id: monEcoleId, role: 'staff', sous_role: sousRole,
-                        prenom, nom, email, telephone: telephone || null,
-                        mot_de_passe: passwordHashe, statut: 'actif',
-                        permissions: staffPermissionsTemp
-                    }]);
-                    if (error) throw error;
+                    await creerUtilisateur({
+                        email, password, prenom, nom,
+                        role: 'staff', sous_role: sousRole,
+                        telephone: telephone || null, genre: 'M', statut: 'actif',
+                        permissions: staffPermissionsTemp,
+                        ecole_id: monEcoleId
+                    });
                 }
                 msg.innerText = "Membre enregistre !"; msg.style.color = "#2EAD5E";
                 setTimeout(() => afficherEquipe(), 900);
@@ -3356,36 +3374,30 @@ if (window.Cache) Cache.invalidatePattern('admin_');
             try {
                 let ensIdFinal = id;
                 if (userId) {
-                    const upd = { prenom, nom, email };
-                    if (password) upd.mot_de_passe = await hashPassword(password);
-                    await supabaseClient.from('utilisateurs').update(upd).eq('id', userId);
+                    await supabaseClient.from('utilisateurs').update({ prenom, nom, email }).eq('id', userId);
                     if (id) await supabaseClient.from('enseignants').update({ specialite: document.getElementById('ens-specialite').value, date_embauche: document.getElementById('ens-embauche').value || null }).eq('id', id);
                 } else {
-                    const passwordHashe = await hashPassword(password);
-                    const { data: nu } = await supabaseClient.from('utilisateurs').insert([{ ecole_id: monEcoleId, role: 'enseignant', prenom, nom, email, mot_de_passe: passwordHashe, statut: 'actif' }]).select().single();
-                    const { data: ne } = await supabaseClient.from('enseignants').insert([{ utilisateur_id: nu.id, specialite: document.getElementById('ens-specialite').value, date_embauche: document.getElementById('ens-embauche').value || null }]).select().single();
-                    ensIdFinal = ne.id;
+                    const nouvelEns = await creerUtilisateur({
+                        email, password, prenom, nom,
+                        role: 'enseignant', statut: 'actif', genre: 'M',
+                        ecole_id: monEcoleId
+                    });
+                    const { data: ens } = await supabaseClient.from('enseignants').insert([{
+                        utilisateur_id: nouvelEns.id,
+                        specialite: document.getElementById('ens-specialite').value,
+                        date_embauche: document.getElementById('ens-embauche').value || null
+                    }]).select().single();
+                    ensIdFinal = ens.id;
                 }
-
                 if (ensIdFinal) {
                     await supabaseClient.from('affectations').delete().eq('enseignant_id', ensIdFinal);
                     if (affsValides.length > 0) {
-                        const lignes = affsValides.map(a => ({
-                            enseignant_id: ensIdFinal,
-                            classe_id: parseInt(a.classe_id),
-                            matiere: a.matiere.trim()
-                        }));
-                        await supabaseClient.from('affectations').insert(lignes);
+                        await supabaseClient.from('affectations').insert(affsValides.map(a => ({ enseignant_id: ensIdFinal, classe_id: parseInt(a.classe_id), matiere: a.matiere.trim() })));
                     }
                 }
-
-                msg.innerText = "Enregistre ! (" + affsValides.length + " affectation(s))";
-                msg.style.color = "green";
+                msg.innerText = "Enregistre ! (" + affsValides.length + " affectation(s))"; msg.style.color = "green";
                 setTimeout(() => afficherGestionEnseignants(), 1200);
-            } catch (err) {
-                msg.innerText = "Erreur : " + err.message;
-                msg.style.color = "red";
-            }
+            } catch (err) { msg.innerText = "Erreur : " + err.message; msg.style.color = "red"; }
         }
 
         async function supprimerEnseignant(ensId, userId) {
@@ -3622,19 +3634,45 @@ let elvPage = 0;         // page actuelle (0, 1, 2...)
             const naissance = document.getElementById('eleve-naissance').value;
             try {
                 if (id) {
+                    // Modification d'un élève existant
                     const { data: ea } = await supabaseClient.from('eleves').select('utilisateur_id').eq('id', id).single();
                     const upd = { prenom, nom, email };
-                    if (password) upd.mot_de_passe = await hashPassword(password);
                     await supabaseClient.from('utilisateurs').update(upd).eq('id', ea.utilisateur_id);
-                    await supabaseClient.from('eleves').update({ classe_id: parseInt(classeId), parent_id: parentId ? parseInt(parentId) : null, matricule, date_naissance: naissance || null }).eq('id', id);
+                    await supabaseClient.from('eleves').update({ 
+                        classe_id: parseInt(classeId), 
+                        parent_id: parentId ? parseInt(parentId) : null, 
+                        matricule, 
+                        date_naissance: naissance || null 
+                    }).eq('id', id);
                 } else {
-                    const passwordHashe = await hashPassword(password);
-                    const { data: nu } = await supabaseClient.from('utilisateurs').insert([{ ecole_id: monEcoleId, role: 'eleve', prenom, nom, email, mot_de_passe: passwordHashe, statut: 'actif' }]).select().single();
-                    await supabaseClient.from('eleves').insert([{ utilisateur_id: nu.id, classe_id: parseInt(classeId), parent_id: parentId ? parseInt(parentId) : null, matricule, date_naissance: naissance || null, ecole_id: monEcoleId }]);
+                    // Création d'un nouvel élève via notre nouvelle fonction
+                    const nouvelEleve = await creerUtilisateur({
+                        email: email, 
+                        password: password, 
+                        prenom: prenom, 
+                        nom: nom,
+                        role: 'eleve',
+                        statut: 'actif',
+                        genre: 'M',
+                        ecole_id: monEcoleId // On passe bien l'ID de l'école
+                    });
+                    
+                    // On crée sa fiche dans la table 'eleves'
+                    await supabaseClient.from('eleves').insert([{
+                        utilisateur_id: nouvelEleve.id,
+                        classe_id: parseInt(classeId),
+                        parent_id: parentId ? parseInt(parentId) : null,
+                        matricule: matricule,
+                        date_naissance: naissance || null,
+                        ecole_id: monEcoleId
+                    }]);
                 }
                 msg.innerText = "Enregistre !"; msg.style.color = "green";
                 setTimeout(() => afficherGestionEleves(), 1000);
-            } catch (err) { msg.innerText = "Erreur : " + err.message; msg.style.color = "red"; }
+            } catch (err) { 
+                msg.innerText = "Erreur : " + err.message; 
+                msg.style.color = "red"; 
+            }
 if (window.Cache) Cache.invalidatePattern('admin_');
         }
 
@@ -4066,21 +4104,19 @@ if (debut) q = q.gte('date_cours', debut);
                         const { data: existant } = await supabaseClient.from('utilisateurs').select('id').eq('email', l.email).maybeSingle();
                         if (existant) { echecs++; continue; }
 
-                        const { data: nu, error: errU } = await supabaseClient.from('utilisateurs').insert([{
-                            ecole_id: monEcoleId, role: 'eleve', prenom: l.prenom, nom: l.nom,
-                            email: l.email, mot_de_passe: passwordHashe, statut: 'actif'
-                        }]).select().single();
-                        if (errU) { echecs++; continue; }
+                        const nouvelEleve = await creerUtilisateur({
+                            email: l.email, password: 'eleve2024', prenom: l.prenom, nom: l.nom,
+                            role: 'eleve', statut: 'actif', genre: 'M', ecole_id: monEcoleId
+                        });
 
                         compteur++;
                         const matricule = 'ELV' + annee + String(compteur).padStart(4, '0');
 
-                        const { error: errE } = await supabaseClient.from('eleves').insert([{
-                            utilisateur_id: nu.id, classe_id: l.classeId, parent_id: null,
-                            matricule: matricule, date_naissance: l.dateNaissance || null, ecole_id: monEcoleId
+                        await supabaseClient.from('eleves').insert([{
+                            utilisateur_id: nouvelEleve.id, classe_id: l.classeId,
+                            parent_id: null, matricule: matricule,
+                            date_naissance: l.dateNaissance || null, ecole_id: monEcoleId
                         }]);
-                        if (errE) { echecs++; continue; }
-
                         reussis++;
                     } catch (e) { echecs++; }
                 }
@@ -4247,6 +4283,10 @@ async function afficherFicheEleve(eleveId) {
                 // 4. Paiements
                 const { data: paiements } = await supabaseClient.from('paiements').select('*').eq('eleve_id', eleveId).order('date_paiement', { ascending: false });
 
+const { data: documentsEleve } = await supabaseClient.from('documents_eleves')
+                .select('*')
+                .eq('eleve_id', eleveId)
+                .order('date_upload', { ascending: false });
                 // 5. Parent
                 let parent = null;
                 if (eleve.parent_id) {
@@ -4364,7 +4404,22 @@ async function afficherFicheEleve(eleveId) {
                     });
                 }
                 html += '</div>';
-
+// Section Documents
+            html += '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-3">';
+            html += '<p class="text-sm font-bold text-gray-800 mb-2">📁 Documents (' + (documentsEleve ? documentsEleve.length : 0) + ')</p>';
+            
+            if (!documentsEleve || documentsEleve.length === 0) {
+                html += '<p class="text-xs text-gray-400 italic text-center py-2">Aucun document uploadé.</p>';
+            } else {
+                documentsEleve.forEach(function(d) {
+                    var dateStr = new Date(d.date_upload).toLocaleDateString('fr-FR');
+                    html += '<div class="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">';
+                    html += '<div class="flex items-center gap-2"><span class="text-lg">📄</span><div><p class="text-xs font-bold text-gray-800">' + echapperHtml(d.nom_document) + '</p><p class="text-[10px] text-gray-500">' + dateStr + '</p></div></div>';
+                    html += '<button onclick="window.open(\'' + d.fichier_url + '\', \'_blank\')" class="text-blue-600 text-xs font-bold">Ouvrir</button>';
+                    html += '</div>';
+                });
+            }
+            html += '</div>';
                 conteneur.innerHTML = html;
                 window.scrollTo(0, 0);
 
@@ -4779,7 +4834,7 @@ if (typeof empEnsTous === 'undefined' || empEnsTous.length === 0) {
                 const dim = new Date(lundi); dim.setDate(lundi.getDate() + 6);
                 debut = fmt(lundi); fin = fmt(dim);
             } else if (periode === 'mois') { debut = fmt(new Date(y, m, 1)); fin = fmt(new Date(y, m + 1, 0)); }
-            else if (periode === 'trimestre') {
+            else if (periode === 'semestre') {
                 let t1, t2;
                 if (m >= 8) { t1 = new Date(y, 8, 1); t2 = new Date(y, 11, 31); }
                 else if (m <= 2) { t1 = new Date(y, 0, 1); t2 = new Date(y, 2, 31); }
@@ -4918,7 +4973,7 @@ if (typeof empEnsTous === 'undefined' || empEnsTous.length === 0) {
             const conteneur = document.getElementById('stats-globales-contenu');
             conteneur.innerHTML = '<p class="text-gray-500 text-center py-6 text-sm">Chargement...</p>';
 
-            const semestre = parseInt(document.getElementById('stats-trimestre').value);
+            const semestre = parseInt(document.getElementById('stats-semestre').value);
 
             const { data: classes } = await supabaseClient.from('classes').select('id, nom').eq('ecole_id', monEcoleId).order('nom');
             const { data: eleves } = await supabaseClient.from('eleves').select('id, classe_id').eq('ecole_id', monEcoleId);
@@ -5051,7 +5106,7 @@ if (typeof empEnsTous === 'undefined' || empEnsTous.length === 0) {
 
             var classeId = document.getElementById('alerte-classe').value;
             var typeFiltre = document.getElementById('alerte-type').value;
-            var semestre = parseInt(document.getElementById('alerte-trimestre').value);
+            var semestre = parseInt(document.getElementById('alerte-semestre').value);
 
             // 1 seule requête pour les élèves (avec jointures)
             var q = supabaseClient
@@ -5206,7 +5261,7 @@ if (typeof empEnsTous === 'undefined' || empEnsTous.length === 0) {
             if (dateEl) dateEl.innerText = dateAffichee;
 
             const aujourdHui = maintenant.toISOString().split('T')[0];
-            const trimestreActuel = maintenant.getMonth() >= 8 ? 1 : (maintenant.getMonth() <= 2 ? 2 : 3);
+            const semestreActuel = maintenant.getMonth() >= 8 ? 1 : (maintenant.getMonth() <= 2 ? 2 : 3);
 
             const [
                 resAbsents,
@@ -5239,7 +5294,7 @@ if (typeof empEnsTous === 'undefined' || empEnsTous.length === 0) {
             // Alertes : élèves avec moyenne < 8
             let nbAlertes = 0;
             if (eleveIds.length > 0) {
-                const { data: notes } = await supabaseClient.from('notes').select('eleve_id, note, coefficient').in('eleve_id', eleveIds).eq('trimestre', trimestreActuel);
+                const { data: notes } = await supabaseClient.from('notes').select('eleve_id, note, coefficient').in('eleve_id', eleveIds).eq('semestre', semestreActuel);
                 const moyennes = {};
                 (notes || []).forEach(n => {
                     if (!moyennes[n.eleve_id]) moyennes[n.eleve_id] = { p: 0, c: 0 };
@@ -7769,12 +7824,26 @@ majHorloge();
                     html += '<button onclick="ouvrirRecuParId(' + p.id + ')" class="bg-white text-edu-blue text-[10px] font-bold px-2 py-1 rounded border border-blue-200">Voir le reçu</button>';
                 }
 async function ouvrirRecuParId(paiementId) {
-            // On va chercher le lien dans la base de données pour être sûr qu'il soit propre
             var res = await supabaseClient.from('paiements').select('preuve_url').eq('id', paiementId).single();
+            
             if (res.data && res.data.preuve_url) {
-                afficherRecu(res.data.preuve_url);
+                var url = res.data.preuve_url;
+                
+                // 🚨 CORRECTION ICI : On nettoie l'URL si elle est mal formée
+                // Si l'URL commence par /, on l'enlève
+                if (url.startsWith('/')) url = url.substring(1);
+                
+                // Si l'URL ne commence pas par http, on ajoute le domaine R2
+                if (!url.startsWith('http')) {
+                    url = 'https://pub-a2366ac592594708a7ab9e2194a86022.r2.dev/' + url;
+                }
+                
+                // Si l'URL contient le nom du bucket en double (ex: recus/recus/), on le corrige
+                url = url.replace('/recus/recus/', '/recus/');
+
+                afficherRecu(url);
             } else {
-                alert("⚠️ Le reçu est introuvable dans la base de données.");
+                alert("⚠️ Aucun reçu n'a été trouvé pour ce paiement.");
             }
         }
                 html += '</div>';
@@ -7792,26 +7861,31 @@ async function ouvrirRecuParId(paiementId) {
             toast.success("Paiement validé !");
             chargerPaiementsEnAttente();
 
-function afficherRecu(url) {
-            if (!url || url === 'null' || url === 'undefined') {
-                alert("⚠️ Aucun reçu n'a été joint à ce paiement.");
-                return;
-            }
+async function ouvrirRecuParId(paiementId) {
+            // On va chercher l'URL propre dans la base de données
+            var res = await supabaseClient.from('paiements').select('preuve_url').eq('id', paiementId).single();
             
+            if (res.data && res.data.preuve_url) {
+                var url = res.data.preuve_url;
+                // On s'assure que l'URL est absolue
+                if (!url.startsWith('http')) {
+                    url = 'https://pub-a2366ac592594708a7ab9e2194a86022.r2.dev/' + url;
+                }
+                afficherRecu(url);
+            } else {
+                alert("⚠️ Aucun reçu n'a été trouvé pour ce paiement.");
+            }
+        }
+
+        function afficherRecu(url) {
             var modal = document.getElementById('modal-recu');
             var img = document.getElementById('image-recu');
             
-            // On affiche la modale avec un message de chargement
             modal.style.display = 'flex';
-            img.src = ''; 
-            img.alt = "Chargement de l'image...";
-            
-            // On charge l'image
             img.src = url;
             
-            // Si l'image ne charge pas, on affiche une erreur claire
+            // Si l'image ne charge pas, on affiche une erreur
             img.onerror = function() {
-                img.alt = "❌ Impossible de charger l'image. Vérifiez le lien.";
                 img.style.background = "#fee2e2";
                 img.style.padding = "20px";
                 img.style.color = "#991b1b";
@@ -7819,6 +7893,7 @@ function afficherRecu(url) {
                 img.style.textAlign = "center";
                 img.style.width = "300px";
                 img.style.height = "100px";
+                img.alt = "Erreur 404 : L'image n'existe pas à cette adresse.";
             };
             
             img.onload = function() {
@@ -7837,11 +7912,86 @@ function afficherRecu(url) {
             toast.error("Paiement refusé.");
             chargerPaiementsEnAttente();
         }
-        async function seDeconnecter() { 
-    await supabaseClient.auth.signOut(); // Détruit le JWT de manière sécurisée
-    sessionStorage.removeItem('eduLinkUser'); 
-    window.location.href = 'index.html'; 
-}
+// ════════════ ARCHIVES (ADMIN) ════════════
+        async function afficherDocumentsAdmin() {
+            hideAllViews();
+            document.getElementById('view-documents-admin').classList.remove('hidden');
+            chargerDocsAdmin();
+            window.scrollTo(0, 0);
+        }
+
+        async function chargerDocsAdmin() {
+            var conteneur = document.getElementById('liste-docs-admin');
+            conteneur.innerHTML = '<p class="text-center text-gray-500 text-sm mt-4">Chargement...</p>';
+
+            var res = await supabaseClient.from('documents')
+                .select('*, eleves!inner(matricule, utilisateurs!utilisateur_id(prenom, nom))')
+                .eq('ecole_id', monEcoleId)
+                .eq('type', 'archive')
+                .order('date_creation', { ascending: false });
+
+            var docs = res.data || [];
+            if (docs.length === 0) {
+                conteneur.innerHTML = '<p class="text-xs text-gray-400 italic text-center mt-4">Aucune archive générée pour le moment.</p>';
+                return;
+            }
+
+            var html = '';
+            docs.forEach(d => {
+                var eleveNom = d.eleves && d.eleves.utilisateurs ? d.eleves.utilisateurs.prenom + ' ' + d.eleves.utilisateurs.nom : '?';
+                
+                html += '<div class="card-pro" style="padding: 14px; margin-bottom: 10px;">';
+                html += '<div class="flex justify-between items-start mb-2"><div><p class="text-sm font-bold text-gray-800">' + echapperHtml(d.titre) + '</p><p class="text-[10px] text-gray-500">👤 ' + eleveNom + '</p></div>';
+                html += '<span class="bg-gray-100 text-gray-600 text-[9px] font-bold px-2 py-0.5 rounded">' + (d.annee_scolaire || 'N/A') + '</span></div>';
+                
+                if (d.fichier_url) {
+                    html += '<button onclick="ouvrirFichierSecurise(\'' + d.fichier_url + '\', \'' + (d.titre || 'Archive').replace(/'/g, "\\'") + '\')" class="w-full bg-blue-50 text-edu-blue font-bold py-2 rounded-lg text-xs mb-2">👁️ Voir le fichier</button>';
+                }
+                html += '</div>';
+            });
+            conteneur.innerHTML = html;
+        }
+async function ouvrirFichierSecurise(url, nomFichier) {
+            if (!url) { toast.warning("Aucun fichier disponible."); return; }
+            
+            toast.info("Préparation du fichier...");
+
+            try {
+                // 1. S'assurer que le fichier a bien l'extension .pdf
+                var nomFinal = (nomFichier || 'document');
+                if (!nomFinal.toLowerCase().endsWith('.pdf')) {
+                    nomFinal += '.pdf';
+                }
+
+                // 2. Télécharger le fichier
+                var response = await fetch(url);
+                if (!response.ok) throw new Error("Fichier inaccessible");
+                var blob = await response.blob();
+                
+                // 3. FORCER le type MIME en PDF pour iOS
+                var fichier = new File([blob], nomFinal, { type: 'application/pdf' });
+
+                // 4. Partage natif iOS
+                if (navigator.canShare && navigator.canShare({ files: [fichier] })) {
+                    await navigator.share({ files: [fichier], title: nomFinal });
+                    return;
+                }
+
+                // 5. Fallback PC : ouverture directe
+                var urlBlob = URL.createObjectURL(fichier);
+                window.open(urlBlob, '_blank');
+                setTimeout(function() { URL.revokeObjectURL(urlBlob); }, 60000);
+
+            } catch (err) {
+                console.error(err);
+                window.open(url, '_blank');
+            }
+        }
+async function seDeconnecter() { 
+            await supabaseClient.auth.signOut(); 
+            sessionStorage.removeItem('eduLinkUser'); 
+            window.location.href = 'index.html'; 
+        }
     </script>
 <script src="ripple.js"></script>
 <script src="toast.js"></script>
@@ -7855,6 +8005,7 @@ function afficherRecu(url) {
 <script src="image-utils.js"></script>
 <script src="storage.js"></script>
 <script src="layout-pc.js"></script>
+<script src="auth.js"></script>
 <!-- MODAL POUR AFFICHER LE REÇU -->
 <div id="modal-recu" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 99999; align-items: center; justify-content: center; padding: 20px;">
     <div style="position: relative; max-width: 100%; max-height: 100%;">
