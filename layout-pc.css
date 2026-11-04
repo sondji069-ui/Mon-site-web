@@ -2,7 +2,7 @@
    EDU-LINK — Layout PC (desktop) v3.0 (Blindé)
    ═══════════════════════════════════════════════════════════════ */
 
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
     /* ─── Reset global pour PC ─── */
     body {
         padding: 0 !important;
