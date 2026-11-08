@@ -44,17 +44,22 @@
      * À utiliser partout à la place de sessionStorage.setItem brut.
      */
     function setSessionUser(user) {
-        if (!user) { sessionStorage.removeItem('eduLinkUser'); return; }
-        const { mot_de_passe, ...safe } = user; // On s'assure de retirer tout mot de passe résiduel
-        sessionStorage.setItem('eduLinkUser', JSON.stringify(safe));
+        if (!user) { 
+            localStorage.removeItem('eduLinkUser'); 
+            sessionStorage.removeItem('eduLinkUser'); // Nettoyage de l'ancien système
+            return; 
+        }
+        const { mot_de_passe, ...safe } = user;
+        localStorage.setItem('eduLinkUser', JSON.stringify(safe)); // LOCAL STORAGE
     }
 
     function getSessionUser() {
-        const raw = sessionStorage.getItem('eduLinkUser');
+        const raw = localStorage.getItem('eduLinkUser'); // LOCAL STORAGE
         return raw ? JSON.parse(raw) : null;
     }
 
     function clearSessionUser() {
+        localStorage.removeItem('eduLinkUser');
         sessionStorage.removeItem('eduLinkUser');
     }
 

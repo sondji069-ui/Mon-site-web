@@ -617,7 +617,7 @@
             if (btn) btn.innerHTML = estDark ? '☀️' : '🌙';
         }
 
-        var sessionUser = sessionStorage.getItem('eduLinkUser');
+        var sessionUser = localStorage.getItem('eduLinkUser')
         if (!sessionUser) { window.location.href = 'index.html'; }
         var parsedUser = JSON.parse(sessionUser);
         var currentUser = null, monEcoleId = null, monEleveId = null, monClasseId = null;
@@ -2552,10 +2552,11 @@ async function ouvrirFichierSecurise(url, nomFichier) {
             }
         }
         async function seDeconnecter() { 
-    await supabaseClient.auth.signOut(); // Détruit le JWT de manière sécurisée
-    sessionStorage.removeItem('eduLinkUser'); 
-    window.location.href = 'index.html'; 
-}
+            await supabaseClient.auth.signOut(); // Détruit le JWT Supabase
+            localStorage.removeItem('eduLinkUser'); // Nettoie le profil local
+            sessionStorage.removeItem('eduLinkUser'); // Nettoie l'ancien système
+            window.location.href = 'index.html'; 
+        }
     </script>
 <script src="layout-pc.js"></script>
 <!-- Bibliothèque pour lire le texte des PDF -->

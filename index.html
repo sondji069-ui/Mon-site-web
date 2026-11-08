@@ -307,6 +307,36 @@
         document.getElementById('password').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') document.getElementById('btnLogin').click();
         });
+// ════════════ AUTO-CONNEXION (SESSION PERSISTANTE) ════════════
+        window.addEventListener('load', async () => {
+            // On demande à Supabase s'il y a une session active en cache
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            
+            if (session) {
+                // Si oui, on récupère le profil de l'utilisateur
+                const { data: user } = await supabaseClient.from('utilisateurs')
+                    .select('*')
+                    .eq('auth_id', session.user.id)
+                    .single();
+
+                if (user && user.statut === 'actif') {
+                    // On sauvegarde dans le localStorage et on redirige
+                    EduLink.setSessionUser(user);
+                    
+                    let fichierCible = '';
+                    if (user.role === 'eleve') fichierCible = 'eleve.html';
+                    else if (user.role === 'enseignant') fichierCible = 'enseignant.html';
+                    else if (user.role === 'parent') fichierCible = 'parent.html';
+                    else if (user.role === 'admin') fichierCible = 'admin.html';
+                    else if (user.role === 'staff') fichierCible = 'staff.html';
+                    else if (user.role === 'super_admin') fichierCible = 'super-admin.html';
+
+                    if (fichierCible) {
+                        window.location.replace(fichierCible);
+                    }
+                }
+            }
+        });
     </script>
 
     <!-- PWA -->

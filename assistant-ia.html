@@ -142,7 +142,7 @@
         // ⚠️ COLLE TA NOUVELLE CLÉ GROQ ICI (elle commence par gsk_)
         var GROQ_API_KEY = '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';
 
-        var sessionUser = sessionStorage.getItem('eduLinkUser');
+        var sessionUser = localStorage.getItem('eduLinkUser')
         if (!sessionUser) { window.location.href = 'index.html'; }
         var currentUser = JSON.parse(sessionUser);
 

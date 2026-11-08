@@ -86,7 +86,7 @@
 <script src="config.js"></script>
     <script>
 
-        const sessionUser = sessionStorage.getItem('eduLinkUser');
+        const sessionUser = localStorage.getItem('eduLinkUser')
         if (!sessionUser) { window.location.href = 'index.html'; }
         const parsedUser = JSON.parse(sessionUser);
 

@@ -1401,7 +1401,7 @@ window.CRENEAUX_EDT = window.CRENEAUX_EDT || [
             if (btn) btn.innerHTML = estDark ? '☀️' : '🌙';
         }
 
-        const sessionUser = sessionStorage.getItem('eduLinkUser');
+        const sessionUser = localStorage.getItem('eduLinkUser')
         if (!sessionUser) { window.location.href = 'index.html'; }
         const parsedUser = JSON.parse(sessionUser);
         let currentUser = null, monEcoleId = null,
@@ -8124,8 +8124,9 @@ async function ouvrirFichierSecurise(url, nomFichier) {
             afficherJustificationsAdmin();
         }
 async function seDeconnecter() { 
-            await supabaseClient.auth.signOut(); 
-            sessionStorage.removeItem('eduLinkUser'); 
+            await supabaseClient.auth.signOut(); // Détruit le JWT Supabase
+            localStorage.removeItem('eduLinkUser'); // Nettoie le profil local
+            sessionStorage.removeItem('eduLinkUser'); // Nettoie l'ancien système
             window.location.href = 'index.html'; 
         }
     </script>
