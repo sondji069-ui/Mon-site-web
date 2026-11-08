@@ -215,6 +215,22 @@
                 btn.innerText = "🚀 Creer mon ecole";
             }
         }
+window.addEventListener('load', async () => {
+            // On vérifie si les inscriptions sont ouvertes
+            var res = await supabaseClient.from('parametres_globaux').select('valeur').eq('cle', 'inscription_ecole_ouverte').single();
+            
+            if (res.data && res.data.valeur === 'false') {
+                // Si c'est fermé, on cache le formulaire et on affiche un message
+                document.querySelector('.max-w-lg').innerHTML = `
+                    <div class="text-center py-10">
+                        <div class="text-6xl mb-4">⛔</div>
+                        <h1 class="text-2xl font-bold text-red-500 mb-2">Inscriptions fermées</h1>
+                        <p class="text-gray-600 text-sm mb-6">La création de nouvelles écoles est temporairement suspendue par l'administration d'EDU-LINK.</p>
+                        <a href="index.html" class="bg-edu-blue text-white font-bold py-3 px-6 rounded-xl inline-block">Retour à l'accueil</a>
+                    </div>
+                `;
+            }
+        });
     </script>
 <script src="pwa.js"></script>
 </body>

@@ -183,6 +183,15 @@
             </div>
             <span id="badge-demandes" class="hidden" style="position: absolute; top: 16px; right: 16px; background: #ef4444; color: white; font-weight: 800; min-width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 10px; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);">0</span>
         </button>
+<!-- Justifications -->
+        <button onclick="afficherJustificationsAdmin()" class="card-pro" style="position: relative; display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: 16px; border-radius: 24px; cursor: pointer; text-align: left; border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.03)'">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #f0fdf4, #dcfce7); color: #16a34a; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 12px;">📝</div>
+            <div>
+                <p style="font-size: 13px; font-weight: 800; color: #1f2937; margin: 0;">Justifications</p>
+                <p style="font-size: 10px; color: #6b7280; margin: 2px 0 0 0;">Absences</p>
+            </div>
+            <span id="badge-justifs" class="hidden" style="position: absolute; top: 16px; right: 16px; background: #16a34a; color: white; font-weight: 800; min-width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 10px;">0</span>
+        </button>
 
         <!-- 2. Réseau Social -->
         <button onclick="afficherReseau()" class="card-pro" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: 16px; border-radius: 24px; cursor: pointer; text-align: left; border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.03)'">
@@ -1330,7 +1339,17 @@
     <!-- Plus de tabs, juste la liste -->
     <div id="liste-docs-admin" class="space-y-3"></div>
 </div>
-
+<!-- JUSTIFICATIONS (ADMIN) -->
+<div id="view-justifications-admin" class="hidden fade-in">
+    <div class="flex items-center gap-3 mb-3">
+        <button onclick="retourAccueil()" class="text-2xl">⬅️</button>
+        <div>
+            <h1 class="text-lg font-bold text-gray-800">📝 Justifications d'absences</h1>
+            <p class="text-xs text-gray-500">Valider ou refuser les justificatifs</p>
+        </div>
+    </div>
+    <div id="liste-justifications-admin" class="space-y-3"></div>
+</div>
                 <div id="view-notifications" class="hidden fade-in">
                     <button onclick="retourAccueil()" class="text-2xl mb-4">⬅️</button>
                     <h1 class="text-lg font-bold text-gray-800 mb-4">Notifications</h1>
@@ -8046,6 +8065,63 @@ async function ouvrirFichierSecurise(url, nomFichier) {
                 console.error(err);
                 window.open(url, '_blank');
             }
+        }
+// ════════════ JUSTIFICATIONS (ADMIN) ════════════
+        async function afficherJustificationsAdmin() {
+            hideAllViews();
+            document.getElementById('view-justifications-admin').classList.remove('hidden');
+            var conteneur = document.getElementById('liste-justifications-admin');
+            conteneur.innerHTML = '<p class="text-center text-gray-500 text-sm mt-4">Chargement...</p>';
+
+            var res = await supabaseClient.from('absences')
+                .select('*, eleves!inner(matricule, utilisateurs!utilisateur_id(prenom, nom), classes(nom))')
+                .eq('ecole_id', monEcoleId)
+                .eq('statut_justification', 'en_attente')
+                .order('date_absence', { ascending: false });
+
+            var absences = res.data || [];
+            if (absences.length === 0) {
+                conteneur.innerHTML = '<div class="bg-white p-8 rounded-2xl shadow-sm text-center"><div class="text-5xl mb-2">🎉</div><p class="text-gray-500 text-sm">Aucune justification en attente.</p></div>';
+                return;
+            }
+
+            var html = '';
+            absences.forEach(a => {
+                var eleveNom = a.eleves && a.eleves.utilisateurs ? a.eleves.utilisateurs.prenom + ' ' + a.eleves.utilisateurs.nom : '?';
+                var classeNom = a.eleves && a.eleves.classes ? a.eleves.classes.nom : '';
+                var dateStr = new Date(a.date_absence).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+                html += '<div class="card-pro" style="padding: 14px; margin-bottom: 10px; border-left: 4px solid #F59E0B;">';
+                html += '<div class="mb-2"><p class="text-sm font-bold text-gray-800">' + eleveNom + ' (' + classeNom + ')</p><p class="text-[10px] text-gray-500">Absence du ' + dateStr + ' en ' + (a.matiere || 'Cours') + '</p></div>';
+                html += '<div class="bg-orange-50 p-3 rounded-xl mb-3"><p class="text-[10px] font-bold text-orange-700 mb-1">Motif invoqué par le parent :</p><p class="text-xs text-gray-700">' + echapperHtml(a.motif || 'Aucun motif') + '</p></div>';
+                
+                if (a.preuve_url) {
+                    html += '<button onclick="ouvrirFichierSecurise(\'' + a.preuve_url + '\', \'Justificatif\')" class="w-full bg-white border border-blue-200 text-edu-blue font-bold py-2 rounded-lg text-xs mb-2">👁️ Voir le justificatif</button>';
+                }
+
+                html += '<div class="flex gap-2">';
+                html += '<button onclick="validerJustification(' + a.id + ', \'validee\')" class="flex-1 bg-edu-green text-white font-bold py-2 rounded-lg text-xs">✅ Valider</button>';
+                html += '<button onclick="validerJustification(' + a.id + ', \'refusee\')" class="flex-1 bg-red-50 text-red-500 border border-red-200 font-bold py-2 rounded-lg text-xs">❌ Refuser</button>';
+                html += '</div></div>';
+            });
+            conteneur.innerHTML = html;
+            window.scrollTo(0, 0);
+        }
+
+        async function validerJustification(absenceId, statut) {
+            var estValide = statut === 'validee';
+            if (!confirm("Confirmer : " + (estValide ? "Accepter" : "Refuser") + " cette justification ?")) return;
+
+            var updateData = {
+                statut_justification: statut,
+                justifiee: estValide // Si on valide, on passe justifiee à true
+            };
+
+            var res = await supabaseClient.from('absences').update(updateData).eq('id', absenceId);
+            if (res.error) { toast.error(res.error.message); return; }
+
+            toast.success("Justification " + (estValide ? "validée" : "refusée") + " !");
+            afficherJustificationsAdmin();
         }
 async function seDeconnecter() { 
             await supabaseClient.auth.signOut(); 

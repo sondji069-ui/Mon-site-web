@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EDU-LINK - Mon Profil</title>
-<link rel="stylesheet" href="layout-pc.css">
-<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
-<link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.png">
-<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
+    <link rel="stylesheet" href="layout-pc.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
@@ -27,6 +27,7 @@
                 </div>
                 <button onclick="seDeconnecter()" class="text-sm font-bold text-red-500">Deconnexion</button>
             </div>
+            
             <div class="flex-1 overflow-y-auto p-6">
 
                 <div class="text-center mb-6">
@@ -96,64 +97,90 @@
 
                 <button onclick="sauvegarderProfil()" class="w-full bg-edu-blue text-white font-bold py-3 rounded-xl mb-3">Enregistrer les modifications</button>
 
-                <button id="btn-carte" onclick="telechargerCarte()" class="hidden w-full bg-edu-green text-white font-bold py-3 rounded-xl mb-3">🪪 Telecharger ma carte scolaire</button>
+                <button id="btn-carte" onclick="telechargerCarte()" class="hidden w-full bg-edu-green text-white font-bold py-3 rounded-xl mb-3">🪪 Telecharger ma carte</button>
 
                 <div id="message-profil" class="text-center text-sm font-semibold mb-4"></div>
 
-                <div id="carte-pdf" style="position:fixed; left:-9999px; top:0; width:600px; background:white; padding:20px;">
-                    <div style="border:3px solid #004AAD; border-radius:15px; padding:20px; font-family:Arial,sans-serif; background:white;">
-                        <table style="width:100%; border-collapse:collapse;">
-                            <tr>
-                                <td style="text-align:center; padding-bottom:12px; border-bottom:2px solid #004AAD;">
-                                    <table style="width:100%; border-collapse:collapse;">
-                                        <tr>
-                                            <td style="text-align:left; vertical-align:middle;">
-                                                <span style="font-size:26px;">📖</span>
-                                                <span style="font-size:15px; font-weight:bold; color:#004AAD; margin-left:5px;">EDU-LINK</span>
-                                            </td>
-                                            <td style="text-align:right; vertical-align:middle;">
-                                                <span style="background:#004AAD; color:white; padding:4px 10px; border-radius:6px; font-size:10px; font-weight:bold;">CARTE SCOLAIRE</span>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                    <p style="font-size:9px; color:#6b7280; margin:4px 0 0 0; text-align:left;" id="carte-ecole-nom">Etablissement</p>
-                                </td>
-                            </tr>
-                        </table>
-                        <table style="width:100%; border-collapse:collapse; margin-top:12px;">
-                            <tr>
-                                <td style="width:100px; text-align:center; vertical-align:middle;">
-                                    <div id="carte-avatar" style="width:90px; height:90px; background:#dbeafe; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:45px; border:3px solid #004AAD; overflow:hidden;">👩🏾‍🎓</div>
-                                </td>
-                                <td style="vertical-align:middle; padding-left:12px;">
-                                    <table style="width:100%; border-collapse:collapse;">
-                                        <tr><td style="font-size:10px; color:#6b7280; padding:3px 0; width:80px;">Nom</td><td style="font-size:13px; font-weight:bold; padding:3px 0; color:#1f2937;" id="carte-nom">...</td></tr>
-                                        <tr><td style="font-size:10px; color:#6b7280; padding:3px 0;">Prenom</td><td style="font-size:13px; font-weight:bold; padding:3px 0; color:#1f2937;" id="carte-prenom">...</td></tr>
-                                        <tr><td style="font-size:10px; color:#6b7280; padding:3px 0;">Matricule</td><td style="font-size:13px; font-weight:bold; padding:3px 0; color:#004AAD;" id="carte-matricule">...</td></tr>
-                                        <tr><td style="font-size:10px; color:#6b7280; padding:3px 0;">Classe</td><td style="font-size:13px; font-weight:bold; padding:3px 0; color:#1f2937;" id="carte-classe">...</td></tr>
-                                        <tr><td style="font-size:10px; color:#6b7280; padding:3px 0;">Ne(e) le</td><td style="font-size:13px; font-weight:bold; padding:3px 0; color:#1f2937;" id="carte-naissance">...</td></tr>
-                                    </table>
-                                </td>
-                            </tr>
-                        </table>
-                        <table style="width:100%; border-collapse:collapse; margin-top:12px;">
-                            <tr><td style="font-size:9px; color:#6b7280; text-align:center; padding-top:10px; border-top:1px solid #d1d5db;"><p style="margin:0;">Annee scolaire 2024-2025</p><p style="margin:2px 0;">Cette carte est la propriete de l'etablissement</p><p style="margin:2px 0; font-size:8px; color:#9ca3af;">Emise par EDU-LINK</p></td></tr>
-                        </table>
+                <!-- CARTE PDF (Cachée) -->
+                <div id="carte-pdf" style="position:fixed; left:-9999px; top:0; width:520px; background:white; padding:0;">
+                    <div style="width: 500px; height: 340px; border: 3px solid #004AAD; border-radius: 20px; font-family: Arial, sans-serif; background: #ffffff; position: relative; overflow: hidden; margin: 10px;">
+                        
+                        <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: #f0f7ff; border-radius: 50%;"></div>
+
+                        <div style="background: linear-gradient(135deg, #004AAD, #0066CC); padding: 15px 20px; color: white; display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span style="font-size: 24px;">📖</span>
+                                <div>
+                                    <h1 style="font-size: 16px; font-weight: bold; margin: 0; letter-spacing: 1px;">EDU-LINK</h1>
+                                    <p style="font-size: 10px; margin: 0; opacity: 0.9;" id="carte-ecole-nom">Etablissement</p>
+                                </div>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 8px; font-size: 10px; font-weight: bold;">
+                                CARTE SCOLAIRE
+                            </div>
+                        </div>
+
+                        <div style="padding: 20px; display: flex; gap: 15px; position: relative; z-index: 2;">
+                            <div style="flex-shrink: 0;">
+                                <div id="carte-avatar" style="width: 90px; height: 110px; background: #dbeafe; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 45px; border: 2px solid #004AAD; overflow: hidden;">
+                                    👩🏾‍🎓
+                                </div>
+                            </div>
+
+                            <div style="flex: 1;">
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <tr>
+                                        <td style="padding-bottom: 8px;">
+                                            <p style="font-size: 9px; color: #6b7280; margin: 0; text-transform: uppercase;">Nom & Prénom</p>
+                                            <p style="font-size: 15px; font-weight: bold; color: #1f2937; margin: 0;" id="carte-nom-prenom">...</p>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-bottom: 8px;">
+                                            <p style="font-size: 9px; color: #6b7280; margin: 0; text-transform: uppercase;">Matricule</p>
+                                            <p style="font-size: 14px; font-weight: bold; color: #004AAD; margin: 0;" id="carte-matricule">...</p>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-bottom: 8px;">
+                                            <p style="font-size: 9px; color: #6b7280; margin: 0; text-transform: uppercase;">Classe</p>
+                                            <p style="font-size: 14px; font-weight: bold; color: #1f2937; margin: 0;" id="carte-classe">...</p>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <p style="font-size: 9px; color: #6b7280; margin: 0; text-transform: uppercase;">Né(e) le</p>
+                                            <p style="font-size: 12px; font-weight: bold; color: #1f2937; margin: 0;" id="carte-naissance">...</p>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <div style="width: 75px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end;">
+                                <img id="carte-qr-code" src="" style="width: 75px; height: 75px; border-radius: 8px; object-fit: contain;">
+                            </div>
+                        </div>
+
+                        <div style="position: absolute; bottom: 0; left: 0; right: 0; background: #f9fafb; border-top: 1px solid #e5e7eb; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center;">
+                            <p style="font-size: 9px; color: #6b7280; margin: 0;">Année Scolaire 2024-2025</p>
+                            <div style="text-align: right;">
+                                <p style="font-size: 8px; color: #6b7280; margin: 0;">Le Directeur</p>
+                                <img id="carte-signature" src="" style="max-height: 25px; max-width: 80px; display: none;">
+                            </div>
+                        </div>
                     </div>
                 </div>
 
             </div>
         </div>
     </div>
-<!-- Console de debug mobile (à retirer plus tard) -->
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js"></script>
     <script src="image-utils.js"></script>
-<script src="storage.js"></script>
+    <script src="storage.js"></script>
+    <script src="config.js"></script>
 
-    <!-- ============ SCRIPT PRINCIPAL ============ -->
     <script>
-
         const sessionUser = sessionStorage.getItem('eduLinkUser');
         if (!sessionUser) { window.location.href = 'index.html'; }
         const parsedUser = JSON.parse(sessionUser);
@@ -202,63 +229,45 @@
             }
         }
 
-        // ═══════════ PHOTO DE PROFIL (COMPRESSION AUTOMATIQUE) ═══════════
         document.addEventListener('change', async function(e) {
-    if (e.target && e.target.id === 'photo-input') {
-        var file = e.target.files[0];
-        var msg = document.getElementById('message-photo');
-        if (!file) return;
+            if (e.target && e.target.id === 'photo-input') {
+                var file = e.target.files[0];
+                var msg = document.getElementById('message-photo');
+                if (!file) return;
 
-        if (file.size > 10 * 1024 * 1024) {
-            msg.innerText = "⚠️ Image trop lourde (max 10 Mo).";
-            msg.style.color = "#EF4444";
-            e.target.value = '';
-            return;
-        }
+                if (file.size > 10 * 1024 * 1024) {
+                    msg.innerText = "⚠️ Image trop lourde (max 10 Mo).";
+                    msg.style.color = "#EF4444";
+                    e.target.value = '';
+                    return;
+                }
 
-        if (!file.type.startsWith('image/')) {
-            msg.innerText = "⚠️ Format d'image non supporté.";
-            msg.style.color = "#EF4444";
-            e.target.value = '';
-            return;
-        }
+                msg.innerText = "⏳ Envoi en cours...";
+                msg.style.color = "#F59E0B";
 
-        msg.innerText = "⏳ Envoi en cours...";
-        msg.style.color = "#F59E0B";
+                try {
+                    var resultat = await EduStorage.uploaderImage(file, 'avatars', {
+                        maxWidth: 500, maxHeight: 500, quality: 0.85, userId: currentUser.id
+                    });
 
-        try {
-            var resultat = await EduStorage.uploaderImage(file, 'avatars', {
-                maxWidth: 500,
-                maxHeight: 500,
-                quality: 0.85,
-                userId: currentUser.id
-            });
+                    const { error } = await supabaseClient.from('utilisateurs').update({ photo_url: resultat.url }).eq('id', currentUser.id);
 
-            const { error } = await supabaseClient
-                .from('utilisateurs')
-                .update({ photo_url: resultat.url })
-                .eq('id', currentUser.id);
+                    if (error) { msg.innerText = "Erreur : " + error.message; msg.style.color = "#EF4444"; return; }
 
-            if (error) {
-                msg.innerText = "Erreur : " + error.message;
-                msg.style.color = "#EF4444";
-                return;
+                    currentUser.photo_url = resultat.url;
+                    sessionStorage.setItem('eduLinkUser', JSON.stringify(currentUser));
+                    afficherAvatar();
+
+                    msg.innerText = "✅ Photo mise à jour !";
+                    msg.style.color = "#2EAD5E";
+                    setTimeout(function() { msg.innerText = ''; }, 2500);
+
+                } catch (err) {
+                    msg.innerText = "Erreur : " + err.message;
+                    msg.style.color = "#EF4444";
+                }
             }
-
-            currentUser.photo_url = resultat.url;
-            sessionStorage.setItem('eduLinkUser', JSON.stringify(currentUser));
-            afficherAvatar();
-
-            msg.innerText = "✅ Photo mise à jour !";
-            msg.style.color = "#2EAD5E";
-            setTimeout(function() { msg.innerText = ''; }, 2500);
-
-        } catch (err) {
-            msg.innerText = "Erreur : " + err.message;
-            msg.style.color = "#EF4444";
-        }
-    }
-});
+        });
 
         async function chargerInfosEleve() {
             document.getElementById('bloc-eleve').classList.remove('hidden');
@@ -273,11 +282,31 @@
                 const { data: p } = await supabaseClient.from('utilisateurs').select('prenom, nom, telephone').eq('id', e.parent_id).single();
                 if (p) document.getElementById('eleve-parent').innerText = p.prenom + ' ' + p.nom + (p.telephone ? ' - ' + p.telephone : '');
             } else document.getElementById('eleve-parent').innerText = 'Non renseigne';
-            document.getElementById('carte-nom').innerText = currentUser.nom;
-            document.getElementById('carte-prenom').innerText = currentUser.prenom;
+            
+            document.getElementById('carte-nom-prenom').innerText = currentUser.prenom + ' ' + currentUser.nom;
             document.getElementById('carte-matricule').innerText = e.matricule;
             document.getElementById('carte-classe').innerText = e.classes ? e.classes.nom : 'N/A';
             document.getElementById('carte-naissance').innerText = dateNaissance;
+
+            const { data: ecole } = await supabaseClient.from('ecoles').select('signature_url').eq('id', currentUser.ecole_id).single();
+            if (ecole && ecole.signature_url) {
+                var sigImg = document.getElementById('carte-signature');
+                sigImg.src = ecole.signature_url;
+                sigImg.style.display = 'block';
+            }
+
+            // On génère l'URL du QR Code et on le télécharge en Base64 (pour éviter l'erreur PDF blanc)
+            var urlVerification = window.location.origin + window.location.pathname.replace('profil.html', 'verifier.html') + '?id=' + e.id;
+            var qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + encodeURIComponent(urlVerification);
+            var qrImg = document.getElementById('carte-qr-code');
+            
+            fetch(qrUrl)
+                .then(res => res.blob())
+                .then(blob => {
+                    var reader = new FileReader();
+                    reader.onloadend = function() { qrImg.src = reader.result; };
+                    reader.readAsDataURL(blob);
+                }).catch(err => console.log("Erreur QR Code", err));
         }
 
         async function chargerInfosEnseignant() {
@@ -305,20 +334,13 @@
             const upd = { prenom, nom, email };
             if (telephone) upd.telephone = telephone;
 
-            // 1. Mettre à jour les infos de base dans la table utilisateurs
             const { error } = await supabaseClient.from('utilisateurs').update(upd).eq('id', currentUser.id);
             if (error) { msg.innerText = "Erreur : " + error.message; msg.style.color = "red"; return; }
 
-            // 2. Si l'utilisateur a entré un nouveau mot de passe, on le met à jour dans Supabase Auth
             if (password) {
                 if (password.length < 6) { msg.innerText = "Mot de passe min 6 caracteres."; msg.style.color = "red"; return; }
-                
                 const { error: authError } = await supabaseClient.auth.updateUser({ password: password });
-                if (authError) { 
-                    msg.innerText = "Erreur mot de passe : " + authError.message; 
-                    msg.style.color = "red"; 
-                    return; 
-                }
+                if (authError) { msg.innerText = "Erreur mot de passe : " + authError.message; msg.style.color = "red"; return; }
             }
 
             const { data: user } = await supabaseClient.from('utilisateurs').select('*').eq('id', currentUser.id).single();
@@ -329,51 +351,84 @@
             document.getElementById('input-password').value = '';
         }
 
+        // ═══════════ GÉNÉRATION PDF AVEC HTML2PDF ═══════════
         async function telechargerCarte() {
             const btn = document.getElementById('btn-carte');
             const msg = document.getElementById('message-profil');
-            btn.innerText = "Generation...";
+            const carte = document.getElementById('carte-pdf');
+
+            btn.innerText = "Génération...";
             btn.disabled = true;
+            msg.innerText = "";
 
-            const zoneTemp = document.createElement('div');
-            zoneTemp.style.position = 'fixed';
-            zoneTemp.style.left = '-9999px';
-            zoneTemp.style.top = '0';
-            zoneTemp.style.width = '600px';
+            // Loader
+            const loader = document.createElement('div');
+            loader.style.cssText = 'position:fixed;inset:0;background:rgba(15, 23, 42, 0.9);z-index:100000;display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;font-family:Poppins;font-weight:bold;';
+            loader.innerHTML = '<div style="font-size:40px;margin-bottom:10px;">⏳</div><p>Génération de la carte...</p>';
+            document.body.appendChild(loader);
 
-            const carteOriginal = document.getElementById('carte-pdf');
-            const carteClone = carteOriginal.cloneNode(true);
-            carteClone.style.position = 'static';
-            carteClone.style.width = '100%';
-            zoneTemp.appendChild(carteClone);
-            document.body.appendChild(zoneTemp);
+            // On affiche la carte derrière le loader (pour la capture)
+            carte.style.left = '0';
+            carte.style.top = '0';
+            carte.style.zIndex = '99999';
+            carte.style.opacity = '1';
 
             try {
-                const nomFichier = 'Carte_' + currentUser.prenom + '_' + currentUser.nom + '.pdf';
-                const options = { margin: 10, filename: nomFichier, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', width: 600, windowWidth: 600, scrollX: 0, scrollY: 0 }, jsPDF: { unit: 'mm', format: [120, 85], orientation: 'landscape' } };
-                const pdfBlob = await html2pdf().set(options).from(carteClone).outputPdf('blob');
-                const fichier = new File([pdfBlob], nomFichier, { type: 'application/pdf' });
-                document.body.removeChild(zoneTemp);
+                // On attend 1s (le temps que l'image Base64 du QR Code s'intègre)
+                await new Promise(r => setTimeout(r, 1000));
 
-                const url = URL.createObjectURL(pdfBlob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = nomFichier;
-                a.style.display = 'none';
-                document.body.appendChild(a);
-                a.click();
-                setTimeout(() => {
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                }, 1000);
-                btn.innerText = "🪪 Telecharger ma carte scolaire";
-                btn.disabled = false;
+                const nomFichier = 'Carte_' + currentUser.prenom + '_' + currentUser.nom + '.pdf';
+                
+                const options = { 
+                    margin: 0, 
+                    filename: nomFichier, 
+                    image: { type: 'jpeg', quality: 1 }, 
+                    html2canvas: { 
+                        scale: 3, 
+                        useCORS: true, 
+                        backgroundColor: '#ffffff'
+                    }, 
+                    jsPDF: { unit: 'px', format: [520, 360], orientation: 'landscape' } 
+                };
+                
+                const pdfBlob = await html2pdf().set(options).from(carte).outputPdf('blob');
+
+                const fichier = new File([pdfBlob], nomFichier, { type: 'application/pdf' });
+
+                if (navigator.canShare && navigator.canShare({ files: [fichier] })) {
+                    await navigator.share({ files: [fichier], title: 'Ma carte scolaire' });
+                    msg.innerText = "Carte prête !";
+                    msg.style.color = "green";
+                } else {
+                    const url = URL.createObjectURL(pdfBlob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = nomFichier;
+                    document.body.appendChild(a);
+                    a.click();
+                    setTimeout(() => {
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                    }, 1000);
+                    msg.innerText = "Carte téléchargée !";
+                    msg.style.color = "green";
+                }
+
             } catch (err) {
-                if (document.body.contains(zoneTemp)) document.body.removeChild(zoneTemp);
-                if (err.name === 'AbortError') { msg.innerText = "Annule."; msg.style.color = "gray"; }
-                else { msg.innerText = "Erreur"; msg.style.color = "red"; }
-                btn.innerText = "🪪 Telecharger ma carte scolaire";
+                console.error(err);
+                if (err.name !== 'AbortError') {
+                    msg.innerText = "Erreur : " + err.message;
+                    msg.style.color = "red";
+                }
+            } finally {
+                if (document.body.contains(loader)) document.body.removeChild(loader);
+                carte.style.left = '-9999px';
+                carte.style.zIndex = '-1';
+                carte.style.opacity = '0';
+                
+                btn.innerText = "🪪 Telecharger ma carte";
                 btn.disabled = false;
+                setTimeout(() => { msg.innerText = ''; }, 3000);
             }
         }
 
@@ -387,7 +442,7 @@
             window.location.href = 'index.html';
         }
     </script>
-<script src="pwa.js"></script>
-<script src="layout-pc.js"></script>
+    <script src="pwa.js"></script>
+    <script src="layout-pc.js"></script>
 </body>
 </html>

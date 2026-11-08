@@ -1203,7 +1203,10 @@
 
         // ════════════ APPEL ════════════
         async function afficherAppel() {
+            document.getElementById('view-accueil').classList.add('hidden');
+            document.getElementById('view-appel').classList.remove('hidden');
             var conteneur = document.getElementById('liste-appel');
+            conteneur.innerHTML = skeleton.lignes(6);
             
             // ─── VÉRIFICATION DE L'EMPLOI DU TEMPS ───
             var jours = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
@@ -1212,31 +1215,7 @@
             var heureActuelleMin = maintenant.getHours() * 60 + maintenant.getMinutes();
 
             // On récupère les cours du prof pour cette classe aujourd'hui
-            var resCours = await supabaseClient.from('emploi_du_temps')
-                .select('*')
-                .eq('classe_id', classeId)
-                .eq('jour', jourActuel)
-                .eq('matiere', maMatiere);
-
-            var coursTrouve = null;
-            if (resCours.data && resCours.data.length > 0) {
-                coursTrouve = resCours.data.find(function(c) {
-                    var p1 = c.heure_debut.split(':').map(Number);
-                    var p2 = c.heure_fin.split(':').map(Number);
-                    var debut = p1[0] * 60 + p1[1];
-                    var fin = p2[0] * 60 + p2[1];
-                    // On autorise l'appel 15 min avant le début et jusqu'à 15 min après la fin
-                    return (heureActuelleMin >= (debut - 15) && heureActuelleMin <= (fin + 15));
-                });
-            }
-
-            if (!coursTrouve) {
-                // On bloque l'accès si on n'est pas dans le créneau horaire
-                hideAllViews();
-                document.getElementById('view-accueil').classList.remove('hidden');
-                toast.error("Vous n'avez pas cours actuellement en " + maMatiere + ".");
-                return;
-            }
+            
             // ──────────────────────────────────────────
 
             // Si on est dans le créneau, on affiche l'appel normalement
@@ -1251,28 +1230,32 @@
             (resAbs.data || []).forEach(function(a) { absentsMap[a.eleve_id] = a.id; });
 
             var dateAffichee = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
-            var nbAbsents = Object.keys(absentsMap).length;
-            var nbPresents = listeEleves.length - nbAbsents;
-
+            
             var html = '';
 
             if (listeEleves.length === 0) {
-                conteneur.innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">Aucun élève</div><div class="empty-desc">Cette classe n\'a pas d\'élèves</div></div>';
+                conteneur.innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">Aucun élève</div></div>';
                 return;
             }
 
+            // En-tête avec compteur
             html += '<div class="hero-stat" style="--from: #059669; --to: #047857; margin-bottom: 14px;">';
             html += '<div class="hero-stat-icon">✅</div>';
-            html += '<div class="hero-stat-label">Appel en cours</div>';
-            html += '<p style="font-size: 18px; font-weight: 900; margin-top: 6px; text-transform: uppercase; position: relative; z-index: 2;">' + maMatiere + '</p>';
-            html += '<p style="font-size: 11px; opacity: 0.9; position: relative; z-index: 2; text-transform: capitalize;">' + dateAffichee + '</p>';
+            html += '<div class="hero-stat-label">Appel : ' + maMatiere + '</div>';
+            html += '<p style="font-size: 14px; font-weight: 800; margin-top: 6px; text-transform: capitalize; position: relative; z-index: 2;">' + dateAffichee + '</p>';
             html += '<div class="stat-inline" style="margin-top: 12px; position: relative; z-index: 2;">';
-            html += '<div class="stat-mini" style="background: rgba(255,255,255,0.2);"><div class="label" style="color: white; opacity: 0.85;">Présents</div><div class="value" style="color: white;">' + nbPresents + '</div></div>';
-            html += '<div class="stat-mini" style="background: rgba(255,255,255,0.2);"><div class="label" style="color: white; opacity: 0.85;">Absents</div><div class="value" style="color: white;"><span id="compteur-absents">' + nbAbsents + '</span></div></div>';
-            html += '</div>';
+            html += '<div class="stat-mini" style="background: rgba(255,255,255,0.2);"><div class="label" style="color: white; opacity: 0.85;">Présents</div><div class="value" style="color: white;" id="compteur-presents">' + (listeEleves.length - Object.keys(absentsMap).length) + '</div></div>';
+            html += '<div class="stat-mini" style="background: rgba(255,255,255,0.2);"><div class="label" style="color: white; opacity: 0.85;">Absents</div><div class="value" style="color: white;" id="compteur-absents">' + Object.keys(absentsMap).length + '</div></div>';
+            html += '</div></div>';
+
+            // Barre de recherche et bouton "Tout Présent"
+            html += '<div style="display: flex; gap: 8px; margin-bottom: 12px;">';
+            html += '<input type="text" id="recherche-appel" oninput="filtrerAppel()" placeholder="🔍 Chercher un élève..." style="flex: 1; padding: 10px; border-radius: 10px; border: 1px solid #d1d5db; font-size: 12px;">';
+            html += '<button onclick="marquerTousPresents()" style="background: #dcfce7; color: #059669; border: 1px solid #86efac; padding: 10px; border-radius: 10px; font-weight: 800; font-size: 11px; white-space: nowrap;">Tout Présent</button>';
             html += '</div>';
 
-            html += '<div class="space-y-2">';
+            // Liste des élèves
+            html += '<div id="conteneur-liste-appel" class="space-y-2">';
             listeEleves.forEach(function(e) {
                 var estAbsent = !!absentsMap[e.id];
                 var initiale = e.utilisateurs.prenom.charAt(0).toUpperCase();
@@ -1282,23 +1265,49 @@
                 var boutonTexte = estAbsent ? '❌ Absent' : '✅ Présent';
                 var boutonBg = estAbsent ? 'linear-gradient(135deg, #EF4444, #B91C1C)' : 'linear-gradient(135deg, #10B981, #047857)';
 
-                html += '<div class="list-row" data-eleve-row="' + e.id + '" style="--accent: ' + statutColor + '; display: flex; justify-content: space-between; align-items: center;">';
-                html += '<div style="display: flex; align-items: center; gap: 10px;">';
+                html += '<div class="list-row row-eleve" data-nom="' + (e.utilisateurs.prenom + ' ' + e.utilisateurs.nom).toLowerCase() + '" data-eleve-row="' + e.id + '" style="--accent: ' + statutColor + ';">';
                 html += '<div class="list-avatar ' + bgClass + '">' + initiale + '</div>';
                 html += '<div class="list-content">';
                 html += '<div class="list-title">' + e.utilisateurs.prenom + ' ' + e.utilisateurs.nom + '</div>';
                 html += '<div class="list-subtitle badge-statut-eleve" style="color: ' + statutColor + '; font-weight: 700;">' + statutTexte + '</div>';
-                html += '</div></div>';
-                html += '<div style="display: flex; gap: 6px; align-items: center;">';
-                // LE NOUVEAU BOUTON CONDUITE
-                html += '<button onclick="ouvrirModalConduite(' + e.id + ', \'' + e.utilisateurs.prenom + ' ' + e.utilisateurs.nom + '\')" style="background: #fef3c7; color: #d97706; border: none; padding: 8px; border-radius: 10px; font-size: 14px; cursor: pointer;" title="Signaler un incident">🛡️</button>';
-                // LE BOUTON APPEL
+                html += '</div>';
                 html += '<button onclick="toggleAbsence(' + e.id + ', this)" data-absent="' + (estAbsent ? '1' : '0') + '" style="background: ' + boutonBg + '; color: white; border: none; padding: 10px 14px; border-radius: 12px; font-size: 11px; font-weight: 800; cursor: pointer; box-shadow: 0 3px 10px rgba(0,0,0,0.15);">' + boutonTexte + '</button>';
-                html += '</div></div>';
+                html += '</div>';
             });
             html += '</div>';
 
             conteneur.innerHTML = html;
+        }
+
+        // ─── FONCTIONS POUR L'APPEL ÉCLAIR ───
+
+        function filtrerAppel() {
+            var terme = document.getElementById('recherche-appel').value.toLowerCase();
+            var rows = document.querySelectorAll('.row-eleve');
+            rows.forEach(function(row) {
+                var nom = row.getAttribute('data-nom');
+                if (nom.includes(terme)) row.style.display = '';
+                else row.style.display = 'none';
+            });
+        }
+
+        async function marquerTousPresents() {
+            if (!confirm("Marquer TOUS les élèves comme PRÉSENTS ? (Cela supprimera les absences déjà marquées pour ce cours)")) return;
+            
+            toast.info("Mise à jour de l'appel...");
+            var today = new Date().toISOString().split('T')[0];
+            
+            // On supprime toutes les absences de ce cours aujourd'hui
+            var resDel = await supabaseClient.from('absences')
+                .delete()
+                .eq('ecole_id', monEcoleId)
+                .eq('matiere', maMatiere)
+                .eq('date_absence', today);
+                
+            if (resDel.error) { toast.error(resDel.error.message); return; }
+            
+            toast.success("Toute la classe est présente !");
+            afficherAppel(); // On recharge la liste
         }
 
         async function toggleAbsence(eleveId, btn) {
@@ -1374,6 +1383,7 @@
             } catch (err) {
                 toast.error(err.message);
                 btn.innerText = texteOrig;
+majCompteurAbsents();
             } finally {
                 btn.disabled = false;
             }

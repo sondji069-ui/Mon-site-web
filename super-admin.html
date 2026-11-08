@@ -107,7 +107,14 @@
                         <div class="flex-1 text-left"><p class="text-sm font-bold">Gérer les écoles</p><p class="text-[10px] opacity-90">Activer, suspendre, supprimer</p></div>
                         <span class="text-xl">→</span>
                     </button>
-
+<!-- Bouton Contrôle Inscriptions -->
+<button onclick="toggleInscriptionEcole()" id="btn-toggle-inscription" class="bouton-action w-full bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3 mb-3">
+    <div id="icon-toggle-inscription" class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-2xl">✅</div>
+    <div class="flex-1 text-left">
+        <p id="texte-toggle-inscription" class="text-sm font-bold text-gray-800">Inscriptions écoles : OUVERTES</p>
+        <p class="text-[10px] text-gray-400">Cliquez pour changer l'état</p>
+    </div>
+</button>
                     <button onclick="afficherPlans()" class="bouton-action w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white p-4 rounded-2xl shadow-lg mb-3 flex items-center gap-3">
                         <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">💳</div>
                         <div class="flex-1 text-left"><p class="text-sm font-bold">Plans & tarifs</p><p class="text-[10px] opacity-90">Gérer les abonnements</p></div>
@@ -298,6 +305,7 @@
             document.getElementById('welcome-message').innerText = currentUser.prenom + ' ' + currentUser.nom;
             document.getElementById('view-accueil').classList.remove('hidden');
             chargerStatsGlobales();
+chargerEtatInscription();
         });
 
         async function chargerStatsGlobales() {
@@ -733,7 +741,59 @@
             chargerStatsGlobales();
             window.scrollTo(0, 0);
         }
+// ════════════ CONTRÔLE INSCRIPTIONS ÉCOLES ════════════
+        async function chargerEtatInscription() {
+            var res = await supabaseClient.from('parametres_globaux').select('valeur').eq('cle', 'inscription_ecole_ouverte').maybeSingle();
+            
+            // On s'assure de bien lire la valeur
+            var estOuvert = (res.data && res.data.valeur === 'true');
+            
+            var btn = document.getElementById('btn-toggle-inscription');
+            var icon = document.getElementById('icon-toggle-inscription');
+            var texte = document.getElementById('texte-toggle-inscription');
 
+            if (estOuvert) {
+                icon.innerText = '✅';
+                icon.className = 'w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-2xl';
+                texte.innerText = 'Inscriptions écoles : OUVERTES';
+                texte.style.color = '#1f2937';
+            } else {
+                icon.innerText = '⛔';
+                icon.className = 'w-12 h-12 bg-red-100 rounded-full flex items-center justify-center text-2xl';
+                texte.innerText = 'Inscriptions écoles : FERMÉES';
+                texte.style.color = '#EF4444';
+            }
+        }
+
+        async function toggleInscriptionEcole() {
+            // On regarde l'état actuel sur l'écran
+            var texteActuel = document.getElementById('texte-toggle-inscription').innerText;
+            var estOuvert = texteActuel.includes('OUVERTES');
+            
+            if (!confirm("Voulez-vous vraiment " + (estOuvert ? "FERMER" : "OUVRIR") + " la création de nouvelles écoles ?")) return;
+
+            var nouvelleValeur = estOuvert ? 'false' : 'true';
+
+            // On met à jour la base de données et on ajoute .select() pour vérifier que ça a marché
+            var res = await supabaseClient.from('parametres_globaux')
+                .update({ valeur: nouvelleValeur })
+                .eq('cle', 'inscription_ecole_ouverte')
+                .select();
+
+            if (res.error) {
+                console.error("Erreur de mise à jour:", res.error);
+                toast.error("Erreur : " + res.error.message);
+                return;
+            }
+
+            toast.success("Inscriptions " + (nouvelleValeur === 'true' ? "ouvertes" : "fermées") + " !");
+            
+            // On rafraîchit l'affichage
+            chargerEtatInscription();
+        }
+
+        // Appeler la fonction au chargement (ajoute cette ligne dans ton window.addEventListener('load'))
+        // chargerEtatInscription();
         function seDeconnecter() { sessionStorage.removeItem('eduLinkUser'); window.location.href = 'index.html'; }
     </script>
 <script src="pwa.js"></script>

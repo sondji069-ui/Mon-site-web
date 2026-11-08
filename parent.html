@@ -1509,13 +1509,28 @@ function dessinerCourbeSVG(data, conteneur) {
             var absencesFiltrees = toutesAbsences;
             if (filtreAbsences === 'justifiees') absencesFiltrees = toutesAbsences.filter(function(a) { return a.justifiee; });
             else if (filtreAbsences === 'non_justifiees') absencesFiltrees = toutesAbsences.filter(function(a) { return !a.justifiee; });
+            
             var html = '';
             if (absencesFiltrees.length === 0) html = '<p class="text-gray-500 text-center py-6">Aucune absence.</p>';
             else absencesFiltrees.forEach(function(a) {
-                var bgBadge = a.justifiee ? 'chip-success' : 'chip-danger';
-                var labelBadge = a.justifiee ? 'Justifiee' : 'Non justifiee';
                 var dateStr = new Date(a.date_absence).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-                html += '<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100"><div class="flex justify-between items-start mb-2"><div class="flex-1"><p class="text-sm font-bold text-gray-800">' + (a.matiere || 'Cours') + '</p><p class="text-[10px] text-gray-500">' + dateStr + '</p></div><span class="chip ' + bgBadge + '">' + labelBadge + '</span></div></div>';
+                var badge = '';
+                var btnJustifier = '';
+
+                if (a.justifiee) {
+                    badge = '<span class="chip chip-success">Justifiée</span>';
+                } else if (a.statut_justification === 'en_attente') {
+                    badge = '<span class="chip chip-info">En attente</span>';
+                    btnJustifier = '<p class="text-[10px] text-blue-500 mt-2">Justificatif en cours d\'examen.</p>';
+                } else {
+                    badge = '<span class="chip chip-danger">Non justifiée</span>';
+                    btnJustifier = '<button onclick="ouvrirModalJustification(' + a.id + ')" class="mt-2 w-full bg-edu-blue text-white text-xs font-bold py-1.5 rounded-lg">Justifier cette absence</button>';
+                }
+
+                html += '<div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-2">';
+                html += '<div class="flex justify-between items-start mb-2"><div class="flex-1"><p class="text-sm font-bold text-gray-800">' + (a.matiere || 'Cours') + '</p><p class="text-[10px] text-gray-500">' + dateStr + '</p></div>' + badge + '</div>';
+                html += btnJustifier;
+                html += '</div>';
             });
             document.getElementById('liste-absences').innerHTML = html;
         }
@@ -1817,6 +1832,58 @@ async function chargerDerniereAnnonceDefilante() {
                 btn.disabled = false; btn.innerText = "📤 Envoyer la déclaration";
             }
         }
+// ════════════ JUSTIFICATION D'ABSENCE (PARENT) ════════════
+        function ouvrirModalJustification(absenceId) {
+            document.getElementById('justif-absence-id').value = absenceId;
+            document.getElementById('justif-motif').value = '';
+            document.getElementById('justif-fichier').value = '';
+            document.getElementById('justif-message').innerText = '';
+            
+            // On affiche le modal
+            document.getElementById('modal-justification').style.display = 'flex';
+        }
+
+        async function envoyerJustification() {
+            var absenceId = document.getElementById('justif-absence-id').value;
+            var motif = document.getElementById('justif-motif').value.trim();
+            var fileInput = document.getElementById('justif-fichier');
+            var msg = document.getElementById('justif-message');
+            var btn = document.getElementById('btn-envoyer-justif');
+
+            if (!motif) { msg.innerText = "Le motif est obligatoire."; msg.style.color = "red"; return; }
+
+            btn.disabled = true; btn.innerText = "Envoi..."; msg.innerText = '';
+
+            try {
+                var preuveUrl = null;
+                if (fileInput.files.length > 0) {
+                    var file = fileInput.files[0];
+                    var resUpload = await EduStorage.uploaderFichier(file, 'justificatifs', { maxSizeMo: 5, userId: currentUser.id });
+                    preuveUrl = resUpload.url;
+                }
+
+                var res = await supabaseClient.from('absences').update({
+                    motif: motif,
+                    preuve_url: preuveUrl,
+                    statut_justification: 'en_attente'
+                }).eq('id', absenceId);
+
+                if (res.error) throw res.error;
+
+                msg.innerText = "✅ Justificatif envoyé ! En attente de validation.";
+                msg.style.color = "#2EAD5E";
+                btn.innerText = "Envoyé !";
+                setTimeout(function() {
+                    document.getElementById('modal-justification').style.display = 'none';
+                    btn.disabled = false; btn.innerText = "Envoyer";
+                    afficherAbsences();
+                }, 2000);
+
+            } catch (err) {
+                msg.innerText = "Erreur : " + err.message; msg.style.color = "red";
+                btn.disabled = false; btn.innerText = "Envoyer";
+            }
+        }
         async function seDeconnecter() { 
     await supabaseClient.auth.signOut(); // Détruit le JWT de manière sécurisée
     sessionStorage.removeItem('eduLinkUser'); 
@@ -1871,6 +1938,24 @@ async function chargerDerniereAnnonceDefilante() {
         
         <!-- Message d'erreur/succès -->
         <div id="pay-message" style="text-align: center; font-size: 12px; font-weight: bold; margin-top: 4px;"></div>
+    </div>
+</div>
+<!-- MODAL JUSTIFICATION ABSENCE -->
+<div id="modal-justification" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; padding: 20px;">
+    <div class="bg-white rounded-2xl p-5 w-full max-w-md shadow-2xl">
+        <h2 class="text-lg font-bold mb-3">Justifier l'absence</h2>
+        <input type="hidden" id="justif-absence-id">
+        <label class="block text-xs font-bold text-gray-700 mb-1">Motif *</label>
+        <textarea id="justif-motif" rows="2" placeholder="Ex: Maladie, rendez-vous médical..." class="w-full px-4 py-2 border rounded-xl mb-3 text-sm"></textarea>
+        
+        <label class="block text-xs font-bold text-gray-700 mb-1">Certificat / Preuve (optionnel)</label>
+        <input type="file" id="justif-fichier" accept="image/*,.pdf" class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-gray-50 text-xs mb-4">
+        
+        <div class="flex gap-2">
+            <button onclick="document.getElementById('modal-justification').classList.add('none')" class="flex-1 bg-gray-100 text-gray-700 font-bold py-2 rounded-xl text-sm">Annuler</button>
+            <button onclick="envoyerJustification()" id="btn-envoyer-justif" class="flex-1 bg-edu-blue text-white font-bold py-2 rounded-xl text-sm">Envoyer</button>
+        </div>
+        <div id="justif-message" class="text-center text-xs font-semibold mt-3"></div>
     </div>
 </div>
 </body>
