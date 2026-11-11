@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   EDU-LINK — Layout PC (Version Finale - Flexbox)
+   EDU-LINK — Layout PC (Version 6.0 - Anti-Conflit)
    ═══════════════════════════════════════════════════════════════ */
 
 @media (min-width: 1024px) {
@@ -13,10 +13,6 @@
         overflow: hidden !important;
     }
 
-    body.dark-mode {
-        background: #0f172a !important;
-    }
-
     body > div.bg-white {
         max-width: 100vw !important;
         width: 100vw !important;
@@ -28,22 +24,24 @@
         display: block !important;
     }
 
-    /* ─── Le conteneur principal devient une ligne Flex ─── */
+    /* ─── La grille principale ─── */
     #page-dashboard {
-        display: flex !important;
-        flex-direction: row !important; /* Sidebar à gauche, contenu à droite */
+        display: grid !important;
+        grid-template-columns: 260px 1fr !important;
+        /* La 1ère ligne (en-tête) s'adapte à son contenu, la 2ème (contenu) prend le reste */
+        grid-template-rows: max-content 1fr !important; 
         height: 100vh !important;
         width: 100vw !important;
         overflow: hidden !important;
-        background: #F3F4F6 !important;
+        flex-direction: unset !important; /* Annule le flex-col de Tailwind */
     }
 
-    /* ─── 1. SIDEBAR ─── */
+    /* ─── 1. SIDEBAR (Colonne de gauche, toute la hauteur) ─── */
     .pc-sidebar {
+        grid-column: 1 !important;
+        grid-row: 1 / -1 !important;
         display: flex !important;
         flex-direction: column !important;
-        width: 260px !important;
-        min-width: 260px !important;
         background: #ffffff;
         color: #1f2937;
         overflow-y: auto;
@@ -58,52 +56,57 @@
         color: #f1f5f9;
     }
 
-    /* ─── On cible la zone de droite (Header + Contenu) ─── */
-    /* Le conteneur flex-col original de Tailwind */
-    #page-dashboard > div {
-        flex: 1 !important;
-        display: flex !important;
-        flex-direction: column !important;
-        height: 100vh !important;
-        overflow: hidden !important;
-        width: calc(100% - 260px) !important;
-    }
-
-    /* ─── 2. TOP BAR ─── */
-    #page-dashboard > div > div:first-child {
-        flex-shrink: 0 !important;
-        position: static !important;
+    /* ─── 2. EN-TÊTE (Ligne 1, Colonne 2) ─── */
+    #page-dashboard > div.sticky {
+        grid-column: 2 !important;
+        grid-row: 1 !important;
+        position: static !important; /* Annule le sticky qui casse la grille */
         width: 100% !important;
-        padding: 20px 30px !important;
+        padding: 16px 30px !important;
         background: #ffffff !important;
         border-bottom: 1px solid #e5e7eb !important;
+        border-radius: 0 !important;
         z-index: 90 !important;
+        /* On force un affichage flex pour que l'horloge et le nom s'alignent bien */
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
     }
 
-    body.dark-mode #page-dashboard > div > div:first-child {
+    body.dark-mode #page-dashboard > div.sticky {
         background: #1e293b !important;
         border-bottom-color: #334155 !important;
     }
 
-    /* ─── 3. CONTENU (La zone qui défile) ─── */
-    #page-dashboard > div > div.flex-1 {
-        flex: 1 !important;
+    /* Fix spécifique pour l'horloge */
+    #horloge-pc {
+        position: static !important;
+        margin: 0 16px 0 0 !important; /* Marge à droite */
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-end !important;
+        justify-content: center !important;
+    }
+
+    /* ─── 3. CONTENU (Ligne 2, Colonne 2) ─── */
+    #page-dashboard > div.flex-1.overflow-y-auto {
+        grid-column: 2 !important;
+        grid-row: 2 !important;
+        margin-top: 0 !important; /* ANNULE LE -mt-4 QUI CACHAIT LE CONTENU */
         height: 100% !important;
         overflow-y: auto !important;
         overflow-x: hidden !important;
-        /* On annule la marge négative qui cachait le contenu */
-        margin-top: 0 !important; 
         padding: 30px 40px 80px !important;
         background: #F3F4F6 !important;
         display: block !important;
     }
 
-    body.dark-mode #page-dashboard > div > div.flex-1 {
+    body.dark-mode #page-dashboard > div.flex-1.overflow-y-auto {
         background: #0f172a !important;
     }
 
-    /* Centrer le contenu */
-    #page-dashboard > div > div.flex-1 > [id^="view-"] {
+    /* Limiter la largeur du contenu */
+    #page-dashboard > div.flex-1.overflow-y-auto > [id^="view-"] {
         max-width: 1200px;
         margin: 0 auto;
         width: 100%;
@@ -140,6 +143,6 @@
     .pc-sidebar-deconnexion:hover { background: #fee2e2; }
 
     /* Barre de scroll discrète */
-    #page-dashboard > div > div.flex-1::-webkit-scrollbar { width: 8px; }
-    #page-dashboard > div > div.flex-1::-webkit-scrollbar-thumb { background: rgba(0, 74, 173, 0.2); border-radius: 4px; }
+    #page-dashboard > div.flex-1.overflow-y-auto::-webkit-scrollbar { width: 8px; }
+    #page-dashboard > div.flex-1.overflow-y-auto::-webkit-scrollbar-thumb { background: rgba(0, 74, 173, 0.2); border-radius: 4px; }
 }
