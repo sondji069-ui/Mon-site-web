@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════
-   EDU-LINK — Layout PC (desktop) v2.1
-   Fond blanc pur en mode clair, fond sombre en mode nuit
+   EDU-LINK — Layout PC (Version Premium 3.0)
+   Interface SaaS : Sidebar blanche, contenu gris clair
    ═══════════════════════════════════════════════════════════════ */
 
 @media (min-width: 1024px) {
@@ -8,11 +8,11 @@
     body {
         padding: 0 !important;
         margin: 0 !important;
-        background: #ffffff !important; /* BLANC PUR */
+        background: #F3F4F6 !important; /* Gris très clair pour faire ressortir les cartes blanches */
         align-items: stretch !important;
         justify-content: flex-start !important;
         display: block !important;
-        min-height: 100vh !important;
+        height: 100vh !important;
         overflow: hidden !important;
     }
 
@@ -27,142 +27,165 @@
         margin: 0 !important;
         border-radius: 0 !important;
         box-shadow: none !important;
-        min-height: 100vh !important;
         height: 100vh !important;
         background: transparent !important;
+        display: block !important;
     }
 
-    /* ─── Structure en grille (Sidebar + Contenu) ─── */
+    /* ─── Structure en grille ─── */
     #page-dashboard {
         display: grid !important;
-        grid-template-columns: 280px 1fr !important;
-        grid-template-rows: 72px 1fr !important;
-        grid-template-areas:
-            "sidebar topbar"
-            "sidebar content" !important;
+        grid-template-columns: 260px 1fr !important;
         height: 100vh !important;
+        width: 100vw !important;
         overflow: hidden !important;
     }
 
-    /* ═══════════ SIDEBAR (STYLE BRAND BOOK) ═══════════ */
+    /* ═══════════ SIDEBAR (Générée par layout-pc.js) ═══════════ */
     .pc-sidebar {
         display: flex;
         flex-direction: column;
-        grid-area: sidebar;
-        background: #ffffff; /* Fond blanc */
+        background: #ffffff;
         color: #1f2937;
         overflow-y: auto;
         overflow-x: hidden;
-        padding: 20px 0;
         height: 100vh;
-        border-right: 1px solid #e5e7eb; /* Bordure fine au lieu de l'ombre */
-        z-index: 50;
+        border-right: 1px solid #e5e7eb;
+        z-index: 100;
     }
 
     body.dark-mode .pc-sidebar {
         background: #1e293b;
-        border-right: 1px solid #334155;
+        border-right-color: #334155;
         color: #f1f5f9;
     }
 
-    .pc-sidebar-header { padding: 0 20px 20px; border-bottom: 1px solid #f3f4f6; margin-bottom: 16px; }
+    .pc-sidebar-header { padding: 24px 20px; border-bottom: 1px solid #f3f4f6; }
+    body.dark-mode .pc-sidebar-header { border-bottom-color: #334155; }
     
-    .pc-sidebar-logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 20px; letter-spacing: 1px; color: #004AAD; }
+    .pc-sidebar-logo { display: flex; align-items: center; gap: 10px; font-weight: 900; font-size: 20px; letter-spacing: -0.5px; color: #004AAD; }
+    .pc-sidebar-ecole { font-size: 11px; color: #6b7280; margin-top: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
     
-    .pc-sidebar-ecole { font-size: 11px; color: #6b7280; margin-top: 6px; padding-left: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    
-    .pc-sidebar-section { padding: 8px 20px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #9ca3af; margin-top: 8px; }
+    .pc-sidebar-section { padding: 20px 24px 8px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #9ca3af; }
 
     .pc-sidebar-item {
-        display: flex; align-items: center; gap: 12px; padding: 12px 20px;
+        display: flex; align-items: center; gap: 12px; padding: 12px 24px;
         color: #4b5563; cursor: pointer; transition: all 0.2s ease;
-        border-left: 3px solid transparent; font-size: 13px; font-weight: 500; position: relative;
+        font-size: 13px; font-weight: 600; position: relative; margin: 2px 12px; border-radius: 10px;
     }
 
     .pc-sidebar-item:hover { background: #f8fafc; color: #004AAD; }
+    body.dark-mode .pc-sidebar-item:hover { background: #334155; color: #60a5fa; }
     
-    /* L'état actif (Bouton sélectionné) */
     .pc-sidebar-item.actif { 
-        background: #eff6ff; /* Bleu très clair */
+        background: #eff6ff; 
         color: #004AAD; 
-        border-left-color: #004AAD; 
-        font-weight: 700;
+        font-weight: 800;
     }
+    body.dark-mode .pc-sidebar-item.actif { background: #1e3a5f; color: #60a5fa; }
 
-    .pc-sidebar-item .pc-icon { font-size: 18px; width: 24px; text-align: center; flex-shrink: 0; color: #004AAD; }
+    .pc-sidebar-item .pc-icon { font-size: 18px; width: 24px; text-align: center; flex-shrink: 0; }
     .pc-sidebar-item .pc-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     
+    .pc-sidebar-footer { margin-top: auto; padding: 20px; }
     .pc-sidebar-deconnexion {
-        display: flex; align-items: center; gap: 12px; padding: 11px 16px;
-        background: #fef2f2; border-radius: 10px; color: #E31B23; /* Rouge du brand book */
+        display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+        background: #fef2f2; border-radius: 10px; color: #E31B23;
         cursor: pointer; font-size: 13px; font-weight: 700; transition: all 0.2s ease;
     }
     .pc-sidebar-deconnexion:hover { background: #fee2e2; }
+    body.dark-mode .pc-sidebar-deconnexion { background: rgba(227, 27, 35, 0.1); }
+    body.dark-mode .pc-sidebar-deconnexion:hover { background: rgba(227, 27, 35, 0.2); }
 
-    /* ═══════════ TOP BAR ═══════════ */
-    #page-dashboard > #topbar-dashboard {
-        grid-area: topbar !important;
-        padding: 0 32px !important;
-        border-radius: 0 !important;
-        margin: 0 !important;
-        display: flex !important;
-        align-items: center !important;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
-        background: #ffffff !important;
-        border-bottom: 1px solid #e5e7eb !important;
-        color: #1f2937 !important;
-    }
-
-    body.dark-mode #page-dashboard > .bg-gradient-to-br {
-        background: #1e293b !important;
-        border-bottom-color: #334155 !important;
-        color: #f1f5f9 !important;
-    }
-
-    #page-dashboard > #topbar-dashboard > div {
-        width: 100% !important; margin: 0 !important; display: flex !important;
-        align-items: center !important; justify-content: space-between !important;
-    }
-
-    #page-dashboard > #topbar-dashboard .text-xs.opacity-80,
-    #page-dashboard > #topbar-dashboard #ecole-nom-affiche {
-        display: none !important;
-    }
-
-    #page-dashboard > #topbar-dashboard button { color: #4b5563 !important; }
-    #page-dashboard > #topbar-dashboard button:hover { background: #f3f4f6 !important; }
-
-    /* ─── CONTENU PRINCIPAL ─── */
+    /* ═══════════ TOP BAR & CONTENU ═══════════ */
+    /* On cible le conteneur qui est à droite de la sidebar */
     #page-dashboard > .flex-1 {
-        grid-area: content !important;
-        overflow-y: auto !important;
-        padding: 32px 32px 60px !important;
-        margin-top: 0 !important;
-        background: #ffffff !important; /* BLANC PUR */
-        border-radius: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        height: 100vh !important;
+        overflow: hidden !important;
+        background: transparent !important;
     }
 
-    body.dark-mode #page-dashboard > .flex-1 {
+    /* La Top Bar est le premier enfant de .flex-1 */
+    #page-dashboard > .flex-1 > div:first-child {
+        flex-shrink: 0 !important;
+        z-index: 90 !important;
+        padding: 20px 40px !important;
+    }
+
+    /* La zone de contenu défilante est le deuxième enfant */
+    #page-dashboard > .flex-1 > .overflow-y-auto {
+        flex: 1 !important;
+        overflow-y: auto !important;
+        padding: 30px 40px 80px !important;
+        background: #F3F4F6 !important;
+        margin-top: 0 !important; /* Enlève le -mt-4 de Tailwind */
+    }
+
+    body.dark-mode #page-dashboard > .flex-1 > .overflow-y-auto {
         background: #0f172a !important;
     }
 
-    /* Limiter la largeur du contenu pour qu'il reste lisible sur grand écran */
-    #page-dashboard > .flex-1 > [id^="view-"] {
-        max-width: 1100px;
+    /* ─── Limiter la largeur du contenu ─── */
+    #page-dashboard > .flex-1 > .overflow-y-auto > [id^="view-"] {
+        max-width: 1200px;
         margin: 0 auto;
-        animation: none !important;
+        width: 100%;
     }
 
-    /* ═══════════ ADAPTATION DES GRILLES ET CARTES ═══════════ */
-    #page-dashboard > .flex-1 .grid-cols-3 { grid-template-columns: repeat(3, 1fr) !important; gap: 24px !important; }
-    #page-dashboard > .flex-1 .grid-cols-3 .card-pro { padding: 24px 16px !important; }
-    #page-dashboard > .flex-1 .grid-cols-3 .card-pro p[id^="dash-total"] { font-size: 32px !important; }
-    #page-dashboard > .flex-1 .hero-stat { padding: 32px !important; border-radius: 24px !important; }
-    #page-dashboard > .flex-1 .action-grid { grid-template-columns: repeat(4, 1fr) !important; gap: 16px !important; }
-    #page-dashboard > .flex-1 .card-pro button { padding: 20px 24px !important; }
+    /* ─── Ajustement des grilles pour PC ─── */
+    #page-dashboard .grid-cols-2 {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 20px !important;
+    }
 
-    /* Barre de scroll discrète */
-    #page-dashboard > .flex-1::-webkit-scrollbar { width: 8px; }
-    #page-dashboard > .flex-1::-webkit-scrollbar-thumb { background: rgba(0, 74, 173, 0.25); border-radius: 4px; }
-    body.dark-mode #page-dashboard > .flex-1::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); }
+    #page-dashboard .grid-cols-3 {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 20px !important;
+    }
+
+    /* Les KPI cards (4 colonnes sur PC) */
+    #page-dashboard .grid-cols-4, 
+    #page-dashboard .lg\:grid-cols-4 {
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 20px !important;
+    }
+
+    /* La grille Bento d'actions (Admin) */
+    #page-dashboard .action-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 16px !important;
+    }
+
+    /* ─── Amélioration des cartes sur PC ─── */
+    #page-dashboard .card-pro, 
+    #page-dashboard .bg-white {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    #page-dashboard .card-pro:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01) !important;
+    }
+
+    /* ─── Barre de scroll discrète ─── */
+    #page-dashboard > .flex-1 > .overflow-y-auto::-webkit-scrollbar { width: 8px; }
+    #page-dashboard > .flex-1 > .overflow-y-auto::-webkit-scrollbar-track { background: transparent; }
+    #page-dashboard > .flex-1 > .overflow-y-auto::-webkit-scrollbar-thumb { 
+        background: rgba(0, 74, 173, 0.2); 
+        border-radius: 4px; 
+    }
+    #page-dashboard > .flex-1 > .overflow-y-auto::-webkit-scrollbar-thumb:hover { 
+        background: rgba(0, 74, 173, 0.4); 
+    }
+    body.dark-mode #page-dashboard > .flex-1 > .overflow-y-auto::-webkit-scrollbar-thumb { 
+        background: rgba(255, 255, 255, 0.2); 
+    }
+
+    /* Fix pour les éléments sticky */
+    .sticky {
+        position: sticky !important;
+        top: 0 !important;
+    }
 }
