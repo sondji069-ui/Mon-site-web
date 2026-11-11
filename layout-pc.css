@@ -100,7 +100,7 @@
     .pc-sidebar-deconnexion:hover { background: #fee2e2; }
 
     /* ═══════════ TOP BAR ═══════════ */
-    #page-dashboard > .bg-gradient-to-br {
+    #page-dashboard > #topbar-dashboard {
         grid-area: topbar !important;
         padding: 0 32px !important;
         border-radius: 0 !important;
@@ -108,7 +108,7 @@
         display: flex !important;
         align-items: center !important;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
-        background: #ffffff !important; /* BLANC PUR */
+        background: #ffffff !important;
         border-bottom: 1px solid #e5e7eb !important;
         color: #1f2937 !important;
     }
@@ -119,22 +119,18 @@
         color: #f1f5f9 !important;
     }
 
-    #page-dashboard > .bg-gradient-to-br > div {
+    #page-dashboard > #topbar-dashboard > div {
         width: 100% !important; margin: 0 !important; display: flex !important;
         align-items: center !important; justify-content: space-between !important;
     }
 
-    /* Cacher les éléments spécifiques au mobile dans la top bar */
-    #page-dashboard > .bg-gradient-to-br .text-xs.opacity-80,
-    #page-dashboard > .bg-gradient-to-br #ecole-nom-affiche {
+    #page-dashboard > #topbar-dashboard .text-xs.opacity-80,
+    #page-dashboard > #topbar-dashboard #ecole-nom-affiche {
         display: none !important;
     }
 
-    /* Ajustement des boutons de la top bar pour fond blanc */
-    #page-dashboard > .bg-gradient-to-br button { color: #4b5563 !important; }
-    #page-dashboard > .bg-gradient-to-br button:hover { background: #f3f4f6 !important; }
-    body.dark-mode #page-dashboard > .bg-gradient-to-br button { color: #cbd5e1 !important; }
-    body.dark-mode #page-dashboard > .bg-gradient-to-br button:hover { background: #334155 !important; }
+    #page-dashboard > #topbar-dashboard button { color: #4b5563 !important; }
+    #page-dashboard > #topbar-dashboard button:hover { background: #f3f4f6 !important; }
 
     /* ─── CONTENU PRINCIPAL ─── */
     #page-dashboard > .flex-1 {
