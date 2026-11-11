@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   EDU-LINK — Layout PC (Version 5.0 - Force Override)
+   EDU-LINK — Layout PC (Version Finale - Flexbox)
    ═══════════════════════════════════════════════════════════════ */
 
 @media (min-width: 1024px) {
@@ -28,22 +28,22 @@
         display: block !important;
     }
 
-    /* ─── La grille principale ─── */
+    /* ─── Le conteneur principal devient une ligne Flex ─── */
     #page-dashboard {
-        display: grid !important;
-        grid-template-columns: 260px 1fr !important;
-        grid-template-rows: auto 1fr !important;
+        display: flex !important;
+        flex-direction: row !important; /* Sidebar à gauche, contenu à droite */
         height: 100vh !important;
         width: 100vw !important;
         overflow: hidden !important;
+        background: #F3F4F6 !important;
     }
 
-    /* ─── 1. SIDEBAR (Colonne de gauche) ─── */
+    /* ─── 1. SIDEBAR ─── */
     .pc-sidebar {
-        grid-column: 1 !important;
-        grid-row: 1 / span 2 !important;
         display: flex !important;
         flex-direction: column !important;
+        width: 260px !important;
+        min-width: 260px !important;
         background: #ffffff;
         color: #1f2937;
         overflow-y: auto;
@@ -58,46 +58,52 @@
         color: #f1f5f9;
     }
 
-    /* ─── 2. TOP BAR (En haut à droite) ─── */
-    #page-dashboard > div.bg-white {
-        grid-column: 2 !important;
-        grid-row: 1 !important;
-        position: static !important; /* Annule le sticky qui casse la grille */
+    /* ─── On cible la zone de droite (Header + Contenu) ─── */
+    /* Le conteneur flex-col original de Tailwind */
+    #page-dashboard > div {
+        flex: 1 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        height: 100vh !important;
+        overflow: hidden !important;
+        width: calc(100% - 260px) !important;
+    }
+
+    /* ─── 2. TOP BAR ─── */
+    #page-dashboard > div > div:first-child {
+        flex-shrink: 0 !important;
+        position: static !important;
         width: 100% !important;
-        margin: 0 !important;
         padding: 20px 30px !important;
         background: #ffffff !important;
         border-bottom: 1px solid #e5e7eb !important;
-        border-radius: 0 !important;
-        box-shadow: none !important;
         z-index: 90 !important;
     }
-    
-    body.dark-mode #page-dashboard > div.bg-white {
+
+    body.dark-mode #page-dashboard > div > div:first-child {
         background: #1e293b !important;
         border-bottom-color: #334155 !important;
     }
 
-    /* ─── 3. CONTENU (En bas à droite) ─── */
-    #page-dashboard > div.flex-1.overflow-y-auto {
-        grid-column: 2 !important;
-        grid-row: 2 !important;
-        width: 100% !important;
+    /* ─── 3. CONTENU (La zone qui défile) ─── */
+    #page-dashboard > div > div.flex-1 {
+        flex: 1 !important;
         height: 100% !important;
         overflow-y: auto !important;
         overflow-x: hidden !important;
+        /* On annule la marge négative qui cachait le contenu */
+        margin-top: 0 !important; 
         padding: 30px 40px 80px !important;
-        margin-top: 0 !important; /* ANNULE LE -mt-4 qui fait disparaître le contenu */
         background: #F3F4F6 !important;
-        display: block !important; /* Force l'affichage */
+        display: block !important;
     }
 
-    body.dark-mode #page-dashboard > div.flex-1.overflow-y-auto {
+    body.dark-mode #page-dashboard > div > div.flex-1 {
         background: #0f172a !important;
     }
 
-    /* Limiter la largeur du contenu */
-    #page-dashboard > div.flex-1.overflow-y-auto > [id^="view-"] {
+    /* Centrer le contenu */
+    #page-dashboard > div > div.flex-1 > [id^="view-"] {
         max-width: 1200px;
         margin: 0 auto;
         width: 100%;
@@ -107,20 +113,18 @@
     .pc-sidebar-header { padding: 24px 20px; border-bottom: 1px solid #f3f4f6; }
     body.dark-mode .pc-sidebar-header { border-bottom-color: #334155; }
     
-    .pc-sidebar-logo { display: flex; align-items: center; gap: 10px; font-weight: 900; font-size: 20px; letter-spacing: -0.5px; color: #004AAD; }
-    .pc-sidebar-ecole { font-size: 11px; color: #6b7280; margin-top: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
-    
-    .pc-sidebar-section { padding: 20px 24px 8px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #9ca3af; }
+    .pc-sidebar-logo { display: flex; align-items: center; gap: 10px; font-weight: 900; font-size: 20px; color: #004AAD; }
+    .pc-sidebar-ecole { font-size: 11px; color: #6b7280; margin-top: 8px; font-weight: 600; }
+    .pc-sidebar-section { padding: 20px 24px 8px; font-size: 10px; font-weight: 800; text-transform: uppercase; color: #9ca3af; }
 
     .pc-sidebar-item {
         display: flex; align-items: center; gap: 12px; padding: 12px 24px;
         color: #4b5563; cursor: pointer; transition: all 0.2s ease;
-        font-size: 13px; font-weight: 600; position: relative; margin: 2px 12px; border-radius: 10px;
+        font-size: 13px; font-weight: 600; margin: 2px 12px; border-radius: 10px;
     }
 
     .pc-sidebar-item:hover { background: #f8fafc; color: #004AAD; }
     body.dark-mode .pc-sidebar-item:hover { background: #334155; color: #60a5fa; }
-    
     .pc-sidebar-item.actif { background: #eff6ff; color: #004AAD; font-weight: 800; }
     body.dark-mode .pc-sidebar-item.actif { background: #1e3a5f; color: #60a5fa; }
 
@@ -135,19 +139,7 @@
     }
     .pc-sidebar-deconnexion:hover { background: #fee2e2; }
 
-    /* Amélioration des cartes sur PC */
-    #page-dashboard .card-pro, 
-    #page-dashboard .bg-white {
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    #page-dashboard .card-pro:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01) !important;
-    }
-
     /* Barre de scroll discrète */
-    #page-dashboard > div.flex-1.overflow-y-auto::-webkit-scrollbar { width: 8px; }
-    #page-dashboard > div.flex-1.overflow-y-auto::-webkit-scrollbar-track { background: transparent; }
-    #page-dashboard > div.flex-1.overflow-y-auto::-webkit-scrollbar-thumb { background: rgba(0, 74, 173, 0.2); border-radius: 4px; }
-    body.dark-mode #page-dashboard > div.flex-1.overflow-y-auto::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); }
+    #page-dashboard > div > div.flex-1::-webkit-scrollbar { width: 8px; }
+    #page-dashboard > div > div.flex-1::-webkit-scrollbar-thumb { background: rgba(0, 74, 173, 0.2); border-radius: 4px; }
 }
