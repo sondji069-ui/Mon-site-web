@@ -44,46 +44,60 @@
         overflow: hidden !important;
     }
 
-    /* ═══════════ SIDEBAR ═══════════ */
+    /* ═══════════ SIDEBAR (STYLE BRAND BOOK) ═══════════ */
     .pc-sidebar {
         display: flex;
         flex-direction: column;
         grid-area: sidebar;
-        background: linear-gradient(180deg, #004AAD 0%, #003580 100%);
-        color: white;
+        background: #ffffff; /* Fond blanc */
+        color: #1f2937;
         overflow-y: auto;
         overflow-x: hidden;
         padding: 20px 0;
         height: 100vh;
-        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.1);
+        border-right: 1px solid #e5e7eb; /* Bordure fine au lieu de l'ombre */
         z-index: 50;
     }
 
-    .pc-sidebar-header { padding: 0 20px 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.12); margin-bottom: 16px; }
-    .pc-sidebar-logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 20px; letter-spacing: 1px; }
-    .pc-sidebar-logo span:first-child { font-size: 28px; }
-    .pc-sidebar-ecole { font-size: 11px; opacity: 0.75; margin-top: 6px; padding-left: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .pc-sidebar-section { padding: 8px 20px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.55; margin-top: 8px; }
+    body.dark-mode .pc-sidebar {
+        background: #1e293b;
+        border-right: 1px solid #334155;
+        color: #f1f5f9;
+    }
+
+    .pc-sidebar-header { padding: 0 20px 20px; border-bottom: 1px solid #f3f4f6; margin-bottom: 16px; }
+    
+    .pc-sidebar-logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 20px; letter-spacing: 1px; color: #004AAD; }
+    
+    .pc-sidebar-ecole { font-size: 11px; color: #6b7280; margin-top: 6px; padding-left: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    
+    .pc-sidebar-section { padding: 8px 20px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #9ca3af; margin-top: 8px; }
 
     .pc-sidebar-item {
         display: flex; align-items: center; gap: 12px; padding: 12px 20px;
-        color: rgba(255, 255, 255, 0.85); cursor: pointer; transition: all 0.2s ease;
-        border-left: 3px solid transparent; font-size: 13px; font-weight: 600; position: relative;
+        color: #4b5563; cursor: pointer; transition: all 0.2s ease;
+        border-left: 3px solid transparent; font-size: 13px; font-weight: 500; position: relative;
     }
 
-    .pc-sidebar-item:hover { background: rgba(255, 255, 255, 0.08); color: white; border-left-color: rgba(255, 255, 255, 0.3); }
-    .pc-sidebar-item.actif { background: rgba(255, 255, 255, 0.14); color: white; border-left-color: #FBBF24; }
-    .pc-sidebar-item .pc-icon { font-size: 18px; width: 24px; text-align: center; flex-shrink: 0; }
-    .pc-sidebar-item .pc-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .pc-sidebar-item .pc-badge { background: #EF4444; color: white; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 10px; min-width: 18px; text-align: center; }
+    .pc-sidebar-item:hover { background: #f8fafc; color: #004AAD; }
+    
+    /* L'état actif (Bouton sélectionné) */
+    .pc-sidebar-item.actif { 
+        background: #eff6ff; /* Bleu très clair */
+        color: #004AAD; 
+        border-left-color: #004AAD; 
+        font-weight: 700;
+    }
 
-    .pc-sidebar-footer { margin-top: auto; padding: 16px 12px; border-top: 1px solid rgba(255, 255, 255, 0.12); }
+    .pc-sidebar-item .pc-icon { font-size: 18px; width: 24px; text-align: center; flex-shrink: 0; color: #004AAD; }
+    .pc-sidebar-item .pc-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    
     .pc-sidebar-deconnexion {
         display: flex; align-items: center; gap: 12px; padding: 11px 16px;
-        background: rgba(220, 38, 38, 0.15); border-radius: 10px; color: #fca5a5;
+        background: #fef2f2; border-radius: 10px; color: #E31B23; /* Rouge du brand book */
         cursor: pointer; font-size: 13px; font-weight: 700; transition: all 0.2s ease;
     }
-    .pc-sidebar-deconnexion:hover { background: rgba(220, 38, 38, 0.25); color: white; }
+    .pc-sidebar-deconnexion:hover { background: #fee2e2; }
 
     /* ═══════════ TOP BAR ═══════════ */
     #page-dashboard > .bg-gradient-to-br {

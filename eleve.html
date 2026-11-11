@@ -9,6 +9,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link rel="stylesheet" href="dashboard.css">
@@ -61,20 +62,21 @@
 
     <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col h-auto min-h-[600px]">
         <div id="page-dashboard" class="flex-1 flex-col flex">
-            <div class="bg-gradient-to-br from-edu-blue via-blue-700 to-blue-800 text-white p-5 pb-8 relative">
-                <div class="flex justify-between items-start mb-4 relative z-10">
+            <!-- TOP BAR ELEVE -->
+            <div class="bg-white text-gray-900 p-5 border-b border-gray-100 sticky top-0 z-50">
+                <div class="flex justify-between items-center">
                     <div>
-                        <p class="text-xs opacity-80 mb-1">Bonjour,</p>
-                        <h1 id="welcome-message" class="text-xl font-bold">Chargement...</h1>
-                        <p id="ecole-nom-affiche" class="text-xs opacity-90 mt-1">...</p>
+                        <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-0.5">Bonjour,</p>
+                        <h1 id="welcome-message" class="text-lg font-black tracking-tight">Chargement...</h1>
+                        <p id="ecole-nom-affiche" class="text-[11px] text-gray-500 font-semibold mt-0.5">...</p>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button onclick="window.location.href='profil.html'" id="avatar-header" class="w-9 h-9 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-lg hover:bg-opacity-30 transition overflow-hidden">👤</button>
-                        <button onclick="afficherNotifications()" class="relative w-9 h-9 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-lg hover:bg-opacity-30 transition">
+                        <button onclick="window.location.href='profil.html'" id="avatar-header" class="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center text-lg hover:bg-gray-200 transition overflow-hidden border border-gray-200">👤</button>
+                        <button onclick="afficherNotifications()" class="relative w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center text-lg hover:bg-gray-200 transition">
                             🔔
-                            <span id="badge-notif" class="hidden absolute -top-1 -right-1 bg-edu-red text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center"></span>
+                            <span id="badge-notif" class="hidden absolute -top-1 -right-1 bg-edu-red text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white"></span>
                         </button>
-                        <button onclick="seDeconnecter()" class="w-9 h-9 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-lg hover:bg-opacity-30 transition">🚪</button>
+                        <button onclick="seDeconnecter()" class="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center text-lg hover:bg-gray-200 transition">🚪</button>
                     </div>
                 </div>
             </div>
@@ -103,30 +105,25 @@
                         <div class="btn-arrow">→</div>
                     </button>
 
-                    <div class="hero-stat anim-up delay-1" style="--from: #004AAD; --to: #1E40AF; margin-bottom: 14px;">
-                        <div class="hero-stat-icon">📊</div>
-                        <div class="hero-stat-label">Ma moyenne générale</div>
-                        <div class="flex items-end gap-2 mt-2" style="position: relative; z-index: 2;">
-                            <span id="moy-generale" class="hero-stat-value">--</span>
-                            <span style="font-size: 18px; opacity: 0.8; margin-bottom: 4px;">/ 20</span>
-                        </div>
-                        <div class="progress" style="margin-top: 12px; position: relative; z-index: 2;">
-                            <div id="barre-moyenne" class="progress-fill" style="width: 0%;"></div>
-                        </div>
-                        <p id="mention-eleve" class="hero-stat-sub">Mention : --</p>
-                    </div>
-
-                    <!-- NOUVELLE CARTE DE JOUEUR GAMIFIÉE -->
-                    <div id="carte-joueur" class="anim-up delay-2" onclick="afficherMesBadges()" style="background: linear-gradient(135deg, #1e293b, #0f172a); border-radius: 24px; padding: 20px; margin-bottom: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; overflow: hidden; cursor: pointer; border: 1px solid rgba(255,255,255,0.1);">
-                        <!-- Effet de brillance en fond -->
-                        <div style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%); pointer-events: none;"></div>
+                    <div class="card-pro anim-up delay-1" style="background: linear-gradient(145deg, #ffffff, #f0f9ff); border: 1px solid #bae6fd; margin-bottom: 14px; border-radius: 24px; padding: 20px; position: relative; overflow: hidden;">
+                        <!-- Halo décoratif -->
+                        <div style="position: absolute; top: -30px; right: -30px; width: 100px; height: 100px; background: #bae6fd; border-radius: 50%; filter: blur(30px); opacity: 0.5;"></div>
                         
-                        <div style="display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2;">
-                            <div>
-                                <p style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px;">Mon profil</p>
-                                <h2 id="player-rank-name" style="font-size: 24px; font-weight: 900; color: white; margin: 2px 0 0 0; text-shadow: 0 0 10px rgba(255,255,255,0.3);">Bronze</h2>
-                                <p id="player-xp" style="font-size: 11px; color: #cbd5e1; margin-top: 2px;">0 / 500 XP</p>
-                            </div>
+                        <div class="flex items-center gap-2 mb-2 relative z-10">
+                            <div class="w-8 h-8 rounded-full bg-blue-100 text-edu-blue flex items-center justify-center text-sm">📊</div>
+                            <p class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Ma moyenne générale</p>
+                        </div>
+                        
+                        <div class="flex items-end gap-2 relative z-10">
+                            <span id="moy-generale" class="text-5xl font-black text-edu-blue tracking-tighter">--</span>
+                            <span class="text-sm font-bold text-gray-400 mb-1">/ 20</span>
+                        </div>
+                        
+                        <div class="progress on-light relative z-10" style="margin-top: 12px; height: 6px; background: #e0f2fe;">
+                            <div id="barre-moyenne" class="progress-fill" style="width: 0%; background: #004AAD; border-radius: 6px;"></div>
+                        </div>
+                        <p id="mention-eleve" class="text-[11px] font-bold text-gray-500 mt-2 relative z-10">Mention : --</p>
+                    </div>
                             
                             <!-- Anneau de progression -->
                             <div style="position: relative; width: 70px; height: 70px;">
