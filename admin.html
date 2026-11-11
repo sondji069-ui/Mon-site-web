@@ -9,7 +9,6 @@
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
@@ -65,23 +64,22 @@
 <body class="min-h-screen flex justify-center items-start pt-4 p-3">
     <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col h-auto min-h-[600px]">
         <div id="page-dashboard" class="flex-1 flex-col flex">
-            <!-- TOP BAR PREMIUM -->
-            <div id="topbar-dashboard" class="bg-white text-gray-900 p-5 border-b border-gray-100 sticky top-0 z-50">
-                <div class="flex justify-between items-center">
+            <div class="bg-gradient-to-br from-edu-blue via-blue-700 to-blue-800 text-white p-5 pb-8 relative">
+                <div class="flex justify-between items-start mb-4 relative z-10">
                     <div>
-                        <h1 id="welcome-message" class="text-lg font-black tracking-tight">Chargement...</h1>
-                        <p id="ecole-nom-affiche" class="text-[11px] text-gray-500 font-semibold mt-0.5">...</p>
+                        <p class="text-xs opacity-80 mb-1">Bonjour,</p>
+                        <h1 id="welcome-message" class="text-xl font-bold">Chargement...</h1>
+                        <p id="ecole-nom-affiche" class="text-xs opacity-90 mt-1">...</p>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button onclick="window.location.href='profil.html'" id="avatar-header" class="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center text-lg hover:bg-gray-200 transition overflow-hidden border border-gray-200">👤</button>
-                        <button onclick="afficherNotifications()" class="relative w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center text-lg hover:bg-gray-200 transition">
+                        <button onclick="window.location.href='profil.html'" id="avatar-header" class="w-9 h-9 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-lg hover:bg-opacity-30 transition overflow-hidden">👤</button>
+                        <button onclick="afficherNotifications()" class="relative w-9 h-9 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-lg hover:bg-opacity-30 transition">
                             🔔
-                            <span id="badge-notif" class="hidden absolute -top-1 -right-1 bg-edu-red text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white"></span>
+                            <span id="badge-notif" class="hidden absolute -top-1 -right-1 bg-edu-red text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center"></span>
                         </button>
-                        <button onclick="seDeconnecter()" class="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center text-lg hover:bg-gray-200 transition">🚪</button>
+                        <button onclick="seDeconnecter()" class="w-9 h-9 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-lg hover:bg-opacity-30 transition">🚪</button>
                     </div>
                 </div>
-            </div>
 <!-- Horloge PC (cachée sur mobile) -->
 <div id="horloge-pc" class="hidden lg:flex flex-col items-end mr-4">
     <span id="heure-pc" style="font-size: 18px; font-weight: 800; color: white;">00:00:00</span>
@@ -102,7 +100,7 @@
         <!-- Résultats de recherche -->
         <div id="resultats-recherche-globale" class="hidden" style="position: absolute; top: 100%; left: 0; right: 0; background: white; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-top: 8px; max-height: 300px; overflow-y: auto; border: 1px solid #e5e7eb;"></div>
     </div>
-    <button onclick="activerNotificationsPush(supabaseClient, currentUser)" id="btn-push" class="btn-float anim-up" ; margin-bottom: 14px;">
+    <button onclick="activerNotificationsPush(supabaseClient, currentUser)" id="btn-push" class="btn-float anim-up" style="background: linear-gradient(135deg, #F59E0B, #EA580C); margin-bottom: 14px;">
         <div class="btn-icon">🔔</div>
         <div class="btn-content">
             <div class="btn-title">Activer les notifications</div>
@@ -133,38 +131,22 @@
                         </div>
                     </div>
 
-    <!-- KPI CARDS (Style Brand Book) -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5 anim-up delay-2">
-        <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between">
-            <div class="flex items-center gap-2 mb-2">
-                <div class="w-8 h-8 rounded-full bg-blue-50 text-edu-blue flex items-center justify-center text-sm">🎓</div>
-                <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Élèves</p>
-            </div>
-            <p id="dash-total-eleves" class="text-2xl font-black text-gray-900">—</p>
+    <!-- Les 3 cartes stats -->
+    <div class="grid grid-cols-3 gap-2 mb-4 anim-up delay-2">
+        <div class="card-pro" style="padding: 12px; text-align: center; border-radius: 16px;">
+            <div style="width: 36px; height: 36px; margin: 0 auto 8px; background: #eff6ff; color: #2563eb; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px;">🎓</div>
+            <div style="font-size: 9px; font-weight: 800; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Élèves</div>
+            <p id="dash-total-eleves" style="font-size: 22px; font-weight: 900; color: #1f2937; margin-top: 2px;">—</p>
         </div>
-
-        <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between">
-            <div class="flex items-center gap-2 mb-2">
-                <div class="w-8 h-8 rounded-full bg-green-50 text-green-600 flex items-center justify-center text-sm">👨🏾‍🏫</div>
-                <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Profs</p>
-            </div>
-            <p id="dash-total-profs" class="text-2xl font-black text-gray-900">—</p>
+        <div class="card-pro" style="padding: 12px; text-align: center; border-radius: 16px;">
+            <div style="width: 36px; height: 36px; margin: 0 auto 8px; background: #f0fdf4; color: #16a34a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px;">👨🏾‍🏫</div>
+            <div style="font-size: 9px; font-weight: 800; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Profs</div>
+            <p id="dash-total-profs" style="font-size: 22px; font-weight: 900; color: #1f2937; margin-top: 2px;">—</p>
         </div>
-
-        <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between">
-            <div class="flex items-center gap-2 mb-2">
-                <div class="w-8 h-8 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center text-sm">🏫</div>
-                <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Classes</p>
-            </div>
-            <p id="dash-total-classes" class="text-2xl font-black text-gray-900">—</p>
-        </div>
-
-        <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between">
-            <div class="flex items-center gap-2 mb-2">
-                <div class="w-8 h-8 rounded-full bg-red-50 text-edu-red flex items-center justify-center text-sm">📊</div>
-                <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Assiduité</p>
-            </div>
-            <p class="text-2xl font-black text-gray-900">92<span class="text-sm text-gray-400">%</span></p>
+        <div class="card-pro" style="padding: 12px; text-align: center; border-radius: 16px;">
+            <div style="width: 36px; height: 36px; margin: 0 auto 8px; background: #faf5ff; color: #9333ea; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px;">🏫</div>
+            <div style="font-size: 9px; font-weight: 800; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Classes</div>
+            <p id="dash-total-classes" style="font-size: 22px; font-weight: 900; color: #1f2937; margin-top: 2px;">—</p>
         </div>
     </div>
 <!-- NOUVELLE COURBE DE TENDANCE -->
@@ -185,14 +167,6 @@
             <p style="font-size: 10px; color: #6b7280; margin: 2px 0 0 0;">Gérez les encaissements et relances</p>
         </div>
         <div style="font-size: 24px; font-weight: 900; color: #d97706;" id="paiements-attente">0</div>
-    </div>
-<!-- Graphique de présence -->
-    <div class="card-pro anim-up delay-3" style="margin-bottom: 14px;">
-        <div class="flex justify-between items-center mb-3">
-            <p style="font-size: 13px; font-weight: 800; margin: 0;" class="text-gray-800">📊 Taux de présence (Lun - Ven)</p>
-            <span style="font-size: 10px;" class="text-gray-500">Cette semaine</span>
-        </div>
-        <div id="graph-presence-semaine" style="height: 150px; display: flex; align-items: flex-end; gap: 8px; justify-content: space-between; padding: 10px 0;"></div>
     </div>
 
     <div class="divider anim-up delay-4">Gestion de l'école</div>
@@ -285,7 +259,7 @@
         </button>
 
     </div>
-<button onclick="afficherCahierTexteAdmin()" class="btn-float anim-up delay-7" ; margin-bottom: 14px;">
+<button onclick="afficherCahierTexteAdmin()" class="btn-float anim-up delay-7" style="background: linear-gradient(135deg, #0D9488, #14B8A6); margin-bottom: 14px;">
     <div class="btn-icon">📓</div>
     <div class="btn-content">
         <div class="btn-title">Cahier de texte</div>
@@ -297,106 +271,98 @@
 
     <div class="action-grid mb-4">
 <div class="action-tile anim-up delay-8" onclick="afficherDashboard()" style="border: 2px solid #FBBF24;">
-                        <div class="tile-icon" ; color: #D97706;">📊</div>
+                        <div class="tile-icon" style="background: linear-gradient(135deg, #fef3c7, #fde68a); color: #D97706;">📊</div>
                         <div class="tile-label">Tableau de bord</div>
                         <div class="tile-sub">Graphiques</div>
                     </div>
         <div class="action-tile anim-up delay-8" onclick="afficherGestionEleves()">
-            <div class="tile-icon" ; color: #004AAD;">🎓</div>
+            <div class="tile-icon" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #004AAD;">🎓</div>
             <div class="tile-label">Élèves</div>
             <div class="tile-sub">Gérer</div>
         </div>
         <div class="action-tile anim-up delay-8" onclick="afficherGestionEnseignants()">
-            <div class="tile-icon" ; color: #059669;">👨🏾‍🏫</div>
+            <div class="tile-icon" style="background: linear-gradient(135deg, #dcfce7, #bbf7d0); color: #059669;">👨🏾‍🏫</div>
             <div class="tile-label">Enseignants</div>
             <div class="tile-sub">Gérer</div>
         </div>
         <div class="action-tile anim-up delay-8" onclick="afficherGestionClasses()">
-            <div class="tile-icon" ; color: #7C3AED;">🏫</div>
+            <div class="tile-icon" style="background: linear-gradient(135deg, #ede9fe, #ddd6fe); color: #7C3AED;">🏫</div>
             <div class="tile-label">Classes</div>
             <div class="tile-sub">Organiser</div>
         </div>
         <div class="action-tile anim-up delay-8" onclick="afficherRapportAbsencesAdmin()">
-            <div class="tile-icon" ; color: #DC2626;">📊</div>
+            <div class="tile-icon" style="background: linear-gradient(135deg, #fee2e2, #fecaca); color: #DC2626;">📊</div>
             <div class="tile-label">Absences</div>
             <div class="tile-sub">Rapports</div>
         </div>
         <div class="action-tile anim-up delay-8" onclick="afficherStatsGlobales()">
-            <div class="tile-icon" ; color: #2563EB;">📈</div>
+            <div class="tile-icon" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #2563EB;">📈</div>
             <div class="tile-label">Stats</div>
             <div class="tile-sub">École</div>
         </div>
         <div class="action-tile anim-up delay-8" onclick="afficherBulletinsClasse()">
-            <div class="tile-icon" ; color: #D97706;">📄</div>
+            <div class="tile-icon" style="background: linear-gradient(135deg, #fef3c7, #fde68a); color: #D97706;">📄</div>
             <div class="tile-label">Bulletins</div>
             <div class="tile-sub">Générer</div>
         </div>
         <div class="action-tile anim-up delay-8" onclick="afficherAlertesEleves()">
-            <div class="tile-icon" ; color: #DC2626;">⚠️</div>
+            <div class="tile-icon" style="background: linear-gradient(135deg, #fee2e2, #fecaca); color: #DC2626;">⚠️</div>
             <div class="tile-label">Alertes</div>
             <div class="tile-sub">Élèves</div>
         </div>
         <div class="action-tile anim-up delay-8" onclick="afficherPaiementsV2()">
-            <div class="tile-icon" ; color: #059669;">💰</div>
+            <div class="tile-icon" style="background: linear-gradient(135deg, #dcfce7, #bbf7d0); color: #059669;">💰</div>
             <div class="tile-label">Paiements</div>
             <div class="tile-sub">Vue globale</div>
         </div>
         <div class="action-tile anim-up delay-8" onclick="afficherLiensParents()">
-            <div class="tile-icon" ; color: #DB2777;">🔗</div>
+            <div class="tile-icon" style="background: linear-gradient(135deg, #fce7f3, #fbcfe8); color: #DB2777;">🔗</div>
             <div class="tile-label">Liens parents</div>
             <div class="tile-sub">Voir</div>
         </div>
         <div class="action-tile anim-up delay-8" onclick="afficherGestionEmploi()">
-            <div class="tile-icon" ; color: #4338CA;">📅</div>
+            <div class="tile-icon" style="background: linear-gradient(135deg, #e0e7ff, #c7d2fe); color: #4338CA;">📅</div>
             <div class="tile-label">Emploi du temps</div>
             <div class="tile-sub">Planifier</div>
         </div>
         <div class="action-tile anim-up delay-8" onclick="afficherEmploiEnseignants()">
-            <div class="tile-icon" ; color: #D97706;">🗓️</div>
+            <div class="tile-icon" style="background: linear-gradient(135deg, #fef3c7, #fde68a); color: #D97706;">🗓️</div>
             <div class="tile-label">Emploi profs</div>
             <div class="tile-sub">Par prof</div>
         </div>
         <div class="action-tile anim-up delay-8" onclick="afficherHeuresProfs()">
-            <div class="tile-icon" ; color: #0D9488;">🕐</div>
+            <div class="tile-icon" style="background: linear-gradient(135deg, #ccfbf1, #99f6e4); color: #0D9488;">🕐</div>
             <div class="tile-label">Heures profs</div>
             <div class="tile-sub">Suivi</div>
         </div>
         <div class="action-tile anim-up delay-8" onclick="afficherNouvelleAnnonce()">
-            <div class="tile-icon" ; color: #004AAD;">📢</div>
+            <div class="tile-icon" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #004AAD;">📢</div>
             <div class="tile-label">Annonces</div>
             <div class="tile-sub">Publier</div>
         </div>
         <div class="action-tile anim-up delay-8" onclick="afficherSignature()">
-            <div class="tile-icon" ; color: #059669;">🖋️</div>
+            <div class="tile-icon" style="background: linear-gradient(135deg, #dcfce7, #bbf7d0); color: #059669;">🖋️</div>
             <div class="tile-label">Signature</div>
             <div class="tile-sub">École</div>
         </div>
         <div class="action-tile anim-up delay-8" onclick="window.location.href='messagerie.html'">
-            <div class="tile-icon" ; color: #DB2777;">💬</div>
+            <div class="tile-icon" style="background: linear-gradient(135deg, #fce7f3, #fbcfe8); color: #DB2777;">💬</div>
             <div class="tile-label">Messagerie</div>
             <div class="tile-sub">Discuter</div>
         </div>
         <div class="action-tile anim-up delay-8" onclick="afficherAnnonces()">
-            <div class="tile-icon" ; color: #0891B2;">📋</div>
+            <div class="tile-icon" style="background: linear-gradient(135deg, #cffafe, #a5f3fc); color: #0891B2;">📋</div>
             <div class="tile-label">Mes annonces</div>
             <div class="tile-sub">Historique</div>
         </div>
     </div>
 
-    <!-- Alertes récentes -->
-    <div class="card-pro anim-up delay-5 mb-6" style="border-left: 4px solid #E31B23;">
-        <div class="flex items-center gap-2 mb-3">
-            <div class="w-8 h-8 rounded-full bg-red-50 text-edu-red flex items-center justify-center text-sm">⚠️</div>
-            <p class="text-sm font-bold text-gray-800">Alertes récentes</p>
-        </div>
-        <div class="space-y-2">
-            <div class="flex justify-between items-center bg-gray-50 p-2 rounded-lg">
-                <p class="text-xs text-gray-700">Absences non justifiées</p>
-                <span class="chip chip-danger text-[10px]">5 aujourd'hui</span>
-            </div>
-            <div class="flex justify-between items-center bg-gray-50 p-2 rounded-lg">
-                <p class="text-xs text-gray-700">Paiements en retard</p>
-                <span class="chip chip-warning text-[10px]">3 élèves</span>
+    <div class="card-pro anim-up delay-8" style="background: linear-gradient(135deg, #f0f9ff 0%, #dbeafe 100%); border-color: #93c5fd;">
+        <div class="flex items-start gap-3">
+            <div style="font-size: 28px; flex-shrink: 0;">💡</div>
+            <div>
+                <p style="font-size: 12px; font-weight: 800; color: #1e40af; margin-bottom: 4px;">Conseil du jour</p>
+                <p style="font-size: 11px; color: #1e3a8a; line-height: 1.5;">Pensez à vérifier les demandes d'inscription en attente et les paiements à relancer.</p>
             </div>
         </div>
     </div>
@@ -553,7 +519,6 @@
                         <button onclick="afficherGestionEmploi()" class="text-2xl">⬅️</button>
                         <div class="flex-1"><h1 id="titre-emploi-classe" class="text-lg font-bold text-gray-800">...</h1><p class="text-xs text-gray-500">Emploi du temps</p></div>
                     </div>
-<div class="flex-1 overflow-y-auto pt-4 px-4 pb-6">
                     <div class="flex gap-2 mb-3 justify-end">
                         <button onclick="supprimerEmploiComplet(classeEnCours.id)" class="bg-red-50 text-edu-red text-[11px] font-bold px-3 py-2 rounded-lg border border-red-100">🗑️ Vider</button>
                         <button onclick="toggleModeSelectionEmploi()" id="btn-mode-select" class="bg-purple-50 text-edu-purple text-[11px] font-bold px-3 py-2 rounded-lg border border-purple-100">☑️ Sélectionner</button>
@@ -1197,7 +1162,7 @@
                     <!-- Finances -->
                     <div class="card-pro anim-up delay-2" style="margin-bottom: 14px;">
                         <div class="card-title">
-                            <div class="icon-badge"  color: #059669;">💰</div>
+                            <div class="icon-badge" style="background: linear-gradient(135deg, #dcfce7, #bbf7d0); color: #059669;">💰</div>
                             <span>Finances (FCFA)</span>
                         </div>
                         <div id="dash-finances" class="text-center py-2"></div>
@@ -1224,7 +1189,7 @@
                     <!-- Classement des classes -->
                     <div class="card-pro anim-up delay-4" style="margin-bottom: 14px;">
                         <div class="card-title">
-                            <div class="icon-badge" ; color: #D97706;">🏆</div>
+                            <div class="icon-badge" style="background: linear-gradient(135deg, #fef3c7, #fde68a); color: #D97706;">🏆</div>
                             <span>Top 3 des classes</span>
                         </div>
                         <div id="dash-top-classes"></div>
@@ -1489,8 +1454,6 @@ window.CRENEAUX_EDT = window.CRENEAUX_EDT || [
 chargerCourbeTendance();
             chargerBadgeNotifs();
             chargerBadgeDemandes();
-
-chargerGraphPresence();
             chargerBadgeEquipe();
             chargerBadgeMdp();
             setInterval(() => { chargerBadgeNotifs(); chargerBadgeDemandes(); chargerBadgeMdp(); }, 30000);
@@ -1791,7 +1754,7 @@ chargerGraphPresence();
         function afficherLiveEnCours(cours, heureActuelle) {
             var conteneur = document.getElementById('live-en-cours');
             if (cours.length === 0) {
-                conteneur.innerHTML = '<div class="card-pro"><div class="card-title"><div class="icon-badge" ;">🔴</div><span>Aucun cours en ce moment</span></div><p style="font-size: 11px; color: #9ca3af; text-align: center; padding: 8px 0;">Prochain créneau : voir ci-dessous</p></div>';
+                conteneur.innerHTML = '<div class="card-pro"><div class="card-title"><div class="icon-badge" style="background: linear-gradient(135deg, #f3f4f6, #e5e7eb);">🔴</div><span>Aucun cours en ce moment</span></div><p style="font-size: 11px; color: #9ca3af; text-align: center; padding: 8px 0;">Prochain créneau : voir ci-dessous</p></div>';
                 return;
             }
             var html = '<div class="hero-stat" style="--from: #DC2626; --to: #B91C1C; margin-bottom: 10px;">';
@@ -1808,7 +1771,7 @@ chargerGraphPresence();
                 var minutesRestantes = c.fin - heureActuelle;
                 var pct = Math.round((minutesEcoulees / (c.fin - c.debut)) * 100);
                 var badgePointe = c.pointe ? '<span class="chip chip-success" style="font-size: 8px;">✓ Pointé</span>' : '<span class="chip chip-warning" style="font-size: 8px;">⚠️ Non pointé</span>';
-                html += '<div onclick="liveOuvrirDetailCours(' + c.id + ')" ; border-left: 3px solid #DC2626; border-radius: 10px; padding: 10px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.transform=\'scale(1.02)\'" onmouseout="this.style.transform=\'scale(1)\'">';
+                html += '<div onclick="liveOuvrirDetailCours(' + c.id + ')" style="background: linear-gradient(135deg, #fef2f2, #fee2e2); border-left: 3px solid #DC2626; border-radius: 10px; padding: 10px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.transform=\'scale(1.02)\'" onmouseout="this.style.transform=\'scale(1)\'">';
                 html += '<div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 6px;">';
                 html += '<div style="flex: 1; min-width: 0;">';
                 html += '<p style="font-size: 13px; font-weight: 800; color: #991b1b; margin: 0;">' + c.matiere + '</p>';
@@ -1833,11 +1796,11 @@ chargerGraphPresence();
         function afficherLiveProchains(cours, heureActuelle) {
             var conteneur = document.getElementById('live-prochains');
             if (cours.length === 0) {
-                conteneur.innerHTML = '<div class="card-pro"><div class="card-title"><div class="icon-badge" ;">⏰</div><span>Aucun cours dans l\'heure</span></div></div>';
+                conteneur.innerHTML = '<div class="card-pro"><div class="card-title"><div class="icon-badge" style="background: linear-gradient(135deg, #fef3c7, #fde68a);">⏰</div><span>Aucun cours dans l\'heure</span></div></div>';
                 return;
             }
             var html = '<div class="card-pro">';
-            html += '<div class="card-title"><div class="icon-badge" ; color: #D97706;">⏰</div><span>Dans l\'heure (' + cours.length + ')</span></div>';
+            html += '<div class="card-title"><div class="icon-badge" style="background: linear-gradient(135deg, #fef3c7, #fde68a); color: #D97706;">⏰</div><span>Dans l\'heure (' + cours.length + ')</span></div>';
             cours.slice(0, 5).forEach(function(c) {
                 var classeNom = c.classes ? c.classes.nom : 'Sans classe';
                 var profNom = c.enseignants && c.enseignants.utilisateurs ? c.enseignants.utilisateurs.prenom + ' ' + c.enseignants.utilisateurs.nom : 'Prof non assigné';
@@ -1873,12 +1836,12 @@ chargerGraphPresence();
 
             var nbProfs = Object.keys(parProf).length;
             if (nbProfs === 0) {
-                conteneur.innerHTML = '<div class="card-pro"><div class="card-title"><div class="icon-badge" ;">👥</div><span>Aucun prof n\'a pointé</span></div></div>';
+                conteneur.innerHTML = '<div class="card-pro"><div class="card-title"><div class="icon-badge" style="background: linear-gradient(135deg, #f3f4f6, #e5e7eb);">👥</div><span>Aucun prof n\'a pointé</span></div></div>';
                 return;
             }
 
             var html = '<div class="card-pro">';
-            html += '<div class="card-title"><div class="icon-badge" ; color: #059669;">✅</div><span>' + nbProfs + ' prof(s) actif(s) aujourd\'hui</span></div>';
+            html += '<div class="card-title"><div class="icon-badge" style="background: linear-gradient(135deg, #dcfce7, #bbf7d0); color: #059669;">✅</div><span>' + nbProfs + ' prof(s) actif(s) aujourd\'hui</span></div>';
 
             // Récupérer les noms des profs depuis liveDonnees.coursJour
             var nomsProfs = {};
@@ -1916,12 +1879,12 @@ chargerGraphPresence();
         function afficherLiveNonPointes(cours, heureActuelle) {
             var conteneur = document.getElementById('live-non-pointes');
             if (cours.length === 0) {
-                conteneur.innerHTML = '<div class="card-pro"><div class="card-title"><div class="icon-badge" ; color: #059669;">✅</div><span>Tous les cours sont pointés</span></div><p style="font-size: 11px; color: #059669; text-align: center; padding: 8px 0;">Aucun retard détecté</p></div>';
+                conteneur.innerHTML = '<div class="card-pro"><div class="card-title"><div class="icon-badge" style="background: linear-gradient(135deg, #dcfce7, #bbf7d0); color: #059669;">✅</div><span>Tous les cours sont pointés</span></div><p style="font-size: 11px; color: #059669; text-align: center; padding: 8px 0;">Aucun retard détecté</p></div>';
                 return;
             }
 
             var html = '<div class="card-pro" style="border-left: 4px solid #F59E0B;">';
-            html += '<div class="card-title"><div class="icon-badge" ; color: #DC2626;">⚠️</div><span>' + cours.length + ' cours non pointé(s)</span></div>';
+            html += '<div class="card-title"><div class="icon-badge" style="background: linear-gradient(135deg, #fee2e2, #fecaca); color: #DC2626;">⚠️</div><span>' + cours.length + ' cours non pointé(s)</span></div>';
             cours.slice(0, 5).forEach(function(c) {
                 var classeNom = c.classes ? c.classes.nom : 'Sans classe';
                 var profNom = c.enseignants && c.enseignants.utilisateurs ? c.enseignants.utilisateurs.prenom + ' ' + c.enseignants.utilisateurs.nom : 'Prof non assigné';
@@ -1956,17 +1919,17 @@ chargerGraphPresence();
             var salles = Object.keys(sallesSet);
 
             if (salles.length === 0) {
-                conteneur.innerHTML = '<div class="card-pro"><div class="card-title"><div class="icon-badge" ;">🏫</div><span>Aucune salle occupée</span></div></div>';
+                conteneur.innerHTML = '<div class="card-pro"><div class="card-title"><div class="icon-badge" style="background: linear-gradient(135deg, #f3f4f6, #e5e7eb);">🏫</div><span>Aucune salle occupée</span></div></div>';
                 return;
             }
 
             var html = '<div class="card-pro">';
-            html += '<div class="card-title"><div class="icon-badge" ; color: #2563EB;">🏫</div><span>' + salles.length + ' salle(s) occupée(s)</span></div>';
+            html += '<div class="card-title"><div class="icon-badge" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #2563EB;">🏫</div><span>' + salles.length + ' salle(s) occupée(s)</span></div>';
             html += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">';
             salles.forEach(function(s) {
                 var cours = sallesSet[s][0];
                 var classeNom = cours.classes ? cours.classes.nom : '';
-                html += '<div ; border-radius: 10px; padding: 10px; border: 1px solid #93c5fd;">';
+                html += '<div style="background: linear-gradient(135deg, #eff6ff, #dbeafe); border-radius: 10px; padding: 10px; border: 1px solid #93c5fd;">';
                 html += '<p style="font-size: 13px; font-weight: 800; color: #1e40af; margin: 0;">📍 ' + s + '</p>';
                 html += '<p style="font-size: 10px; color: #1e3a8a; margin: 3px 0 0 0;">' + cours.matiere + '</p>';
                 html += '<p style="font-size: 9px; color: #6b7280; margin: 2px 0 0 0;">' + classeNom + '</p>';
@@ -2087,11 +2050,11 @@ chargerGraphPresence();
             var heuresJour = (totalMinutes / 60).toFixed(1);
 
             var html = '<div class="card-pro">';
-            html += '<div class="card-title"><div class="icon-badge" ; color: #7C3AED;">📊</div><span>Bilan du jour</span></div>';
+            html += '<div class="card-title"><div class="icon-badge" style="background: linear-gradient(135deg, #ede9fe, #ddd6fe); color: #7C3AED;">📊</div><span>Bilan du jour</span></div>';
             html += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">';
-            html += '<div ; border-radius: 10px; padding: 10px; text-align: center;"><p style="font-size: 9px; color: #6b7280; margin: 0; text-transform: uppercase; font-weight: 700;">Cours prévus</p><p style="font-size: 22px; font-weight: 900; color: #1e40af; margin: 4px 0 0 0;">' + totalCours + '</p></div>';
-            html += '<div ; border-radius: 10px; padding: 10px; text-align: center;"><p style="font-size: 9px; color: #6b7280; margin: 0; text-transform: uppercase; font-weight: 700;">Réalisés</p><p style="font-size: 22px; font-weight: 900; color: #059669; margin: 4px 0 0 0;">' + coursRealises + '</p></div>';
-            html += '<div ; border-radius: 10px; padding: 10px; text-align: center;"><p style="font-size: 9px; color: #6b7280; margin: 0; text-transform: uppercase; font-weight: 700;">Taux</p><p style="font-size: 22px; font-weight: 900; color: #D97706; margin: 4px 0 0 0;">' + tauxRealisation + '%</p></div>';
+            html += '<div style="background: linear-gradient(135deg, #eff6ff, #dbeafe); border-radius: 10px; padding: 10px; text-align: center;"><p style="font-size: 9px; color: #6b7280; margin: 0; text-transform: uppercase; font-weight: 700;">Cours prévus</p><p style="font-size: 22px; font-weight: 900; color: #1e40af; margin: 4px 0 0 0;">' + totalCours + '</p></div>';
+            html += '<div style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border-radius: 10px; padding: 10px; text-align: center;"><p style="font-size: 9px; color: #6b7280; margin: 0; text-transform: uppercase; font-weight: 700;">Réalisés</p><p style="font-size: 22px; font-weight: 900; color: #059669; margin: 4px 0 0 0;">' + coursRealises + '</p></div>';
+            html += '<div style="background: linear-gradient(135deg, #fef3c7, #fde68a); border-radius: 10px; padding: 10px; text-align: center;"><p style="font-size: 9px; color: #6b7280; margin: 0; text-transform: uppercase; font-weight: 700;">Taux</p><p style="font-size: 22px; font-weight: 900; color: #D97706; margin: 4px 0 0 0;">' + tauxRealisation + '%</p></div>';
             html += '<div style="background: linear-gradient(135deg, #fce7f3, #fbcfe8); border-radius: 10px; padding: 10px; text-align: center;"><p style="font-size: 9px; color: #6b7280; margin: 0; text-transform: uppercase; font-weight: 700;">Heures</p><p style="font-size: 22px; font-weight: 900; color: #DB2777; margin: 4px 0 0 0;">' + heuresJour + 'h</p></div>';
             html += '<div style="background: linear-gradient(135deg, #fee2e2, #fecaca); border-radius: 10px; padding: 10px; text-align: center; grid-column: span 2;"><p style="font-size: 9px; color: #6b7280; margin: 0; text-transform: uppercase; font-weight: 700;">Absences élèves aujourd\'hui</p><p style="font-size: 22px; font-weight: 900; color: #DC2626; margin: 4px 0 0 0;">' + nbAbsencesEleves + '</p></div>';
             html += '</div></div>';
@@ -8159,50 +8122,6 @@ async function ouvrirFichierSecurise(url, nomFichier) {
 
             toast.success("Justification " + (estValide ? "validée" : "refusée") + " !");
             afficherJustificationsAdmin();
-        }
-// ════════════ GRAPHIQUE DE PRÉSENCE ════════════
-        async function chargerGraphPresence() {
-            var conteneur = document.getElementById('graph-presence-semaine');
-            if (!conteneur) return;
-
-            var res = await supabaseClient.from('absences').select('date_absence').eq('ecole_id', monEcoleId);
-            var absences = res.data || [];
-
-            var jours = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven'];
-            var today = new Date();
-            var dataSemaine = [];
-            var maxAbsences = 1;
-
-            for (var i = 4; i >= 0; i--) {
-                var d = new Date(today);
-                d.setDate(d.getDate() - i);
-                if (d.getDay() === 0 || d.getDay() === 6) continue; 
-
-                var dateStr = d.toISOString().split('T')[0];
-                var absJour = absences.filter(function(a) { return a.date_absence === dateStr; }).length;
-                if (absJour > maxAbsences) maxAbsences = absJour;
-                
-                dataSemaine.push({ jour: jours[d.getDay() - 1], absents: absJour });
-            }
-
-            var html = '';
-            dataSemaine.forEach(function(item) {
-                var pct = (item.absents / maxAbsences) * 100;
-                if (pct < 10) pct = 10; 
-                
-                // On utilise le rouge de ton Brand Book si > 5 absents, sinon le bleu
-                var couleur = item.absents > 5 ? '#E31B23' : '#004AAD'; 
-
-                html += '<div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%;">';
-                // Texte de la valeur (on utilise une classe pour qu'il s'adapte)
-                html += '<span style="font-size: 10px; font-weight: bold; color: ' + couleur + '; margin-bottom: 4px;">' + item.absents + '</span>';
-                html += '<div style="width: 100%; max-width: 30px; height: ' + pct + '%; background: ' + couleur + '; border-radius: 6px 6px 0 0; transition: height 0.5s ease;"></div>';
-                // Texte du jour
-                html += '<span style="font-size: 10px; font-weight: 600; margin-top: 6px;">' + item.jour + '</span>';
-                html += '</div>';
-            });
-
-            conteneur.innerHTML = html;
         }
 async function seDeconnecter() { 
             await supabaseClient.auth.signOut(); // Détruit le JWT Supabase

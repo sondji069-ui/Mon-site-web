@@ -9,7 +9,6 @@
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link rel="stylesheet" href="dashboard.css">
@@ -64,21 +63,23 @@
 
     <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col h-auto min-h-[600px]">
         <div id="page-dashboard" class="flex-1 flex-col flex">
-            <!-- TOP BAR ENSEIGNANT -->
-            <div class="bg-white text-gray-900 p-5 border-b border-gray-100 sticky top-0 z-50">
-                <div class="flex justify-between items-center">
+            <div class="bg-gradient-to-br from-edu-green via-emerald-600 to-green-700 text-white p-5 pb-8 relative">
+                <div class="flex justify-between items-start mb-4 relative z-10">
                     <div>
-                        <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-0.5">Bonjour,</p>
-                        <h1 id="welcome-message" class="text-lg font-black tracking-tight">Chargement...</h1>
-                        <p id="ecole-nom-affiche" class="text-[11px] text-gray-500 font-semibold mt-0.5">...</p>
+                        <p class="text-xs opacity-80 mb-1">Bonjour,</p>
+                        <h1 id="welcome-message" class="text-xl font-bold">Chargement...</h1>
+                        <p id="ecole-nom-affiche" class="text-xs opacity-90 mt-1">...</p>
+                        <p id="selecteur-classe-ens" class="hidden text-[10px] mt-1">
+                            <select id="ens-classe-select" onchange="ensChangerClasse()" class="bg-white bg-opacity-20 text-white text-[11px] font-semibold px-2 py-1 rounded-lg border border-white border-opacity-30 w-full mt-1"></select>
+                        </p>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button onclick="window.location.href='profil.html'" id="avatar-header" class="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center text-lg hover:bg-gray-200 transition overflow-hidden border border-gray-200">👤</button>
-                        <button onclick="afficherNotifications()" class="relative w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center text-lg hover:bg-gray-200 transition">
+                        <button onclick="window.location.href='profil.html'" id="avatar-header" class="w-9 h-9 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-lg hover:bg-opacity-30 transition overflow-hidden">👤</button>
+                        <button onclick="afficherNotifications()" class="relative w-9 h-9 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-lg hover:bg-opacity-30 transition">
                             🔔
-                            <span id="badge-notif" class="hidden absolute -top-1 -right-1 bg-edu-red text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white"></span>
+                            <span id="badge-notif" class="hidden absolute -top-1 -right-1 bg-edu-red text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center"></span>
                         </button>
-                        <button onclick="seDeconnecter()" class="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center text-lg hover:bg-gray-200 transition">🚪</button>
+                        <button onclick="seDeconnecter()" class="w-9 h-9 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-lg hover:bg-opacity-30 transition">🚪</button>
                     </div>
                 </div>
             </div>
@@ -107,26 +108,15 @@
                         <div class="btn-arrow">→</div>
                     </button>
 
-                    <div class="card-pro anim-up delay-1" style="background: linear-gradient(145deg, #ffffff, #f0fdf4); border: 1px solid #bbf7d0; margin-bottom: 14px; border-radius: 24px; padding: 20px; position: relative; overflow: hidden;">
-                        <!-- Halo décoratif -->
-                        <div style="position: absolute; top: -30px; right: -30px; width: 100px; height: 100px; background: #bbf7d0; border-radius: 50%; filter: blur(30px); opacity: 0.5;"></div>
-                        
-                        <div class="flex items-center justify-between relative z-10">
-                            <div class="flex items-center gap-2">
-                                <div class="w-8 h-8 rounded-full bg-green-100 text-edu-green flex items-center justify-center text-sm">📚</div>
-                                <p class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Ma classe</p>
-                            </div>
-                            <!-- Le sélecteur de classe garde son style mais s'adapte au fond -->
-                            <p id="selecteur-classe-ens" class="hidden">
-                                <select id="ens-classe-select" onchange="ensChangerClasse()" class="bg-white text-gray-800 text-[11px] font-bold px-2 py-1 rounded-lg border border-gray-200 shadow-sm outline-none"></select>
-                            </p>
+                    <div class="hero-stat anim-up delay-1" style="--from: #059669; --to: #047857; margin-bottom: 14px;">
+                        <div class="hero-stat-icon">📚</div>
+                        <div class="hero-stat-label">Ma classe</div>
+                        <div class="flex items-center justify-between mt-2" style="position: relative; z-index: 2;">
+                            <h2 id="classe-enseignant" style="font-size: 26px; font-weight: 900; letter-spacing: -0.5px;">...</h2>
                         </div>
-                        
-                        <h2 id="classe-enseignant" class="text-3xl font-black text-gray-900 tracking-tight mt-3 relative z-10">...</h2>
-                        
-                        <div class="flex items-center gap-2 mt-2 relative z-10">
-                            <span id="matiere-enseignant" class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-1 rounded">...</span>
-                            <span id="nb-eleves" class="bg-gray-100 text-gray-600 text-[10px] font-bold px-2 py-1 rounded">...</span>
+                        <div class="flex items-center gap-2 mt-3" style="position: relative; z-index: 2;">
+                            <span id="matiere-enseignant" class="chip" style="background: rgba(255,255,255,0.2); color: white;">...</span>
+                            <span id="nb-eleves" class="chip" style="background: rgba(255,255,255,0.2); color: white;">...</span>
                         </div>
                     </div>
 
